@@ -19,6 +19,7 @@ _The Art of R Programming_ is an excellent book treat R as a programming environ
 This book is currently in a very rough draft mode.  As such, the writing needs more polish as well.  The current book is rapidly evolving.  
 
 Topics to consider in the future:
+
 * Matrix construction of DEA LPs (Chapter 3)
 * Output-oriented model (Half done in Chapter 4)
 * Slack maximization
@@ -39,6 +40,7 @@ Topics to consider in the future:
     + Comparison of results
 
 Some issues to consider about the book are the following:
+
 * Should data frames be used instead of matrices?
 * Building a bibliography
 * Potential publication outlet(s)
