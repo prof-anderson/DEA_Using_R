@@ -1,0 +1,166 @@
+# Multiplier Models
+
+Introduction
+-----------------------------
+Every linear program has a related alter ego referred to as the dual.  By duality, the two models have the same optimal objective function values.  In DEA, the multiplier models are simply the dual of the envelopment models.  In terms of the matrix representations of DEA given in chapter 3, the A matrix is transposed, rows give way to columns and columns become rows.  The right hand side values appear in the objective function while the previous objective function coefficients become right hand side values.  More could be said about this but will be deferred for people interested in duality or more algorithmic aspects of linear programming.  
+
+Let's turn our attention instead to deriving the DEA model through a ratio.  
+
+
+##The Ratio Model
+
+Put yourself as a competitor trying to argue that you are the best in converting inputs into outputs among a set of other units.  You have data on what the competitors' inputs and outputs.  You can 
+
+Linear Programs for the Multiplier Models
+-----------------------------
+
+On the other hand, what if it allowed for blending of units.  There are a few assumptions that we could make.  Let's start by saying that we can compare any particular products by rescaling (up or down) any other product as well as any combination of units.  
+
+We'll start by creating a mathematical framework. Can you find a combination of units that produces at least as much output using less input?  Let's define the proportion of input needed as $\theta$.  A value of $\theta=1$ then means no input reduction can be found in order to produce that unit's level of output.  The blend of other units is described by a vector $\lambda$.  Another way to denote this is $\lambda_j$ is the specific amount of a unit _j_ used in setting the target for for performance for unit _k_.  Similarly, $x_j$ is the amount of input used by unit _j_ and $y_j$ is the amount of output produced by unit _j_.  
+
+This can be easily expanded to the multiple input and multiple output case by defining $x_i,j$ to  be the amount of the _i_'th input used by unit _j_ and $y_r,j$ to be the amount of the _r_'th output produced by unit _j_.  For simplicity, this example will focus on the one input and one output case rather than the _m_ input and _s_ output case but the R code explicitly allows for $m,s>1$.  To make the code more readable, I will use which corresponds to _NX_ instead of _m_ to refer to the number of inputs (x's) and _NY_ to be the number of ouputs (y's) instead of _s_. Also, _n_ is used to denote the number of Decision Making Units (DMUs) and therefore I'll use _ND_ to indicate that in the R code.  
+
+We have two important sets of variables now.  The first is $u_r$ which is the weight on the r'th output.  The second is $v_i$ which is the weight on the i'th input.  
+
+The multiplier model can be thought of as finding a weighting scheme for outputs over inputs that give you the best possible score while giving no one better than _1.0._
+
+$$
+ \begin{aligned}
+    \text {max } \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
+    \text{subject to } & \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} }
+                          \leq 1 \forall \; j\\
+                       u_r, v_i\geq 0  \; \forall \; r,i
+  \end{aligned}
+$$
+
+This isn't a linear program because we are dividing functions of variables by functions of variables.  We need to make a few transformations.  First, we clear the denominator of each of the consraints resulting in the following formulation.
+
+
+
+$$
+ \begin{aligned}
+    \text {max } \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
+    \text{subject to } & \sum_{r=1}^{N^Y} u_r y_{r,k} - \sum_{i=1}^{N^X} v_i x_{i,k} 
+                          \leq 0 \forall \; j\\
+                       u_r, v_i\geq 0  \; \forall \; r,i
+  \end{aligned}
+$$
+
+Now we will convert the problem input and output constraints from inequalities into equalities by explicitly defining slack variables.  
+
+There are an infinite number of possible combinations of numerators and denominators that can give the same ratio.  The next step is to select normalizing value for the objective function.  Let's set the denominator equal to one.  In this case, we simply add a constraint, $\sum_{i=1}^{N^X} v_i x_{i,k}$, to the linear program.  
+
+
+$$
+ \begin{aligned}
+    \text {max } \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
+    \text{subject to } & \sum_{i=1}^{N^X} v_i x_{i,k} \\
+    & \sum_{r=1}^{N^Y} u_r y_{r,k} - \sum_{i=1}^{N^X} v_i x_{i,k} 
+                          \leq 0 \forall \; j\\
+                       u_r, v_i\geq 0  \; \forall \; r,i
+  \end{aligned}
+$$
+
+## Creating the LP - The Algebraic Approach
+
+We will implement this using the ompr package again.
+
+We're going to use our data from earlier.  For this example, we will use the dataset from Kenneth Baker's third edition of _Optimization Modeling with Spreadsheets_, pages 175-178, Example 5.3 titled "Hope Valley Health Care Association." In this case, a health care organization wants to benchmark six nursing homes against each other.
+
+```{r multiplier_model }
+
+library(dplyr)            # For data structure manipulation
+library(ROI)              # R Optimization Interface package
+library(ROI.plugin.glpk)  # Connection to glpk as solver
+library(ompr)             # Optimization Modeling using R
+library(ompr.roi)         # Connective tissue
+
+  XBaker1 <- matrix(c(150, 400, 320, 520, 350, 320, .2, 0.7, 1.2, 2.0, 1.2, 0.7),
+                  ncol=2,dimnames=list(LETTERS[1:6],c("x1", "x2")))
+
+  YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 3500, 21000, 10500, 
+                    42000, 25000, 15000),
+                  ncol=2,dimnames=list(LETTERS[1:6],c("y1", "y2")))
+
+ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1); # Define data size
+
+xdata      <-XBaker1 [1:ND,]  # Call it xdata
+dim(xdata) <-c(ND,NX)  # structure data correctly
+ydata      <-YBaker1[1:ND,]
+dim(ydata) <-c(ND,NY)
+  
+```
+
+Remember the inputs are hard coded as "x1" and"x2" to represent the _staff hours per day_ and the _supplies per day_ respectively.  The two outputs of _reimbursed patient-days_ and _privately paid patient-days_ are named "y1" and "y2".  
+
+```{r}
+YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 3500, 21000, 10500, 
+                    42000, 25000, 15000),
+                  ncol=2,dimnames=list(LETTERS[1:6],c("y1", "y2")))
+
+ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1); # Define data size
+
+```
+
+Note that I'm naming the data sets based on their origin and then loading them into xdata and ydata for actual operation.
+
+```{r Structure_Results}
+# Need to remember to restructure the results matrices.
+
+results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
+results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
+results.vweight    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
+results.uweight    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
+results.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
+results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
+```
+
+We are now ready to do the analysis.  In Baker, the analysis is done using the multiplier model.  In chapter 2 we used the envelopment model to examine this case.  Now we will use the multiplier model.
+
+```{r Baker_example, eval=TRUE}
+
+for (k in 1:ND) {
+
+  result <- MIPModel() %>%
+  add_variable(vweight[i], i = 1:NX, type = "continuous", lb = 0) %>%
+  add_variable(uweight[r], r = 1:NY, type = "continuous", lb = 0) %>%
+  set_objective(sum_expr(uweight[r] * ydata[k,r], r = 1:NY), "max") %>%
+  add_constraint(sum_expr(vweight[i] * xdata[k,i], i = 1:NX) == 1) %>%
+  add_constraint((sum_expr(uweight[r] * ydata[j,r], r = 1:NY)-
+                    sum_expr(vweight[i] * xdata[j,i], i = 1:NX)) 
+                 <= 0, j = 1:ND)
+  result
+
+  result <- solve_model(result, with_ROI(solver = "glpk", verbose = FALSE))
+  results.efficiency[k] <- objective_value (result) 
+
+  # Get the weights - Output weights
+  tempvweight <- get_solution(result, vweight[i])
+  results.vweight[k,] <- tempvweight[,3]
+
+  # Get the weights- Input weights
+  tempuweight <- get_solution(result, uweight[i])
+  results.uweight[k,] <- tempuweight[,3]
+
+ }
+
+print (results.efficiency)
+print (results.vweight)
+print (results.uweight)
+
+```
+
+The weights from the multiplier model often have multiple alternative solutions-in other words, different values for decision variables that give the same objective function value.  In optimization, this situation is called multiple optima.  In DEA this means that the weights may be different depending upon the particular settings used for solving the linear program.  The result is that you should be careful in over interpreting the weights as well as in how you interpret results when trying to reproduce analyses.
+
+
+
+## Future Issues
+
+Issues to consider in the future for this chapter or other chapters.
+* Weak vs. strong efficiency
+* Non-Archimedean Infinitesimal
+* Weight restrictions
+* Cross-efficiency
+* Adding output-oriented multiplier model
+* Adding returns to scale to multiplier model
+

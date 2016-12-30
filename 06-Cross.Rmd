@@ -1,0 +1,530 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+# Cross-Efficiency
+
+Introduction
+-----------------------------
+Every linear program has a related alter ego referred to as the dual.  By duality, the two models have the same optimal objective function values.  In DEA, the multiplier models are simply the dual of the envelopment models.  In terms of the matrix representations of DEA given in chapter 3, the A matrix is transposed, rows give way to columns and columns become rows.  The right hand side values appear in the objective function while the previous objective function coefficients become right hand side values.  More could be said about this but will be deferred for people interested in duality or more algorithmic aspects of linear programming.  
+
+Let's turn our attention instead to deriving the DEA model through a ratio.  
+
+##The Ratio Model
+
+Put yourself as a competitor trying to argue that you are the best in converting inputs into outputs among a set of other units.  You have data on what the competitors' inputs and outputs.  You can 
+
+The Linear Programs for DEA
+-----------------------------
+
+On the other hand, what if it allowed for blending of units.  There are a few assumptions that we could make.  Let's start by saying that we can compare any particular products by rescaling (up or down) any other product as well as any combination of units.  
+
+We'll start by creating a mathematical framework. Can you find a combination of units that produces at least as much output using less input?  Let's define the proportion of input needed as $\theta$.  A value of $\theta=1$ then means no input reduction can be found in order to produce that unit's level of output.  The blend of other units is described by a vector $\lambda$.  Another way to denote this is $\lambda_j$ is the specific amount of a unit _j_ used in setting the target for for performance for unit _k_.  Similarly, $x_j$ is the amount of input used by unit _j_ and $y_j$ is the amount of output produced by unit _j_.  
+
+This can be easily expanded to the multiple input and multiple output case by defining $x_i,j$ to  be the amount of the _i_'th input used by unit _j_ and $y_r,j$ to be the amount of the _r_'th output produced by unit _j_.  For simplicity, this example will focus on the one input and one output case rather than the _m_ input and _s_ output case but the R code explicitly allows for $m,s>1$.  To make the code more readable, I will use which corresponds to _NX_ instead of _m_ to refer to the number of inputs (x's) and _NY_ to be the number of ouputs (y's) instead of _s_. Also, _n_ is used to denote the number of Decision Making Units (DMUs) and therefore I'll use _ND_ to indicate that in the R code.  
+
+We have two important sets of variables now.  The first is $u_r$ which is the weight on the r'th output.  The second is $v_i$ which is the weight on the i'th input.  
+
+The multiplier model can be thought of as finding a weighting scheme for outputs over inputs that give you the best possible score while giving no one better than _1.0._
+
+$$
+ \begin{aligned}
+    \text {max } \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
+    \text{subject to } & \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} }
+                          \leq 1 \forall \; j\\
+                       u_r, v_i\geq 0  \; \forall \; r,i
+  \end{aligned}
+$$
+
+This isn't a linear program because we are dividing functions of variables by functions of variables.  We need to make a few transformations.  First, we clear the denominator of each of the consraints resulting in the following formulation.
+
+$$
+ \begin{aligned}
+    \text {max } \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
+    \text{subject to } & \sum_{r=1}^{N^Y} u_r y_{r,k} - \sum_{i=1}^{N^X} v_i x_{i,k} 
+                          \leq 0 \forall \; j\\
+                       u_r, v_i\geq 0  \; \forall \; r,i
+  \end{aligned}
+$$
+
+Now we will convert the problem input and output constraints from inequalities into equalities by explicitly defining slack variables.  
+
+There are an infinite number of possible combinations of numerators and denominators that can give the same ratio.  The next step is to select normalizing value for the objective function.  Let's set the denominator equal to one.  In this case, we simply add a constraint, $\sum_{i=1}^{N^X} v_i x_{i,k}$, to the linear program.  
+
+
+$$
+ \begin{aligned}
+    \text {max }  \sum_{r=1}^{N^Y} u_r y_{r,k} \\
+    \text{subject to } & \sum_{i=1}^{N^X} v_i x_{i,k} \\
+    & \sum_{r=1}^{N^Y} u_r y_{r,k} - \sum_{i=1}^{N^X} v_i x_{i,k} 
+                          \leq 0 \forall \; j\\
+                       u_r, v_i\geq 0  \; \forall \; r,i
+  \end{aligned}
+$$
+
+## Creating the LP - The Algebraic Approach
+
+We will implement this using the ompr package again.
+
+We're going to use our data from earlier.  For this example, we will use the dataset from Kenneth Baker's third edition of _Optimization Modeling with Spreadsheets_, pages 175-178, Example 5.3 titled "Hope Valley Health Care Association." In this case, a health care organization wants to benchmark six nursing homes against each other.
+
+```{r multiplier_model }
+
+
+library(dplyr)            # For data structure manipulation
+library(ROI)              # R Optimization Interface package
+library(ROI.plugin.glpk)  # Connection to glpk as solver
+library(ompr)             # Optimization Modeling using R
+library(ompr.roi)         # Connective tissue
+
+  XBaker1 <- matrix(c(150, 400, 320, 520, 350, 320, .2, 0.7, 1.2, 2.0, 1.2, 0.7),
+                  ncol=2,dimnames=list(LETTERS[1:6],c("x1", "x2")))
+
+  YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 3500, 21000, 10500, 
+                    42000, 25000, 15000),
+                  ncol=2,dimnames=list(LETTERS[1:6],c("y1", "y2")))
+
+ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1); # Define data size
+
+xdata      <-XBaker1 [1:ND,]  # Call it xdata
+dim(xdata) <-c(ND,NX)  # structure data correctly
+ydata      <-YBaker1[1:ND,]
+dim(ydata) <-c(ND,NY)
+  
+```
+
+Remember the inputs are hard coded as "x1" and"x2" to represent the _staff hours per day_ and the _supplies per day_ respectively.  The two outputs of _reimbursed patient-days_ and _privately paid patient-days_ are named "y1" and "y2".  
+
+```{r}
+YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 3500, 21000, 10500, 
+                    42000, 25000, 15000),
+                  ncol=2,dimnames=list(LETTERS[1:6],c("y1", "y2")))
+
+ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1); # Define data size
+
+```
+
+Note that I'm naming the data sets based on their origin and then loading them into xdata and ydata for actual operation.
+
+```{r Structure_Results}
+# Need to remember to restructure the results matrices.
+
+results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
+results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
+results.vweight    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
+results.uweight    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
+results.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
+results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
+```
+
+We are now ready to do the analysis.  In Baker, the analysis was done using the multiplier model.  In chapter 2 we used the envelopment model to examine this case.  Now we will use the multiplier model using the DEAMultiplerModel package by Aurobindh Kalathil Puthanpura.  
+
+```{r}
+library (MultiplierDEA)
+
+# Example from Kenneth R. Baker: Optimization Modeling with Spreadsheets, Third Edition, p. 176, John Wiley & Sons, Inc.
+dmu <- c("A", "B", "C", "D", "E", "F")
+x <- data.frame(c(150,400,320,520,350,320),c(0.2,0.7,1.2,2.0,1.2,0.7))
+rownames(x) <- dmu
+colnames(x)[1] <- c("StartHours")
+colnames(x)[2] <- c("Supplies")
+y <- data.frame(c(14,14,42,28,19,14),c(3.5,21,10.5,42,25,15))
+rownames(y) <- dmu
+colnames(y)[1] <- c("Reimbursed")
+colnames(y)[2] <- c("Private")
+# Calculate the efficiency score
+result <- DeaMultiplierModel(x,y,"crs", "input")
+# Examine the efficiency score for DMUs
+print(result$Efficiency)
+```
+
+The efficiency scores match the earlier results and that of Baker.  
+
+The package also includes a cross-efficiency calculation function so as to find the cross-efficiencies given the multiplier model.  Cross-efficiency calculated in this way tends to suffer from frequent cases of multiple optima.  Later in this chapter, we will explore how to handle these issues. For now, let's apply cross-efficiency to the same data set.  
+
+```{r}
+# Example from Kenneth R. Baker: Optimization Modeling with Spreadsheets, 
+#    Third Edition, p. 176, John Wiley & Sons, Inc.
+dmu <- c("A", "B", "C", "D", "E", "F")
+x <- data.frame(c(150,400,320,520,350,320),c(0.2,0.7,1.2,2.0,1.2,0.7))
+rownames(x) <- dmu
+colnames(x)[1] <- c("StartHours")
+colnames(x)[2] <- c("Supplies")
+y <- data.frame(c(14,14,42,28,19,14),c(3.5,21,10.5,42,25,15))
+rownames(y) <- dmu
+colnames(y)[1] <- c("Reimbursed")
+colnames(y)[2] <- c("Private")
+# Calculate the efficiency score
+result <- CrossEfficiency(x,y,"crs", "input")
+# Examine the cross efficiency score for DMUs
+print(result$ce_ave)
+
+```
+
+As might be expected, the cross-efficiency values are all significantly lower than the original efficiency scores.  In cross-efficiency, no nursing home is able to pick an extreme and unique weighting scheme to their advantage.  It also tends to break the ties at 1.0 that frequently occur in DEA so it usually gives a unique ranking.  These features come at a significant cost though which will be discussed in more detail in the future.
+
+## Implementing Cross-Efficiency
+
+Let's revisit the baker model again.  
+
+```{r Baker_cross, eval=TRUE}
+
+multiplierIO <- function (x,y) 
+  { 
+
+  ND <- nrow(x); NX <- ncol(y); NY <- ncol(y); # Define data size
+  
+  results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
+  results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
+  results.vweight    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
+  results.uweight    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
+
+    for (k in 1:ND) {
+
+    result <- MIPModel() %>%
+    add_variable(vweight[i], i = 1:NX, type = "continuous", lb = 0) %>%
+    add_variable(uweight[r], r = 1:NY, type = "continuous", lb = 0) %>%
+    set_objective(sum_expr(uweight[r] * y[k,r], r = 1:NY), "max") %>%
+    add_constraint(sum_expr(vweight[i] * x[k,i], i = 1:NX) == 1) %>%
+    add_constraint((sum_expr(uweight[r] * y[j,r], r = 1:NY)-
+                    sum_expr(vweight[i] * x[j,i], i = 1:NX)) 
+                  <= 0, j = 1:ND)
+    result
+
+    result <- solve_model(result, with_ROI(solver = "glpk", verbose = FALSE))
+    results.efficiency[k] <- objective_value (result) 
+
+    # Get the weights - Output weights
+    tempvweight <- get_solution(result, vweight[i])
+    results.vweight[k,] <- tempvweight[,3]
+
+   # Get the weights- Input weights
+    tempuweight <- get_solution(result, uweight[i])
+    results.uweight[k,] <- tempuweight[,3]
+
+  } # End of for k loop
+  
+  resultlist <- list(efficiency=results.efficiency, 
+                     vweight=results.vweight, uweight=results.uweight)
+ 
+  return(resultlist)  
+
+} # End of function  
+
+print (results.efficiency)
+print (results.vweight)
+print (results.uweight)
+
+resfunc <- multiplierIO(x,y)
+print (resfunc$efficiency)
+
+```
+
+You can think of the cross-efficiency by going back to revisit the original ratio model of the multiplier model.  Let's extend the definition of the input and output weights to reflect for which unit the weights were determined.  For example, $u_{r,k}$ is then the weight on output r when analyzed from the perspetive of DMU k and a similar interpretation applies to input weight.  
+
+
+$$
+ \begin{aligned}
+    \text {max } \frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,k}} {\sum_{i=1}^{N^X} v_i,k x_{i,k} } \\
+    \text{subject to } & \theta_{j,k}=\frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,k}} {\sum_{i=1}^{N^X} v_{i,k} x_{i,k} }
+                          \leq 1 \forall \; j\\
+                       u_r, v_i\geq 0  \; \forall \; r,i
+  \end{aligned}
+$$
+
+Now the cross-efficiency for a unit j can be calculated as the following.  I refer to the value $\theta_{k,j}$ as the cross-evaluation score for unit _j_ from the perspective of the evaluation of unit _k_.
+
+$$
+ \begin{aligned}
+    \frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,k}} {\sum_{i=1}^{N^X} v_i,k x_{i,k} } \\
+    \text{subject to } & \theta_{k,j} = \frac{\sum_{r=1}^
+                 {N^Y} u_{r,k} y_{r,k}} {\sum_{i=1}^{N^X} v_{i,k} x_{i,k} }
+                          \leq 1 \forall \; j\\
+                       u_r, v_i\geq 0  \; \forall \; r,i
+  \end{aligned}
+$$
+
+Now, the cross-efficiency score for unit _j_ is simply the average of all of the cross-evaluation scores given to _j_ by the other units when they do their analysis.
+
+$$
+ \begin{aligned}
+    CE_j= \frac {\sum_{k=1}^{N^D}\theta_{k,j}} {N^D}
+        = \frac {\sum_{k=1}^{N^D} {
+                        \frac {\sum_{r=1}^{N^Y} u_{r,k} y_{r,j} } 
+                       {\sum_{i=1}^{N^X} v_{i,k} x_{i,j} } }    }
+                {N^D}
+  \end{aligned}
+$$
+
+```{r}
+results.crosseval  <- matrix(rep(-1.0, ND*ND), nrow=ND,ncol=ND) 
+results.crosseff   <- matrix(rep(-1.0, ND)) 
+
+for (k in 1:ND) {
+   for (j in 1:ND) {results.crosseval[k,j]<-sum(results.uweight[k,]*ydata[j,])/sum(results.vweight[k,]*xdata[j,])
+                   }
+}
+results.crosseval
+
+for (j in 1:ND) {results.crosseff[j]<-sum(results.crosseval[,j])/ND}
+results.crosseff
+
+```
+
+Notice that the values on the diagonal, $\theta_{k,k}$ are the same as the original efficiency scores.  
+
+We are going to be doing the cross-efficiency calculations often so let's convert this to a function.  
+
+```{r}
+calccrosseff <- function (x,y,vmatrix,umatrix) {
+
+  ND <- nrow(x); NX <- ncol(y); NY <- ncol(y); # Define data size
+  
+  crosseval  <- matrix(rep(-1.0, ND*ND), nrow=ND,ncol=ND) 
+  crosseff   <- matrix(rep(-1.0, ND)) 
+
+  for (k in 1:ND) {
+     for (j in 1:ND) {crosseval[k,j]<-sum(umatrix[k,]*y[j,])/sum(vmatrix[k,]*x[j,])
+                   }
+   }
+  
+   for (j in 1:ND) {crosseff[j]<-sum(crosseval[,j])/ND}
+
+  resultlist <- list(crosseval=crosseval, crosseff=crosseff)
+ 
+  return(resultlist)
+}
+
+```
+
+```{r}
+rescross <- calccrosseff (xdata, ydata, results.vweight, results.uweight)
+
+print("Printing results from function for calculating cross-efficiency")
+
+print(rescross$crosseval)
+print(rescross$crosseff)
+
+```
+
+## Dealing with Cross-Efficiency's Multiple Optima
+
+As discussed in the chapter on the Multiplier model, DEA often has multiple optima, particularly for efficient DMUs.  While this doesn't affect the efficiency scores, it can have a major impact on the cross-evaluation scores and therefore the cross-efficiency scores.
+
+To examine this issue, we need to invoke a secondary objectiv function again in the same manner as we did for the envelopment model.
+
+A variety of mechanisms exist for dealing with the issue of multiple optima.
+
+```{r Baker_Cross_Eval_Sec, eval=TRUE}
+# Implements secondary objective function to resolve multiple optima
+
+multiplierIOSec <- function (x,y) 
+  { 
+
+  ND <- nrow(x); NX <- ncol(y); NY <- ncol(y); # Define data size
+  
+  results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
+  results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
+  results.vweight    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
+  results.uweight    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
+
+    for (k in 1:ND) {
+
+      result <- MIPModel() %>%
+      add_variable(vweight[i], i = 1:NX, type = "continuous", lb = 0) %>%
+      add_variable(uweight[r], r = 1:NY, type = "continuous", lb = 0) %>%
+      set_objective(sum_expr(uweight[r] * y[k,r], r = 1:NY), "max") %>%
+      add_constraint(sum_expr(vweight[i] * x[k,i], i = 1:NX) == 1) %>%
+      add_constraint((sum_expr(uweight[r] * y[j,r], r = 1:NY)-
+                    sum_expr(vweight[i] * x[j,i], i = 1:NX)) 
+                  <= 0, j = 1:ND)
+      result
+
+      result2 <- MIPModel() %>%
+      add_variable(vweight[i], i = 1:NX, type = "continuous", lb = 0) %>%
+      add_variable(uweight[r], r = 1:NY, type = "continuous", lb = 0) %>%
+      set_objective(sum_expr(uweight[r] * sum(y[,r]), r = 1:NY), "max") %>%
+          # Modified objective function for 
+      add_constraint(sum_expr(vweight[i] * sum(x[,i]), i = 1:NX) == 1) %>%
+      add_constraint(result, sum_expr(uweight[r] * sum(y[,r]), r = 1:NY)-
+                    sum_expr(vweight[i] * sum(x[,i]), i = 1:NX)  
+                  <= 0)
+      add_constraint((sum_expr(uweight[r] * y[j,r], r = 1:NY)-
+                    sum_expr(vweight[i] * x[j,i], i = 1:NX)) 
+                  <= 0, j = 1:ND)
+
+    result <- solve_model(result, with_ROI(solver = "glpk", verbose = FALSE))
+    results.efficiency[k] <- objective_value (result2) 
+
+    
+    # Get the weights - Output weights
+    tempvweight <- get_solution(result2, vweight[i])
+    results.vweight[k,] <- tempvweight[,3]
+
+   # Get the weights- Input weights
+    tempuweight <- get_solution(result2, uweight[i])
+    results.uweight[k,] <- tempuweight[,3]
+
+  } # End of for k loop
+  
+  resultlist <- list(efficiency=results.efficiency, 
+                     vweight=results.vweight, uweight=results.uweight)
+ 
+  return(resultlist)  
+
+} # End of function  
+
+x
+y
+
+# resfunc <- multiplierIOSec (x, y)
+#  Bug in my code, gives message:
+#     Error in typeof(x) : argument "x" is missing, with no default
+# print (resfunc$efficiency)
+
+```
+
+Nearly working...  Just need to fix bug.
+
+## Future Issues for Cross-Efficiency
+
+Issues to consider in the future for this chapter or other chapters:
+* Multiple Optima
+* Secondary Objective Functions
+* Fixed Weighting nature of certain model dimensions
+
+## Cross-Efficiency Formulations 
+
+Aurobindh Kalathil Puthanpura wrote the following LP formulations for the aggressive and malevolent cross-efficiency formulations.  They are provided here for informational purposes.  
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Two-Phase Approach
+
+## Phase 1
+
+Same as DEA model choose from CRS or VRS and input or output orientation.
+
+## Phase 2
+
+Get the efficiency score from Phase 1 for DMUs.
+
+### Malevolent - ALL - Input oriented model
+
+$$
+ \begin{aligned}
+    \text{minimize  }   & \sum_{r=1}^{s} v_{r,p} \sum_{j=1}^{n} y_{r,j} + \mu\\
+    \text{subject to }  & \sum_{i=1}^{m} v_{i,p} \sum_{j=1}^{n} x_{i,j} = 1\\
+                        & \sum_{r=1}^{s} u_{r,p} y_{r,j} - \sum_{i=1}^{m} v_{i,p} x_{i,j} + \mu \leq 0  \forall \; j \neq p\\ 
+                        & \sum_{r=1}^{s} u_{r,p} y_{r,p} - \theta_{p,p} \sum_{i=1}^{m} v_{i,p} x_{i,p} + \mu = 0\\
+                        & v_{i,p} , u_{r,p} \geq 0\\
+                        & If \quad CRS \quad where \quad \mu = 0\\
+                        & If \quad VRS \quad where \quad \mu \quad is \quad free\\
+  \end{aligned}
+$$
+
+
+
+### Benevolent - ALL - Input oriented model
+
+$$
+ \begin{aligned}
+    \text{maximize  }   & \sum_{r=1}^{s} u_{r,p} \sum_{j=1}^{n} y_{r,j} + \mu\\
+    \text{subject to }  & \sum_{i=1}^{m} v_{i,p} \sum_{j=1}^{n} x_{i,j} = 1\\
+                        & \sum_{r=1}^{s} u_{r,p} y_{r,j} - \sum_{i=1}^{m} v_{i,p} x_{i,j} + \mu \leq 0  \forall \; j \neq p\\ 
+                        & \sum_{r=1}^{s} u_{r,p} y_{r,p} - \theta_{p,p} \sum_{i=1}^{m} v_{i,p} x_{i,p} + \mu = 0\\
+                        & v_{i,p} , u_{r,p} \geq 0\\
+                        & If \quad CRS \quad where \quad \mu = 0\\
+                        & If \quad VRS \quad where \quad \mu \quad is \quad free\\
+  \end{aligned}
+$$
+
+### Malevolent - Other - Input oriented model
+
+$$
+ \begin{aligned}
+    \text{minimize  }   & \sum_{r=1}^{s} u_{r,p} \sum_{j \neq p} y_{r,j} + \mu\\
+    \text{subject to }  & \sum_{i=1}^{m} v_{i,p} \sum_{j \neq p} x_{i,j} = 1\\
+                        & \sum_{r=1}^{s} u_{r,p} y_{r,j} - \sum_{i=1}^{m} v_{i,p} x_{i,j} + \mu \leq 0  \forall \; j \neq p\\ 
+                        & \sum_{r=1}^{s} u_{r,p} y_{r,p} - \theta_{p,p} \sum_{i=1}^{m} v_{i,p} x_{i,p} + \mu = 0\\
+                        & v_{i,p} , u_{r,p} \geq 0\\
+                        & If \quad CRS \quad where \quad \mu = 0\\
+                        & If \quad VRS \quad where \quad \mu \quad is \quad free\\
+  \end{aligned}
+$$
+
+### Benevolent - Other - Input oriented model
+
+$$
+ \begin{aligned}
+    \text{maximize  }   & \sum_{r=1}^{s} u_{r,p} \sum_{j \neq p} y_{r,j} + \mu\\
+    \text{subject to }  & \sum_{i=1}^{m} v_{i,p} \sum_{j \neq p} x_{i,j} = 1\\
+                        & \sum_{r=1}^{s} u_{r,p} y_{r,j} - \sum_{i=1}^{m} v_{i,p} x_{i,j} + \mu \leq 0  \forall \; j \neq p\\ 
+                        & \sum_{r=1}^{s} u_{r,p} y_{r,p} - \theta_{p,p} \sum_{i=1}^{m} v_{i,p} x_{i,p} + \mu = 0\\
+                        & v_{i,p} , u_{r,p} \geq 0\\
+                        & If \quad CRS \quad where \quad \mu = 0\\
+                        & If \quad VRS \quad where \quad \mu \quad is \quad free\\
+  \end{aligned}
+$$
+
+### Malevolent - ALL - Output oriented model
+
+$$
+ \begin{aligned}
+    \text{minimize  }   & \sum_{i=1}^{m} v_{i,p} \sum_{j=1}^{n} x_{i,j}  + \nu\\
+    \text{subject to }  & \sum_{r=1}^{s} u_{r,p} \sum_{j=1}^{n} y_{r,j}  = 1\\
+                        & \sum_{i=1}^{m} v_{i,p} x_{i,j} - \sum_{r=1}^{s} u_{r,p} y_{r,j} + \nu \geq 0  \forall \; j \neq p\\
+                        & \sum_{i=1}^{m} v_{i,p} x_{i,j} - \Phi_{p,p} \sum_{r=1}^{s} u_{r,p} y_{r,p} + \nu = 0\\
+                        & v_{i,p} , u_{r,p} \geq 0\\
+                        & If \quad CRS \quad where \quad \nu = 0\\
+                        & If \quad VRS \quad where \quad \nu \quad is \quad free\\
+  \end{aligned}
+$$
+
+### Benevolent - ALL - Output oriented model
+
+$$
+ \begin{aligned}
+    \text{maximize  }   & \sum_{i=1}^{m} v_{i,p} \sum_{j=1}^{n} x_{i,j}  + \nu\\
+    \text{subject to }  & \sum_{r=1}^{s} u_{r,p} \sum_{j=1}^{n} y_{r,j}  = 1\\
+                        & \sum_{i=1}^{m} v_{i,p} x_{i,j} - \sum_{r=1}^{s} u_{r,p} y_{r,j} + \nu \geq 0  \forall \; j \neq p\\
+                        & \sum_{i=1}^{m} v_{i,p} x_{i,j} - \Phi_{p,p} \sum_{r=1}^{s} u_{r,p} y_{r,p} + \nu = 0\\
+                        & v_{i,p} , u_{r,p} \geq 0\\
+                        & If \quad CRS \quad where \quad \nu = 0\\
+                        & If \quad VRS \quad where \quad \nu \quad is \quad free\\
+  \end{aligned}
+$$
+
+### Malevolent - Other - Output oriented model
+
+$$
+ \begin{aligned}
+    \text{minimize  }   & \sum_{i=1}^{m} v_{i,p} \sum_{j \neq p}^{n} x_{i,j}  + \nu\\
+    \text{subject to }  & \sum_{r=1}^{s} u_{r,p} \sum_{j \neq p}^{n} y_{r,j}  = 1\\
+                        & \sum_{i=1}^{m} v_{i,p} x_{i,j} - \sum_{r=1}^{s} u_{r,p} y_{r,j} + \nu \geq 0  \forall \; j \neq p\\
+                        & \sum_{i=1}^{m} v_{i,p} x_{i,j} - \Phi_{p,p} \sum_{r=1}^{s} u_{r,p} y_{r,p} + \nu = 0\\
+                        & v_{i,p} , u_{r,p} \geq 0\\
+                        & If \quad CRS \quad where \quad \nu = 0\\
+                        & If \quad VRS \quad where \quad \nu \quad is \quad free\\
+  \end{aligned}
+$$
+
+### Benevolent - Other - Output oriented model
+
+$$
+ \begin{aligned}
+    \text{maximize  }   & \sum_{i=1}^{m} v_{i,p} \sum_{j \neq p}^{n} x_{i,j}  + \nu\\
+    \text{subject to }  & \sum_{r=1}^{s} u_{r,p} \sum_{j \neq p}^{n} y_{r,j}  = 1\\
+                        & \sum_{i=1}^{m} v_{i,p} x_{i,j} - \sum_{r=1}^{s} u_{r,p} y_{r,j} + \nu \geq 0  \forall \; j \neq p\\
+                        & \sum_{i=1}^{m} v_{i,p} x_{i,j} - \Phi_{p,p} \sum_{r=1}^{s} u_{r,p} y_{r,p} + \nu = 0\\
+                        & v_{i,p} , u_{r,p} \geq 0\\
+                        & If \quad CRS \quad where \quad \nu = 0\\
+                        & If \quad VRS \quad where \quad \nu \quad is \quad free\\
+  \end{aligned}
+$$
+

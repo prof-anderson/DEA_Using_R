@@ -1,4 +1,48 @@
 # Introduction
 
-This is the first real chapter.
+## Purpose of this Book
 
+## References
+
+R is a compehensive system for statistical analysis that has rapidly become a standard tool for analytics.  Like every powerful tool, it has a bit of a learning curve.  There are many excellent books on R.  Two of my favorites are:  _R in Action_ and _The Art of R Programming_.
+
+_R in Action_ provides a comprehensive coverage of R discussing how to use it for statistics progressing through a variety of deeper topics including programming.  The second edition of _R in Action_ will be coming out soon and adds important topics such as package development and interactive documentation using knitr.  It is available as a paperback or ebook and deals are often available from the [publisher.](http://www.manning.com/kabacoff2/)     
+
+Peter Bogetoft and Lars Otto have written a very thorough book on DEA and other econometric methods, _Benchmarking with DEA, SFA, and R_.  It is equal parts a mathematical book on frontier estimation and a manual for their DEA package in R, Benchmarking.  It is an excellent book, just unfortunately a bit on the [pricey side](http://www.amazon.com/Benchmarking-International-Operations-Research-Management/dp/1441979603/ref=sr_1_fkmr1_1?ie=UTF8&qid=1396922272&sr=8-1-fkmr1&keywords=bogetoft+otto+benchmarking).  We will revisit this and other packages later but for this week, you can concentrate on the code in later chapters.
+
+This book  presumes some basic familiarity with R but will also walk through a lot of commands along the way.  It is not intended to be a standalone R programming tutorial.  
+
+_The Art of R Programming_ is an excellent book treat R as a programming environment and helping people that have familiarity with basic programming in some other language make the transition to using R as a rich computational environment.  It was [published](http://shop.oreilly.com/product/9781593273842.do) in 2011 so it is getting a little dated but still a nice resource.  
+
+## Status
+
+This book is currently in a very rough draft mode.  As such, the writing needs more polish as well.  The current book is rapidly evolving.  
+
+Topics to consider in the future:
+* Matrix construction of DEA LPs (Chapter 3)
+* Output-oriented model (Half done in Chapter 4)
+* Slack maximization
+* Beautifying display of information
+* Extracting weights from the dual results
+* Multiplier model (Partially done in Chapter 5)
+* Cross-efficiency (Begun now in Chapter 6)
+* Model Building Advice
+   + Selecting input-output models
+   + Selecting returns to scale
+   + Selecting orientation(s)
+* Technology Forecasting using DEA
+* Malmquist Productivity Indices
+* Network approaches
+* Shiny Application
+* Other DEA packages in R
+    + Use of other packages
+    + Comparison of results
+
+Some issues to consider about the book are the following:
+* Should data frames be used instead of matrices?
+* Building a bibliography
+* Potential publication outlet(s)
+* Git/GitHub
+* Convert some chunks to functions where appropriate
+
+Comments are welcome.

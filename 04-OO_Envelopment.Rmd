@@ -1,0 +1,47 @@
+# Output-Oriented Envelopment Model
+
+Introduction
+-----------------------------
+In chapter 2 and 3 we focused on the input-oriented envelopment model.  This chapter will focus on the output-oriented model.  People can sometimes be confused over when to use an input-oriented or an output-oriented model.  Think of input-oriented as a _input-reducing_ and output-oriented as _output increasing_.  In an input-oriented model, the primary goal is to reduce the input while not sacrificing any output.   In contrast, the primary goal for an output-oriented model is to increase the output while not increasing the usage of any input.  
+
+In the case of constant returns to scale, the results will similar.  Under other returns to scale assumptions, the orientation can have a significant impact on efficiency.  
+
+The linear program for the output-oriented model is very similar to that of the input-oriented model.  The major change now is that rather finding the minimum level of input capable of producing the desired output, now the goal is to find the maximum output without reducing the input.  This expansion of output is denoted as $\phi$ and the resulting constant returns to scale model is given below.
+
+$$
+ \begin{aligned}
+    \text{maximize  }   & \phi \\
+    \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j \leq  x_{i,k} \forall \; i\\
+                       & \sum_{j=1}^{n} y_{r,j}\lambda_j \geq  \phi y_{r,k} \forall \; r\\
+                       & \lambda_j \geq 0  \; \forall \; j
+  \end{aligned}
+$$
+
+MATERIAL BELOW IS JUST A PLACEHOLDER FOR EDITING PURPOSES AND WILL NEED TO BE REWRITTEN.  
+
+
+
+This is how I will typically write things out.  Personally, I like this algebraic representation of a linear program.  Unfortunately, some computer software does not like this format.  To get it ready for R we need to  put it in the standard form of linear programs which means that only numbers can be on the right hand side of the inequalities.  
+
+$$
+ \begin{aligned}
+    \text{minimize  }   & \theta \\
+    \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j - \theta x_{i,k} \leq 0 \forall \; i\\
+                       & \sum_{j=1}^{n} y_{r,j}\lambda_j \geq  y_{r,k} \forall \; r\\
+                       & \lambda_j \geq 0  \; \forall \; j
+  \end{aligned}
+$$
+
+Now we will convert the problem input and output constraints from inequalities into equalities by explicitly defining slack variables.  
+
+$$
+ \begin{aligned}
+    \text{minimize  }   & \theta \\
+    \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \forall \; i\\
+                       & \sum_{j=1}^{n} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \forall \; r\\
+                       & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; i,r,j
+  \end{aligned}
+$$
+
+## Creating the LP - The Algebraic Approach
+
