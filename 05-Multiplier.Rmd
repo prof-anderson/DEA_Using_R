@@ -157,6 +157,7 @@ The weights from the multiplier model often have multiple alternative solutions-
 ## Future Issues
 
 Issues to consider in the future for this chapter or other chapters.
+
 * Weak vs. strong efficiency
 * Non-Archimedean Infinitesimal
 * Weight restrictions

@@ -123,7 +123,8 @@ We are now ready to do the analysis.  In Baker, the analysis was done using the 
 ```{r}
 library (MultiplierDEA)
 
-# Example from Kenneth R. Baker: Optimization Modeling with Spreadsheets, Third Edition, p. 176, John Wiley & Sons, Inc.
+# Example from Kenneth R. Baker: Optimization Modeling with Spreadsheets, 
+#    Third Edition, p. 176, John Wiley & Sons, Inc.
 dmu <- c("A", "B", "C", "D", "E", "F")
 x <- data.frame(c(150,400,320,520,350,320),c(0.2,0.7,1.2,2.0,1.2,0.7))
 rownames(x) <- dmu
@@ -212,13 +213,12 @@ multiplierIO <- function (x,y)
 
 } # End of function  
 
-print (results.efficiency)
-print (results.vweight)
-print (results.uweight)
 
 resfunc <- multiplierIO(x,y)
-print (resfunc$efficiency)
 
+print (resfunc$efficiency)
+print (resrunc$vweight)
+print (resfunc$uweight)
 ```
 
 You can think of the cross-efficiency by going back to revisit the original ratio model of the multiplier model.  Let's extend the definition of the input and output weights to reflect for which unit the weights were determined.  For example, $u_{r,k}$ is then the weight on output r when analyzed from the perspetive of DMU k and a similar interpretation applies to input weight.  
@@ -404,17 +404,17 @@ Aurobindh Kalathil Puthanpura wrote the following LP formulations for the aggres
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Two-Phase Approach
+## Two-Phase Approach
 
-## Phase 1
+### Phase 1
 
 Same as DEA model choose from CRS or VRS and input or output orientation.
 
-## Phase 2
+### Phase 2
 
 Get the efficiency score from Phase 1 for DMUs.
 
-### Malevolent - ALL - Input oriented model
+#### Malevolent - ALL - Input oriented model
 
 $$
  \begin{aligned}
@@ -430,7 +430,7 @@ $$
 
 
 
-### Benevolent - ALL - Input oriented model
+#### Benevolent - ALL - Input oriented model
 
 $$
  \begin{aligned}
@@ -444,7 +444,7 @@ $$
   \end{aligned}
 $$
 
-### Malevolent - Other - Input oriented model
+#### Malevolent - Other - Input oriented model
 
 $$
  \begin{aligned}
@@ -458,7 +458,7 @@ $$
   \end{aligned}
 $$
 
-### Benevolent - Other - Input oriented model
+#### Benevolent - Other - Input oriented model
 
 $$
  \begin{aligned}
@@ -472,7 +472,7 @@ $$
   \end{aligned}
 $$
 
-### Malevolent - ALL - Output oriented model
+#### Malevolent - ALL - Output oriented model
 
 $$
  \begin{aligned}
@@ -486,7 +486,7 @@ $$
   \end{aligned}
 $$
 
-### Benevolent - ALL - Output oriented model
+#### Benevolent - ALL - Output oriented model
 
 $$
  \begin{aligned}
