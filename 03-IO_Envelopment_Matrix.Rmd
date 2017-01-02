@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # Matrix Formulations of DEA
 
 In the previous chapter we created the DEA linear program algebraically using the new ompr package.  Before _opmr_  was available, we needed to use another approach for our DEA package, _TFDEA_ which consisted of using matrices. This approach is requires more "bookkeeping". Both approaches work but I think the algebraic approach is likely to be easier to write, debug, and extend in the future.  For solving, we will use the widely adopted _lpsolveapi_ package. 
@@ -8,11 +13,14 @@ To get it ready for matrix formulating, we need to  put it in the standard form 
 The standard form of linear programming can be described as the following.  
 
 $$
+\begin{split}
  \begin{aligned}
     \text{minimize  }   & CX \\
     \text{subject to } & AX \geq B\\ 
                        & X \geq 0  
   \end{aligned}
+   \end{split}
+  (\#eq:LPCCRIOE-Matrix-Simple)
 $$
 
 Note that in this form, _X_ is a vector of variables but in DEA _x_ represents inputs.  The vector _X_ will have length equal to the number of units examined plus one more for theta and the number of inputs and the number of outputs.  _C_ is a vector of data with the same number of elements as the _X_ vector.  _A_ is a matrix of data and _B_ is a vector describing the contstraint right hand sides.  
@@ -20,39 +28,49 @@ Note that in this form, _X_ is a vector of variables but in DEA _x_ represents i
 Recall that in the previous chapter we had presented the standard LP model of the input-oriented envelopment model.  
 
 $$
- \begin{aligned}
+\begin{split}
+\begin{aligned}
     \text{minimize  }   & \theta \\
     \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j \leq \theta x_{i,k} \forall \; i\\
                        & \sum_{j=1}^{n} y_{r,j}\lambda_j \geq  y_{r,k} \forall \; r\\
                        & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
+   \end{split}
+  (\#eq:LPCCRIOE-NoSlack)
 $$
 
 The first step is to simply move the expression with a variable from the right hand side of the input inequality to the right handside.  
 
 $$
+\begin{split}
  \begin{aligned}
     \text{minimize  }   & \theta \\
     \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j - \theta x_{i,k} \leq 0 \forall \; i\\
                        & \sum_{j=1}^{n} y_{r,j}\lambda_j \geq  y_{r,k} \forall \; r\\
                        & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
+   \end{split}
+  (\#eq:LPCCRIOE-Rearranged-NoSlack)
 $$
 
 Now we will convert the model's input and output constraints from inequalities into equalities by explicitly defining slack variables.  This isn't necessary just yet but will be used later in the chapter.  
 
 $$
+\begin{split}
  \begin{aligned}
     \text{minimize  }   & \theta \\
     \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \forall \; i\\
                        & \sum_{j=1}^{n} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \forall \; r\\
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; i,r,j
   \end{aligned}
+   \end{split}
+  (\#eq:LPCCRIOE-Slack)
 $$
 
 Now, let's populate the information for our example.
 
 $$
+\begin{split}
  \begin{aligned}
     \text{minimize  }   & \begin{bmatrix}
          0 & 0 & 0 & 0 & 1 & 0 & 0
@@ -68,6 +86,8 @@ $$
 \end{bmatrix}\\ 
    & X \geq 0  
   \end{aligned}
+\end{split}
+(\#eq:LPCCRIOE-Matrix-Example)
 $$
 
 If you stare at that too long, you may go "bug-eyed."  The matrix representation is not a very friendly format for people.  Personally I really like the algebraic representations.  This format though works really well for the computer.  The lpSolveAPI package in R is capable of taking an LP model in this form and solving it. Now we just need to structure the data in R to put it in the same format.  
@@ -278,6 +298,7 @@ Now we need to do a step that is called slack maximization.  We will need to add
 The linear program is modified in the following manner.  We now want to maximize the sum of both input slack(s) and ouptput slack(s).  
 
 $$
+\begin{split}
  \begin{aligned}
     \text{maximize  }  & \sum_{i}s^x_i + \sum_{r}s^y_r\\
     \text{subject to } & \sum_{j=1}^{n} \lambda_j  = 1\\
@@ -286,6 +307,8 @@ $$
                        & \theta = \theta^*\\
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j
   \end{aligned}
+   \end{split}
+  (\#eq:LPCCRIOE-MaxSlacks)
 $$
 
 The following are the changes to the LP object.

@@ -29,23 +29,29 @@ We have two important sets of variables now.  The first is $u_r$ which is the we
 The multiplier model can be thought of as finding a weighting scheme for outputs over inputs that give you the best possible score while giving no one better than _1.0._
 
 $$
+\begin{split}
  \begin{aligned}
     \text {max } \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
     \text{subject to } & \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} }
                           \leq 1 \forall \; j\\
                        u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
+\end{split}
+(\#eq:LPCCRIOM-Ratio-1a)
 $$
 
 This isn't a linear program because we are dividing functions of variables by functions of variables.  We need to make a few transformations.  First, we clear the denominator of each of the consraints resulting in the following formulation.
 
 $$
+\begin{split}
  \begin{aligned}
     \text {max } \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
     \text{subject to } & \sum_{r=1}^{N^Y} u_r y_{r,k} - \sum_{i=1}^{N^X} v_i x_{i,k} 
                           \leq 0 \forall \; j\\
                        u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
+\end{split}
+(\#eq:LPCCRIOM-Ratio-2a)
 $$
 
 Now we will convert the problem input and output constraints from inequalities into equalities by explicitly defining slack variables.  
@@ -54,6 +60,7 @@ There are an infinite number of possible combinations of numerators and denomina
 
 
 $$
+\begin{split}
  \begin{aligned}
     \text {max }  \sum_{r=1}^{N^Y} u_r y_{r,k} \\
     \text{subject to } & \sum_{i=1}^{N^X} v_i x_{i,k} \\
@@ -61,6 +68,8 @@ $$
                           \leq 0 \forall \; j\\
                        u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
+\end{split}
+(\#eq:LPCCRIOM-NoSlack)  
 $$
 
 ## Creating the LP - The Algebraic Approach
@@ -217,7 +226,7 @@ multiplierIO <- function (x,y)
 resfunc <- multiplierIO(x,y)
 
 print (resfunc$efficiency)
-print (resrunc$vweight)
+print (resfunc$vweight)
 print (resfunc$uweight)
 ```
 
@@ -225,17 +234,21 @@ You can think of the cross-efficiency by going back to revisit the original rati
 
 
 $$
- \begin{aligned}
+\begin{split}
+\begin{aligned}
     \text {max } \frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,k}} {\sum_{i=1}^{N^X} v_i,k x_{i,k} } \\
     \text{subject to } & \theta_{j,k}=\frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,k}} {\sum_{i=1}^{N^X} v_{i,k} x_{i,k} }
                           \leq 1 \forall \; j\\
                        u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
+\end{split}
+(\#eq:LPCCRIO-Cross1)
 $$
 
 Now the cross-efficiency for a unit j can be calculated as the following.  I refer to the value $\theta_{k,j}$ as the cross-evaluation score for unit _j_ from the perspective of the evaluation of unit _k_.
 
 $$
+\begin{split}
  \begin{aligned}
     \frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,k}} {\sum_{i=1}^{N^X} v_i,k x_{i,k} } \\
     \text{subject to } & \theta_{k,j} = \frac{\sum_{r=1}^
@@ -243,11 +256,14 @@ $$
                           \leq 1 \forall \; j\\
                        u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
+   \end{split}
+  (\#eq:Cross-Calc-Peer)
 $$
 
 Now, the cross-efficiency score for unit _j_ is simply the average of all of the cross-evaluation scores given to _j_ by the other units when they do their analysis.
 
 $$
+\begin{split}
  \begin{aligned}
     CE_j= \frac {\sum_{k=1}^{N^D}\theta_{k,j}} {N^D}
         = \frac {\sum_{k=1}^{N^D} {
@@ -255,6 +271,8 @@ $$
                        {\sum_{i=1}^{N^X} v_{i,k} x_{i,j} } }    }
                 {N^D}
   \end{aligned}
+\end{split}
+(\#eq:Calc-Cross)
 $$
 
 
@@ -321,10 +339,10 @@ A variety of mechanisms exist for dealing with the issue of multiple optima.
 ```{r Baker_Cross_Eval_Sec, eval=TRUE}
 # Implements secondary objective function to resolve multiple optima
 
-multiplierIOSec <- function (x,y) 
+multiplierIOSec <- function (xx, yy) 
   { 
 
-  ND <- nrow(x); NX <- ncol(y); NY <- ncol(y); # Define data size
+  ND <- nrow(xx); NX <- ncol(yy); NY <- ncol(yy); # Define data size
   
   results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
   results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
@@ -336,24 +354,24 @@ multiplierIOSec <- function (x,y)
       result <- MIPModel() %>%
       add_variable(vweight[i], i = 1:NX, type = "continuous", lb = 0) %>%
       add_variable(uweight[r], r = 1:NY, type = "continuous", lb = 0) %>%
-      set_objective(sum_expr(uweight[r] * y[k,r], r = 1:NY), "max") %>%
-      add_constraint(sum_expr(vweight[i] * x[k,i], i = 1:NX) == 1) %>%
-      add_constraint((sum_expr(uweight[r] * y[j,r], r = 1:NY)-
-                    sum_expr(vweight[i] * x[j,i], i = 1:NX)) 
+      set_objective(sum_expr(uweight[r] * yy[k,r], r = 1:NY), "max") %>%
+      add_constraint(sum_expr(vweight[i] * xx[k,i], i = 1:NX) == 1) %>%
+      add_constraint((sum_expr(uweight[r] * yy[j,r], r = 1:NY)-
+                    sum_expr(vweight[i] * xx[j,i], i = 1:NX)) 
                   <= 0, j = 1:ND)
       result
 
       result2 <- MIPModel() %>%
       add_variable(vweight[i], i = 1:NX, type = "continuous", lb = 0) %>%
       add_variable(uweight[r], r = 1:NY, type = "continuous", lb = 0) %>%
-      set_objective(sum_expr(uweight[r] * sum(y[,r]), r = 1:NY), "max") %>%
+      set_objective(sum_expr(uweight[r] * sum(yy[,r]), r = 1:NY), "max") %>%
           # Modified objective function for 
-      add_constraint(sum_expr(vweight[i] * sum(x[,i]), i = 1:NX) == 1) %>%
-      add_constraint(result, sum_expr(uweight[r] * sum(y[,r]), r = 1:NY)-
-                    sum_expr(vweight[i] * sum(x[,i]), i = 1:NX)  
+      add_constraint(sum_expr(vweight[i] * sum(xx[,i]), i = 1:NX) == 1) %>%
+      add_constraint(result, sum_expr(uweight[r] * sum(yy[,r]), r = 1:NY)-
+                    sum_expr(vweight[i] * sum(xx[,i]), i = 1:NX)  
                   <= 0)
-      add_constraint((sum_expr(uweight[r] * y[j,r], r = 1:NY)-
-                    sum_expr(vweight[i] * x[j,i], i = 1:NX)) 
+      add_constraint((sum_expr(uweight[r] * yy[j,r], r = 1:NY)-
+                    sum_expr(vweight[i] * xx[j,i], i = 1:NX)) 
                   <= 0, j = 1:ND)
 
     result <- solve_model(result, with_ROI(solver = "glpk", verbose = FALSE))
@@ -377,21 +395,22 @@ multiplierIOSec <- function (x,y)
 
 } # End of function  
 
-x
-y
+print(xdata)
+print(ydata)
 
-# resfunc <- multiplierIOSec (x, y)
+# resfunc <- multiplierIOSec (xdata, ydata)
 #  Bug in my code, gives message:
 #     Error in typeof(x) : argument "x" is missing, with no default
 # print (resfunc$efficiency)
 
 ```
 
-Nearly working...  Just need to fix bug.
+Nearly working...  Just need to fix bug.  Calling the function __resfunc__ results in a an error:  __Error in typeof(x) : argument "x" is missing, with no default__.
 
 ## Future Issues for Cross-Efficiency
 
 Issues to consider in the future for this chapter or other chapters:
+
 * Multiple Optima
 * Secondary Objective Functions
 * Fixed Weighting nature of certain model dimensions
@@ -419,6 +438,7 @@ Get the efficiency score from Phase 1 for DMUs.
 #### Malevolent - ALL - Input oriented model
 
 $$
+\begin{split}
  \begin{aligned}
     \text{minimize  }   & \sum_{r=1}^{s} v_{r,p} \sum_{j=1}^{n} y_{r,j} + \mu\\
     \text{subject to }  & \sum_{i=1}^{m} v_{i,p} \sum_{j=1}^{n} x_{i,j} = 1\\
@@ -428,6 +448,8 @@ $$
                         & If \quad CRS \quad where \quad \mu = 0\\
                         & If \quad VRS \quad where \quad \mu \quad is \quad free\\
   \end{aligned}
+\end{split}
+(\#eq:IOCross-KP1)  
 $$
 
 
@@ -435,7 +457,8 @@ $$
 #### Benevolent - ALL - Input oriented model
 
 $$
- \begin{aligned}
+\begin{split}
+\begin{aligned}
     \text{maximize  }   & \sum_{r=1}^{s} u_{r,p} \sum_{j=1}^{n} y_{r,j} + \mu\\
     \text{subject to }  & \sum_{i=1}^{m} v_{i,p} \sum_{j=1}^{n} x_{i,j} = 1\\
                         & \sum_{r=1}^{s} u_{r,p} y_{r,j} - \sum_{i=1}^{m} v_{i,p} x_{i,j} + \mu \leq 0  \forall \; j \neq p\\ 
@@ -444,11 +467,14 @@ $$
                         & If \quad CRS \quad where \quad \mu = 0\\
                         & If \quad VRS \quad where \quad \mu \quad is \quad free\\
   \end{aligned}
+\end{split}
+(\#eq:IOCross-KP2)  
 $$
 
 #### Malevolent - Other - Input oriented model
 
 $$
+\begin{split}
  \begin{aligned}
     \text{minimize  }   & \sum_{r=1}^{s} u_{r,p} \sum_{j \neq p} y_{r,j} + \mu\\
     \text{subject to }  & \sum_{i=1}^{m} v_{i,p} \sum_{j \neq p} x_{i,j} = 1\\
@@ -458,11 +484,14 @@ $$
                         & If \quad CRS \quad where \quad \mu = 0\\
                         & If \quad VRS \quad where \quad \mu \quad is \quad free\\
   \end{aligned}
+\end{split}
+(\#eq:IOCross-KP3)  
 $$
 
 #### Benevolent - Other - Input oriented model
 
 $$
+\begin{split}
  \begin{aligned}
     \text{maximize  }   & \sum_{r=1}^{s} u_{r,p} \sum_{j \neq p} y_{r,j} + \mu\\
     \text{subject to }  & \sum_{i=1}^{m} v_{i,p} \sum_{j \neq p} x_{i,j} = 1\\
@@ -472,11 +501,14 @@ $$
                         & If \quad CRS \quad where \quad \mu = 0\\
                         & If \quad VRS \quad where \quad \mu \quad is \quad free\\
   \end{aligned}
+\end{split}
+(\#eq:IOCross-KP4)  
 $$
 
 #### Malevolent - ALL - Output oriented model
 
 $$
+\begin{split}
  \begin{aligned}
     \text{minimize  }   & \sum_{i=1}^{m} v_{i,p} \sum_{j=1}^{n} x_{i,j}  + \nu\\
     \text{subject to }  & \sum_{r=1}^{s} u_{r,p} \sum_{j=1}^{n} y_{r,j}  = 1\\
@@ -486,11 +518,14 @@ $$
                         & If \quad CRS \quad where \quad \nu = 0\\
                         & If \quad VRS \quad where \quad \nu \quad is \quad free\\
   \end{aligned}
+\end{split}
+(\#eq:IOCross-KP5)  
 $$
 
 #### Benevolent - ALL - Output oriented model
 
 $$
+\begin{split}
  \begin{aligned}
     \text{maximize  }   & \sum_{i=1}^{m} v_{i,p} \sum_{j=1}^{n} x_{i,j}  + \nu\\
     \text{subject to }  & \sum_{r=1}^{s} u_{r,p} \sum_{j=1}^{n} y_{r,j}  = 1\\
@@ -500,12 +535,15 @@ $$
                         & If \quad CRS \quad where \quad \nu = 0\\
                         & If \quad VRS \quad where \quad \nu \quad is \quad free\\
   \end{aligned}
+\end{split}
+(\#eq:IOCross-KP6)  
 $$
 
 ### Malevolent - Other - Output oriented model
 
 $$
- \begin{aligned}
+\begin{split}
+\begin{aligned}
     \text{minimize  }   & \sum_{i=1}^{m} v_{i,p} \sum_{j \neq p}^{n} x_{i,j}  + \nu\\
     \text{subject to }  & \sum_{r=1}^{s} u_{r,p} \sum_{j \neq p}^{n} y_{r,j}  = 1\\
                         & \sum_{i=1}^{m} v_{i,p} x_{i,j} - \sum_{r=1}^{s} u_{r,p} y_{r,j} + \nu \geq 0  \forall \; j \neq p\\
@@ -514,11 +552,14 @@ $$
                         & If \quad CRS \quad where \quad \nu = 0\\
                         & If \quad VRS \quad where \quad \nu \quad is \quad free\\
   \end{aligned}
+\end{split}
+(\#eq:IOCross-KP7)  
 $$
 
 ### Benevolent - Other - Output oriented model
 
 $$
+\begin{split}
  \begin{aligned}
     \text{maximize  }   & \sum_{i=1}^{m} v_{i,p} \sum_{j \neq p}^{n} x_{i,j}  + \nu\\
     \text{subject to }  & \sum_{r=1}^{s} u_{r,p} \sum_{j \neq p}^{n} y_{r,j}  = 1\\
@@ -528,5 +569,7 @@ $$
                         & If \quad CRS \quad where \quad \nu = 0\\
                         & If \quad VRS \quad where \quad \nu \quad is \quad free\\
   \end{aligned}
+\end{split}
+(\#eq:IOCross-KP8)  
 $$
 

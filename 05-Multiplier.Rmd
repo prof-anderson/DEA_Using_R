@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # Multiplier Models
 
 Introduction
@@ -25,12 +30,15 @@ We have two important sets of variables now.  The first is $u_r$ which is the we
 The multiplier model can be thought of as finding a weighting scheme for outputs over inputs that give you the best possible score while giving no one better than _1.0._
 
 $$
- \begin{aligned}
+\begin{split}
+\begin{aligned}
     \text {max } \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
     \text{subject to } & \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} }
                           \leq 1 \forall \; j\\
                        u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
+\end{split}
+(\#eq:LPCCRIOM-Ratio)
 $$
 
 This isn't a linear program because we are dividing functions of variables by functions of variables.  We need to make a few transformations.  First, we clear the denominator of each of the consraints resulting in the following formulation.
@@ -38,12 +46,15 @@ This isn't a linear program because we are dividing functions of variables by fu
 
 
 $$
+\begin{split}
  \begin{aligned}
     \text {max } \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
     \text{subject to } & \sum_{r=1}^{N^Y} u_r y_{r,k} - \sum_{i=1}^{N^X} v_i x_{i,k} 
                           \leq 0 \forall \; j\\
                        u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
+   \end{split}
+  (\#eq:LPCCRIOM-Ratio2)
 $$
 
 Now we will convert the problem input and output constraints from inequalities into equalities by explicitly defining slack variables.  
@@ -52,6 +63,7 @@ There are an infinite number of possible combinations of numerators and denomina
 
 
 $$
+\begin{split}
  \begin{aligned}
     \text {max } \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
     \text{subject to } & \sum_{i=1}^{N^X} v_i x_{i,k} \\
@@ -59,6 +71,8 @@ $$
                           \leq 0 \forall \; j\\
                        u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
+   \end{split}
+  (\#eq:LPCCRIOM)
 $$
 
 ## Creating the LP - The Algebraic Approach
