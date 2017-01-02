@@ -5,3 +5,7 @@ output_dir: docs
 #rmd_files: ["index.Rmd", "01-Introduction.Rmd", "02-Diving-In.Rmd"]
 clean: [packages.bib, bookdown.bbl]
 new_session: yes
+
+bibliography: ["book.bib", "DEA-Zotero.bib"]
+biblio-style: "apalike"
+link-citations: true
