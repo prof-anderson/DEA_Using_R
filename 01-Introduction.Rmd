@@ -1,14 +1,19 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # Introduction
 
 ## Purpose of this Book
 
 ## References
 
-R is a compehensive system for statistical analysis that has rapidly become a standard tool for analytics.  Like every powerful tool, it has a bit of a learning curve.  There are many excellent books on R.  Two of my favorites are:  _R in Action_ and _The Art of R Programming_.
+R is a compehensive system for statistical analysis that has rapidly become a standard tool for analytics.  Like every powerful tool, it has a bit of a learning curve.  There are many excellent books on R.  Two of my favorites are:  _R in Action_ [@adler_r_2012] and _The Art of R Programming_[@matloff_art_2011].
 
 _R in Action_ provides a comprehensive coverage of R discussing how to use it for statistics progressing through a variety of deeper topics including programming.  The second edition of _R in Action_ will be coming out soon and adds important topics such as package development and interactive documentation using knitr.  It is available as a paperback or ebook and deals are often available from the [publisher.](http://www.manning.com/kabacoff2/)     
 
-Peter Bogetoft and Lars Otto have written a very thorough book on DEA and other econometric methods, _Benchmarking with DEA, SFA, and R_.  It is equal parts a mathematical book on frontier estimation and a manual for their DEA package in R, Benchmarking.  It is an excellent book, just unfortunately a bit on the [pricey side](http://www.amazon.com/Benchmarking-International-Operations-Research-Management/dp/1441979603/ref=sr_1_fkmr1_1?ie=UTF8&qid=1396922272&sr=8-1-fkmr1&keywords=bogetoft+otto+benchmarking).  We will revisit this and other packages later but for this week, you can concentrate on the code in later chapters.
+Peter Bogetoft and Lars Otto have written a very thorough book on DEA and other econometric methods, _Benchmarking with DEA, SFA, and R_ [@bogetoft_benchmarking_2013].  It is equal parts a mathematical book on frontier estimation and a manual for their DEA package in R, Benchmarking.  It is an excellent book, just unfortunately a bit on the [pricey side](http://www.amazon.com/Benchmarking-International-Operations-Research-Management/dp/1441979603/ref=sr_1_fkmr1_1?ie=UTF8&qid=1396922272&sr=8-1-fkmr1&keywords=bogetoft+otto+benchmarking).  We will revisit this and other packages later but for this week, you can concentrate on the code in later chapters.
 
 This book  presumes some basic familiarity with R but will also walk through a lot of commands along the way.  It is not intended to be a standalone R programming tutorial.  
 

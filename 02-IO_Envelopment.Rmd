@@ -431,7 +431,7 @@ $$
     \text{minimize  }   & \theta \\
     \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \forall \; i\\
                        & \sum_{j=1}^{n} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \forall \; r\\
-                       & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; i,r,j
+                       & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
   \end{aligned}
    \end{split}
   (\#eq:LPCCRIOE-Slacks)
@@ -445,7 +445,7 @@ $$
     \text{minimize  }   & \theta - \epsilon ( \sum_{i} s^x_i + \sum_{r} s^y_r)\\
     \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \forall \; i\\
                        & \sum_{j=1}^{n} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \forall \; r\\
-                       & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; i,r,j
+                       & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
   \end{aligned}
  \end{split}
   (\#eq:LPCCRIOE-Two-Phase)
@@ -453,10 +453,9 @@ $$
 
 A common mistake in implementing DEA is to use a finite approximation for $\epsilon$ such as $10^{-6}$.  Any finite value can cause distortions in $\theta$.  For example, an application comparing companies using revenue and expenses might have inputs and outputs on the order of millions or billions.  In this case, non-radial slacks could also be on the order of $10^{6}$.  Multiplying the two  results in a value similar in magnitude to the maximum possible efficiency score ($10^{-6}10^{6}=1$).
 
-The proper way to implement slack maximization is to treat it as a preemptive goal programming problem.  The primary goal is to minimize ($\theta$) in a first phase linear program and the second goal, holding the level of ($\theta$) fixed from the first phase is to then maximize the sum of the slacks.  
+The proper way to implement slack maximization is to treat it as a preemptive goal programming problem. The primary goal is to minimize $\theta$ in a first phase linear program and the second goal, holding the level of $\theta$ fixed from the first phase is to then maximize the sum of the slacks.  
 
-The first phase can take the form of any of our earlier linear programs without the ($\epsilon$) term.  The second phase is the following.
-
+The first phase can take the form of any of our earlier linear programs without the $\epsilon$ term. The second phase is the following.
 
 $$
 \begin{split}
@@ -466,15 +465,13 @@ $$
                        & \sum_{j=1}^{n} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \; \forall \; i\\
                        & \sum_{j=1}^{n} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
                        & \theta = \theta^*\\
-                       & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j
+                       & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
   \end{aligned}
 \end{split}
 (\#eq:LPCCRIOE-Second-Phase)
-
 $$
 
 Implementing this algebraically is quite straightforward.
-
 
 ```{r Slack_max}
 

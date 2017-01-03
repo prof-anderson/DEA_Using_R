@@ -1,17 +1,20 @@
 --- 
-title: "A Minimal Bookdown Book"
-author: "Sean Kross"
+title: "Data Envelopment Analysis Using R"
+author: "Timothy R. Anderson"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 documentclass: book
-bibliography: [book.bib]
+bibliography: ["book.bib"]
 biblio-style: apalike
 link-citations: yes
 github-repo: seankross/bookdown-start
 url: 'http\://seankross.com/bookdown-start/'
 description: "Everything you need (and nothing more) to start a bookdown book."
+
 ---
 
 # Preface {-}
 
-This is the very first part of the book.
+This is an attempt to use R, rmarkdown, and bookdown to create a living book for the field of Data Envelopment Analysis.  There are many other books out there on DEA.  This book attempts to explain issues in building your own toolset for DEA in R.  It will also cover some of the challenges to watch out for along the way.
+
+Along the way, readers may learn some optimization and fluency with R.  
