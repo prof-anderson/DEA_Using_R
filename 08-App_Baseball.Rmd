@@ -1,0 +1,288 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+# Baseball Benchmarking Applications
+
+## Introduction
+
+Now that we have covered an introduction to benchmarking using data envelopment analysis, let's look at a variety of models applied to sports - in particular, baseball.  
+
+Sports has a long history in operatons research and management science, long before the idea of sports analytics was popularized by Michael Lewis' _Moneyball_.  While it doesn't have have the life and death significance of emergency relief or health care applications, it provides quite a few benefits:
+* Accurate and well curated historical data
+* Easy to understand models
+* Opportuntities to validate results
+* Clear, quantifiable, and objective metrics
+* Input-output models can be agreed upon
+
+The range of applications can cover benchmarking individual players, managers, general managers, and teams.  Analyzing individual players is the most common type of baseball application and will be the bulk of this chapter.  Each baseball player typically plays a role as a batter, a fielder, and/or a pitcher.  We will focus on batting for this first section.
+
+## Baseball Data, R, and dplyr
+
+For the sake of readers unfamiliar with baseball, we will provide a brief introduction.  In general, you can think of these 
+Batting is in many ways the simplest to examine.  In the abstract, a batter uses their at-bats or plate appearances as opportunities to create events that help create runs for their team.  In each game, a batter typically has four to six at-bats.  These at-bats may be framed as a contest between a pitcher trying to make the batter create an out and the batter trying to get a hit.  Hits include singles, doubles, triples, and home runs, in increasing order of value. A fifth common outcome is a walk or "base-on-balls" which occurs when the pitcher throws four balls that gives the batter a free pass to first base.  There is a common expression that "a walk is as good as a hit" but a walk may not give as much advancement to other runners as a single so it may be considered as slightly less valuable than a single.  
+
+In the past, batters weren't given much "recognition" for walks and a batter's receiving a walk did not count as an at-bat. Plate appearances count the opportunities for creating a hit or a walk and is sum of at-bats and walks. 
+
+There are a variety of less frequent outcomes of a plate appearance such as a sacrifice fly, an error, or hit by pitch.  These are all less common and often an accidental outcome from the batters perspective.  
+
+Over the course of the current 162 game season, most full-time players will have over 500 plate appearances.  
+
+In general, a model of a baseball batter can e thought of as equivalent to a factory converting plate appearances 
+
+One way to approach DEA modeling is to examine a series of questions.
+“What is the goal of the analysis?”  A DEA evaluation can be used in a variety of ways but it is important decide on a goal to lead the rest of the modeling.  Goals include but are not limited to evaluating management, setting targets, and determining best practices.
+
+Now, let's wrestle with data sources.  Sean Lahman's baseball database has been made available as an R package.  This is a wonderful resource.  http://seanlahman.com/
+
+
+```{r}
+library ("Lahman")
+library ("dplyr")
+```
+
+Our exploration will also serve as a review of data manipulation in R. There are many ways of doing this.  Feel free to explore further.
+
+As usual, we want to see get familiar with the data.  Let's look at the first few rows of the batting data.
+
+```{r}
+ head(Lahman::Batting)
+```
+
+What does this all mean?  The first column, playerID, is a uniquely coded ID for each player consisting of the first six letters of the last name, first two letters of the first name, and which instance of that eight letter combination the player is.  For example, row 5 is ansonca01, which corresponds to the  Hall of Famer, Cap Anson.  Each row gives the statistics for a year that he had with a particular team.  If the player plays for multiple teams in a year, they will have multiple rows.  Also, if their career lasts more than one year, they will have more than one row.
+
+In this case, in 1871 Cap Anson played in 25 Games, had 120 at-bats, scored 29 runs, had 39 hits, and 11 doubles, 3 triples, and no home runs.  He also had 16 runs-batted-in, 6 stolen bases while being caught stealing twice.  He had 2 walks (base on balls) while striking out once.  Other values of intentional base on balls, hit by pitches, sacrifice hits, sacrifice flies, and grounded into double plays are not available.  
+
+This is pretty impressive to have such detailed and specific data going back almost 150 years! 
+
+Using the Summary command will  provide all kinds of interesting information such as that over half of the player seasons occurred after 1970, the maximum number of stints with different teams was 5 and the most player seasons were for the National League's Chicago Cubs (teamID=CHN).  I'll leave this for your exploration.  
+
+Hadley Wickham has written an excellent package for wrestling with data called dplyr.  
+
+Most of the columns are not needed so let's subset the variables.  
+
+```{r}
+batting<-Lahman::Batting
+batting <- dplyr::select(batting,playerID,yearID,teamID,lgID,AB,H,X2B,X3B,HR,BB)
+head(batting)
+```
+
+Through the 2015 season, this dataset has 101,332 rows or player seasons.  The game of baseball went through a lot of change in teams, rules, and other development and so it may be more useful to focus our attention on the after 1900. We've got plenty of data, let's filter the rows to only to only include years after 1900.  
+
+For the sake of our analysis, we will want to filter the data to only include years after 1900.
+
+```{r}
+batting<-dplyr::filter(batting,yearID>1900)
+head(batting)
+```
+
+As we discussed earlier, At-Bats (AB) is good but let's convert that to plat appearances.  Also, let's get the number of singles.
+
+```{r}
+batting<-dplyr::mutate(batting,X1B=H-HR-X3B-X2B)
+batting<-dplyr::mutate(batting,PA=AB+BB)
+head(batting)
+```
+
+Lastly, now that we feel confident that our data transformation for calculating singles and plate appearances work, let's drop the old columns for hits and at-bats as well as reordering them.
+
+```{r}
+batting <- dplyr::select(batting,playerID,yearID,teamID,lgID,PA,BB,X1B,X2B,X3B,HR)
+head(batting)
+
+```
+
+Now we will trim out player to only include those that have over '$MinPA$' plate appearances to limit the impact of part-time players or  platooning players.
+
+```{r}
+MinPA <- 400
+batting <- dplyr::filter(batting,PA>MinPA)
+head(batting)
+```
+
+Part of the beauty of dplyr is the ability to consolidate all of this into a single function.
+
+```{r}
+
+batting<-Lahman::Batting
+
+batting <- batting %>% 
+  select(playerID,yearID,teamID,lgID,AB,H,X2B,X3B,HR,BB) %>%
+  mutate(PA=as.numeric(AB+BB)) %>%
+  mutate(X1B=as.numeric(H-HR-X3B-X2B)) %>%
+  transform(BB=as.numeric(BB)) %>%
+  transform(X2B=as.numeric(X2B)) %>%
+  transform(X3B=as.numeric(X3B)) %>%
+  transform(HR=as.numeric(HR)) %>%
+  
+  filter(yearID>1900, PA>MinPA) %>%
+  select(playerID,yearID,teamID,lgID,PA,BB,X1B,X2B,X3B,HR)
+
+head(batting)
+```
+
+Now that we have data prepared along with the tools for further manipulation, we are ready to proceed onto the analysis.
+
+## Benchmarking Baseball Batters
+
+Our basic input-output model for baseball batting consists of plate appearances as the sole input and the five most common results of types of hits along with walks.  
+
+In 1920, the American League featured a batter so dominant that he transformed the "industry" of baseball.  Let's focus on this year for now.
+
+```{r}
+
+inputs <- c("PA")
+outputs <- c("BB", "X1B", "X2B", "X3B", "HR")
+batting1920AL <- batting %>% filter(yearID==1920, lgID=="AL")
+
+x <- batting1920AL %>% select( PA)
+row.names(x)<-batting1920AL[,1]
+head (x)
+
+y <- batting1920AL %>% select(BB, X1B, X2B, X3B, HR)
+row.names(y)<-batting1920AL[,1]
+head (y)
+
+```
+
+
+
+```{r}
+library(TFDEA)
+
+res1920AL<-DEA(x,y, rts="CRS", orientation="output", slack=TRUE, dual=TRUE)
+
+head(res1920AL$eff)
+```
+
+Success.  We have now run DEA using the TFDEA package, principally developed by Tom Shott with important contributions from Dong-Joon Lim, Kevin van Blommestein, and others.  Notice that in this is an output-oriented model so the values greater than 1.0 indicate that decreasing radial efficiency (increasing inefficiency), and describe the amount of additional outputs that should be acheived at the same level of input usage.  In other words, how much more walks, singles, doubles, triples, and home runs the player should be producing in the same number of plate appearances if he was batting _efficiently_.
+
+Let's dig a little deeper now.  Let's start by reviewing the output weights for the first few players.
+
+```{r}
+head (res1920AL$uy)
+```
+
+A few things stand out.  First, only one of the first six players puts any weight on home runs.  There should be a heirarchy that singles are at least as good as walks, doubles are at least as good singles, triples are at least as good as doubles, and home runs are at least as good triples.  Every player violates at least one of these relationships.  Any plausible analysis of baseball batting needs to reflect these relationships.  While very different, common metrics such as batting average and slugging average satisfy these relationships but our first DEA model does not.
+
+In Anderson and Sharpe's 1997 paper, ordinal weight restrictions were incorporated into the envelopment model for examining baseball batters by accumulating hits.  This created new outputs of Singles or better (BB+X1B), doubles or better (BB+X1B+X2B), etc.  
+
+Another approach is to analyze the data set using the multiplier model and directly incorporating weight restrictions.  For this, we will make use of the DEAMultiplier package written by Aurobindh Kalathil Puthanpura.  
+
+```{r}
+library(MultiplierDEA)
+
+res1920ALmult<-DeaMultiplierModel(x,y,rts = "crs", orientation="output")
+
+head (res1920ALmult$Efficiency)
+
+```
+
+Notice that the scores are up to 1.0 rather than 1.0 and higher as in the TFDEA package.  This is because the TFDEA package reports efficiency as $\phi$ whereas the DEAMultiplier package reports $\frac{1}{\phi}$.  The results are consistent and reciprocals.  The value of $\phi$ is consistent with the formulation of the output-oriented model.  The value of $\frac{1}{\phi}$ has the same interpretation $\theta$ where a value less than 1.0 indicates inefficiency.  In fact, for the case of constant returns to scale (CRS), the orientation does not make a difference in the value of inefficiency found, in other words, $\theta=\frac{1}{\phi}$  For the sake of this discussion, we will interpret the results as $\frac{1}{\phi}$.
+
+Now, let's look at the results.  
+
+```{r}
+library(ggplot2)
+
+qplot (res1920ALmult$Efficiency, 
+       geom="histogram")
+ 
+qplot (res1920ALmult$Efficiency, 
+       geom="dotplot",
+       main = "1920 American League Batter Efficiency",
+       xlab = "Efficiency Score",
+       fill = I("blue")
+)
+
+```
+
+Next, let's review the output weights.  
+
+```{r}
+head(res1920ALmult$uy)
+
+head (res1920AL$uy)
+```
+
+Again, we see that the results are similar to what was observed earlier.  Note that the results for Eddie Collins (collied01) are different.  Eddie Collins was efficient and it is common that efficient players have multiple weighting schemes that still result in being efficient.  The MultiplierDEA package puts weight on triples (X3B) while the TFDEA package's solution puts a zero weight on triples and distributes weight among other outputs.  
+
+In any case, the output weights do not meet the requirements of a realistic baseball application.  Let's apply weight restrictions.  
+```{r}
+
+MaxWR <- 1000  #This is a temporary value until Inf or NaN is implemented
+
+BattingWR<-data.frame(lower = c(1.0,1.0,1.0,1.0), numerator = c("X1B", "X2B","X3B", "HR"), denominator = c("BB", "X1B", "X2B","X3B"), upper = c(MaxWR, MaxWR, MaxWR, MaxWR))
+
+res1920ALmultWR<-DeaMultiplierModel(x,y,rts = "crs", orientation="output", 
+                                  weightRestriction = BattingWR)
+
+
+```
+
+Let's talk about a particular hitter, Eddie Collins.  Without weight restrictions, he was efficient.  With weight restrictions, his efficiency was 'res1920ALmultWR$Efficiency["collied01",]'.  In fact, the histogram of efficiency scores is more telling.  
+
+```{r}
+qplot (res1920ALmultWR$Efficiency, 
+       geom="dotplot",
+       main = "1920 American League Batter Efficiency",
+       xlab = "Efficiency Score",
+       fill = I("blue")
+)
+```
+
+```{r}
+binwidth <- 0.01
+hist(res1920ALmult$Efficiency, xlim=c(0.6,1.0),
+     col="red", breaks=seq(0.6,1.0,by=binwidth), 
+     main="Impact of Weight Restrictions on Batter Efficiency",
+     xlab="Efficiency")
+hist(res1920ALmultWR$Efficiency,
+     add=T,col=scales::alpha('blue',.5),border=F,
+     breaks=seq(0.6,1.0,by=binwidth) )
+
+```
+
+The weight restrictions have dropped the number of efficient players from seven to two.  As might be expected, Babe Ruth was efficient in both models.    
+
+### Cross-Efficiency of Baseball Batters
+Now, let's turn our attention to a variation of DEA called cross-efficiency.  Cross-efficiency was discussed in an earlier chapter.  
+
+
+```{r}
+res1920ALcross<-CrossEfficiency(x,y,rts = "crs", orientation="output")
+
+round (head (res1920ALcross$ce_ave),4)
+round (head (res1920ALmult$Efficiency),4)
+round (head (res1920ALcross$ceva_max),4)
+
+round(cor(cbind(res1920ALmult$Efficiency, res1920ALcross$ce_ave, res1920ALmultWR$Efficiency)),3)
+
+```
+
+The cross-efficiency and the regular efficiency scores are related - they have a correlation of 0.870 but the cross-efficiency has a 0.910 correlation with the weight restricted DEA results.  This suggests that perhaps cross-efficiency can help deal with decreasing the impact of unrealistic weight schemes but let's take a closer look at the results.
+
+First, let's one hitter in particular.  In 1920, Babe Ruth had one of the best seasons ever by a baseball hitter. Various statistics demonstrate his dominance but home runs really highlight the impact.  His 54 home runs nearly doubled the previous record of 29 in a season he had set the previous year.  Alone, he hit more home runs than 14 of the 16 teams in the leagues.  Until the recent steroid era, Babe Ruth's 1920 and 1921 seasons are generally considered to the two best offensive seasons in baseball.  
+
+Babe's cross-efficiency score was 'round(res1920ALcross$ce_ave ["ruthba01",1],6)'.  Coincidentally, his cross-efficiency score was nearly identical to the average cross-efficiency of other regular baseball batters of 'round(mean(res1920ALcross$ce_ave),6)'.  In other words, what may have been one of the best batting performances in a century of baseball was wrongly misclassified as being just average by cross-efficiency.
+
+The reason for this can be seen by the cross-efficiency matrix of weights.  
+
+## To-Do Items for this Chapter
+* Validate results with previous papers
+* Better format tables of results
+* Malmquist productivity index application
+* Salary and team information benchmarking
+* Add more on weights in cross-efficiency
+* Discuss modeling issues from previous chapter
+
+## To-Do Items for DEAMultiplier Model (some for later)
+* Secondary objective functions for cross-efficiency (benev vs. malev formulations)
+* Unbounded side for weight restrictions
+* A switch for phi vs/ 1/phi interpretations
+* Results of cross-efficiency should include matrix of vx and uy weights
+* Fix documentation links
+* Super-efficiency option
+
+
