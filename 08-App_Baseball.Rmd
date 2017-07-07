@@ -1,7 +1,7 @@
 ---
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 # Baseball Benchmarking Applications
 
@@ -206,6 +206,28 @@ head(res1920ALmult$uy)
 head (res1920AL$uy)
 ```
 
+Let's see how these look using the xtable package.
+
+```{r results='asis'}
+library(xtable)
+xtable(head(res1920ALmult$uy))
+xtable(head (res1920AL$uy))
+```
+
+Now, let's try to format it a little cleaner.
+
+```{r results='asis'}
+library(xtable)
+
+tableres1920ALmultuy <- xtable(head(res1920ALmult$uy))
+align(tableres1920ALmultuy)<-xalign(tableres1920ALmultuy)
+digits(tableres1920ALmultuy)<-xdigits(tableres1920ALmultuy)
+display(tableres1920ALmultuy)<-xdisplay(tableres1920ALmultuy)
+
+xtable(head(tableres1920ALmultuy))
+
+```
+
 Again, we see that the results are similar to what was observed earlier.  Note that the results for Eddie Collins (collied01) are different.  Eddie Collins was efficient and it is common that efficient players have multiple weighting schemes that still result in being efficient.  The MultiplierDEA package puts weight on triples (X3B) while the TFDEA package's solution puts a zero weight on triples and distributes weight among other outputs.  
 
 In any case, the output weights do not meet the requirements of a realistic baseball application.  Let's apply weight restrictions.  
@@ -213,11 +235,13 @@ In any case, the output weights do not meet the requirements of a realistic base
 
 MaxWR <- 1000  #This is a temporary value until Inf or NaN is implemented
 
-BattingWR<-data.frame(lower = c(1.0,1.0,1.0,1.0), numerator = c("X1B", "X2B","X3B", "HR"), denominator = c("BB", "X1B", "X2B","X3B"), upper = c(MaxWR, MaxWR, MaxWR, MaxWR))
+BattingWR<-data.frame(lower = c(1.0,1.0,1.0,1.0), 
+                      numerator = c("X1B", "X2B","X3B", "HR"), 
+                      denominator = c("BB", "X1B", "X2B","X3B"), 
+                      upper = c(MaxWR, MaxWR, MaxWR, MaxWR))
 
 res1920ALmultWR<-DeaMultiplierModel(x,y,rts = "crs", orientation="output", 
                                   weightRestriction = BattingWR)
-
 
 ```
 
@@ -267,7 +291,9 @@ First, let's one hitter in particular.  In 1920, Babe Ruth had one of the best s
 
 Babe's cross-efficiency score was 'round(res1920ALcross$ce_ave ["ruthba01",1],6)'.  Coincidentally, his cross-efficiency score was nearly identical to the average cross-efficiency of other regular baseball batters of 'round(mean(res1920ALcross$ce_ave),6)'.  In other words, what may have been one of the best batting performances in a century of baseball was wrongly misclassified as being just average by cross-efficiency.
 
-The reason for this can be seen by the cross-efficiency matrix of weights.  
+The reason for this can be seen by the cross-efficiency matrix of weights. The DEAMultiplier package's cross-efficiency doesn't export weights yet.
+
+
 
 ## To-Do Items for this Chapter
 * Validate results with previous papers
@@ -284,5 +310,6 @@ The reason for this can be seen by the cross-efficiency matrix of weights.
 * Results of cross-efficiency should include matrix of vx and uy weights
 * Fix documentation links
 * Super-efficiency option
+* Cross-efficiency should include option for passing in weight restrictions
 
 
