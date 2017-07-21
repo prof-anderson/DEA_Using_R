@@ -107,7 +107,10 @@ As of December 2016, the package is under development and is not yet released to
 
 One item to watch out for is that you will need to install the deveoloper tools for R.  Just go to https://www.rstudio.com/products/rpackages/devtools/.  
 
+Recently, ompr has been released to CRAN which makes installation much easier.  It can now be installed in the same way as any other CRAN posted packages.
+
 Let's define some data structures for holding our results.
+
 
 ```{r Declaring_Structures_of_Results_ompr}
 
@@ -155,11 +158,11 @@ result <- MIPModel() %>%
   solve_model(with_ROI(solver = "glpk")) 
 #  filter(value > 0)
 
-opmrtheta <-  get_solution(result, vtheta) 
-opmrlambda <-  get_solution(result, vlambda[j])
+omprtheta <-  get_solution(result, vtheta) 
+omprlambda <-  get_solution(result, vlambda[j])
 
-opmrtheta
-opmrlambda
+omprtheta
+omprlambda
 ```
 
 This model is very simple.  
@@ -181,11 +184,11 @@ result <- MIPModel() %>%
   solve_model(with_ROI(solver = "glpk")) 
 #  filter(value > 0)
 
-opmrtheta <-  get_solution(result, vtheta) 
-opmrlambda <-  get_solution(result, vlambda[j])
+omptheta <-  get_solution(result, vtheta) 
+omprlambda <-  get_solution(result, vlambda[j])
 
-opmrtheta
-opmrlambda
+omprtheta
+omprlambda
 
 ```
 

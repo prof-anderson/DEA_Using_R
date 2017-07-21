@@ -75,6 +75,52 @@ xtable(head(tableresBHuy))
 
 ```
 
+## NASA Aeronautical Projects 
+
+The next case discussed was of NASA aeronautics projects.  
+
+```{r}
+
+XNASA <- matrix(c(15.5, 23.0, 39.5, 80.0, 14.5, 13.5, 30.0, 220.0, 180.0, 980.0, 1050.0, 15.0, 40.0,
+                5.5, 110.0, 350.0, 350.0, 110.0),
+                  ncol=1,dimnames=list(c("A1", "A2", "A3", "A4", "A5", "A6",
+                                         "B1", "B2", "B3", "B4", "C1", "C2", "C3",
+                                         "D1", "E1", "E2", "E3", "E4"),c("x1")))
+
+YNASA <- matrix(c(1.8, 2.7, 2.7, 9.0, 1.35, 2.25, 9.6, 16.0, 6.8, 25.2, 20.7, 4.5, 19.8, 0.75, 0, 0, 0, 0,
+                7.0,7.0,7.0,7.0,7.0,7.0,8.0,10.0,10.0,9.0,6.0,6.0,6.0,10.0,8.0,8.0,8.0,8.0,
+                18.0, 45.0, 7.2, 108.0, 6.3, 40.5, 240.0, 160, 64.0, 560.0, 1170.0, 18.0,
+                544.5, 1.0, 0, 0, 0, 0),
+                  ncol=3,dimnames=list(c("A1", "A2", "A3", "A4", "A5", "A6",
+                                         "B1", "B2", "B3", "B4", "C1", "C2", "C3",
+                                         "D1", "E1", "E2", "E3", "E4"),c("y1", "y2", "y3")))
+
+```
+
+
+```{r}
+
+resNASA<-DeaMultiplierModel(XNASA,YNASA,rts = "vrs", orientation="input")
+
+resNASA$Efficiency
+
+tableresNASAEff <- xtable(head(resNASA$Efficiency))
+align(tableresNASAEff)<-xalign(tableresNASAEff)
+digits(tableresNASAEff)<-xdigits(tableresNASAEff)
+display(tableresNASAEff)<-xdisplay(tableresNASAEff)
+xtable(head(tableresNASAEff))
+
+
+tableresNASAuy <- xtable(head(resNASA$uy))
+align(tableresNASAuy)<-xalign(tableresNASAuy)
+digits(tableresNASAuy)<-xdigits(tableresNASAuy)
+display(tableresNASAuy)<-xdisplay(tableresNASAuy)
+xtable(head(tableresNASAuy))
+
+```
+
+Again, the results match those of Thore and Rich.  Their discussion of results emphasized the comparison of projects to each other by looking at the lambda values to see how the targets of comparison were made.
+
 ### NASA Areonautical Projects 
 
 The next case discussed was of NASA aeronautics projects.  
@@ -102,6 +148,8 @@ YNASA <- matrix(c(1.8, 2.7, 2.7, 9.0, 1.35, 2.25, 9.6, 16.0, 6.8, 25.2, 20.7, 4.
 
 resNASA<-DeaMultiplierModel(XNASA,YNASA,rts = "vrs", orientation="input")
 
+resNASA$Efficiency
+
 tableresNASAEff <- xtable(head(resNASA$Efficiency))
 align(tableresNASAEff)<-xalign(tableresNASAEff)
 digits(tableresNASAEff)<-xdigits(tableresNASAEff)
@@ -118,8 +166,11 @@ xtable(head(tableresNASAuy))
 ```
 
 
+
 ## To-Do Items for this Chapter
 * More data sets
+* Fix naming of projects in case 1 to be P1, P2,... rather than A, B, C,...
+
 
 ## To-Do Items for Packages (some for later)
 * Add data sets to package(s)
