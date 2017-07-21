@@ -9,7 +9,7 @@ output:
 
 Now that we have covered an introduction to benchmarking using data envelopment analysis, let's look at a variety of models applied to sports - in particular, baseball.  
 
-Sports has a long history in operatons research and management science, long before the idea of sports analytics was popularized by Michael Lewis' _Moneyball_.  While it doesn't have have the life and death significance of emergency relief or health care applications, it provides quite a few benefits:
+Sports has a long history in operatons research and management science, long before the idea of sports analytics was popularized by Michael Lewis' _Moneyball_.  While it doesn't have the life and death significance of emergency relief or health care applications, it provides quite a few benefits:
 * Accurate and well curated historical data
 * Easy to understand models
 * Opportuntities to validate results
