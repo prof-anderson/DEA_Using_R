@@ -1,7 +1,7 @@
 ---
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 # Input-Oriented Envelopment Model
 
@@ -48,6 +48,8 @@ Let's start by doing a simple plot of the data.  For now, I'm going to make use 
 
 ```{r}
 library(Benchmarking)
+library(pander)
+
 dea.plot(x, y, RTS="crs", ORIENTATION="in-out", txt=LETTERS[1:length(x)], 
          add=FALSE, wx=NULL, wy=NULL, TRANSPOSE=FALSE, fex=1, GRID=TRUE,
          RANGE=FALSE, param=NULL)
@@ -122,11 +124,22 @@ Let's define some data structures for holding our results.
   dim(ydata)<-c(ND,NY)
   
   results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
+  dimnames(results.efficiency)<-list(c(LETTERS[1:ND]),c("Eff"))
+  
   results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
-  results.vweight    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
+  dimnames(results.lambda)<-list(c(LETTERS[1:ND]),c(LETTERS[1:ND]))
+  
+  results.vweight    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX)
+  dimnames(results.vweight)<-list(c(LETTERS[1:ND]),c("v"))
+  
   results.uweight    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
+  dimnames(results.uweight)<-list(c(LETTERS[1:ND]),c("u"))
+
   results.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
+  dimnames(results.xslack)<-list(c(LETTERS[1:ND]),c("sx"))
+
   results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
+  dimnames(results.yslack)<-list(LETTERS[1:ND],"sy")
 ```
 
 We're going to use our data from earlier.  
@@ -514,7 +527,9 @@ for (k in 1:ND) {
 #                 as.numeric(get_solution(result, vlambda[j])[,3] ))
 }
 
-print (results.efficiency)
+rownames(results.efficiency)<-c("A", "B", "C", "D", "E", "F")
+#print (results.efficiency)
+pander(results.efficiency, round=6, caption="Input-oriented Efficiency Scores")
 
 ```
 

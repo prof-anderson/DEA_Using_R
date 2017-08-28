@@ -53,3 +53,16 @@ Some issues to consider about the book are the following:
 * Convert some chunks to functions where appropriate
 
 Comments are welcome.
+
+## Acknowledgements
+
+This book has benefitted from the interactions of many people over the years.  In particular, I would like to thank the following:
+
+* Dr. Dong-Joon Lim
+* Tim Calderwood
+* Nina Chaichai
+* Maoloud Dabab
+* Jiali Ju
+* Aurobindh Kalathil 
+* Tom Shott
+* Kevin van Blommestein

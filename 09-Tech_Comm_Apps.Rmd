@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
-In 2002, Sten Thore edited a book, Technology Commercialization:  DEA and Related Analytical Methods for Evaluating the Use and Implementation of Technological Innovation.  This book complied a series of cases applying Data envelopment Analysis related to technology management.  This chapter revisits some of those cases. We will provide a snapshot of the cases but the reader is referred to Thore's book for more details.  
+In 2002, Sten Thore edited a book, _Technology Commercialization:  DEA and Related Analytical Methods for Evaluating the Use and Implementation of Technological Innovation.  This book complied a series of cases applying Data envelopment Analysis related to technology management.  This chapter revisits some of those cases. We will provide a snapshot of the cases but the reader is referred to Thore's book for more details.  
 
 ## Prioritizing R&D Activities
 
