@@ -101,6 +101,7 @@ Now we need to make sure that lpsolveAPI is loaded.  If this does not work, you 
 ```{r}
 ## DEA function
 library(lpSolveAPI)
+library(pander)
 ```
 
 Now it it gets more involved.  We are defining a function for calculating DEA with options for returns to scale, orientation, and two different options for super-efficiency.
@@ -115,6 +116,8 @@ First, let's declare each of the needed basic data structures.  First, determine
   y <- matrix(c(75,100,300,400),ncol=1,dimnames=list(LETTERS[1:4],"y"))
   
   ND <- nrow(x); NX <- ncol(x); NY <- ncol(y); 
+  
+  pander(cbind(x,y))
 ```
 
 Now we will declare the data structures for inputs and outputs that will contain the data that we use.  It is a little redundant to create new objects for the x and y data but there are advanced cases when it is helpful.
@@ -276,15 +279,33 @@ The last step of extracting output weights is common for both orientations since
       
       results.uweight[k,] <- get.dual.solution(lpe)[(2+NX):(1+NX+NY)]
                                     # Get output weights, u
+        DMUnames <- list(c(LETTERS[1:ND]))
+
+  
 ```
 
 Let's look at our results!  
 
 ```{r Display_Phase1_Results  }
+  Xnames<- lapply(list(rep("X",NX)),paste0,1:NX)
+  Ynames<- lapply(list(rep("Y",NY)),paste0,1:NY)
+  Vnames<- lapply(list(rep("v",NX)),paste0,1:NX)
+  Unames<- lapply(list(rep("u",NY)),paste0,1:NY)
+  SXnames<- lapply(list(rep("sx",NX)),paste0,1:NX)
+  SYnames<- lapply(list(rep("sy",NY)),paste0,1:NY)
+  dimnames(results.lambda)<-c(DMUnames,DMUnames)
+  dimnames(results.xslack)<-c(DMUnames,SXnames)
+  dimnames(results.yslack)<-c(DMUnames,SYnames)
+  dimnames(results.xslack)<-c(DMUnames,Vnames)
+  dimnames(results.yslack)<-c(DMUnames,Unames)
+
 results.efficiency [k]  # Display efficiency score for unit k
 results.lambda  [k,]    # Display lambda variables
 results.vweight [k,]    # Display input weights
 results.uweight [k,]    # Display output weights
+
+pander(cbind(results.efficiency [k],results.lambda  [k,]),caption="DEA Efficiency Scores and Lambdas")
+pander(cbind(results.vweight [k,],results.uweight [k,]),caption="DEA Multiplier Weights" )
 ```
 
 ## Slack Maximization
@@ -333,9 +354,20 @@ We are now ready to solve phase 2.  We can then extract the values of the $\lamb
 Again, let's look over the results.  
 
 ```{r}
-    results.lambda[k,]         
-    results.xslack[k,]
-    results.yslack[k,]
+  Xnames<- lapply(list(rep("X",NX)),paste0,1:NX)
+  Ynames<- lapply(list(rep("Y",NY)),paste0,1:NY)
+  Vnames<- lapply(list(rep("v",NX)),paste0,1:NX)
+  Unames<- lapply(list(rep("u",NY)),paste0,1:NY)
+  SXnames<- lapply(list(rep("sx",NX)),paste0,1:NX)
+  SYnames<- lapply(list(rep("sy",NY)),paste0,1:NY)
+  dimnames(results.lambda)<-c(DMUnames,DMUnames)
+  dimnames(results.xslack)<-c(DMUnames,SXnames)
+  dimnames(results.yslack)<-c(DMUnames,SYnames)
+
+#    results.lambda[k,]         
+#    results.xslack[k,]
+#    results.yslack[k,]
+    pander(cbind(results.lambda[k,],results.xslack[k,],results.yslack[k,]))
 ```
 
 Now, let's put it all together to summarize the results.
