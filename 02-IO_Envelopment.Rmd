@@ -143,13 +143,14 @@ Let's define some data structures for holding our results.
   Unames<- lapply(list(rep("u",NY)),paste0,1:NY)   # Output weight names: u1, ...
   SXnames<- lapply(list(rep("sx",NX)),paste0,1:NX) # Input slack names: sx1, ...
   SYnames<- lapply(list(rep("sy",NY)),paste0,1:NY) # Output slack names: sy1, ...
-  
+  Lambdanames<- lapply(list(rep("L_",ND)),paste0,LETTERS[1:ND])
+
   results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
 #  dimnames(results.efficiency)<-list(c(LETTERS[1:ND]),c("Eff"))
   dimnames(results.efficiency)<-c(DMUnames,"Eff")  # Attach names
   
   results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
-  dimnames(results.lambda)<-c(DMUnames,DMUnames)
+  dimnames(results.lambda)<-c(DMUnames,Lambdanames)
   
   results.vweight    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX)
   dimnames(results.vweight)<-c(DMUnames,Vnames)
@@ -419,11 +420,18 @@ Vnames<- lapply(list(rep("v",NX)),paste0,1:NX)
 Unames<- lapply(list(rep("u",NY)),paste0,1:NY)
 SXnames<- lapply(list(rep("sx",NX)),paste0,1:NX)
 SYnames<- lapply(list(rep("sy",NY)),paste0,1:NY)
+Lambdanames <- lapply(list(rep("L_",ND)),paste0,LETTERS[1:ND])
+#Lambdanames<- lapply(list(rep("\u03BB",ND)),paste0,LETTERS[1:ND])
+              # \u03BB is unicode for lambda symbol.
+              # This would lambda symbol to be embedded               # in row or columns.
+              # Unfortunately implementation of unicode
+              # is not consistent enough in platform.
+              # Instead, capital "L" is used for lambda symbol.
   
 dimnames(xdata)<-c(DMUnames,Xnames)
 dimnames(ydata)<-c(DMUnames,Ynames)
 dimnames(results.efficiency)<-c(DMUnames,"Eff")
-dimnames(results.lambda)<-c(DMUnames,DMUnames)
+dimnames(results.lambda)<-c(DMUnames,Lambdanames)
 dimnames(results.vweight)<-c(DMUnames,Vnames)
 dimnames(results.uweight)<-c(DMUnames,Unames)
 dimnames(results.xslack)<-c(DMUnames,SXnames)
@@ -553,13 +561,14 @@ for (k in 1:ND) {
     result <-   solve_model(LPSlack, with_ROI(solver = "glpk")) 
   
     results.efficiency[k] <-  get_solution(result, vtheta)       
-#    results.lambda[,k] <- as.matrix(
-#                 as.numeric(get_solution(result, vlambda[j])[,3] ))
+    results.lambda[,k] <- as.matrix(
+                 as.numeric(get_solution(result, vlambda[j])[,3] ))
 }
 
 rownames(results.efficiency)<-c("A", "B", "C", "D", "E", "F")
 #print (results.efficiency)
-pander(cbind(results.efficiency,xdata,ydata), round=5, caption="Input-oriented Efficiency Results")
+pander(cbind(results.efficiency,xdata,ydata,results.lambda), round=5, caption="Input-oriented Efficiency Results")
 
 ```
 
+The rightmost columns are the lambda values 

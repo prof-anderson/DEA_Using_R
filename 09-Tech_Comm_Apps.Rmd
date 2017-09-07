@@ -9,6 +9,8 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(pander)
+panderOptions('round',5) # Set option for rounding in pander data tables
 ```
 
 # Technology Commercialization 
@@ -28,16 +30,29 @@ Thore and Rich use a one-input, four-output variable returns to scale DEA model.
 Let's start by defining the data from page 63.  
 
 ```{r}
+NX <- 1
+NY <- 4
+ND <- 14
+
+  DMUnames <- list(c(LETTERS[1:ND]))               # DMU names: A, B, ...
+  Xnames<- lapply(list(rep("X",NX)),paste0,1:NX)   # Input names: x1, ...
+  Ynames<- lapply(list(rep("Y",NY)),paste0,1:NY)   # Output names: y1, ...
+  Vnames<- lapply(list(rep("v",NX)),paste0,1:NX)   # Input weight names: v1, ...
+  Unames<- lapply(list(rep("u",NY)),paste0,1:NY)   # Output weight names: u1, ...
+  SXnames<- lapply(list(rep("sx",NX)),paste0,1:NX) # Input slack names: sx1, ...
+  SYnames<- lapply(list(rep("sy",NY)),paste0,1:NY) # Output slack names: sy1, ...
+  Lambdanames<- lapply(list(rep("L_",ND)),paste0,LETTERS[1:ND])
 
 XBH <- matrix(c(1.07, 1.06, 0.325, 1.60, 0.55, 0.2, 0.35, 0.53, 0.21, 0.16, 0.07, 1.95, 5.59, 3.10),
-                  ncol=1,dimnames=list(LETTERS[1:14],c("x1")))
+                ncol=NX,dimnames=c(DMUnames,Xnames))
 
 YBH <- matrix(c(32, 50, 40, 30 ,25, 8, 2, 12, 10, 0.8, 3, 300, 60, 240,
                 8.2, 7.6, 7.6, 7.1, 7.0, 6.0, 5.9, 5.8, 5.8, 5.4, 5.3, 6.8, 6.2, 6.2,
                 7.5, 7.2, 7.1, 7.2, 7.0, 6.1, 6.2, 5.8, 5.8, 5.6, 5.4, 6.1, 6.9, 6.6,
                 8.0, 6.4, 5.3, 5.5, 5.1, 6.9, 6.6, 5.4, 4.7, 6.1, 6.5, 6.4, 6.8, 7.1),
-                  ncol=4,dimnames=list(LETTERS[1:14],c("y1", "y2", "y3", "y4")))
+                ncol=NY,dimnames=c(DMUnames,Ynames))
 
+pander(cbind(XBH,YBH), caption="Data for Baker Hughes Corporation case.")  # Displays table of inputs and outputs
 ```
 
 Now, let's run DEA.  Feel free to pick a package.  We explored some packages in chapter 8.  For now, let's try the MultiplierDEA package.  Let's look over the results.
@@ -45,35 +60,27 @@ Now, let's run DEA.  Feel free to pick a package.  We explored some packages in 
 ```{r results='asis'}
 library(MultiplierDEA)
 library(xtable)
-
 resBH<-DeaMultiplierModel(XBH,YBH,rts = "vrs", orientation="input")
 
-tableresBHEff <- xtable(head(resBH$Efficiency))
-align(tableresBHEff)<-xalign(tableresBHEff)
-digits(tableresBHEff)<-xdigits(tableresBHEff)
-display(tableresBHEff)<-xdisplay(tableresBHEff)
-xtable(head(tableresBHEff))
+# Rename some of the results row and column labels
+dimnames(resBH$Lambda)<-c(Lambdanames,Lambdanames)
+dimnames(resBH$vx)<-c(DMUnames,Xnames)
+dimnames(resBH$uy)<-c(DMUnames,Ynames)
 
-
-tableresBHuy <- xtable(head(resBH$uy))
-align(tableresBHuy)<-xalign(tableresBHuy)
-digits(tableresBHuy)<-xdigits(tableresBHuy)
-display(tableresBHuy)<-xdisplay(tableresBHuy)
-xtable(head(tableresBHuy))
+pander(cbind(resBH$Efficiency,resBH$Lambda), caption="Envelopment results for Baker Hughes Corporation analysis.")
 
 ```
 
-The efficiency scores match those reported by Thore and Rich but they didn't examine the output weights.  A lot of discussion could be had about relative weights.  We will leave that to the interested reader pontificate upon.
+The results are consistent with those reported in Sten and Thore.  Note that projects (DMU's) A, C, and F are efficient and all other projects use those three projects in setting their own targets of performance as denoted by non-zero values of lambda.  
 
-```{r results='asis'}
+Now, let's look at the other side of the analysis - the multiplier model. 
 
-tableresBHuy <- xtable(head(resBH$uy))
-align(tableresBHuy)<-xalign(tableresBHuy)
-digits(tableresBHuy)<-xdigits(tableresBHuy)
-display(tableresBHuy)<-xdisplay(tableresBHuy)
-xtable(head(tableresBHuy))
-
+```{r}
+pander(cbind(resBH$Efficiency,resBH$vx,resBH$uy), caption="Weights for Baker Hughes Corporation analysis.")
 ```
+
+The envelopment and multiplier results are intricately related by duality.  In this case, we can see that certain outputs are "ignored" by certain projects by placing a zero weight on that output.  This is perfectly permissable in a DEA study when we don't know the relative value outputs and is why we refer to DEA scores as technical efficiency or relative efficiency. On the other hand, if we had more information on relative values of outputs that could or should be incorporated, this can be done.  The impact is that it would generally decrease the scores of some (but not necessarily all) projects (DMUs) whose original results violate these restrictions.
+The efficiency scores match those reported by Thore and Rich but they didn't examine the output weights.  A lot of discussion could be had about relative weights.  We will leave that to the interested reader to pontificate upon.
 
 ## NASA Aeronautical Projects 
 
@@ -97,25 +104,13 @@ YNASA <- matrix(c(1.8, 2.7, 2.7, 9.0, 1.35, 2.25, 9.6, 16.0, 6.8, 25.2, 20.7, 4.
 
 ```
 
+Now that we have entered the data, let's run an input-oriented, variable returns-to-scale (BCC-IO) analysis.  
 
 ```{r}
 
 resNASA<-DeaMultiplierModel(XNASA,YNASA,rts = "vrs", orientation="input")
 
-resNASA$Efficiency
-
-tableresNASAEff <- xtable(head(resNASA$Efficiency))
-align(tableresNASAEff)<-xalign(tableresNASAEff)
-digits(tableresNASAEff)<-xdigits(tableresNASAEff)
-display(tableresNASAEff)<-xdisplay(tableresNASAEff)
-xtable(head(tableresNASAEff))
-
-
-tableresNASAuy <- xtable(head(resNASA$uy))
-align(tableresNASAuy)<-xalign(tableresNASAuy)
-digits(tableresNASAuy)<-xdigits(tableresNASAuy)
-display(tableresNASAuy)<-xdisplay(tableresNASAuy)
-xtable(head(tableresNASAuy))
+pander(cbind(XNASA,YNASA,resNASA$Efficiency))
 
 ```
 
@@ -148,29 +143,17 @@ YNASA <- matrix(c(1.8, 2.7, 2.7, 9.0, 1.35, 2.25, 9.6, 16.0, 6.8, 25.2, 20.7, 4.
 
 resNASA<-DeaMultiplierModel(XNASA,YNASA,rts = "vrs", orientation="input")
 
-resNASA$Efficiency
-
-tableresNASAEff <- xtable(head(resNASA$Efficiency))
-align(tableresNASAEff)<-xalign(tableresNASAEff)
-digits(tableresNASAEff)<-xdigits(tableresNASAEff)
-display(tableresNASAEff)<-xdisplay(tableresNASAEff)
-xtable(head(tableresNASAEff))
-
-
-tableresNASAuy <- xtable(head(resNASA$uy))
-align(tableresNASAuy)<-xalign(tableresNASAuy)
-digits(tableresNASAuy)<-xdigits(tableresNASAuy)
-display(tableresNASAuy)<-xdisplay(tableresNASAuy)
-xtable(head(tableresNASAuy))
-
+pander(cbind(resNASA$Efficiency,resNASA$vx,resNASA$uy), caption="Multiplier Model Results for NASA projects.")
 ```
 
-
-
-## To-Do Items for this Chapter
-* More data sets
-* Fix naming of projects in case 1 to be P1, P2,... rather than A, B, C,...
-
+## Possible to-Do Items for this Chapter
+* More data sets and cases
+* Perhaps fix naming of outputs in first  case 1 to be P1, P2,... rather than A, B, C,... to match Thore
+* Perhaps generalize naming of projects for NASA case to match Thore
+* Create helper function for names to pass numbers of DMUs, inputs, outputs, and output naming objects
+* Define # of digits for pander tables
+* Helper function for printing "skinny" lambda tables by omitting columns of zeros
 
 ## To-Do Items for Packages (some for later)
 * Add data sets to package(s)
+* Naming of results to reflect lambdas, etc.
