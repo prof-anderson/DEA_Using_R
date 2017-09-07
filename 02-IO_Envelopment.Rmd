@@ -17,7 +17,7 @@ Recently, my research group at PSU adopted the R platform. It too carries its ow
 
 * Open-source so that people can dive as deep as they need and no risk of future vendor lock-in
 * Freely available so it does not strain research budgets
-* Extensive collection of numerical add-in packages (over 8000 at CRAN) to build upon
+* Extensive collection of numerical add-in packages (over 10000 at CRAN) to build upon
 * Robust distribution of add-in packages could help improve distribution of our own contributions
 * Multiple linear programming packages
 * Widespread usage and acceptace in the research and analytics communities
@@ -48,7 +48,6 @@ Let's start by doing a simple plot of the data.  For now, I'm going to make use 
 
 ```{r}
 library(Benchmarking)
-library(pander)
 
 dea.plot(x, y, RTS="crs", ORIENTATION="in-out", txt=LETTERS[1:length(x)], 
          add=FALSE, wx=NULL, wy=NULL, TRANSPOSE=FALSE, fex=1, GRID=TRUE,
@@ -168,13 +167,20 @@ Let's define some data structures for holding our results.
 
 We're going to use our data from earlier.  
 
-```{r first_ompr_model}
+```{r loading_packages, warning=FALSE}
+     # options: message=FALSE, warning=FALSE to turn off display
 
+library(pander)           # Used for making nicely formatted tables
 library(dplyr)            # For data structure manipulation
 library(ROI)              # R Optimization Interface package
 library(ROI.plugin.glpk)  # Connection to glpk as solver
 library(ompr)             # Optimization Modeling using R
 library(ompr.roi)         # Connective tissue
+
+```
+Now that we have loaded all of the packages that we use as building blocks, we can start constructing the model.
+
+```{r first_ompr_model}
 
 k<-1    # DMU to analyze.  Let's start with just one for now.
 
@@ -192,14 +198,29 @@ result <- MIPModel() %>%
 omprtheta <-  get_solution(result, vtheta) 
 omprlambda <-  get_solution(result, vlambda[j])
 
-pander (omprtheta)
+ND <- 4 # Four Decision Making Units or DMUs
+NX <- 1 # One input
+NY <- 1 # One output
 
-pander (omprlambda)
+   # Only doing analysis for one unit at a time to start
+results.efficiency <- matrix(rep(-1.0, 1), nrow=1, ncol=1)
+results.lambda     <- matrix(rep(-1.0, ND), nrow=1,ncol=ND)
+
+
+results.efficiency <- t(omprtheta)
+colnames(results.efficiency) <- c("Efficiency")
+results.lambda <- t(omprlambda[3])
+      # Takes the third column from the results and transposes results
+      #    to be structured correctly for later viewing
+colnames(results.lambda) <- c("L_A", "L_B", "L_C", "L_D")
+
+pander(cbind(results.efficiency, results.lambda), 
+       caption="Input-Oriented Envelopment Analysis for DMU A (CCR-IO)")
 ```
 
 This model is very simple.  
 
-Let's now extend it to handle multiple inputs and outputs.
+Let's now extend it to handle multiple inputs, NX, and outputs, NY.  Of course this doesn't have any impact on our results just yet since we are still only using a single input and output but we now have the structure to accommodate the more general case.
 
 ```{r ompr_mult_IO}
 
@@ -216,17 +237,28 @@ result <- MIPModel() %>%
   solve_model(with_ROI(solver = "glpk")) 
 #  filter(value > 0)
 
-omptheta <-  get_solution(result, vtheta) 
+omprtheta <-  get_solution(result, vtheta) 
 omprlambda <-  get_solution(result, vlambda[j])
 
-pander(omprtheta)
-pander(omprlambda)
+results.efficiency <- t(omprtheta)
+colnames(results.efficiency) <- c("CCR-IO")
+results.lambda <- t(omprlambda[3])
+      # Takes the third column from the results and transposes results
+      #    to be structured correctly for later viewing
+colnames(results.lambda) <- c("L_A", "L_B", "L_C", "L_D")
+
+pander(cbind(results.efficiency, results.lambda), 
+       caption="Repeated Results Allowing for Multiple Inputs and Outputs")
 
 ```
 
-Now we should extend this to handle all of the decision making units.  
+Now we should extend this to handle all four of the decision making units.  
 
-```{r ompr_mult_DMUs}
+```{r ompr_mult_DMUs, message=FALSE}
+
+results.efficiency <- matrix(rep(-1.0, 1), nrow=ND, ncol=1)
+results.lambda     <- matrix(rep(-1.0, ND), nrow=ND,ncol=ND)
+
 
 for (k in 1:ND) {
 
@@ -244,8 +276,8 @@ for (k in 1:ND) {
   print(c("DMU=",k,solver_status(result)))
 #  print(get_solution(result, vlambda[1:(ND)]) )
     results.efficiency[k] <-  get_solution(result, vtheta)       
-    results.lambda[,k] <- as.matrix(as.numeric(
-              get_solution(result, vlambda[j])[,3] ))
+    results.lambda[k,] <- t(as.matrix(as.numeric(
+              get_solution(result, vlambda[j])[,3] )))
        # Put lambda values in matrix
        # Comes out of ompr as a dataframe, use as.matrix 
        #    to convert from data frame to matrix
@@ -256,8 +288,9 @@ for (k in 1:ND) {
        # but I'll leave that for future work.
 
 }
-pander (results.efficiency, caption="Input-Oriented Efficiency Scores")
-pander (results.lambda, caption="Lambda Values")
+colnames(results.lambda) <- c("L_A", "L_B", "L_C", "L_D")
+pander (cbind(results.efficiency, results.lambda),
+        caption="Input-Oriented Efficiency Results")
 
 ```
 
@@ -305,8 +338,8 @@ result <-   solve_model(result, with_ROI(solver = "glpk"))
 #  print(c("DMU=",k,solver_status(result)))  # Useful for diagnostics
 #  print(get_solution(result, vlambda[1:(ND)]) )
     results.efficiency[k] <-  get_solution(result, vtheta)       
-    results.lambda[,k] <- as.matrix(as.numeric(
-              get_solution(result, vlambda[j])[,3] ))
+    results.lambda[k,] <- t(as.matrix(as.numeric(
+              get_solution(result, vlambda[j])[,3] )))
        # Put lambda values in matrix
        # Comes out of ompr as a dataframe, use as.matrix 
        #    to convert from data frame to matrix
@@ -317,8 +350,9 @@ result <-   solve_model(result, with_ROI(solver = "glpk"))
        # but I'll leave that for future work.
 
 }
-pander (results.efficiency, caption="Efficiency Scores")
-pander (results.lambda, caption="Lambda Values")
+colnames(results.lambda) <- c("L_A", "L_B", "L_C", "L_D")
+pander (cbind(results.efficiency, results.lambda), 
+        caption="Input-Oriented VRS Envelopment Results (BCC-IO)")
 
 ```
 
@@ -360,16 +394,15 @@ result <-   solve_model(result, with_ROI(solver = "glpk"))
 #  print(c("DMU=",k,solver_status(result)))
 #  print(get_solution(result, vlambda[1:(ND)]) )
     results.efficiency[k] <-  get_solution(result, vtheta)       
-    results.lambda[,k] <- as.matrix(as.numeric(
-              get_solution(result, vlambda[j])[,3] ))
+    results.lambda[,k] <- t(as.matrix(as.numeric(
+              get_solution(result, vlambda[j])[,3] )))
 
 }
-pander (results.efficiency, caption="Efficiency Scores")
-pander (results.lambda, caption="Lambda Values")
+colnames(results.lambda) <- c("L_A", "L_B", "L_C", "L_D")
+pander (cbind(results.efficiency, results.lambda), 
+        caption="Input-Oriented BCC Model with Option of Alternate Returns to Scale")
 
 ```
-
-
 
 ## Multiple Inputs and Multiple Ouptuts
 
@@ -462,8 +495,8 @@ for (k in 1:ND) {
 result <-   solve_model(result, with_ROI(solver = "glpk")) 
     
     results.efficiency[k] <-  get_solution(result, vtheta)       
-    results.lambda[,k] <- as.matrix(as.numeric(
-                     get_solution(result, vlambda[j])[,3] ))
+    results.lambda[k,] <- t(as.matrix(as.numeric(
+                     get_solution(result, vlambda[j])[,3] )))
 }
 pander (cbind(results.efficiency, results.lambda),round=6, caption="Results from Baker's Example")
 
@@ -561,8 +594,8 @@ for (k in 1:ND) {
     result <-   solve_model(LPSlack, with_ROI(solver = "glpk")) 
   
     results.efficiency[k] <-  get_solution(result, vtheta)       
-    results.lambda[,k] <- as.matrix(
-                 as.numeric(get_solution(result, vlambda[j])[,3] ))
+    results.lambda[k,] <- t(as.matrix(
+                 as.numeric(get_solution(result, vlambda[j])[,3] )))
 }
 
 rownames(results.efficiency)<-c("A", "B", "C", "D", "E", "F")
@@ -571,4 +604,11 @@ pander(cbind(results.efficiency,xdata,ydata,results.lambda), round=5, caption="I
 
 ```
 
-The rightmost columns are the lambda values 
+The rightmost columns are the lambda values.  
+
+##To-Do for Chapter
+
+* Enrich example of slacks
+* Add graphical figure showing slack maximization
+* Generalize column name setting for ND where appropriate.
+
