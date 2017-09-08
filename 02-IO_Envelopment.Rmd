@@ -1,7 +1,7 @@
 ---
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 # Input-Oriented Envelopment Model
 
@@ -73,10 +73,9 @@ We'll start by creating a mathematical framework. Can you find a combination of 
 
 This can be easily expanded to the multiple input and multiple output case by defining $x_{i,j}$ to  be the amount of the _i_'th input used by unit _j_ and $y_r,j$ to be the amount of the _r_'th output produced by unit _j_.  For simplicity, this example will focus on the one input and one output case rather than the _m_ input and _s_ output case but the R code explicitly allows for $m,s>1$.  To make the code more readable, I will use a slightly different convention _NX_ instead of _m_ to refer to the number of inputs (x's) and _NY_ to be the number of ouputs (y's) instead of _s_. Also, the normal mathematical convention is to use _n_ to denote the number of Decision Making Units (DMUs) so I will use _ND_ to indicate that in the R code.  
 
-The linear program for the input-oriented envelopment model of a DMU _k_ is to find a target constructed of a mix of the DMU's described by $\lambda_{j}$ that use no more input to achieve the same or more output.  The amount of the input used is $\sum_{j=1}^{n} x_{i,j}\lambda_j$.  
+Let's connect these ideas together now using these mathematical building blocks.  The core idea of the envelopment model of a DMU _k_ can be thought of as to find a target constructed of a mix of the DMU's described by a vector $\lambda_$ that uses no more input to achieve the same or more every output as DMU _k_.  The amount of the _i'th_ input used by the target is then $\sum_{j=1}^{n} x_{i,j}\lambda_j$.  By the same token, the amount of the _r'th_ output produced by the target is $\sum_{j=1}^{n} y_{r,j}\lambda_j$.  
 
-
-This needs to be less than i'th input of DMU $x_{i,k}$. 
+This gives us two sets of constraints along with a restriction of non-negativity.  These are shown in the following relationships that must all be satisfied simultaneously.
 
 $$
  \begin{split}
@@ -88,6 +87,12 @@ $$
   \end{split}
   (\#eq:ConstructingTargets)
 $$
+
+This is not yet a linear program because it is missing an objective function.  It defines what is an acceptable target of performance that is at least as good as DMU _k_ but does not try to find a _best_ target.
+
+The two most common approaches to finding the best target are the input-oriented and output-oriented models. In the Output-oriented model, the first (input) constraint is satisfied while trying to _exceed_ the second constraint (output) by as much possible.  This focus on increasing the output is then called an _output orientation_.
+
+In this chapter, we will focus on satisfying the second constraint while trying to improve upon the first by as much as possible.  In other words, we will satisfy the second (output) constraint but try to form a target that uses as little input as possible.
 
 In fact, we will go one step further and say that we want to find the maximum input possible reduction in k's input or conversely, the minimum amount of the input that could be used by the target while still producing the same or more output.  We do this by adding a new variable, $/theta$, which is the radial reduction in the amount of DMU k's input.  We want to find how low we can drive this by _minimizing_ $/theta$.  This gives us the following linear program, often abbreviated as LP.  
 
@@ -146,7 +151,7 @@ Let's define some data structures for holding our results.
 
   results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
 #  dimnames(results.efficiency)<-list(c(LETTERS[1:ND]),c("Eff"))
-  dimnames(results.efficiency)<-c(DMUnames,"Eff")  # Attach names
+  dimnames(results.efficiency)<-c(DMUnames,"CCR-IO")  # Attach names
   
   results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
   dimnames(results.lambda)<-c(DMUnames,Lambdanames)
@@ -167,7 +172,7 @@ Let's define some data structures for holding our results.
 
 We're going to use our data from earlier.  
 
-```{r loading_packages, warning=FALSE}
+```{r loading_packages, message=FALSE, warning=FALSE}
      # options: message=FALSE, warning=FALSE to turn off display
 
 library(pander)           # Used for making nicely formatted tables
@@ -206,9 +211,8 @@ NY <- 1 # One output
 results.efficiency <- matrix(rep(-1.0, 1), nrow=1, ncol=1)
 results.lambda     <- matrix(rep(-1.0, ND), nrow=1,ncol=ND)
 
-
 results.efficiency <- t(omprtheta)
-colnames(results.efficiency) <- c("Efficiency")
+colnames(results.efficiency) <- c("CCR-IO")
 results.lambda <- t(omprlambda[3])
       # Takes the third column from the results and transposes results
       #    to be structured correctly for later viewing
@@ -218,11 +222,11 @@ pander(cbind(results.efficiency, results.lambda),
        caption="Input-Oriented Envelopment Analysis for DMU A (CCR-IO)")
 ```
 
-This model is very simple.  
+The above table follows a few conventions of labeling the efficiency score by the model used for the model, in this case the input-oriented variable returns to scale is labeled as CCR after Charnes, Cooper, and Rhodes.  Later we will cover other models including the variable returns to scale model, labeled BCC after Banker, Charnes, and Cooper.  Another convention is to use "L" in place of the Greek symbol $\lambda\$ due to complications with using symbols in R matrix row or column names.  
 
 Let's now extend it to handle multiple inputs, NX, and outputs, NY.  Of course this doesn't have any impact on our results just yet since we are still only using a single input and output but we now have the structure to accommodate the more general case.
 
-```{r ompr_mult_IO}
+```{r ompr_mult_IO, message=FALSE}
 
 k<-1    # DMU to analyze.  Let's start with just one for now.
 
@@ -288,7 +292,10 @@ for (k in 1:ND) {
        # but I'll leave that for future work.
 
 }
-colnames(results.lambda) <- c("L_A", "L_B", "L_C", "L_D")
+Lambdanames <- list("L_A", "L_B", "L_C", "L_D")
+DMUnames <- list("A", "B", "C", "D")
+dimnames(results.efficiency)<-list(DMUnames,"CCR-IO")
+dimnames(results.lambda)<-list(DMUnames,Lambdanames)
 pander (cbind(results.efficiency, results.lambda),
         caption="Input-Oriented Efficiency Results")
 
@@ -350,7 +357,10 @@ result <-   solve_model(result, with_ROI(solver = "glpk"))
        # but I'll leave that for future work.
 
 }
-colnames(results.lambda) <- c("L_A", "L_B", "L_C", "L_D")
+Lambdanames <- list("L_A", "L_B", "L_C", "L_D")
+DMUnames <- list("A", "B", "C", "D")
+dimnames(results.efficiency)<-list(DMUnames,"BCC-IO")
+dimnames(results.lambda)<-list(DMUnames,Lambdanames)
 pander (cbind(results.efficiency, results.lambda), 
         caption="Input-Oriented VRS Envelopment Results (BCC-IO)")
 
@@ -398,7 +408,10 @@ result <-   solve_model(result, with_ROI(solver = "glpk"))
               get_solution(result, vlambda[j])[,3] )))
 
 }
-colnames(results.lambda) <- c("L_A", "L_B", "L_C", "L_D")
+Lambdanames <- list("L_A", "L_B", "L_C", "L_D")
+DMUnames <- list("A", "B", "C", "D")
+dimnames(results.efficiency)<-list(DMUnames,"BCC-IO")
+dimnames(results.lambda)<-list(DMUnames,Lambdanames)
 pander (cbind(results.efficiency, results.lambda), 
         caption="Input-Oriented BCC Model with Option of Alternate Returns to Scale")
 
@@ -463,7 +476,7 @@ Lambdanames <- lapply(list(rep("L_",ND)),paste0,LETTERS[1:ND])
   
 dimnames(xdata)<-c(DMUnames,Xnames)
 dimnames(ydata)<-c(DMUnames,Ynames)
-dimnames(results.efficiency)<-c(DMUnames,"Eff")
+dimnames(results.efficiency)<-c(DMUnames,"CCR-IO")
 dimnames(results.lambda)<-c(DMUnames,Lambdanames)
 dimnames(results.vweight)<-c(DMUnames,Vnames)
 dimnames(results.uweight)<-c(DMUnames,Unames)

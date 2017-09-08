@@ -7,10 +7,9 @@ output:
 
 Introduction
 -----------------------------
-Every linear program has a related alter ego referred to as the dual.  By duality, the two models have the same optimal objective function values.  In DEA, the multiplier models are simply the dual of the envelopment models.  In terms of the matrix representations of DEA given in chapter 3, the A matrix is transposed, rows give way to columns and columns become rows.  The right hand side values appear in the objective function while the previous objective function coefficients become right hand side values.  More could be said about this but will be deferred for people interested in duality or more algorithmic aspects of linear programming.  
+Every linear program has a related alter ego referred to as the dual.  By duality, the two models have the same optimal objective function values.  In DEA, the multiplier models are simply the dual of the envelopment models.  In terms of the matrix representations of DEA given in chapter 3, the A matrix is transposed, rows give way to columns and columns become rows.  The right hand side values appear in the objective function while the previous objective function coefficients become right hand side values.  More could be said about this but this will be deferred for people interested in duality or more algorithmic aspects of linear programming.  
 
-Let's turn our attention instead to deriving the DEA model through a ratio.  
-
+Let's turn our attention instead to intuitively developing the DEA multiplier model through a simple scoring ratio.
 
 ##The Ratio Model
 

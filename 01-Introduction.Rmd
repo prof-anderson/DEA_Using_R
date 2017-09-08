@@ -17,11 +17,11 @@ Peter Bogetoft and Lars Otto have written a very thorough book on DEA and other 
 
 This book  presumes some basic familiarity with R but will also walk through a lot of commands along the way.  It is not intended to be a standalone R programming tutorial.  
 
-_The Art of R Programming_ is an excellent book treat R as a programming environment and helping people that have familiarity with basic programming in some other language make the transition to using R as a rich computational environment.  It was [published](http://shop.oreilly.com/product/9781593273842.do) in 2011 so it is getting a little dated but still a nice resource.  
+_The Art of R Programming_ takes a different perspective on R by emphasizing it as a programming environment and helping people that have familiarity with software development in some other language make the transition to using R as a rich computational environment.  It was [published](http://shop.oreilly.com/product/9781593273842.do) in 2011 so it is getting a little dated but still a nice resource.  
 
 ## Status
 
-This book is currently in a very rough draft mode.  As such, the writing needs more polish as well.  The current book is rapidly evolving.  
+This book is currently in a very rough draft state.  As such, the writing needs more polish as well.  Some items are coded in a less efficient manner for a variety of reasons, sometimes for simplicity of the reader.  If you have suggestions on how to improve this book, please let me know.  The current book is rapidly evolving.  
 
 Topics to consider in the future:
 
@@ -56,13 +56,14 @@ Comments are welcome.
 
 ## Acknowledgements
 
-This book has benefitted from the interactions of many people over the years.  In particular, I would like to thank the following:
+This book has benefitted from the interactions of many people over the years.  In particular, I would like to thank the following students and graduates from over the recent years that have made direct or indirect contributions this effort.  
 
 * Dr. Dong-Joon Lim
 * Tim Calderwood
-* Nina Chaichai
+* Nina Chaichi
 * Maoloud Dabab
 * Jiali Ju
-* Aurobindh Kalathil 
+* Aurobindh Kalathil Puthanpura
 * Tom Shott
 * Kevin van Blommestein
+
