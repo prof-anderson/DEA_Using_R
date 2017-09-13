@@ -48,5 +48,5 @@ $$
   \end{aligned}
 $$
 
-## Creating the LP - The Algebraic Approach
+## Creating the LP - The Algebraic Approach - TO BE ADDED
 

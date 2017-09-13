@@ -73,7 +73,7 @@ We'll start by creating a mathematical framework. Can you find a combination of 
 
 This can be easily expanded to the multiple input and multiple output case by defining $x_{i,j}$ to  be the amount of the _i_'th input used by unit _j_ and $y_r,j$ to be the amount of the _r_'th output produced by unit _j_.  For simplicity, this example will focus on the one input and one output case rather than the _m_ input and _s_ output case but the R code explicitly allows for $m,s>1$.  To make the code more readable, I will use a slightly different convention _NX_ instead of _m_ to refer to the number of inputs (x's) and _NY_ to be the number of ouputs (y's) instead of _s_. Also, the normal mathematical convention is to use _n_ to denote the number of Decision Making Units (DMUs) so I will use _ND_ to indicate that in the R code.  
 
-Let's connect these ideas together now using these mathematical building blocks.  The core idea of the envelopment model of a DMU _k_ can be thought of as to find a target constructed of a mix of the DMU's described by a vector $\lambda_$ that uses no more input to achieve the same or more every output as DMU _k_.  The amount of the _i'th_ input used by the target is then $\sum_{j=1}^{n} x_{i,j}\lambda_j$.  By the same token, the amount of the _r'th_ output produced by the target is $\sum_{j=1}^{n} y_{r,j}\lambda_j$.  
+Let's connect these ideas together now using these mathematical building blocks.  The core idea of the envelopment model of a DMU _k_ can be thought of as to find a target constructed of a mix of the DMU's described by a vector $\lambda$ that uses no more input to achieve the same or more every output as DMU _k_.  The amount of the _i'th_ input used by the target is then $\sum_{j=1}^{n} x_{i,j}\lambda_j$.  By the same token, the amount of the _r'th_ output produced by the target is $\sum_{j=1}^{n} y_{r,j}\lambda_j$.  
 
 This gives us two sets of constraints along with a restriction of non-negativity.  These are shown in the following relationships that must all be satisfied simultaneously.
 
@@ -222,7 +222,7 @@ pander(cbind(results.efficiency, results.lambda),
        caption="Input-Oriented Envelopment Analysis for DMU A (CCR-IO)")
 ```
 
-The above table follows a few conventions of labeling the efficiency score by the model used for the model, in this case the input-oriented variable returns to scale is labeled as CCR after Charnes, Cooper, and Rhodes.  Later we will cover other models including the variable returns to scale model, labeled BCC after Banker, Charnes, and Cooper.  Another convention is to use "L" in place of the Greek symbol $\lambda\$ due to complications with using symbols in R matrix row or column names.  
+The above table follows a few conventions of labeling the efficiency score by the model used for the model, in this case the input-oriented variable returns to scale is labeled as CCR after Charnes, Cooper, and Rhodes.  Later we will cover other models including the variable returns to scale model, labeled BCC after Banker, Charnes, and Cooper.  Another convention is to use "L" in place of the Greek symbol $\lambda$ due to complications with using symbols in R matrix row or column names.  
 
 Let's now extend it to handle multiple inputs, NX, and outputs, NY.  Of course this doesn't have any impact on our results just yet since we are still only using a single input and output but we now have the structure to accommodate the more general case.
 

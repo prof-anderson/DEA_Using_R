@@ -155,7 +155,7 @@ The name `lpe` is meant to indicate a linear programming object for the envelopm
 
 We easily display what our empty `lpe` object looks like.
 
-```{r Display_lp_Empty}
+```{r Display_lp_Empty, results='asis'}
    lpe 
 ```
 

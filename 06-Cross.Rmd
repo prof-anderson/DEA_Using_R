@@ -80,7 +80,7 @@ We're going to use our data from earlier.  For this example, we will use the dat
 
 ```{r multiplier_model }
 
-
+library(pander)           # For better tables
 library(dplyr)            # For data structure manipulation
 library(ROI)              # R Optimization Interface package
 library(ROI.plugin.glpk)  # Connection to glpk as solver
@@ -146,7 +146,7 @@ colnames(y)[2] <- c("Private")
 # Calculate the efficiency score
 result <- DeaMultiplierModel(x,y,"crs", "input")
 # Examine the efficiency score for DMUs
-print(result$Efficiency)
+pander(result$Efficiency)
 ```
 
 The efficiency scores match the earlier results and that of Baker.  
@@ -168,7 +168,7 @@ colnames(y)[2] <- c("Private")
 # Calculate the efficiency score
 result <- CrossEfficiency(x,y,"crs", "input")
 # Examine the cross efficiency score for DMUs
-print(result$ce_ave)
+pander(result$ce_ave)
 
 ```
 
@@ -225,9 +225,7 @@ multiplierIO <- function (x,y)
 
 resfunc <- multiplierIO(x,y)
 
-print (resfunc$efficiency)
-print (resfunc$vweight)
-print (resfunc$uweight)
+pander (cbind(resfunc$efficiency,resfunc$vweight,resfunc$uweight))
 ```
 
 You can think of the cross-efficiency by going back to revisit the original ratio model of the multiplier model.  Let's extend the definition of the input and output weights to reflect for which unit the weights were determined.  For example, $u_{r,k}$ is then the weight on output r when analyzed from the perspetive of DMU k and a similar interpretation applies to input weight.  
@@ -284,10 +282,10 @@ for (k in 1:ND) {
    for (j in 1:ND) {results.crosseval[k,j]<-sum(results.uweight[k,]*ydata[j,])/sum(results.vweight[k,]*xdata[j,])
                    }
 }
-results.crosseval
+pander(results.crosseval)
 
 for (j in 1:ND) {results.crosseff[j]<-sum(results.crosseval[,j])/ND}
-results.crosseff
+pander(results.crosseff)
 
 ```
 
@@ -322,8 +320,8 @@ rescross <- calccrosseff (xdata, ydata, results.vweight, results.uweight)
 
 print("Printing results from function for calculating cross-efficiency")
 
-print(rescross$crosseval)
-print(rescross$crosseff)
+pander(rescross$crosseval)
+pander(rescross$crosseff)
 
 ```
 
@@ -394,8 +392,7 @@ multiplierIOSec <- function (xx, yy)
 
 } # End of function  
 
-print(xdata)
-print(ydata)
+pander(cbind(xdata,ydata))
 
 # resfunc <- multiplierIOSec (xdata, ydata)
 #  Bug in my code, gives message:
@@ -404,13 +401,14 @@ print(ydata)
 
 ```
 
-Nearly working...  Just need to fix bug.  Calling the function __resfunc__ results in a an error:  __Error in typeof(x) : argument "x" is missing, with no default__.
 
-## Future Issues for Cross-Efficiency
+
+## Future Issues for Cross-Efficiency Chapter
 
 Issues to consider in the future for this chapter or other chapters:
 
 * Multiple Optima
 * Secondary Objective Functions
 * Fixed Weighting nature of certain model dimensions
+* Need to add row and column names along with captions for tables to make sense.
 

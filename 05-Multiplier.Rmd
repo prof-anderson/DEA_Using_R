@@ -82,6 +82,7 @@ We're going to use our data from earlier.  For this example, we will use the dat
 
 ```{r multiplier_model }
 
+library(pander)           # For making nice tables
 library(dplyr)            # For data structure manipulation
 library(ROI)              # R Optimization Interface package
 library(ROI.plugin.glpk)  # Connection to glpk as solver
@@ -157,15 +158,11 @@ for (k in 1:ND) {
 
  }
 
-print (results.efficiency)
-print (results.vweight)
-print (results.uweight)
+pander(cbind (results.efficiency, results.vweight, results.uweight))
 
 ```
 
 The weights from the multiplier model often have multiple alternative solutions-in other words, different values for decision variables that give the same objective function value.  In optimization, this situation is called multiple optima.  In DEA this means that the weights may be different depending upon the particular settings used for solving the linear program.  The result is that you should be careful in over interpreting the weights as well as in how you interpret results when trying to reproduce analyses.
-
-
 
 ## Future Issues
 
@@ -177,4 +174,4 @@ Issues to consider in the future for this chapter or other chapters.
 * Cross-efficiency
 * Adding output-oriented multiplier model
 * Adding returns to scale to multiplier model
-
+* Better table headings drawn from chapter 2 work
