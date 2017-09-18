@@ -1,13 +1,13 @@
 ---
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 # Matrix Formulations of DEA
 
-In the previous chapter we created the DEA linear program algebraically using the new ompr package.  Before _opmr_  was available, we needed to use another approach for our DEA package, _TFDEA_ which consisted of using matrices. This approach is requires more "bookkeeping". Both approaches work but I think the algebraic approach is likely to be easier to write, debug, and extend in the future.  For solving, we will use the widely adopted _lpsolveapi_ package. 
+In the previous chapter we created the DEA linear program algebraically using the new ompr package.  Before _ompr_  was available, we needed to use another approach for our DEA package, _TFDEA_, which consisted of using matrices. This approach is requires more "bookkeeping". Both approaches work but I think the algebraic approach is likely to be easier to write, debug, and extend in the future.  For solving, we will use the widely adopted _lpsolveapi_ package. 
 
-People interested in working on the TFDEA package should read this chapter carefully.  It covers slack maximization as well.  We will be returning to these topics algebraically as well later.  For people that want to stick to the algebraic implementation and using _opmr_, you can skip this chapter.  
+People interested in working on the TFDEA package should read this chapter carefully.  We will be returning to these topics algebraically as well later.  For people that want to stick to the algebraic implementation and using _ompr_, you can skip this chapter.  
 
 To get it ready for matrix formulating, we need to  put it in the standard form of linear programs which means that only numbers can be on the right hand side of the inequalities.  
 The standard form of linear programming can be described as the following.  
@@ -31,8 +31,8 @@ $$
 \begin{split}
 \begin{aligned}
     \text{minimize  }   & \theta \\
-    \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j \leq \theta x_{i,k} \forall \; i\\
-                       & \sum_{j=1}^{n} y_{r,j}\lambda_j \geq  y_{r,k} \forall \; r\\
+    \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j \leq \theta x_{i,k} \forall \; i\\
+                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \forall \; r\\
                        & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
    \end{split}
@@ -45,8 +45,8 @@ $$
 \begin{split}
  \begin{aligned}
     \text{minimize  }   & \theta \\
-    \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j - \theta x_{i,k} \leq 0 \forall \; i\\
-                       & \sum_{j=1}^{n} y_{r,j}\lambda_j \geq  y_{r,k} \forall \; r\\
+    \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} \leq 0 \forall \; i\\
+                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \forall \; r\\
                        & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
    \end{split}
@@ -59,8 +59,8 @@ $$
 \begin{split}
  \begin{aligned}
     \text{minimize  }   & \theta \\
-    \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \forall \; i\\
-                       & \sum_{j=1}^{n} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \forall \; r\\
+    \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \forall \; i\\
+                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \forall \; r\\
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; i,r,j
   \end{aligned}
    \end{split}
@@ -90,7 +90,7 @@ $$
 (\#eq:LPCCRIOE-Matrix-Example)
 $$
 
-If you stare at that too long, you may go "bug-eyed."  The matrix representation is not a very friendly format for people.  Personally I really like the algebraic representations.  This format though works really well for the computer.  The lpSolveAPI package in R is capable of taking an LP model in this form and solving it. Now we just need to structure the data in R to put it in the same format.  
+If you stare at that too long, you may go "bug-eyed."  The matrix representation is not a very friendly format for people.  Personally I really like the algebraic representations.  This matrix format though works really well for the computer.  The lpSolveAPI package in R is capable of taking an LP model in this form and solving it. Now we just need to structure the data in R to put it in the same format.  
 
 ##Creating the LP
 
@@ -117,7 +117,7 @@ First, let's declare each of the needed basic data structures.  First, determine
   
   ND <- nrow(x); NX <- ncol(x); NY <- ncol(y); 
   
-  pander(cbind(x,y))
+  pander(cbind(x,y),caption="Input-Output Data")
 ```
 
 Now we will declare the data structures for inputs and outputs that will contain the data that we use.  It is a little redundant to create new objects for the x and y data but there are advanced cases when it is helpful.
@@ -144,10 +144,10 @@ This is overkill since it has space for results of every unit instead of just th
 
 Now it is time for more model options.  
 
-This is where we start creating the populating the linear programming model.  This model declaration creates a problem with needed number of columns (variables) for standard DEA envelopment models.  
+This is where we start creating the populating the linear programming model.  This model declaration creates a problem with the needed number of columns (variables) for standard DEA envelopment models.  
 
 ```{r Create_lp_opject}
-# This creates an empty LP object that we will stuff as appropriate.
+# This creates an empty LP object that we will populate as appropriate.
     lpe <- make.lp(0,(ND+1+NX+NY))   
 ```
 
@@ -155,13 +155,13 @@ The name `lpe` is meant to indicate a linear programming object for the envelopm
 
 We easily display what our empty `lpe` object looks like.
 
-```{r Display_lp_Empty, results='asis'}
+```{r Display_lp_Empty}
    lpe 
 ```
 
-It isn't very interesting but building it up step by step shows what we are doing and why.
+The empty LP isn't very interesting but building it up step by step shows what we are doing and why.
 
-This is an important step where we say that we are picking a particular unit to examine.  Since our earlier graphical analysis pointed to unit _B_, we will also look at unit 2.  Changing to a different unit is as simple as changing the number 2.  Of course, even easier is to use a 'for' loop to run through doing it for every unit but that simple change is something that we will also leave for later.  The current format let's me continue to explain how DEA works one chunk of R code at a time.
+This is an important step where we say that we are picking a particular unit to examine.  Since our earlier graphical analysis pointed to unit _B_, we will also look at unit 2.  Changing to a different unit is as simple as changing the number 2.  Of course, even easier is to use a 'for' loop to run through doing it for every unit but that simple change is something that we will also leave for later.  The current format lets me continue to explain how DEA works one chunk of R code at a time.
 
 ```{r Which_Unit}
     k <- 2   # Declare a particular unit instead of 
@@ -178,7 +178,7 @@ In this case, the "1" corresponds to the column for the $\theta$ variable of the
       set.objfn(lpe, c(rep(0, ND),1,rep(0,NX+NY)))  # Minimize the theta variable.
 ```
 
-The above command has two important functions.  The first merely sets it to be a _minimize_ objective function.  The second part puts the relevant 0's and 1's in the objective function.  
+The above commands have two important functions.  The first merely sets it to be a _minimize_ objective function.  The second puts the relevant 0's and 1's in the objective function.  
 
 The lp.control function returns a long list of options being used for the linear programming solver.  The defaults are fine for now and it can take a full page to list all the settings so I just store it into an object, lpcontrol so it doesn't display it for now.
 
@@ -258,7 +258,7 @@ Finally, solve the LP to calculate the efficiency score.
 
 Simply solving doesn't tell us anything very useful.  It just gives an error code of 0 (or at least we hope to get that-anything else is worth digging into!) An error code of 0 means that it solved the problem.  When it does so, it adds results to the _lpe_ opbject.  Now we need to extract the results from the solution in a form that we can use.
 
-We have four separate steps.  In the input oriented model, we read out the objective function value and place it in the _k_'th place of _results.efficiency_.  
+We have four separate steps.  In the input-oriented model, we read out the objective function value and place it in the _k_'th place of _results.efficiency_.  
 
 The following step sets _Phase1_ equal to the same efficiency score.  We will use this value in a second LP that we creatively refer to as Phase2 in order to make sure that we have an optimal target.  
 
@@ -296,8 +296,8 @@ Let's look at our results!
   dimnames(results.lambda)<-c(DMUnames,DMUnames)
   dimnames(results.xslack)<-c(DMUnames,SXnames)
   dimnames(results.yslack)<-c(DMUnames,SYnames)
-  dimnames(results.xslack)<-c(DMUnames,Vnames)
-  dimnames(results.yslack)<-c(DMUnames,Unames)
+  dimnames(results.vweight)<-c(DMUnames,Vnames)
+  dimnames(results.uweight)<-c(DMUnames,Unames)
 
 results.efficiency [k]  # Display efficiency score for unit k
 results.lambda  [k,]    # Display lambda variables
@@ -322,9 +322,9 @@ $$
 \begin{split}
  \begin{aligned}
     \text{maximize  }  & \sum_{i}s^x_i + \sum_{r}s^y_r\\
-    \text{subject to } & \sum_{j=1}^{n} \lambda_j  = 1\\
-                       & \sum_{j=1}^{n} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \; \forall \; i\\
-                       & \sum_{j=1}^{n} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
+    \text{subject to } & \sum_{j=1}^{N^D} \lambda_j  = 1\\
+                       & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \; \forall \; i\\
+                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
                        & \theta = \theta^*\\
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j
   \end{aligned}

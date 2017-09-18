@@ -11,15 +11,15 @@ Data envelopment analysis or DEA is a powerful tool for conducting studies of ef
 
 While tools exist for conducting the evaluations, it is important to understand how the tools work. Many DEA studies have been conducted and published by authors with only a superficial understanding of the technique.  This is equivalent to having a house built by carpenters that only (barely?) understand how to use a hammer.  The purpose of this document is to show how DEA works, what it means, and how to use R for getting started with DEA.  In order to keep things simple, this first step only looks at the input-oriented envelopment model with constant returns to scale.  We will consider other models soon.  
 
-This chapter walks through how DEA works and then shows how to implement the model in R using two very different approaches.  Over the years, I have built DEA models in many languages and platforms:  Pascal, LINDO, LINGO, Excel Macros, Excel's VBA, GAMS, AMPL, and GLPK among others.  Each represents a different set of tradeoffs. 
+This chapter walks through how DEA works and then shows how to implement the model in R using two very different approaches.  Over the years, I have built DEA models in many languages and platforms:  Pascal, LINDO, LINGO, Excel Macros, Excel VBA, GAMS, AMPL, and GLPK among others. 
 
-Recently, my research group at PSU adopted the R platform. It too carries its own set of tradeoffs:
+Recently, my research group at PSU adopted the R platfom based on the following strengths:
 
 * Open-source so that people can dive as deep as they need and no risk of future vendor lock-in
 * Freely available so it does not strain research budgets
 * Extensive collection of numerical add-in packages (over 10000 at CRAN) to build upon
 * Robust distribution of add-in packages could help improve distribution of our own contributions
-* Multiple linear programming packages
+* Multiple linear programming packages to choose from among
 * Widespread usage and acceptace in the research and analytics communities
 
 Creating the Data
@@ -29,17 +29,37 @@ Let's start by defining data.  DEA typically has inputs and outputs.  The input(
 
 In contrast, outputs are the "good" items that are being produced by the actions of the producers.  Examples of outputs include automobiles produced, customers served, or 
 
-Let's start by creating a simple dataset.  We'll assume that we have a small group of units.  Which of these units are the best?  Which are laggards?  
+Let's start by creating a simple dataset.  We'll assume that we have a small group of units, named A, B, C, and D.  These use inputs which we will label _x_ and produce products or outputs that we will label _y_. 
 
-```{r}
+```{r, echo=FALSE}
+library(pander)
 x <- matrix(c(10,20,30,50),ncol=1,dimnames=list(LETTERS[1:4],"x"))
 
 y <- matrix(c(75,100,300,400),ncol=1,dimnames=list(LETTERS[1:4],"y"))
+
+pander(cbind(x,y))
+
 ```
+
+Which of these units are the best?  Which are laggards?  Simply looking at the data is difficult.  Let's load it into R and then plot it.  
+
+```{r}
+library(pander)
+x <- matrix(c(10,20,30,50),ncol=1,dimnames=list(LETTERS[1:4],"x"))
+
+y <- matrix(c(75,100,300,400),ncol=1,dimnames=list(LETTERS[1:4],"y"))
+
+pander(cbind(x,y))
+```
+
+While we aren't giving a formal introduction to R, let's start by explaining the above commands.  The first line `library (pander)` loads a common library that makes for nicely formatted tables. [^1]
+[^1]: Pander is one of many thousands of contributed external packages that can be downloaded to extend R.  If it does not work to load it using the library, you likely need to install it onto your computer using the install command. 
+
+The following commands create matrices that hold the data and have named rows and columns to match.  The <- symbol is a key function in R and means to assign what is in the right to the object on the left.  
 
 For benchmarking, we want to know which ones are doing the best job.
 
-Can you tell which units represent the best tradeoff between inputs and outputs?  None of the units are dominated by any of the other units.  
+Can you tell which units represent the best tradeoff between inputs and outputs?  None of the units are dominated by any of the other units.  Dominance would be producing more outputs using less input so let's move on to looking at it graphically.  
 
 Graphical Analysis
 -----------------------------
@@ -54,7 +74,7 @@ dea.plot(x, y, RTS="crs", ORIENTATION="in-out", txt=LETTERS[1:length(x)],
          RANGE=FALSE, param=NULL)
 ```
 
-This chart clearly shows that unit _C_ has the best ratio of output (y) to input (x).  The diagonal line represents an efficiency frontier of best practices that could be achieved by scaling up or down unit _C_.  As the input is scaled up or down, it is assumed that the output of unit _C_ would be scaled up or down by the same value.  We will return to assumption in a later section but for now, think of this as saying that unit C cannot enjoy economies of scale by getting larger or diseconomies of scale by getting smaller so it is referred to as constant returns to scale or CRS.
+This chart clearly shows that unit _C_ has the best ratio of output (y) to input (x).  The diagonal line represents an efficiency frontier of best practices that could be achieved by scaling up or down unit _C_.  As the input is scaled up or down, it is assumed that the output of unit _C_ would be scaled up or down by the same value.  We will revisit this assumption in a later section but for now, think of this as saying that unit _C_ cannot enjoy economies of scale by getting larger or diseconomies of scale by getting smaller so it is referred to as constant returns to scale or CRS.
 
 Furthermore, we can graphically examine the technical efficiency of each of the other units.  I'm going to start with unit B since it is a little easier to visualize.  For now, let's think of the question, how much more or less input would _C_ require to produce as much output as _B_.  
 
@@ -67,21 +87,23 @@ The same steps can be followed for analyzing units _A_, _C_, and _D_.
 The Linear Programs for DEA
 -----------------------------
 
-On the other hand, what if it allowed for blending of units.  There are a few assumptions that we could make.  Let's start by saying that we can compare any particular products by rescaling (up or down) any other product as well as any combination of units.  
+The graphical approach is intuitive but accuracy is limited to that of drawing tools.  More importantly, it does not scale to more complex models with multiple inputs and outputs.  Let's frame this topic mathematically so that we proceed systematically.  
 
-We'll start by creating a mathematical framework. Can you find a combination of units that produces at least as much output using less input?  Let's define the proportion of input needed as $\theta$.  A value of $\theta=1$ then means no input reduction can be found in order to produce that unit's level of output.  The blend of other units is described by a vector $\lambda$.  Another way to denote this is $\lambda_j$ is the specific amount of a unit _j_ used in setting the target for for performance for unit _k_.  Similarly, $x_j$ is the amount of input used by unit _j_ and $y_j$ is the amount of output produced by unit _j_.  
+A key way to begin the mathematical development of the envelopment model to ask, can you find a combination of units that produces a target with at least as much output using less input?  The blend of other units is described by a vector $\lambda$.  Another way to denote this is $\lambda_j$ is the specific amount of a unit _j_ used in setting the target for for performance for unit _k_.
 
-This can be easily expanded to the multiple input and multiple output case by defining $x_{i,j}$ to  be the amount of the _i_'th input used by unit _j_ and $y_r,j$ to be the amount of the _r_'th output produced by unit _j_.  For simplicity, this example will focus on the one input and one output case rather than the _m_ input and _s_ output case but the R code explicitly allows for $m,s>1$.  To make the code more readable, I will use a slightly different convention _NX_ instead of _m_ to refer to the number of inputs (x's) and _NY_ to be the number of ouputs (y's) instead of _s_. Also, the normal mathematical convention is to use _n_ to denote the number of Decision Making Units (DMUs) so I will use _ND_ to indicate that in the R code.  
+Let's define the proportion of the studied unit's input needed by the target as $\theta$.  A value of $\theta=1$ then means no input reduction can be found in order to produce that unit's level of output.    Similarly, $x_j$ is the amount of input used by unit _j_ and $y_j$ is the amount of output produced by unit _j_.  
 
-Let's connect these ideas together now using these mathematical building blocks.  The core idea of the envelopment model of a DMU _k_ can be thought of as to find a target constructed of a mix of the DMU's described by a vector $\lambda$ that uses no more input to achieve the same or more every output as DMU _k_.  The amount of the _i'th_ input used by the target is then $\sum_{j=1}^{n} x_{i,j}\lambda_j$.  By the same token, the amount of the _r'th_ output produced by the target is $\sum_{j=1}^{n} y_{r,j}\lambda_j$.  
+This can be easily expanded to the multiple input and multiple output case by defining $x_{i,j}$ to  be the amount of the _i_'th input used by unit _j_ and $y_r,j$ to be the amount of the _r_'th output produced by unit _j_.  For simplicity, this example will focus on the one input and one output case rather than the _m_ input and _s_ output case but the R code explicitly allows for $m,s>1$.  To make the code more readable, I will use a slightly different convention _N^X_ instead of _m_ to refer to the number of inputs (x's) and _N^Y_ to be the number of ouputs (y's) instead of _s_. Also, the normal mathematical convention is to use _n_ to denote the number of Decision Making Units (DMUs) so I will use _N^D_ to indicate that in the R code.  
+
+Let's connect these ideas together now using these mathematical building blocks.  The core idea of the envelopment model of a DMU _k_ can be thought of as to find a target constructed of a mix of the DMU's described by a vector $\lambda$ that uses no more input to achieve the same or more every output as DMU _k_.  The amount of the _i'th_ input used by the target is then $\sum_{j=1}^{N^D} x_{i,j}\lambda_j$.  By the same token, the amount of the _r'th_ output produced by the target is $\sum_{j=1}^{N^D} y_{r,j}\lambda_j$.  
 
 This gives us two sets of constraints along with a restriction of non-negativity.  These are shown in the following relationships that must all be satisfied simultaneously.
 
 $$
  \begin{split}
  \begin{aligned}
-    \ & \sum_{j=1}^{n} x_{i,j}\lambda_j \leq x_{i,k} \forall \; i\\
-                       & \sum_{j=1}^{n} y_{r,j}\lambda_j \geq  y_{r,k} \forall \; r\\
+    \ & \sum_{j=1}^{N^D} x_{i,j}\lambda_j \leq x_{i,k} \forall \; i\\
+                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \forall \; r\\
                        & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
   \end{split}
@@ -90,27 +112,24 @@ $$
 
 This is not yet a linear program because it is missing an objective function.  It defines what is an acceptable target of performance that is at least as good as DMU _k_ but does not try to find a _best_ target.
 
-The two most common approaches to finding the best target are the input-oriented and output-oriented models. In the Output-oriented model, the first (input) constraint is satisfied while trying to _exceed_ the second constraint (output) by as much possible.  This focus on increasing the output is then called an _output orientation_.
+The two most common approaches to finding the best target are the input-oriented and output-oriented models. In the output-oriented model, the first (input) constraint is satisfied while trying to _exceed_ the second constraint (output) by as much possible.  This focus on increasing the output is then called an _output orientation_.
 
 In this chapter, we will focus on satisfying the second constraint while trying to improve upon the first by as much as possible.  In other words, we will satisfy the second (output) constraint but try to form a target that uses as little input as possible.
 
-In fact, we will go one step further and say that we want to find the maximum input possible reduction in k's input or conversely, the minimum amount of the input that could be used by the target while still producing the same or more output.  We do this by adding a new variable, $/theta$, which is the radial reduction in the amount of DMU k's input.  We want to find how low we can drive this by _minimizing_ $/theta$.  This gives us the following linear program, often abbreviated as LP.  
-
+In fact, we will go one step further and say that we want to find the maximum input possible reduction in k's input or conversely, the minimum amount of the input that could be used by the target while still producing the same or more output.  We do this by adding a new variable, $\theta$, which is the radial reduction in the amount of DMU k's input.  We want to find how low we can drive this by _minimizing_ $\theta$.  This gives us the following linear program, often abbreviated as LP.[^1] 
+[^1]: The LP was written using LaTeX embedded within this rmarkdown document.  Another benefit of using rmarkdown is that it is possible embed LaTeX without requiring using a full LaTeX document.  Insights for this LP were found online, including: http://tex.stackexchange.com/questions/9625/stating-a-linear-program
 
 $$
  \begin{split}
  \begin{aligned}
     \text{minimize  }   & \theta \\
-    \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j \leq \theta x_{i,k} \forall \; i\\
-                       & \sum_{j=1}^{n} y_{r,j}\lambda_j \geq  y_{r,k} \forall \; r\\
+    \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j \leq \theta x_{i,k} \forall \; i\\
+                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \forall \; r\\
                        & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
   \end{split}
   (\#eq:LPCCRIOE-NoSlack-Simple)
 $$
-
-
-The above LP was written using LaTeX embedded within this rmarkdown document.  Insights for this LP were found online, including: http://tex.stackexchange.com/questions/9625/stating-a-linear-program
 
 Expressing the target on the left and the actual units's value and radial reduction on the right is conceptually straightforward to understand.   Unfortunately, optimization software typically requires collecting all the variables on the left and putting constants on the right hand side of the inequalities.  This is easily done.  
 
@@ -118,8 +137,8 @@ $$
 \begin{split}
 \begin{aligned}
     \text{minimize  }   & \theta \\
-    \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j - \theta x_{i,k} \leq 0 \forall \; i\\
-                       & \sum_{j=1}^{n} y_{r,j}\lambda_j \geq  y_{r,k} \forall \; r\\
+    \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} \leq 0 \forall \; i\\
+                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \forall \; r\\
                        & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
  \end{split}
@@ -127,7 +146,7 @@ $$
 
 ## Creating the LP - The Algebraic Approach
 
-There are two fundamentally different approaches to setting up linear programs for solving.  The first approach is to define data structures to pass vectors for the objective function coefficients and constraint right hand sides along with a matrix of data describing the constraints.  This requires careful setting up of the linear programs and is a big cognitive step away from the mathematical representation.  Another approach is to use algebraic modeling languages.  Standalone algebraic optimization modeling languages include LINGO, AMPL, GAMS, GMPL, and others.  Until recently, r did not have the ability to do algebraic modeling optimization but recently a few efforts have provided support for this. A new package, _ompr_, provides an algebraic perspective that matches closely to the summation representation of a linear program shown earlier.  Don't worry, if you want to see the data structure format approach, that is covered in the next chapter.
+There are two fundamentally different approaches to setting up linear programs for solving.  The first approach is to define data structures to pass vectors for the objective function coefficients and constraint right hand sides along with a matrix of data describing the constraints.  This requires careful setting up of the linear programs and is a big cognitive step away from the mathematical representation.  Another approach is to use algebraic modeling languages.  Standalone algebraic optimization modeling languages include LINGO, AMPL, GAMS, GMPL, and others.  Until recently, R did not have the ability to do algebraic modeling optimization but recently a few efforts have provided support for this. A new package, _ompr_, provides an algebraic perspective that matches closely to the summation representation of a linear program shown earlier.  Don't worry, if you want to see the data structure format approach, that is covered in the next chapter.
 
 Let's define some data structures for holding our results.
 
@@ -187,7 +206,7 @@ Now that we have loaded all of the packages that we use as building blocks, we c
 
 ```{r first_ompr_model}
 
-k<-1    # DMU to analyze.  Let's start with just one for now.
+k<-2    # DMU to analyze.  Let's start with just one DMU, B, for now.
 
 result <- MIPModel() %>%
   add_variable(vlambda[j], j = 1:ND, type = "continuous", lb = 0) %>%
@@ -198,7 +217,6 @@ result <- MIPModel() %>%
   add_constraint(sum_expr(vlambda[j] * ydata[j,1], j = 1:ND) 
                  >= ydata[k,1]) %>%
   solve_model(with_ROI(solver = "glpk")) 
-#  filter(value > 0)
 
 omprtheta <-  get_solution(result, vtheta) 
 omprlambda <-  get_solution(result, vlambda[j])
@@ -222,7 +240,7 @@ pander(cbind(results.efficiency, results.lambda),
        caption="Input-Oriented Envelopment Analysis for DMU A (CCR-IO)")
 ```
 
-The above table follows a few conventions of labeling the efficiency score by the model used for the model, in this case the input-oriented variable returns to scale is labeled as CCR after Charnes, Cooper, and Rhodes.  Later we will cover other models including the variable returns to scale model, labeled BCC after Banker, Charnes, and Cooper.  Another convention is to use "L" in place of the Greek symbol $\lambda$ due to complications with using symbols in R matrix row or column names.  
+The above table follows a few convenient conventions.  First, rather than using $\lambda$, we label the efficiency score by the model used for the model, in this case the input-oriented variable returns to scale is labeled as CCR after Charnes, Cooper, and Rhodes.  Later we will cover other models including the variable returns to scale model, labeled BCC after Banker, Charnes, and Cooper.  Another convention is to use "L" in place of the Greek symbol $\lambda$ due to complications with using Greek symbols in R matrix row or column names.  
 
 Let's now extend it to handle multiple inputs, NX, and outputs, NY.  Of course this doesn't have any impact on our results just yet since we are still only using a single input and output but we now have the structure to accommodate the more general case.
 
@@ -239,7 +257,6 @@ result <- MIPModel() %>%
   add_constraint(sum_expr(vlambda[j] * ydata[j,r], j = 1:ND) 
                  >= ydata[k,r], r = 1:NY) %>%
   solve_model(with_ROI(solver = "glpk")) 
-#  filter(value > 0)
 
 omprtheta <-  get_solution(result, vtheta) 
 omprlambda <-  get_solution(result, vlambda[j])
@@ -252,9 +269,10 @@ results.lambda <- t(omprlambda[3])
 colnames(results.lambda) <- c("L_A", "L_B", "L_C", "L_D")
 
 pander(cbind(results.efficiency, results.lambda), 
-       caption="Repeated Results Allowing for Multiple Inputs and Outputs")
+       caption="Results Allowing for Multiple Inputs and Outputs")
 
 ```
+Okay.  This was not so exciting because the data still only had one input and one output so the results are the same.  
 
 Now we should extend this to handle all four of the decision making units.  
 
@@ -275,23 +293,26 @@ for (k in 1:ND) {
     add_constraint(sum_expr(vlambda[j] * ydata[j,r], j = 1:ND) 
                    >= ydata[k,r], r = 1:NY) %>%
     solve_model(with_ROI(solver = "glpk")) 
-#  filter(value > 0)
   
   print(c("DMU=",k,solver_status(result)))
 #  print(get_solution(result, vlambda[1:(ND)]) )
     results.efficiency[k] <-  get_solution(result, vtheta)       
     results.lambda[k,] <- t(as.matrix(as.numeric(
               get_solution(result, vlambda[j])[,3] )))
-       # Put lambda values in matrix
+       # Put resulting from solution in lambda matrix
        # Comes out of ompr as a dataframe, use as.matrix 
        #    to convert from data frame to matrix
        #    grabs 3rd column to put into results matrix.  
        # First two columns of dataframe are for other info as.numeric 
-       # forces the numbers to treated as numbers rather than text.
+       #    forces the numbers to treated as numbers rather than text.
        # I'm sure there are better ways of handling this 
-       # but I'll leave that for future work.
-
+       #    but I'll leave that for future work.
 }
+```
+
+Success!  This indicates each of the four linear programs was solved to optimality.  By itself, it doesn't help much though.  We need to now display sEach column of results.lambda reflect the way that a best target is made for that unit.
+
+```{r}
 Lambdanames <- list("L_A", "L_B", "L_C", "L_D")
 DMUnames <- list("A", "B", "C", "D")
 dimnames(results.efficiency)<-list(DMUnames,"CCR-IO")
@@ -300,8 +321,7 @@ pander (cbind(results.efficiency, results.lambda),
         caption="Input-Oriented Efficiency Results")
 
 ```
-
-Success!  Each column of results.lambda reflect the way that a best target is made for that unit.
+The results match those from earlier.  
 
 ## Returns to Scale
 
@@ -320,7 +340,7 @@ $$
   (\#eq:LPBCCIOE) 
 $$
 
-We can add another constraint to our previous model and solve it.  
+To incorporate this, we can add another constraint to our previous model and solve it.  Let's define a parameter, "RTS" to describe which returns to scale assumption we are using and only add the VRS constraint when RTS="VRS".  
 
 ```{r Adding_VRS}
 
@@ -337,8 +357,8 @@ for (k in 1:ND) {
                    >= ydata[k,r], r = 1:NY) 
 
     if (RTS=="VRS") {add_constraint(result, 
-          sum_expr(vlambda[j], j = 1:ND) == 1) }  #Returns to Scale
-#  filter(value > 0)
+                       sum_expr(vlambda[j], j = 1:ND) == 1) 
+                     }  #Returns to Scale
 
 result <-   solve_model(result, with_ROI(solver = "glpk")) 
     
@@ -347,16 +367,8 @@ result <-   solve_model(result, with_ROI(solver = "glpk"))
     results.efficiency[k] <-  get_solution(result, vtheta)       
     results.lambda[k,] <- t(as.matrix(as.numeric(
               get_solution(result, vlambda[j])[,3] )))
-       # Put lambda values in matrix
-       # Comes out of ompr as a dataframe, use as.matrix 
-       #    to convert from data frame to matrix
-       #    grabs 3rd column to put into results matrix.  
-       # First two columns of dataframe are for other info as.numeric 
-       # forces the numbers to treated as numbers rather than text.
-       # I'm sure there are better ways of handling this 
-       # but I'll leave that for future work.
+}  # Repeat for each unit, k
 
-}
 Lambdanames <- list("L_A", "L_B", "L_C", "L_D")
 DMUnames <- list("A", "B", "C", "D")
 dimnames(results.efficiency)<-list(DMUnames,"BCC-IO")
@@ -375,9 +387,9 @@ The actual returns to scale models are straightforward to implement.
 Returns to Scale | Envelopment Constraint
 -----------------|---------------------
 CRS    | No constraint needed
-VRS    | $\sum_{j=1}^{n} \lambda_j  = 1$
-IRS/NDRS | $\sum_{j=1}^{n} \lambda_j  >= 1$
-DRS/NIRS | $\sum_{j=1}^{n} \lambda_j  <= 1$
+VRS    | $\sum_{j=1}^{N^D} \lambda_j  = 1$
+IRS/NDRS | $\sum_{j=1}^{N^D} \lambda_j  >= 1$
+DRS/NIRS | $\sum_{j=1}^{N^D} \lambda_j  <= 1$
 
 Now, we will generalize this by allowing a parameter to set the returns to scale.
 
@@ -404,7 +416,7 @@ result <-   solve_model(result, with_ROI(solver = "glpk"))
 #  print(c("DMU=",k,solver_status(result)))
 #  print(get_solution(result, vlambda[1:(ND)]) )
     results.efficiency[k] <-  get_solution(result, vtheta)       
-    results.lambda[,k] <- t(as.matrix(as.numeric(
+    results.lambda[k,] <- t(as.matrix(as.numeric(
               get_solution(result, vlambda[j])[,3] )))
 
 }
@@ -485,7 +497,7 @@ dimnames(results.yslack)<-c(DMUnames,SYnames)
 
 ```
 
-We are now ready to do the analysis.  Note that Baker, does the analysis using the multiplier model and then from this reads out of the sensitivity report the lambda values.
+We are now ready to do the analysis.  Note that Baker's analysis uses the multiplier model and then from this reads out of the sensitivity report the lambda values.  We will discuss the multiplier model in more detail later.
 
 ```{r Baker_example}
 
@@ -503,7 +515,6 @@ for (k in 1:ND) {
 
     if (RTS=="VRS") {add_constraint(result, 
                  sum_expr(vlambda[j],j = 1:ND) == 1) }  #Returns to Scale
-#  filter(value > 0)
 
 result <-   solve_model(result, with_ROI(solver = "glpk")) 
     
@@ -529,22 +540,22 @@ $$
 \begin{split}
  \begin{aligned}
     \text{minimize  }   & \theta \\
-    \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \forall \; i\\
-                       & \sum_{j=1}^{n} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \forall \; r\\
+    \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \forall \; i\\
+                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \forall \; r\\
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
   \end{aligned}
    \end{split}
   (\#eq:LPCCRIOE-Slacks)
 $$
 
-Simply formulating the model with slacks is insufficient.  We want to maximize these slacks after having found the best possible radial contraction (minimum value of $/theta$.)  This is done by adding a term summing the slacks to the objective function.  Note that this sum of slacks is multiplied by $\epsilon$ which is a  non-Archimedean infinitesimal.   The value of $\epsilon$ should be considered to be so small as to ensure that minimizing theta takes priority or maximizing the sum of slacks.  Note also that  maximizing the sum of slacks is done by substracting this sum of slacks.
+Simply formulating the model with slacks is insufficient.  We want to maximize these slacks after having found the best possible radial contraction (minimum value of $\theta$.)  This is done by adding a term summing the slacks to the objective function.  Note that this sum of slacks is multiplied by $\epsilon$ which is a  non-Archimedean infinitesimal.   The value of $\epsilon$ should be considered to be so small as to ensure that minimizing theta takes priority or maximizing the sum of slacks.  Note also that  maximizing the sum of slacks is done by substracting this sum of slacks.
 
 $$
 \begin{split}
  \begin{aligned}
     \text{minimize  }   & \theta - \epsilon ( \sum_{i} s^x_i + \sum_{r} s^y_r)\\
-    \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \forall \; i\\
-                       & \sum_{j=1}^{n} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \forall \; r\\
+    \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \forall \; i\\
+                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \forall \; r\\
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
   \end{aligned}
  \end{split}
@@ -555,15 +566,15 @@ A common mistake in implementing DEA is to use a finite approximation for $\epsi
 
 The proper way to implement slack maximization is to treat it as a preemptive goal programming problem. The primary goal is to minimize $\theta$ in a first phase linear program and the second goal, holding the level of $\theta$ fixed from the first phase is to then maximize the sum of the slacks.  
 
-The first phase can take the form of any of our earlier linear programs without the $\epsilon$ term. The second phase is the following.
+The first phase can take the form of any of our earlier linear programs without the $\epsilon$ term. The second phase is the following where $\theta^*$ is the optimal value from phase one and is held constant.  This is denoted by adding a constraint, $\theta=\theta^*$.
 
 $$
 \begin{split}
  \begin{aligned}
     \text{maximize  }  & \sum_{i}s^x_i + \sum_{r}s^y_r\\
-    \text{subject to } & \sum_{j=1}^{n} \lambda_j  = 1\\
-                       & \sum_{j=1}^{n} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \; \forall \; i\\
-                       & \sum_{j=1}^{n} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
+    \text{subject to } & \sum_{j=1}^{N^D} \lambda_j  = 1\\
+                       & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \; \forall \; i\\
+                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
                        & \theta = \theta^*\\
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
   \end{aligned}
