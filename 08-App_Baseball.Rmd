@@ -287,12 +287,17 @@ Okay, this plot shows that that the data is quite a bit different. If the models
 ```{r}
 library("ggplot2")
 
-collectedeff <- c(res1920ALmult$Efficiency, res1920ALcross$ce_ave)
-# ggplot2(collectedeff, aes(res1920ALmult$Efficiency, res1920ALmultWR$Efficiency, 
-#      xlab="Efficiency", ylab="Efficiency with Weight Restrictions",
-#      main="Impact of Weight Restrictions on 1920 AL CC Efficiency",
-#      xlim=c(0.6,1.01), ylim=c(0.6,1.01)
-#      ))
+#collectedeff <- data.frame(c(res1920ALmult$Efficiency, res1920ALcross$ce_ave,  res1920ALmultWR$Efficiency) )
+#pander(collectedeff, caption="Collected ")
+#collectedeff <- data.frame(c(res1920ALmult$Efficiency, res1920ALcross$ce_ave,  res1920ALmultWR$Efficiency) )
+
+collectedeff <- data.frame(cbind(res1920ALmult$Efficiency, res1920ALcross$ce_ave,  res1920ALmultWR$Efficiency) )
+
+ggplot (collectedeff, aes(res1920ALmult$Efficiency, res1920ALmultWR$Efficiency, 
+      xlab="Efficiency", ylab="Efficiency with Weight Restrictions",
+      main="Impact of Weight Restrictions on 1920 AL CC Efficiency",
+      xlim=c(0.6,1.01), ylim=c(0.6,1.01)
+      ))
 ```
 
 ## To-Do Items for this Chapter

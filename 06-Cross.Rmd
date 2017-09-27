@@ -336,10 +336,10 @@ A variety of mechanisms exist for dealing with the issue of multiple optima.
 ```{r Baker_Cross_Eval_Sec, eval=TRUE}
 # Implements secondary objective function to resolve multiple optima
 
-multiplierIOSec <- function (xx, yy) 
+multiplierIOSec <- function (x, y) 
   { 
 
-  ND <- nrow(xx); NX <- ncol(yy); NY <- ncol(yy); # Define data size
+  ND <- nrow(x); NX <- ncol(y); NY <- ncol(y); # Define data size
   
   results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
   results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
@@ -351,30 +351,29 @@ multiplierIOSec <- function (xx, yy)
       result <- MIPModel() %>%
       add_variable(vweight[i], i = 1:NX, type = "continuous", lb = 0) %>%
       add_variable(uweight[r], r = 1:NY, type = "continuous", lb = 0) %>%
-      set_objective(sum_expr(uweight[r] * yy[k,r], r = 1:NY), "max") %>%
-      add_constraint(sum_expr(vweight[i] * xx[k,i], i = 1:NX) == 1) %>%
-      add_constraint((sum_expr(uweight[r] * yy[j,r], r = 1:NY)-
-                    sum_expr(vweight[i] * xx[j,i], i = 1:NX)) 
+      set_objective(sum_expr(uweight[r] * y[k,r], r = 1:NY), "max") %>%
+      add_constraint(sum_expr(vweight[i] * x[k,i], i = 1:NX) == 1) %>%
+      add_constraint((sum_expr(uweight[r] * y[j,r], r = 1:NY)-
+                    sum_expr(vweight[i] * x[j,i], i = 1:NX)) 
                   <= 0, j = 1:ND)
       result
 
       result2 <- MIPModel() %>%
       add_variable(vweight[i], i = 1:NX, type = "continuous", lb = 0) %>%
       add_variable(uweight[r], r = 1:NY, type = "continuous", lb = 0) %>%
-      set_objective(sum_expr(uweight[r] * sum(yy[,r]), r = 1:NY), "max") %>%
+      set_objective(sum_expr(uweight[r] * sum(y[,r]), r = 1:NY), "max") %>%
           # Modified objective function for 
-      add_constraint(sum_expr(vweight[i] * sum(xx[,i]), i = 1:NX) == 1) %>%
-      add_constraint(result, sum_expr(uweight[r] * sum(yy[,r]), r = 1:NY)-
-                    sum_expr(vweight[i] * sum(xx[,i]), i = 1:NX)  
+      add_constraint(sum_expr(vweight[i] * sum(x[,i]), i = 1:NX) == 1) %>%
+      add_constraint(result, sum_expr(uweight[r] * sum(y[,r]), r = 1:NY)-
+                    sum_expr(vweight[i] * sum(x[,i]), i = 1:NX)  
                   <= 0)
-      add_constraint((sum_expr(uweight[r] * yy[j,r], r = 1:NY)-
-                    sum_expr(vweight[i] * xx[j,i], i = 1:NX)) 
+      add_constraint((sum_expr(uweight[r] * y[j,r], r = 1:NY)-
+                    sum_expr(vweight[i] * x[j,i], i = 1:NX)) 
                   <= 0, j = 1:ND)
 
     result <- solve_model(result, with_ROI(solver = "glpk", verbose = FALSE))
     results.efficiency[k] <- objective_value (result2) 
 
-    
     # Get the weights - Output weights
     tempvweight <- get_solution(result2, vweight[i])
     results.vweight[k,] <- tempvweight[,3]
@@ -392,7 +391,8 @@ multiplierIOSec <- function (xx, yy)
 
 } # End of function  
 
-pander(cbind(xdata,ydata))
+#pander(cbind(xdata,ydata),caption="Data Passed to function")
+#pander(xdata, caption="xdata Passed to function")
 
 # resfunc <- multiplierIOSec (xdata, ydata)
 #  Bug in my code, gives message:
@@ -400,8 +400,6 @@ pander(cbind(xdata,ydata))
 # print (resfunc$efficiency)
 
 ```
-
-
 
 ## Future Issues for Cross-Efficiency Chapter
 
