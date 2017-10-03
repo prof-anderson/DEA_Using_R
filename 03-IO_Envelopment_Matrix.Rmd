@@ -153,7 +153,11 @@ This is where we start creating the populating the linear programming model.  Th
 
 The name `lpe` is meant to indicate a linear programming object for the envelopment model.  There are two basic DEA models: the envelopment model and the multiplier model.  They generate the same results but are structured very differently.  We'll return to the multiplier model at a later time.
 
-We easily display what our empty `lpe` object looks like.
+We easily display what our empty `lpe` object looks like.  We are initializing it without any constraints but columns for each variable that we expect to use: 
+
+* Columns for each lambda, _i.e._ $\lambda_1, \lambda_2, ..., lambda_N^D$  
+* A column for the efficiency, $\theta$
+* Columns for each input slack and each output slack
 
 ```{r Display_lp_Empty}
    lpe 
@@ -221,7 +225,7 @@ The following step is more complicated but the core idea is to populate a data m
    lpe 
 ```
 
-Now the rows are created for the outputs.      
+Now the rows/contstraints are created for the outputs.      
 
 ```{r Build_lp_y_constraints}
 
@@ -266,7 +270,7 @@ Next we get input dual weights and place them in _results.vweight_.  These are u
 
 The fourth item gets the dual weight from the returns to scale constraint.  Notice that this is extracted from row 2 of the dual solution.
 
-The same steps are repeated for the output-oriented model but sign corrections may need to be made by multiplying these items by _-1_ - you can check for yourself if this needs to be done..
+The same steps are repeated for the output-oriented model but sign corrections may need to be made by multiplying these items by _-1_, you can check for yourself if this needs to be done.
 
 The last step of extracting output weights is common for both orientations since it does not require a sign correction.  
 

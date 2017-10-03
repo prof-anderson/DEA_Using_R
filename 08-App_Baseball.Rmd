@@ -64,7 +64,7 @@ Hadley Wickham has written an excellent package for wrestling with data called d
 
 Most of the columns are not needed so let's subset the variables.  
 
-```{r susetting_data}
+```{r subsetting_data}
 batting<-Lahman::Batting
 batting <- dplyr::select(batting,playerID,yearID,teamID,lgID,AB,H,X2B,X3B,HR,BB)
 pander(head(batting), caption="Batting Data Used for Analysis")
@@ -274,7 +274,17 @@ The reason for this can be seen by the cross-efficiency matrix of weights.
 
 ```{r}
 
-collectedeff <- c(res1920ALmult$Efficiency, res1920ALcross$ce_ave)
+collectedeff1 <- data.frame(cbind(res1920ALmult$Efficiency,
+                                  res1920ALmultWR$Efficiency))
+colnames(collectedeff1)<-c("CCRIO", "CCRIOWR")
+pander(head(collectedeff1))
+ggplot (collectedeff1, aes(x=CCRIO, y=CCRIOWR)) +
+        xlab("CCRIO Efficiency") + 
+        ylab("CCRIO Efficiency with Weight Restrictions") +
+        ggtitle("Impact of Weight Restrictions on 1920 AL CC Efficiency") +
+        geom_point(shape=1) +
+        geom_abline(slope=1, color="red")
+
 qplot(res1920ALmult$Efficiency, res1920ALmultWR$Efficiency, 
       xlab="Efficiency", ylab="Efficiency with Weight Restrictions",
       main="Impact of Weight Restrictions on 1920 AL CC Efficiency",
@@ -291,14 +301,37 @@ library("ggplot2")
 #pander(collectedeff, caption="Collected ")
 #collectedeff <- data.frame(c(res1920ALmult$Efficiency, res1920ALcross$ce_ave,  res1920ALmultWR$Efficiency) )
 
-collectedeff <- data.frame(cbind(res1920ALmult$Efficiency, res1920ALcross$ce_ave,  res1920ALmultWR$Efficiency) )
+collectedeff2 <- data.frame(cbind(res1920ALmult$Efficiency, 
+                                 res1920ALcross$ce_ave,  res1920ALmultWR$Efficiency) )
 
-ggplot (collectedeff, aes(res1920ALmult$Efficiency, res1920ALmultWR$Efficiency, 
-      xlab="Efficiency", ylab="Efficiency with Weight Restrictions",
-      main="Impact of Weight Restrictions on 1920 AL CC Efficiency",
-      xlim=c(0.6,1.01), ylim=c(0.6,1.01)
-      ))
+#pander(head(collectedeff, caption="Table of collected eff for ggplot debug"))
+
 ```
+
+
+
+```{r}
+ggplot (collectedeff2, aes(x=Eff, y=Average)) +
+      xlab("CCRIO Efficiency") + 
+      ylab("Cross-Efficiency") +
+      ggtitle("Impact of Cross-Efficiency on 1920 AL CCRIO Efficiency") +
+      geom_point(shape=1) +
+      geom_abline(slope=1, color="red")
+
+```
+
+
+
+```{r}
+ggplot (collectedeff2, aes(x=Average, y=Eff.1)) +
+      xlab("Cross-Efficiency") + 
+      ylab("Cross-Efficiency with Weight Restrictions") +
+      ggtitle("Impact of Weight Restrictions on 1920 AL CC Efficiency") +
+      geom_point(shape=1) +
+      geom_abline(slope=1, color="red")
+
+```
+
 
 ## To-Do Items for this Chapter
 * Validate results with previous papers

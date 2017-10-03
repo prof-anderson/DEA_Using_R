@@ -25,7 +25,7 @@ This book is intended to be a living resource and updated.  It is a very rough d
 
 ## Resources
 
-R is a compehensive system for statistical analysis that has rapidly become a standard tool for analytics.  Like every powerful tool, it has a bit of a learning curve.  There are many excellent books on R.  Two of my favorites are:  _R in Action_ [@AdlerNutshell2012] and _The Art of R Programming_[@MatloffArtprogramming2011].
+R is a compehensive system for statistical analysis that has rapidly become a standard tool for analytics.  Like every powerful tool, it has a bit of a learning curve.  There are many excellent books on R.  Two of my favorites are:  _R in Action_ [@AdlerNutshell2012] and _The Art of R Programming_ [@MatloffArtprogramming2011].
 
 _R in Action_ provides a comprehensive coverage of R discussing how to use it for statistics progressing through a variety of deeper topics including programming.  The second edition of _R in Action_ adds important topics such as package development and interactive documentation using knitr.  It is available as a paperback or ebook and deals are often available from the [publisher.](http://www.manning.com/kabacoff2/)
 
@@ -45,15 +45,10 @@ Topics to consider in the future:
 
 * Matrix construction of DEA LPs (Chapter 3)
 * Output-oriented model (Half done in Chapter 4)
-* Slack maximization
 * Beautifying display of information
 * Extracting weights from the dual results
 * Multiplier model (Partially done in Chapter 5)
 * Cross-efficiency (Begun now in Chapter 6)
-* Model Building Advice
-   + Selecting input-output models
-   + Selecting returns to scale
-   + Selecting orientation(s)
 * Technology Forecasting using DEA
 * Malmquist Productivity Indices
 * Network approaches
@@ -85,4 +80,10 @@ This book has benefitted from the interactions of many people over the years.  I
 * Aurobindh Kalathil Puthanpura
 * Tom Shott
 * Kevin van Blommestein
+
+I would also like to thank earlier doctoral graduates for rich mutual interactions:
+
+* Dr. Janice Forrester
+* Dr. Gerald Williams
+* Dr. Lane Inman
 
