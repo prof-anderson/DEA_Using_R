@@ -14,7 +14,6 @@ panderOptions('round',5) # Set option for rounding in pander data tables
 library(DiagrammeRsvg)
 library(rsvg)
 library(htmltools)
-library(knitr)
 ```
 
 Now, let's install some small helper functions.  These are described in more detail in a later chapter.
@@ -37,7 +36,7 @@ source('Helperfiles.R')
 
 ## Introduction
 
-In 2002, Sten Thore edited a book, _Technology Commercialization:  DEA and Related Analytical Methods for Evaluating the Use and Implementation of Technological Innovation.  This book complied a series of cases applying Data envelopment Analysis related to technology management.  This chapter revisits some of those cases. We will provide a snapshot of the cases but the reader is referred to Thore's book for more details.  
+In 2002, Sten Thore edited a book, *Technology Commercialization:  DEA and Related Analytical Methods for Evaluating the Use and Implementation of Technological Innovation.*  This book complied a series of cases applying Data Envelopment Analysis related to technology management.  This chapter revisits some of those cases. We will provide a snapshot of the cases and the interested reader is referred to Thore's book for more details.
 
 ## Prioritizing R&D Activities
 
@@ -75,11 +74,15 @@ YBH <- matrix(c(32, 50, 40, 30 ,25, 8, 2, 12, 10, 0.8, 3, 300, 60, 240,
 Figure<-DrawIOdiagram(Xnames,Ynames)
 tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),'IO-BakerHughes.png'))
 
-include_graphics('IO-BakerHughes.png')
+```
 
+![Bake Hughes Input-Output Model](IO-BakerHughes.png){#fig:IO-BakerHughes}
+
+```{r}
 
 pander(cbind(XBH,YBH), caption="Data for Baker Hughes Corporation case.")  # Displays table of inputs and outputs
 ```
+
 
 Now, let's run DEA.  Feel free to pick a package.  We explored some packages in chapter 8.  For now, let's try the MultiplierDEA package.  Let's look over the results.
 

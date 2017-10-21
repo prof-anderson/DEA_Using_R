@@ -164,7 +164,6 @@ library(DiagrammeR)
 library(DiagrammeRsvg)
 library(rsvg)
 library(htmltools)
-library(knitr)
 a <- "'"  
 Xlabels <- c(mapply(paste0, a, Xnames, a))  # Wraps names with a ' 
 
@@ -211,10 +210,9 @@ demoIOdiagram <- grViz(
 #stnds.qa.d2 <- grViz(stnds.qa.d)
 tmp<-capture.output(rsvg_png(charToRaw(export_svg(demoIOdiagram)),'demoIOdiagram.png'))
 
-include_graphics('demoIOdiagram.png')
-
 ```
 
+![Demo IO Diagram](demoIOdiagram.png){#fig:demoIOdiagram}
 Okay.  Now let's generalize it for an arbitrary number of inputs and outputs.
 
 
@@ -280,9 +278,11 @@ generalIO <- grViz(
 
 tmp<-capture.output(rsvg_png(charToRaw(export_svg(generalIO)),'generalIO.png'))
 
-include_graphics('generalIO.png')
-
 ```
+
+Now let's try loading it from Rmarkdown.
+
+![General IO Diagram](generalIO.png){#fig:generalIO}
 
 #### Todo List for Drawing Input-Output Diagrams
 
