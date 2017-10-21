@@ -209,12 +209,7 @@ demoIOdiagram <- grViz(
 )
 
 #stnds.qa.d2 <- grViz(stnds.qa.d)
-#tmp<-capture.output(rsvg_png(charToRaw(export_svg(demoIOdiagram)),'demoIOdiagram'))
 tmp<-capture.output(rsvg_png(charToRaw(export_svg(demoIOdiagram)),'demoIOdiagram.png'))
-
-#cat('![Demonstration of IO Diagram](demoIOdiagram.png){#fig:demoIOdiagram}\n\n')
-
-#![diagram] (demoIOdiagram.png)
 
 include_graphics('demoIOdiagram.png')
 
@@ -258,7 +253,7 @@ edges <- paste0(
 )
 
 ##  Plot graph:
-grViz(
+generalIO <- grViz(
   paste0(" digraph Input_Output_Diagram {
 
     # a 'graph' statement
@@ -282,6 +277,11 @@ grViz(
     }"
   )
 )
+
+tmp<-capture.output(rsvg_png(charToRaw(export_svg(generalIO)),'generalIO.png'))
+
+include_graphics('generalIO.png')
+
 ```
 
 #### Todo List for Drawing Input-Output Diagrams
