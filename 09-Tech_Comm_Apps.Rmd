@@ -11,6 +11,10 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 library(pander)
 panderOptions('round',5) # Set option for rounding in pander data tables
+library(DiagrammeRsvg)
+library(rsvg)
+library(htmltools)
+library(knitr)
 ```
 
 Now, let's install some small helper functions.  These are described in more detail in a later chapter.
@@ -68,7 +72,12 @@ YBH <- matrix(c(32, 50, 40, 30 ,25, 8, 2, 12, 10, 0.8, 3, 300, 60, 240,
                 8.0, 6.4, 5.3, 5.5, 5.1, 6.9, 6.6, 5.4, 4.7, 6.1, 6.5, 6.4, 6.8, 7.1),
                 ncol=NY,dimnames=c(DMUnames,Ynames))
 
-DrawIOdiagram(Xnames,Ynames)
+Figure<-DrawIOdiagram(Xnames,Ynames)
+tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),'IO-BakerHughes.png'))
+
+include_graphics('IO-BakerHughes.png')
+
+
 pander(cbind(XBH,YBH), caption="Data for Baker Hughes Corporation case.")  # Displays table of inputs and outputs
 ```
 
@@ -76,7 +85,7 @@ Now, let's run DEA.  Feel free to pick a package.  We explored some packages in 
 
 ```{r results='asis'}
 library(MultiplierDEA)
-library(xtable)
+
 resBH<-DeaMultiplierModel(XBH,YBH,rts = "vrs", orientation="input")
 
 # Rename some of the results row and column labels
