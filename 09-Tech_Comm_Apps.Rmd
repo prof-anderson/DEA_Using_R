@@ -71,12 +71,18 @@ YBH <- matrix(c(32, 50, 40, 30 ,25, 8, 2, 12, 10, 0.8, 3, 300, 60, 240,
                 8.0, 6.4, 5.3, 5.5, 5.1, 6.9, 6.6, 5.4, 4.7, 6.1, 6.5, 6.4, 6.8, 7.1),
                 ncol=NY,dimnames=c(DMUnames,Ynames))
 
-Figure<-DrawIOdiagram(Xnames,Ynames)
+XFigNames <- "X1 ($M)"
+YFigNames <- c("Y1 - Market Size ($M)", 
+               "Y2 - Strategic Compat. (1-10)", 
+               "Y3 - Market Demand ($M)", 
+               "Y4 - Compet. Intensity (1-10)" )
+Figure<-DrawIOdiagram(XFigNames,YFigNames, '"\n\nBCC-IO\n\n "')  
+
 tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),'IO-BakerHughes.png'))
 
 ```
 
-![Bake Hughes Input-Output Model](IO-BakerHughes.png){#fig:IO-BakerHughes}
+![Baker Hughes Input-Output Model](IO-BakerHughes.png){#fig:IO-BakerHughes}
 
 ```{r}
 

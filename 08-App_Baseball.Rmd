@@ -19,7 +19,8 @@ The range of applications can cover benchmarking individual players, managers, g
 
 ## Baseball Data, R, and dplyr
 
-For the sake of readers unfamiliar with baseball, we will provide a brief introduction.  In general, you can think of these 
+For the sake of readers unfamiliar with baseball, we will provide a brief introduction. If you want to think of a baseball batter as a simple factory that uses Plate Appearances as a resource to produce five different kinds of products.  The following discussion gives more context for baseball fans.  
+
 Batting is in many ways the simplest to examine.  In the abstract, a batter uses their at-bats or plate appearances as opportunities to create events that help create runs for their team.  In each game, a batter typically has four to six at-bats.  These at-bats may be framed as a contest between a pitcher trying to make the batter create an out and the batter trying to get a hit.  Hits include singles, doubles, triples, and home runs, in increasing order of value. A fifth common outcome is a walk or "base-on-balls" which occurs when the pitcher throws four balls that gives the batter a free pass to first base.  There is a common expression that "a walk is as good as a hit" but a walk may not give as much advancement to other runners as a single so it may be considered as slightly less valuable than a single.  
 
 In the past, batters weren't given much "recognition" for walks and a batter's receiving a walk did not count as an at-bat. Plate appearances count the opportunities for creating a hit or a walk and is sum of at-bats and walks. 
@@ -28,24 +29,52 @@ There are a variety of less frequent outcomes of a plate appearance such as a sa
 
 Over the course of the current 162 game season, most full-time players will have over 500 plate appearances.  
 
-In general, a model of a baseball batter can e thought of as equivalent to a factory converting plate appearances 
-
-One way to approach DEA modeling is to examine a series of questions.
-“What is the goal of the analysis?”  A DEA evaluation can be used in a variety of ways but it is important decide on a goal to lead the rest of the modeling.  Goals include but are not limited to evaluating management, setting targets, and determining best practices.
-
-Now, let's wrestle with data sources.  Sean Lahman's baseball database has been made available as an R package.  This is a wonderful resource.  http://seanlahman.com/
-
-
 ```{r load_ch8_packages, echo = TRUE, message = FALSE}
 library ("Lahman")
 library ("dplyr")
 library("pander")
+library(DiagrammeRsvg)
+library(rsvg)
+library(htmltools)
+source('Helperfiles.R')
+
+#knitr::read_chunk('Helperfiles.R')
+#<<poscolfunct>>   
+   # This reads in a chunk that defines the poscol function
+   # This function will filter out columns that are zero
+   # More precisely, it factors out column with
+   # column sums that are zero.  This is helpful
+   # for tables of lambda values in DEA.
+source('Helperfiles.R')
+#knitr::read_chunk('Helperfiles.R')
+#<<DrawIOdiagramfunction>>   
 
 ```
 
 Our exploration will also serve as a review of data manipulation in R. There are many ways of doing this.  Feel free to explore further.
 
-As usual, we want to see get familiar with the data.  Let's look at the first few rows of the batting data.
+As usual, we want to see get familiar with the data.  Let's look at the first few rows of the batting data. We are going to want to make a model of baseball batting.  A good model is that a batter uses plate appearances to produce singles, doubles, triple, home runs, and walks.  Baseball fans might think of other outcomes such as sacrifice flies but these are generally less common, less desireable, and often not even intentional.  These five outcomes constitute a model that fits well enough.  The following figure shows what we will want to construct for a model.
+
+```{r}
+
+XFigNames <- "PA (Plate Appearances)"
+YFigNames <- c("BB (Base on Balls or Walks)", 
+               "1B (Singles)", 
+               "2B (Doubles)", 
+               "3B (Triples)",
+               "HR (Home Runs)")
+Figure<-DrawIOdiagram(XFigNames,YFigNames, '"\n\nBatter\n\n "')  
+
+tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),'BaseballBatting.png'))
+```
+
+![Model of Baseball Batting](BaseballBatting.png){#fig:BaseballBatting}
+
+
+
+Now, let's wrestle with data sources.  Sean Lahman's baseball database has been made available as an R package.  This is a wonderful resource.  http://seanlahman.com/
+
+Now we need to work on getting the data for different players.
 
 ```{r display_batting_data}
 
@@ -60,9 +89,9 @@ This is pretty impressive to have such detailed and specific data going back alm
 
 Using the Summary command will  provide all kinds of interesting information such as that over half of the player seasons occurred after 1970, the maximum number of stints with different teams was 5 and the most player seasons were for the National League's Chicago Cubs (teamID=CHN).  I'll leave this for your exploration.  
 
-Hadley Wickham has written an excellent package for wrestling with data called dplyr.  
+Alas, most of the columns are not needed and some of those that are listed need some transformations.  Hadley Wickham has written an excellent package for wrestling with data called dplyr which we will use for preparing the dataset.  
 
-Most of the columns are not needed so let's subset the variables.  
+Let's start by subbsetting the data in terms of including only the columns that we will be using.  
 
 ```{r subsetting_data}
 batting<-Lahman::Batting
@@ -128,9 +157,27 @@ Now that we have data prepared along with the tools for further manipulation, we
 
 ## Benchmarking Baseball Batters
 
-Our basic input-output model for baseball batting consists of plate appearances as the sole input and the five most common results of types of hits along with walks.  
+Our basic input-output model for baseball batting consists of plate appearances as the sole input and the five most common results of types of hits along with walks. 
 
-In 1920, the American League featured a batter so dominant that he transformed the "industry" of baseball.  Let's focus on this year for now.
+In 1920, the American League featured a batter so dominant that he transformed the "industry" of baseball.  Let's focus on this year for now.  The core model for analysis is described in the following figure.  We are going to use an output-oriented, constant returns to scale model.  The following figures illustrates the DEA model that we will be using.  
+
+t we will want to construct for a model.
+
+```{r}
+
+XFigNames <- "PA (Plate Appearances)"
+YFigNames <- c("BB (Base on Balls or Walks)", 
+               "1B (Singles)", 
+               "2B (Doubles)", 
+               "3B (Triples)",
+               "HR (Home Runs)")
+ModelName <- '"\n\nCCR\nIO\n\n "'
+Figure<-DrawIOdiagram(XFigNames,YFigNames, ModelName)  
+
+tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),'BaseballCCRIO.png'))
+```
+
+![Basic DEA Model of Baseball Batting](BaseballCCRIO.png){#fig:BaseballCCRIO}
 
 ```{r preparing_IO_data}
 

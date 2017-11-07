@@ -72,7 +72,7 @@ Notice that the data table is messy.  In particular, an inefficient unit such as
 
 df <- cbind(resBH$Efficiency,resBH$Lambda)
 pander(tempdf <- df[, colSums(df) != 0],
-       caption = "Envelopment results Displaying Only Columns Containing Positive Values.")
+       caption = "Envelopment results displaying only columns containing positive values.")
 
 ```
 
@@ -208,15 +208,16 @@ demoIOdiagram <- grViz(
 )
 
 #stnds.qa.d2 <- grViz(stnds.qa.d)
-tmp<-capture.output(rsvg_png(charToRaw(export_svg(demoIOdiagram)),'demoIOdiagram.png'))
+tmp<-capture.output(rsvg_png(charToRaw(export_svg(demoIOdiagram)),
+                             'demoIOdiagram.png', height = 1440))
 
 ```
 
-![Demo IO Diagram](demoIOdiagram.png){#fig:demoIOdiagram}
+![Demo IO Diagram](demoIOdiagram.png){#fig:demoIOdiagram}  
 Okay.  Now let's generalize it for an arbitrary number of inputs and outputs.
 
 
-```{r TryingIODiagram2}
+```{r TryingIODiagram2, dpi=144}
 library(DiagrammeR)
 a <- "'"
 
@@ -276,7 +277,7 @@ generalIO <- grViz(
   )
 )
 
-tmp<-capture.output(rsvg_png(charToRaw(export_svg(generalIO)),'generalIO.png'))
+tmp<-capture.output(rsvg_png(charToRaw(export_svg(generalIO)),'generalIO.png', height = 1440))
 
 ```
 
