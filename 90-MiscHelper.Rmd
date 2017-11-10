@@ -213,7 +213,7 @@ tmp<-capture.output(rsvg_png(charToRaw(export_svg(demoIOdiagram)),
 
 ```
 
-![Demo IO Diagram](demoIOdiagram.png){#fig:demoIOdiagram}  
+![Demo IO Diagram](demoIOdiagram.png){#fig:demoIOdiagram width=25% }  
 Okay.  Now let's generalize it for an arbitrary number of inputs and outputs.
 
 

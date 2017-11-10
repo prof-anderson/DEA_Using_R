@@ -78,11 +78,12 @@ YFigNames <- c("Y1 - Market Size ($M)",
                "Y4 - Compet. Intensity (1-10)" )
 Figure<-DrawIOdiagram(XFigNames,YFigNames, '"\n\nBCC-IO\n\n "')  
 
-tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),'IO-BakerHughes.png'))
+tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),
+                             'IO-BakerHughes.png', height = 1440))
 
 ```
 
-![Baker Hughes Input-Output Model](IO-BakerHughes.png){#fig:IO-BakerHughes}
+![Baker Hughes Input-Output Model](IO-BakerHughes.png){#fig:IO-BakerHughes width=50% }
 
 ```{r}
 
