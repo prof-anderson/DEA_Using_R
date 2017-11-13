@@ -3,11 +3,11 @@ output:
   html_document: default
   pdf_document: default
 ---
-# Matrix Formulations of DEA
+# Matrix Implementations of DEA
 
-In the previous chapter we created the DEA linear program algebraically using the new ompr package.  Before _ompr_  was available, we needed to use another approach for our DEA package, _TFDEA_, which consisted of using matrices. This approach is requires more "bookkeeping". Both approaches work but I think the algebraic approach is likely to be easier to write, debug, and extend in the future.  For solving, we will use the widely adopted _lpsolveapi_ package. 
+In the previous chapter we created the DEA linear program algebraically using the new _ompr_ package.  Before _ompr_  was available, we needed to use another approach for our DEA package, _TFDEA_, which consisted of using matrices. This approach  requires more "bookkeeping". Both approaches work but I think the algebraic approach is likely to be easier to write, debug, and extend in the future.  For solving, we will use the widely adopted _lpsolveapi_ package but this same matrix-based approach would be the same for other LP solver engines such as C-Plex, Gurobi, and CBC.   
 
-People interested in working on the TFDEA package should read this chapter carefully.  We will be returning to these topics algebraically as well later.  For people that want to stick to the algebraic implementation and using _ompr_, you can skip this chapter.  
+People interested in working on the TFDEA package should read this chapter carefully.  We will be returning to these topics algebraically as well later since it is conceptually similar to the structure of the package.  For people that want to stick to the algebraic implementation and using _ompr_, you can skip this chapter.  
 
 To get it ready for matrix formulating, we need to  put it in the standard form of linear programs which means that only numbers can be on the right hand side of the inequalities.  
 The standard form of linear programming can be described as the following.  
@@ -67,7 +67,37 @@ $$
   (\#eq:LPCCRIOE-Slack)
 $$
 
-Now, let's populate the information for our example.
+Now, let's populate the information for our example from the beginning of chapter 2.
+
+```{r  echo=FALSE Defining_Problem_Data} 
+  x <- matrix(c(10,20,30,50),ncol=1,dimnames=list(LETTERS[1:4],"x"))
+
+  y <- matrix(c(75,100,300,400),ncol=1,dimnames=list(LETTERS[1:4],"y"))
+  
+  ND <- nrow(x); NX <- ncol(x); NY <- ncol(y); 
+  
+  pander(cbind(x,y),caption="Input-Output Data")
+```
+
+Now we will incorporate the data into the model.  Since there is only one input and one output, there are only two constraints and two slack variables.  To keep a close connection to the application, we will refer to the specific envelopment variables by DMU name rather than number.  For example, this lists $\lambda_A$ rather than $\lambda_1$.  
+
+$$
+\begin{split}
+ \begin{aligned}
+    \text{minimize  }   & 0\lambda_A + 0\lambda_B + 0\lambda_C + 0\lambda_D + 
+                          1\theta + 0s^x_1 + 0s^y_1\\
+    \text{subject to } & 10\lambda_A + 20\lambda_B + 30\lambda_C + 50\lambda_D -
+                          20\theta + 1s^x_1 + 0s^y_1 = 0\\
+                       & 75\lambda_A + 100\lambda_B + 300\lambda_C + 400\lambda_D + 
+                           0\theta + 0s^x_1 - 1s^y_1 = 100\\
+                       & \lambda_A, \lambda_B, \lambda_C, \lambda_D, \theta, s^x_1, s^y_1 \geq 0  \;
+  \end{aligned}
+   \end{split}
+  (\#eq:LPCCRIOE-Data)
+$$
+
+Notice that this formulation now includes seven decision variables.  The linear programming convention is to define the vector of all variables to be _X_.  In this case, $X=[\lambda_A, \lambda_B, \lambda_C, \lambda_D, \theta, s^x_1, s^y_1 ]^\tau$.  Notice that _X_ is a column vector transposed to be shown as a horizontal row vector.  Using the _X_ vector for decision variables allows us to separate the data from the variables into 
+
 
 $$
 \begin{split}
@@ -90,18 +120,38 @@ $$
 (\#eq:LPCCRIOE-Matrix-Example)
 $$
 
+
+$$
+\begin
+    C = \begin{bmatrix}
+         0 & 0 & 0 & 0 & 1 & 0 & 0
+     \end{bmatrix}  \\
+    A = \begin{bmatrix}
+         10 & 20 & 30 & 50 & -20 & 1 & 0 & \\ 
+          75 & 100 & 300 & 400  & 0 & 0 & -1 &
+     \end{bmatrix}  \\
+     B = \begin{bmatrix}
+0\\ 
+100
+\end{bmatrix}\\ 
+  
+\end
+(\#eq:LPCCRIOE-Matrix-Example)
+$$
+
+The bulk of the LP is then defined by passing along the numerical A matrix and the vectors of B and C.  
+
 If you stare at that too long, you may go "bug-eyed."  The matrix representation is not a very friendly format for people.  Personally I really like the algebraic representations.  This matrix format though works really well for the computer.  The lpSolveAPI package in R is capable of taking an LP model in this form and solving it. Now we just need to structure the data in R to put it in the same format.  
 
 ##Creating the LP
 
-Now we are ready to start building our linear program in R.
+Now we are ready to start implementing our linear program for DEA in R.
 
 Now we need to make sure that lpsolveAPI is loaded.  If this does not work, you will need to install the package.
 
 ```{r}
 ## DEA function
 library(lpSolveAPI)
-library(pander)
 ```
 
 Now it it gets more involved.  We are defining a function for calculating DEA with options for returns to scale, orientation, and two different options for super-efficiency.
@@ -155,7 +205,7 @@ The name `lpe` is meant to indicate a linear programming object for the envelopm
 
 We easily display what our empty `lpe` object looks like.  We are initializing it without any constraints but columns for each variable that we expect to use: 
 
-* Columns for each lambda, _i.e._ $\lambda_1, \lambda_2, ..., lambda_N^D$  
+* Columns for each lambda, _i.e._ $\lambda_1$, $\lambda_2$, ..., $lambda_N^D$  
 * A column for the efficiency, $\theta$
 * Columns for each input slack and each output slack
 
@@ -185,7 +235,6 @@ In this case, the "1" corresponds to the column for the $\theta$ variable of the
 The above commands have two important functions.  The first merely sets it to be a _minimize_ objective function.  The second puts the relevant 0's and 1's in the objective function.  
 
 The lp.control function returns a long list of options being used for the linear programming solver.  The defaults are fine for now and it can take a full page to list all the settings so I just store it into an object, lpcontrol so it doesn't display it for now.
-
 
 ```{r Display_lp_with_Obj}
    lpe 
@@ -308,7 +357,7 @@ results.lambda  [k,]    # Display lambda variables
 results.vweight [k,]    # Display input weights
 results.uweight [k,]    # Display output weights
 
-pander(cbind(results.efficiency [k],results.lambda  [k,]),caption="DEA Efficiency Scores and Lambdas")
+pander(cbind(results.efficiency [k],t(results.lambda  [k,])),caption="DEA Efficiency Scores and Lambdas")
 pander(cbind(results.vweight [k,],results.uweight [k,]),caption="DEA Multiplier Weights" )
 ```
 
@@ -371,7 +420,8 @@ Again, let's look over the results.
 #    results.lambda[k,]         
 #    results.xslack[k,]
 #    results.yslack[k,]
-    pander(cbind(results.lambda[k,],results.xslack[k,],results.yslack[k,]))
+    pander(cbind(t(results.lambda[k,]),results.xslack[k,],results.yslack[k,]), 
+           caption="Envelopment variables and slacks for DMU B")
 ```
 
 Now, let's put it all together to summarize the results.

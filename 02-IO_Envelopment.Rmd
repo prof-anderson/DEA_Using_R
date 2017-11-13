@@ -71,16 +71,16 @@ This chart clearly shows that unit _C_ has the best ratio of output (y) to input
 
 Furthermore, we can graphically examine the technical efficiency of each of the other units.  I'm going to start with unit B since it is a little easier to visualize.  For now, let's think of the question, how much more or less input would _C_ require to produce as much output as _B_.  
 
-To determine this efficiency score, simply draw a horizontal line from _B_ to the efficiency frontier on the left.  This point can be thought of a target for _B_ to be efficiency.  This point has the same output as _B_ but uses only half as much input.  The efficiency score can now be calculated as the ratio of the distance from the vertical axis to the target divided by the distance from the vertical axis to _B_.  This distance is simply 10/20 or 50%.  
+To determine this efficiency score, simply draw a horizontal line from _B_ to the efficiency frontier on the left.  This point can be thought of a target for _B_ to be efficienct.  This point has the same output as _B_ but uses only half as much input.  The efficiency score can be calculated as the ratio of the distance from the vertical axis to the target divided by the distance from the vertical axis to _B_.  This distance is simply 10/20 or 50%.  
 
 Another question is how to construct the target for _B_'s evaluation.  It is simply made by scaling down _C_ to a third of its original size.  This results in a target that is composed of about 0.333 of _C_.  Also, it should be noted that it makes use of no part of _A_, _B_, or _D_.  
 
-The same steps can be followed for analyzing units _A_, _C_, and _D_.  
+The same steps can be followed for analyzing units _A_, _C_, and _D_ resulting in efficiencies of 75%, 100%, and 80% respectively.  
 
 The Linear Programs for DEA
 -----------------------------
 
-The graphical approach is intuitive but accuracy is limited to that of drawing tools.  More importantly, it does not scale to more complex models with multiple inputs and outputs.  Let's frame this topic mathematically so that we proceed systematically.  
+The graphical approach is intuitive but accuracy is limited to that of drawing tools.  More importantly, it does not scale to more complex models with multiple inputs and outputs.  Let's frame this topic mathematically so that we can proceed systematically.  
 
 A key way to begin the mathematical development of the envelopment model to ask, can you find a combination of units that produces a target with at least as much output using less input? The blend of other units is described by a vector $\lambda$.  Another way to denote this is $\lambda_j$ is the specific amount of a unit _j_ used in setting the target for for performance for unit _k_.
 
@@ -168,12 +168,6 @@ Let's define some data structures for holding our results.
   
   results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
   dimnames(results.lambda)<-c(DMUnames,Lambdanames)
-  
-  results.vweight    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX)
-  dimnames(results.vweight)<-c(DMUnames,Vnames)
-  
-  results.uweight    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
-  dimnames(results.uweight)<-c(DMUnames,Unames)
 
   results.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
   dimnames(results.xslack)<-c(DMUnames,SXnames)
@@ -183,12 +177,11 @@ Let's define some data structures for holding our results.
 
 ```
 
-We're going to use our data from earlier.  
+We're going to use our data from earlier but fits we will load a collection of libraries to be used later.  The ompr package is for optimization and serves as a general human readable format of optimization models that can then interface with a variety of solver engines.  The ROI.plugin.glpk package is for the specific solver engine, glpk, that we used.  Other LP solving engines are available and can be used instead.  
 
 ```{r loading_packages, message=FALSE, warning=FALSE}
      # options: message=FALSE, warning=FALSE to turn off display
 
-library(pander)           # Used for making nicely formatted tables
 library(dplyr)            # For data structure manipulation
 library(ROI)              # R Optimization Interface package
 library(ROI.plugin.glpk)  # Connection to glpk as solver
@@ -196,8 +189,9 @@ library(ompr)             # Optimization Modeling using R
 library(ompr.roi)         # Connective tissue
 
 ```
-Now that we have loaded all of the packages that we use as building blocks, we can start constructing the model.
+Now that we have loaded all of the packages that we use as building blocks, we can start constructing the model.  
 
+We are going to start by building a model for just one DMU
 ```{r first_ompr_model}
 
 k<-2    # DMU to analyze.  Let's start with just one DMU, B, for now.
@@ -231,16 +225,18 @@ results.lambda <- t(omprlambda[3])
 colnames(results.lambda) <- c("L_A", "L_B", "L_C", "L_D")
 
 pander(cbind(results.efficiency, results.lambda), 
-       caption="Input-Oriented Envelopment Analysis for DMU A (CCR-IO)")
+       caption="Input-Oriented Envelopment Analysis for DMU B (CCR-IO)")
 ```
 
 The above table follows a few convenient conventions.  First, rather than using $\lambda$, we label the efficiency score by the model used for the model, in this case the input-oriented variable returns to scale is labeled as CCR after Charnes, Cooper, and Rhodes.  Later we will cover other models including the variable returns to scale model, labeled BCC after Banker, Charnes, and Cooper.  Another convention is to use "L" in place of the Greek symbol $\lambda$ due to complications with using Greek symbols in R matrix row or column names.  
 
-Let's now extend it to handle multiple inputs, NX, and outputs, NY.  Of course this doesn't have any impact on our results just yet since we are still only using a single input and output but we now have the structure to accommodate the more general case.
+Furthermore, the results in the table indicate that DMU _B_ has an efficiency score of 50%.  The target of performance is made of DMU _C_ scaled down by a factor of 0.33.  
+
+Let's now extend it to handle multiple inputs, NX, and outputs, NY.  Of course this doesn't have any impact on our results just yet since we are still only using a single input and output but we now have the structure to accommodate the more general case.  To provide a little variety, we'll change it to the first DMU, A, to give a little more variety.  
 
 ```{r ompr_mult_IO, message=FALSE}
 
-k<-1    # DMU to analyze.  Let's start with just one for now.
+k<-1    # DMU to analyze.  Let's change it to the first unit, DMU A.
 
 result <- MIPModel() %>%
   add_variable(vlambda[j], j = 1:ND, type = "continuous", lb = 0) %>%
@@ -266,6 +262,7 @@ pander(cbind(results.efficiency, results.lambda),
        caption="Results Allowing for Multiple Inputs and Outputs")
 
 ```
+
 Okay.  This was not so exciting because the data still only had one input and one output so the results are the same.  
 
 Now we should extend this to handle all four of the decision making units.  
@@ -315,7 +312,9 @@ pander (cbind(results.efficiency, results.lambda),
 
 ```
 
-The results match those from earlier.  
+The results match those observed graphically but let's discuss them.  These results indicate that only DMU _C_ is efficient.  A rescaled version of _C_ could produce the same level of output of _A_, _B_, and _D_, while using 25%, 50%, and 20% less input respectively.  The targets of performance for _A_ and _C_ are constructed by scaling down unit _C_ to a much smaller size, as shown by the the values of $\lambda$. In contrast, _D_'s performance is surpassed by a 33% larger version of _C_.  
+
+It is an important step of any DEA study to carefully examine the results.  In this case, it might be argued that for certain applications, _C_'s business practices do not scale linearly and therefore could not be assumed to operate at a much smaller or larger size.  In that case, we should consider modeling returns scale.  
 
 ## Returns to Scale
 
@@ -350,7 +349,7 @@ for (k in 1:ND) {
     add_constraint(sum_expr(vlambda[j] * ydata[j,r], j = 1:ND) 
                    >= ydata[k,r], r = 1:NY) 
 
-    if (RTS=="VRS") {add_constraint(result, 
+    if (RTS=="VRS") {result <- add_constraint(result, 
                        sum_expr(vlambda[j], j = 1:ND) == 1) 
                      }  #Returns to Scale
 
@@ -399,11 +398,14 @@ for (k in 1:ND) {
     add_constraint(sum_expr(vlambda[j] * xdata[j,i], j = 1:ND) 
                    <= vtheta * xdata[k,i], i = 1:NX) %>%
     add_constraint(sum_expr(vlambda[j] * ydata[j,r], j = 1:ND) 
-                   >= ydata[k,r], r = 1:NY) 
+                   >= ydata[k,r], r = 1:NY)
 
-    if (RTS=="VRS") {add_constraint(result, sum_expr(vlambda[j], j = 1:ND) == 1) }  
-    if (RTS=="IRS") {add_constraint(result, sum_expr(vlambda[j], j = 1:ND) >= 1) }  
-    if (RTS=="DRS") {add_constraint(result, sum_expr(vlambda[j], j = 1:ND) <= 1) }  
+    if (RTS=="VRS") {result <-
+      add_constraint(result, sum_expr(vlambda[j], j = 1:ND) == 1) }  
+    if (RTS=="IRS") {result <-
+      add_constraint(result, sum_expr(vlambda[j], j = 1:ND) >= 1) }  
+    if (RTS=="DRS") {result <-
+      add_constraint(result, sum_expr(vlambda[j], j = 1:ND) <= 1) }  
 
 result <-   solve_model(result, with_ROI(solver = "glpk")) 
     
@@ -460,8 +462,6 @@ dim(ydata) <-c(ND,NY)
 
 results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
 results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
-results.vweight    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
-results.uweight    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
 results.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
 results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
 
@@ -484,8 +484,6 @@ dimnames(xdata)<-c(DMUnames,Xnames)
 dimnames(ydata)<-c(DMUnames,Ynames)
 dimnames(results.efficiency)<-c(DMUnames,"CCR-IO")
 dimnames(results.lambda)<-c(DMUnames,Lambdanames)
-dimnames(results.vweight)<-c(DMUnames,Vnames)
-dimnames(results.uweight)<-c(DMUnames,Unames)
 dimnames(results.xslack)<-c(DMUnames,SXnames)
 dimnames(results.yslack)<-c(DMUnames,SYnames)
 
@@ -507,7 +505,7 @@ for (k in 1:ND) {
     add_constraint(sum_expr(vlambda[j] * ydata[j,r], j = 1:ND) 
                    >= ydata[k,r], r = 1:NY) 
 
-    if (RTS=="VRS") {add_constraint(result, 
+    if (RTS=="VRS") {result <- add_constraint(result, 
                  sum_expr(vlambda[j],j = 1:ND) == 1) }  #Returns to Scale
 
 result <-   solve_model(result, with_ROI(solver = "glpk")) 
@@ -556,11 +554,11 @@ $$
   (\#eq:LPCCRIOE-Two-Phase)
 $$
 
-A common mistake in implementing DEA is to use a finite approximation for $\epsilon$ such as $10^{-6}$.  Any finite value can cause distortions in $\theta$.  For example, an application comparing companies using revenue and expenses might have inputs and outputs on the order of millions or billions.  In this case, non-radial slacks could also be on the order of $10^{6}$.  Multiplying the two  results in a value similar in magnitude to the maximum possible efficiency score ($10^{-6}10^{6}=1$).
+A common mistake in implementing DEA is to use a finite approximation for $\epsilon$ such as $10^{-6}$.  Any finite value can cause distortions in $\theta$.  For example, an application comparing companies using revenue and expenses might have inputs and outputs on the order of millions or billions.  In this case, non-radial slacks could also be on the order of $10^{6}$.  Multiplying the two  results in a value similar in magnitude to the maximum possible efficiency score ($10^{-6}10^{6}=1$) which would then potentially overwhelm the radial efficiency, $\theta$, part of the objective function.
 
 The proper way to implement slack maximization is to treat it as a preemptive goal programming problem. The primary goal is to minimize $\theta$ in a first phase linear program and the second goal, holding the level of $\theta$ fixed from the first phase is to then maximize the sum of the slacks.  
 
-The first phase can take the form of any of our earlier linear programs without the $\epsilon$ term. The second phase is the following where $\theta^*$ is the optimal value from phase one and is held constant.  This is denoted by adding a constraint, $\theta=\theta^*$.
+The first phase can take the form of any of our earlier linear programs without the $\epsilon$ term. The second phase is the following where $\theta^*$ is the optimal value from phase one and $\theta$ is then held constant in the second phase.  This is implemented by adding a constraint, $\theta=\theta^*$ to the second phase linear program.
 
 $$
 \begin{split}
@@ -597,7 +595,7 @@ for (k in 1:ND) {
     add_constraint(sum_expr(vlambda[j] * ydata[j,r]-yslack[r], j = 1:ND) 
                     ==ydata[k,r], r = 1:NY) 
 
-    if (RTS=="VRS") {add_constraint(LPSlack, sum_expr(vlambda[j],
+    if (RTS=="VRS") {LPSlack<-add_constraint(LPSlack, sum_expr(vlambda[j],
                                 j = 1:ND) == 1) }  #Returns to Scale
 
     result <-   solve_model(LPSlack, with_ROI(solver = "glpk")) 
