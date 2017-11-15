@@ -5,6 +5,10 @@ output:
 ---
 # Matrix Implementations of DEA
 
+```{r Install_support_libraries, echo= FALSE}
+library (pander)
+```
+
 In the previous chapter we created the DEA linear program algebraically using the new _ompr_ package.  Before _ompr_  was available, we needed to use another approach for our DEA package, _TFDEA_, which consisted of using matrices. This approach  requires more "bookkeeping". Both approaches work but I think the algebraic approach is likely to be easier to write, debug, and extend in the future.  For solving, we will use the widely adopted _lpsolveapi_ package but this same matrix-based approach would be the same for other LP solver engines such as C-Plex, Gurobi, and CBC.   
 
 People interested in working on the TFDEA package should read this chapter carefully.  We will be returning to these topics algebraically as well later since it is conceptually similar to the structure of the package.  For people that want to stick to the algebraic implementation and using _ompr_, you can skip this chapter.  
@@ -69,7 +73,7 @@ $$
 
 Now, let's populate the information for our example from the beginning of chapter 2.
 
-```{r  echo=FALSE Defining_Problem_Data} 
+```{r  Defining_Problem_Data, echo=FALSE } 
   x <- matrix(c(10,20,30,50),ncol=1,dimnames=list(LETTERS[1:4],"x"))
 
   y <- matrix(c(75,100,300,400),ncol=1,dimnames=list(LETTERS[1:4],"y"))
@@ -80,6 +84,7 @@ Now, let's populate the information for our example from the beginning of chapte
 ```
 
 Now we will incorporate the data into the model.  Since there is only one input and one output, there are only two constraints and two slack variables.  To keep a close connection to the application, we will refer to the specific envelopment variables by DMU name rather than number.  For example, this lists $\lambda_A$ rather than $\lambda_1$.  
+
 
 $$
 \begin{split}
@@ -110,7 +115,7 @@ $$
           75 & 100 & 300 & 400  & 0 & 0 & -1 &
      \end{bmatrix}  X \begin{matrix}
 =
-\end{matrix}   \begin{bmatrix}
+\end{matrix} \begin{bmatrix}
 0\\ 
 100
 \end{bmatrix}\\ 
@@ -120,25 +125,40 @@ $$
 (\#eq:LPCCRIOE-Matrix-Example)
 $$
 
+Now, let's show the data elements.  The _C_ vector contains the coefficients of the objective function.
 
 $$
-\begin
+\begin{split}
     C = \begin{bmatrix}
          0 & 0 & 0 & 0 & 1 & 0 & 0
-     \end{bmatrix}  \\
+     \end{bmatrix}  
+\end{split}
+(\#eq:Data-CElement)
+$$
+
+The _A_ matrix contains the variable's coefficients from the constraints.
+
+$$
+\begin{split}
     A = \begin{bmatrix}
          10 & 20 & 30 & 50 & -20 & 1 & 0 & \\ 
           75 & 100 & 300 & 400  & 0 & 0 & -1 &
      \end{bmatrix}  \\
+\end{split}
+(\#eq:Data-CElement)
+$$
+
+Lastly, the _B_ vector constains the right hand sides of the constraints.
+
+$$
+\begin{split}
      B = \begin{bmatrix}
 0\\ 
 100
-\end{bmatrix}\\ 
-  
-\end
-(\#eq:LPCCRIOE-Matrix-Example)
+\end{bmatrix} 
+\end{split}
+(\#eq:Data-BElement)
 $$
-
 The bulk of the LP is then defined by passing along the numerical A matrix and the vectors of B and C.  
 
 If you stare at that too long, you may go "bug-eyed."  The matrix representation is not a very friendly format for people.  Personally I really like the algebraic representations.  This matrix format though works really well for the computer.  The lpSolveAPI package in R is capable of taking an LP model in this form and solving it. Now we just need to structure the data in R to put it in the same format.  
@@ -152,6 +172,7 @@ Now we need to make sure that lpsolveAPI is loaded.  If this does not work, you 
 ```{r}
 ## DEA function
 library(lpSolveAPI)
+
 ```
 
 Now it it gets more involved.  We are defining a function for calculating DEA with options for returns to scale, orientation, and two different options for super-efficiency.

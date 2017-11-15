@@ -232,9 +232,6 @@ Now, let's look at the results.
 
 ```{r}
 library(ggplot2)
-
-qplot (res1920ALmult$Efficiency, 
-       geom="histogram")
  
 qplot (res1920ALmult$Efficiency, 
        geom="dotplot",
@@ -303,11 +300,16 @@ Now, let's turn our attention to a variation of DEA called cross-efficiency.  Cr
 ```{r}
 res1920ALcross<-CrossEfficiency(x,y,rts = "crs", orientation="output")
 
-pander(head (res1920ALcross$ce_ave),round=4,caption="Cross-efficiency scores for 1920AL")
-pander(head (res1920ALmult$Efficiency),round=4,caption="CCR Efficiency Scores")
-pander(head (res1920ALcross$ceva_max),round=4,caption="Maximum Cross Evaluation Score for Each Player")
+pander(head (res1920ALcross$ce_ave), round=4,
+       caption="Cross-efficiency scores for 1920AL")
+pander(head (res1920ALmult$Efficiency), round=4,
+       caption="CCR Efficiency Scores")
+pander(head (res1920ALcross$ceva_max), round=4,
+       caption="Maximum Cross Evaluation Score for Each Player")
 
-pander(cor(cbind(res1920ALmult$Efficiency, res1920ALcross$ce_ave, res1920ALmultWR$Efficiency)),round=4,caption="Correlation between Scores")
+pander(cor(cbind(res1920ALmult$Efficiency, res1920ALcross$ce_ave,
+                 res1920ALmultWR$Efficiency)),round=4,
+                 caption="Correlation between Scores")
 
 ```
 
@@ -332,14 +334,8 @@ ggplot (collectedeff1, aes(x=CCRIO, y=CCRIOWR)) +
         geom_point(shape=1) +
         geom_abline(slope=1, color="red")
 
-qplot(res1920ALmult$Efficiency, res1920ALmultWR$Efficiency, 
-      xlab="Efficiency", ylab="Efficiency with Weight Restrictions",
-      main="Impact of Weight Restrictions on 1920 AL CC Efficiency",
-      xlim=c(0.6,1.01), ylim=c(0.6,1.01)
-      )
 ```
 
-Okay, this plot shows that that the data is quite a bit different. If the models produced the same results for each player, the efficiency scores would fall along a single diagonal line.  It would be nice plot this line.  Apparently qplot doesn't allow for this.  It would also be nice to be able to label specific points.  Also, to be able to show the cross-efficiency scores as a second set of points.  Let's start redrawing it using ggplot2.
 
 ```{r}
 library("ggplot2")

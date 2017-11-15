@@ -11,7 +11,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Introduction
+# Introduction to Linear Programming
 
 This Appendix was inspired by a solution set for ETM 540/640-Operations Research.  It will grow into more of an introduction to linear programming using R and ompr.  
 
