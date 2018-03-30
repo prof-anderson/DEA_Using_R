@@ -1,5 +1,7 @@
 ---
 output:
+  html_document:
+    df_print: paged
   pdf_document: default
 ---
 # Baseball Benchmarking Applications

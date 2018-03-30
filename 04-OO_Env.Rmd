@@ -32,7 +32,7 @@ $$
  \begin{aligned}
     \text{minimize  }   & \phi \\
     \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j \leq x_{i,k}  \forall \; i\\
-                       & \sum_{j=1}^{n} y_{r,j}\lambda_j - \theta y_{r,k} \geq 0 \forall \; r\\
+                       & \sum_{j=1}^{n} y_{r,j}\lambda_j - \phi y_{r,k} \geq 0 \forall \; r\\
                        & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
 $$
@@ -50,3 +50,88 @@ $$
 
 ## Creating the LP - The Algebraic Approach - TO BE ADDED
 
+As usual, we will start with loading a collection of packages.
+
+
+```{r loading_packages, message=FALSE, warning=FALSE}
+     # options: message=FALSE, warning=FALSE to turn off display
+
+library(pander)           # Nicely formatted tables
+library(dplyr)            # For data structure manipulation
+library(ROI)              # R Optimization Interface package
+library(ROI.plugin.glpk)  # Connection to glpk as solver
+library(ompr)             # Optimization Modeling using R
+library(ompr.roi)         # Connective tissue
+
+```
+
+
+```{r Creating_data_structures}
+
+  XBaker1 <- matrix(c(150, 400, 320, 520, 350, 320, .2, 0.7, 1.2, 2.0, 1.2, 0.7),
+                  ncol=2,dimnames=list(LETTERS[1:6],c("x1", "x2")))  
+  YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 3500, 21000, 10500, 
+                    42000, 25000, 15000),
+                  ncol=2,dimnames=list(LETTERS[1:6],c("y1", "y2")))
+
+  ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1); # Define data size
+
+  xdata<-XBaker1
+  ydata<-YBaker1
+                 # Now we will create lists of names
+  DMUnames <- list(c(LETTERS[1:ND]))               # DMU names: A, B, ...
+  Xnames<- lapply(list(rep("X",NX)),paste0,1:NX)   # Input names: x1, ...
+  Ynames<- lapply(list(rep("Y",NY)),paste0,1:NY)   # Output names: y1, ...
+  Vnames<- lapply(list(rep("v",NX)),paste0,1:NX)   # Input weight names: v1, ...
+  Unames<- lapply(list(rep("u",NY)),paste0,1:NY)   # Output weight names: u1, ...
+  SXnames<- lapply(list(rep("sx",NX)),paste0,1:NX) # Input slack names: sx1, ...
+  SYnames<- lapply(list(rep("sy",NY)),paste0,1:NY) # Output slack names: sy1, ...
+  Lambdanames<- lapply(list(rep("L_",ND)),paste0,LETTERS[1:ND])
+
+  results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
+#  dimnames(results.efficiency)<-list(c(LETTERS[1:ND]),c("Eff"))
+  dimnames(results.efficiency)<-c(DMUnames,"CCR-IO")  # Attach names
+  
+  results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
+  dimnames(results.lambda)<-c(DMUnames,Lambdanames)
+
+  results.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
+  dimnames(results.xslack)<-c(DMUnames,SXnames)
+
+  results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
+  dimnames(results.yslack)<-c(DMUnames,SYnames)
+
+```
+
+Now the formulation is similar to the input-oriented model that we created in chapter 2.  The three changes are that we will be using $\phi$ rather than $\theta$, a _max_ rather than _min_ objective function, and modifying the output-constraint(s) rather than the input-constraint(s).
+
+```{r Baker_example}
+
+RTS<-"CRS"
+for (k in 1:ND) {
+  
+  result <- MIPModel() %>%
+    add_variable(vlambda[j], j = 1:ND, type = "continuous", lb = 0) %>%
+    add_variable(vphi, type = "continuous") %>%
+    set_objective(vphi, "max") %>%
+    add_constraint(sum_expr(vlambda[j] * xdata[j,i], j = 1:ND) 
+                   <=  xdata[k,i], i = 1:NX) %>%
+    add_constraint(sum_expr(vlambda[j] * ydata[j,r], j = 1:ND) 
+                   >= vphi * ydata[k,r], r = 1:NY) 
+
+    if (RTS=="VRS") {result <- add_constraint(result, 
+                 sum_expr(vlambda[j],j = 1:ND) == 1) }  #Returns to Scale
+
+result <-   solve_model(result, with_ROI(solver = "glpk")) 
+    
+    results.efficiency[k] <-  get_solution(result, vphi)       
+    results.lambda[k,] <- t(as.matrix(as.numeric(
+                     get_solution(result, vlambda[j])[,3] )))
+}
+pander (cbind(results.efficiency, results.lambda),round=6, caption="Results from Baker's Example")
+
+```
+
+This tells us that unit C is the only output-oriented CCR efficient unit.  
+
+Now, let us try looking at this another way.  Let's see if we can extract the dual weights for the inputs and outputs.  
