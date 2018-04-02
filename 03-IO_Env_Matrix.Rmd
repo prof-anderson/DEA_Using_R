@@ -9,7 +9,7 @@ output:
 library (pander)
 ```
 
-In the previous chapter we created the DEA linear program algebraically using the new _ompr_ package.  Before _ompr_  was available, we needed to use another approach for our DEA package, _TFDEA_, which consisted of using matrices. This approach  requires more "bookkeeping". Both approaches work but I think the algebraic approach is likely to be easier to write, debug, and extend in the future.  For solving, we will use the widely adopted _lpsolveapi_ package but this same matrix-based approach would be the same for other LP solver engines such as C-Plex, Gurobi, and CBC.   
+In the previous chapter we created the DEA linear program algebraically using the new _ompr_ package.  Before _ompr_  was available, we needed to use another approach for our DEA package, _TFDEA_, which consisted of using matrices. This approach  requires more "bookkeeping". Both approaches work but I think the algebraic approach is likely to be easier to write, debug, and extend in the future.  For solving, we will use the widely adopted _lpsolveapi_ package but this same matrix-based approach holds other LP solver engines such as C-Plex, Gurobi, and CBC.   
 
 People interested in working on the TFDEA package should read this chapter carefully.  We will be returning to these topics algebraically as well later since it is conceptually similar to the structure of the package.  For people that want to stick to the algebraic implementation and using _ompr_, you can skip this chapter.  
 
@@ -27,7 +27,7 @@ $$
   (\#eq:LPCCRIOE-Matrix-Simple)
 $$
 
-Note that in this form, _X_ is a vector of variables but in DEA _x_ represents inputs.  The vector _X_ will have length equal to the number of units examined plus one more for theta and the number of inputs and the number of outputs.  _C_ is a vector of data with the same number of elements as the _X_ vector.  _A_ is a matrix of data and _B_ is a vector describing the contstraint right hand sides.  
+Note that in this form, _X_ is a vector of variables.  This is a little confusing for people doing DEA since in DEA _x_ represents inputs.  The vector _X_ has length equal to the number of units examined plus one more for theta and the number of inputs and the number of outputs.  _C_ is a vector of data with the same number of elements as the _X_ vector.  _A_ is a matrix of data and _B_ is a vector describing the contstraint right hand sides.  
 
 Recall that in the previous chapter we had presented the standard LP model of the input-oriented envelopment model.  
 
@@ -83,7 +83,7 @@ Now, let's populate the information for our example from the beginning of chapte
   pander(cbind(x,y),caption="Input-Output Data")
 ```
 
-Now we will incorporate the data into the model.  Since there is only one input and one output, there are only two constraints and two slack variables.  To keep a close connection to the application, we will refer to the specific envelopment variables by DMU name rather than number.  For example, this lists $\lambda_A$ rather than $\lambda_1$.  
+The next step is to incorporate the data into the model.  Since there is only one input and one output, there are only two constraints and two slack variables.  To keep a close connection to the application, we will refer to the specific envelopment variables by DMU name rather than number.  For example, this lists $\lambda_A$ rather than $\lambda_1$.  
 
 
 $$
@@ -265,7 +265,7 @@ Now we will prepare for adding names to elements of our data matrix.  This is a 
 
 ```{r Add_names_to_LP}
 
-    lambda_names <- paste("L", 1:ND, sep = "")  # We'll use L to represnt Lambda
+    lambda_names <- paste("L", 1:ND, sep = "")  # We'll use L to represent Lambda
     
     eff_name <- "theta"   # Pick the appropriate variable name
 
@@ -334,7 +334,7 @@ Simply solving doesn't tell us anything very useful.  It just gives an error cod
 
 We have four separate steps.  In the input-oriented model, we read out the objective function value and place it in the _k_'th place of _results.efficiency_.  
 
-The following step sets _Phase1_ equal to the same efficiency score.  We will use this value in a second LP that we creatively refer to as Phase2 in order to make sure that we have an optimal target.  
+The following step sets _Phase1_ equal to the same efficiency score.  We will use this value in a second LP that we creatively refer to as _Phase2_ in order to make sure that we have an optimal target.  This is consistent with the two-phase approach discussed in Chapter 2.
 
 Next we get input dual weights and place them in _results.vweight_.  These are useful because the dual weights are essentially the solution the DEA multiplier model.  We can also thing of them roughly as the "prices" or "values" placed on inputs and outputs that make the unit appear as good as possible.  (It is tricky that all rows are offset from how you might count them because row 1 is considered to be the objective function.)
 
@@ -378,8 +378,10 @@ results.lambda  [k,]    # Display lambda variables
 results.vweight [k,]    # Display input weights
 results.uweight [k,]    # Display output weights
 
-pander(cbind(results.efficiency [k],t(results.lambda  [k,])),caption="DEA Efficiency Scores and Lambdas")
-pander(cbind(results.vweight [k,],results.uweight [k,]),caption="DEA Multiplier Weights" )
+pander(cbind(results.efficiency [k],t(results.lambda  [k,])),
+       caption="DEA Efficiency Scores and Lambdas")
+pander(cbind(results.vweight [k,],results.uweight [k,]),
+       caption="DEA Multiplier Weights" )
 ```
 
 ## Slack Maximization
@@ -435,6 +437,8 @@ Again, let's look over the results.
   SXnames<- lapply(list(rep("sx",NX)),paste0,1:NX)
   SYnames<- lapply(list(rep("sy",NY)),paste0,1:NY)
   dimnames(results.lambda)<-c(DMUnames,DMUnames)
+  dimnames(results.uweight)<-c(DMUnames,Unames)
+  dimnames(results.vweight)<-c(DMUnames,Vnames)
   dimnames(results.xslack)<-c(DMUnames,SXnames)
   dimnames(results.yslack)<-c(DMUnames,SYnames)
 
@@ -447,7 +451,7 @@ Again, let's look over the results.
 
 Now, let's put it all together to summarize the results.
 
-What does this mean?  We are saying that unit `r k` has an efficiency of `r results.efficiency[k]`.  This is obtained by using a vector $\lambda$=`r results.lambda[k,]`.  Also, the weights on input(s) that correspond to this score was `r results.vweight[k,]` and for outputs `r results.uweight[k,]`.  
+What does this mean?  We are saying that unit `r k` (B) has an efficiency of `r results.efficiency[k]`.  This is obtained by using a vector $\lambda$=`r results.lambda[k,]`.  Also, the weights on input(s) that correspond to this score was `r results.vweight[k,]` and for outputs `r results.uweight[k,]`.  
 
 ## Exercises
 
@@ -455,7 +459,7 @@ If you have followed along this far - you deserve a medal!  If you work your way
 
 1. Graphically determine the efficiency score and lambdas for the other units.  _Difficulty: Decaf cup of coffee_
 2. Interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom.  _Difficulty: Cup of coffee_
-3. Add a fifth unit, E, that produces 400 units output using 30 units of input.  Graphically evaluate all five units for their efficiency scores and lambda values.  
+3. Add a fifth unit, E, that produces 400 units output using 30 units of input.  Graphically evaluate all five units for their efficiency scores and lambda values.
 4. Interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom.  _Difficulty: Cup of coffee_
 5. Examine another unit using the R code (hint:  change where k is set.)  _Difficulty: Decaf cup of coffee_
 6. Interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom.  _Difficulty: Cup of coffee_

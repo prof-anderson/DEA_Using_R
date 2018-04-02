@@ -3,13 +3,10 @@ output:
   html_document: default
   pdf_document: default
 ---
-# Cross-Efficiency
+# Cross-Efficiency-DRAFT 
 
 Introduction
 -----------------------------
-Every linear program has a related alter ego referred to as the dual.  By duality, the two models have the same optimal objective function values.  In DEA, the multiplier models are simply the dual of the envelopment models.  In terms of the matrix representations of DEA given in chapter 3, the A matrix is transposed, rows give way to columns and columns become rows.  The right hand side values appear in the objective function while the previous objective function coefficients become right hand side values.  More could be said about this but will be deferred for people interested in duality or more algorithmic aspects of linear programming.  
-
-Let's turn our attention instead to deriving the DEA model through a ratio.  
 
 ##The Ratio Model
 
@@ -148,7 +145,7 @@ colnames(y)[2] <- c("Private")
 # Calculate the efficiency score
 result <- DeaMultiplierModel(x,y,"crs", "input")
 # Examine the efficiency score for DMUs
-pander(result$Efficiency)
+pander(result$Efficiency, caption="CCR Efficiency Scores")
 ```
 
 The efficiency scores match the earlier results and that of Baker.  
@@ -170,7 +167,7 @@ colnames(y)[2] <- c("Private")
 # Calculate the efficiency score
 result <- CrossEfficiency(x,y,"crs", "input")
 # Examine the cross efficiency score for DMUs
-pander(result$ce_ave)
+pander(result$ce_ave, caption="Cross-Efficiency Scores")
 
 ```
 
@@ -227,7 +224,8 @@ multiplierIO <- function (x,y)
 
 resfunc <- multiplierIO(x,y)
 
-pander (cbind(resfunc$efficiency,resfunc$vweight,resfunc$uweight))
+pander (c(resfunc$efficiency,resfunc$vweight,resfunc$uweight), 
+        caption="Cross-Efficiency Scores and weights")
 ```
 
 You can think of the cross-efficiency by going back to revisit the original ratio model of the multiplier model.  Let's extend the definition of the input and output weights to reflect for which unit the weights were determined.  For example, $u_{r,k}$ is then the weight on output r when analyzed from the perspetive of DMU k and a similar interpretation applies to input weight.  
@@ -284,10 +282,10 @@ for (k in 1:ND) {
    for (j in 1:ND) {results.crosseval[k,j]<-sum(results.uweight[k,]*ydata[j,])/sum(results.vweight[k,]*xdata[j,])
                    }
 }
-pander(results.crosseval)
+pander(results.crosseval, caption = "Cross-evaluation Matrix")
 
 for (j in 1:ND) {results.crosseff[j]<-sum(results.crosseval[,j])/ND}
-pander(results.crosseff)
+pander(results.crosseff, caption = "results.crosseff?")
 
 ```
 
@@ -322,8 +320,8 @@ rescross <- calccrosseff (xdata, ydata, results.vweight, results.uweight)
 
 print("Printing results from function for calculating cross-efficiency")
 
-pander(rescross$crosseval)
-pander(rescross$crosseff)
+pander(rescross$crosseval, "Cross-Evaluation Matrix")
+pander(rescross$crosseff, "Cross-Efficiency Scores")
 
 ```
 

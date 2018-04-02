@@ -22,22 +22,18 @@ $$
   \end{aligned}
 $$
 
-MATERIAL BELOW IS JUST A PLACEHOLDER FOR EDITING PURPOSES AND WILL NEED TO BE REWRITTEN.  
-
-
-
-This is how I will typically write things out.  Personally, I like this algebraic representation of a linear program.  Unfortunately, some computer software does not like this format.  To get it ready for R we need to  put it in the standard form of linear programs which means that only numbers can be on the right hand side of the inequalities.  
+Just as we did in chapter 2 for the input-oriented model, we will transform it to standard form by moving all terms with variables to the left-hand side.
 
 $$
  \begin{aligned}
-    \text{minimize  }   & \phi \\
+    \text{maximize  }   & \phi \\
     \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j \leq x_{i,k}  \forall \; i\\
                        & \sum_{j=1}^{n} y_{r,j}\lambda_j - \phi y_{r,k} \geq 0 \forall \; r\\
                        & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
 $$
 
-Now we will convert the problem input and output constraints from inequalities into equalities by explicitly defining slack variables.  
+Now we will convert the problem input and output constraints from inequalities into equalities by explicitly defining slack variables.
 
 $$
  \begin{aligned}
@@ -48,10 +44,9 @@ $$
   \end{aligned}
 $$
 
-## Creating the LP - The Algebraic Approach - TO BE ADDED
+## Creating the Output-Oriented LP - The Algebraic Approach
 
 As usual, we will start with loading a collection of packages.
-
 
 ```{r loading_packages, message=FALSE, warning=FALSE}
      # options: message=FALSE, warning=FALSE to turn off display
@@ -101,6 +96,9 @@ library(ompr.roi)         # Connective tissue
   results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
   dimnames(results.yslack)<-c(DMUnames,SYnames)
 
+  dimnames(results.uweight)<-c(DMUnames,Unames)
+  dimnames(results.vweight)<-c(DMUnames,Vnames)
+
 ```
 
 Now the formulation is similar to the input-oriented model that we created in chapter 2.  The three changes are that we will be using $\phi$ rather than $\theta$, a _max_ rather than _min_ objective function, and modifying the output-constraint(s) rather than the input-constraint(s).
@@ -134,4 +132,8 @@ pander (cbind(results.efficiency, results.lambda),round=6, caption="Results from
 
 This tells us that unit C is the only output-oriented CCR efficient unit.  
 
-Now, let us try looking at this another way.  Let's see if we can extract the dual weights for the inputs and outputs.  
+## Future Work
+
+* Extend slack maximization model.
+* Extract the dual weights for the inputs and outputs.  Requires new or undocumented features in the _ompr_ package.
+

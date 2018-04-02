@@ -511,7 +511,8 @@ result <-   solve_model(result, with_ROI(solver = "glpk"))
     results.lambda[k,] <- t(as.matrix(as.numeric(
                      get_solution(result, vlambda[j])[,3] )))
 }
-pander (cbind(results.efficiency, results.lambda),round=6, caption="Results from Baker's Example")
+pander (cbind(results.efficiency, results.lambda),round=6, 
+        caption="Results from Baker's Example")
 
 ```
 
