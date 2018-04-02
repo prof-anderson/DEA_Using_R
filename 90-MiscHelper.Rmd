@@ -149,7 +149,20 @@ Future work for this function could include the following:
 
 * Add more potential names such as for targets and scale information as they are used
 * Allow for optional base names of inputs, outputs, and DMUs.  
-* Change "L_" to actual $/lambda$ symbol.  
+* Change "L_" to actual $\lambda$ symbol.  
+
+Some notes from earlier attempts to embed lambda symbol into R code.
+
+```{r}
+#Lambdanames<- lapply(list(rep("\u03BB",ND)),paste0,LETTERS[1:ND])
+              # \u03BB is unicode for lambda symbol.
+              # This would lambda symbol to be embedded
+              #    in row or columns.
+              # Unfortunately implementation of unicode is not
+              #    consistent enough across different platforms.
+              # Instead, capital "L" is used for lambda symbol.
+```
+
 
 ## Future Work
 

@@ -11,7 +11,7 @@ Data envelopment analysis or DEA is a powerful tool for conducting studies of ef
 
 While tools exist for conducting the evaluations, it is important to understand how the tools work. Many DEA studies have been conducted and published by authors with only a superficial understanding of the technique.  This is equivalent to having a house built by carpenters that only (barely?) understand how to use a hammer.  The purpose of this document is to show how DEA works, what it means, and how to use R for getting started with DEA.  In order to keep things simple, this first step only looks at the input-oriented envelopment model with constant returns to scale.  We will consider other models soon.  
 
-This chapter walks through how DEA works and then shows how to implement the model in R using two very different approaches.  Over the years, I have built DEA models in many languages and platforms:  Pascal, LINDO, LINGO, Excel Macros, Excel VBA, GAMS, AMPL, and GLPK among others. 
+This chapter walks through how DEA works and then shows how to implement the model in R using two very different approaches.  Over the years, I have built DEA models in many languages and platforms:  Pascal, LINDO, LINGO, Excel Macros, Excel VBA, GAMS, AMPL, XPress-MOSEL, and GLPK among others. 
 
 Recently, my research group at PSU adopted the R platfom based on the following strengths:
 
@@ -29,14 +29,14 @@ Creating the Data
 
 Let's start by defining data.  DEA typically has inputs and outputs.  The input(s) are typically resources that are consumed in the production of output(s).  Inputs are referred to as "bads" in that higher levels at the same level of output is considered worse.  Similarly, holding everything else constant, an increase in any single output is laudable.  Examples of inputs might include capital, labor, or number of machines.
 
-In contrast, outputs are the "good" items that are being produced by the actions of the producers.  Examples of outputs include automobiles produced, customers served, or 
+In contrast, outputs are the "good" items that are being produced by the actions of the producers.  Examples of outputs might include automobiles produced, customers served, or graduating students.  
 
 Let's start by creating a simple dataset.  We'll assume that we have a small group of units, named A, B, C, and D.  These use inputs which we will label _x_ and produce products or outputs that we will label _y_. 
 
 Which of these units are the best?  Which are laggards?  Simply looking at the data is difficult.  Let's get started now with R.  
 
 ```{r}
-library(pander)
+library(pander, quietly=TRUE)
 x <- matrix(c(10,20,30,50),ncol=1,dimnames=list(LETTERS[1:4],"x"))
 
 y <- matrix(c(75,100,300,400),ncol=1,dimnames=list(LETTERS[1:4],"y"))
@@ -60,18 +60,18 @@ Graphical Analysis
 Let's start by doing a simple plot of the data.  For now, I'm going to make use of a function in Peter Bogetoft and Lars Otto's Benchmarking package which provides a very handy two-dimensional  plot in the format often used for showing production. 
 
 ```{r}
-library(Benchmarking)
+library(Benchmarking, quietly=TRUE)
 
 dea.plot(x, y, RTS="crs", ORIENTATION="in-out", txt=LETTERS[1:length(x)], 
          add=FALSE, wx=NULL, wy=NULL, TRANSPOSE=FALSE, fex=1, GRID=TRUE,
          RANGE=FALSE, param=NULL)
 ```
 
-This chart clearly shows that unit _C_ has the best ratio of output (y) to input (x).  The diagonal line represents an efficiency frontier of best practices that could be achieved by scaling up or down unit _C_.  As the input is scaled up or down, it is assumed that the output of unit _C_ would be scaled up or down by the same value.  We will revisit this assumption in a later section but for now, think of this as saying that unit _C_ cannot enjoy economies of scale by getting larger or diseconomies of scale by getting smaller so it is referred to as constant returns to scale or CRS.
+This chart clearly shows that unit _C_ has the best ratio of output (y) to input (x).  The diagonal line represents an efficiency frontier of best practices that could be achieved by scaling up or down unit _C_.  As the input is scaled up or down, it is assumed that the output of unit _C_ would be scaled up or down by the same value.  We will revisit this assumption in a later section but for now, think of this as saying that unit _C_ cannot enjoy economies of scale by getting larger or suffer from diseconomies of scale by getting smaller so it is referred to as constant returns to scale or CRS.
 
 Furthermore, we can graphically examine the technical efficiency of each of the other units.  I'm going to start with unit B since it is a little easier to visualize.  For now, let's think of the question, how much more or less input would _C_ require to produce as much output as _B_.  
 
-To determine this efficiency score, simply draw a horizontal line from _B_ to the efficiency frontier on the left.  This point can be thought of a target for _B_ to be efficienct.  This point has the same output as _B_ but uses only half as much input.  The efficiency score can be calculated as the ratio of the distance from the vertical axis to the target divided by the distance from the vertical axis to _B_.  This distance is simply 10/20 or 50%.  
+To determine this efficiency score, simply draw a horizontal line from _B_ to the efficiency frontier on the left.  This point can be thought of a target for _B_ to be efficient.  This point has the same output as _B_ but uses only half as much input.  The efficiency score can be calculated as the ratio of the distance from the vertical axis to the target divided by the distance from the vertical axis to _B_.  This distance is simply 10/20 or 50%.  
 
 Another question is how to construct the target for _B_'s evaluation.  It is simply made by scaling down _C_ to a third of its original size.  This results in a target that is composed of about 0.333 of _C_.  Also, it should be noted that it makes use of no part of _A_, _B_, or _D_.  
 
@@ -82,9 +82,7 @@ The Linear Programs for DEA
 
 The graphical approach is intuitive but accuracy is limited to that of drawing tools.  More importantly, it does not scale to more complex models with multiple inputs and outputs.  Let's frame this topic mathematically so that we can proceed systematically.  
 
-A key way to begin the mathematical development of the envelopment model to ask, can you find a combination of units that produces a target with at least as much output using less input? The blend of other units is described by a vector $\lambda$.  Another way to denote this is $\lambda_j$ is the specific amount of a unit _j_ used in setting the target for for performance for unit _k_.
-
-Let's define the proportion of the studied unit's input needed by the target as $\theta$. A value of $\theta=1$ then means no input reduction can be found in order to produce that unit's level of output. Similarly, $x_j$ is the amount of input used by unit _j_ and $y_j$ is the amount of output produced by unit _j_.  
+A key way to begin the mathematical development of the envelopment model is to ask, can you find a combination of units that produces a target with at least as much output using less input? The blend of other units is described by a vector $\lambda$.  Another way to denote this is $\lambda_j$ is the specific amount of a unit _j_ used in setting the target for for performance for unit _k_.
 
 This can be easily expanded to the multiple input and multiple output case by defining $x_{i,j}$ to  be the amount of the _i_'th input used by unit _j_ and $y_{r,j}$ to be the amount of the _r_'th output produced by unit _j_.  For simplicity, this example will focus on the one input and one output case rather than the _m_ input and _s_ output case but the R code explicitly allows for $m,s>1$.  To make the code more readable, I will use a slightly different convention $N^X$ or NX instead of _m_ to refer to the number of inputs (x's) and $N^Y$ or NY to be the number of ouputs (y's) instead of _s_. Also, the normal mathematical convention is to use _n_ to denote the number of Decision Making Units (DMUs) so I will use $N^D$ or ND to indicate that in the R code.  
 
@@ -109,9 +107,11 @@ The two most common approaches to finding the best target are the input-oriented
 
 In this chapter, we will focus on satisfying the second constraint while trying to improve upon the first by as much as possible.  In other words, we will satisfy the second (output) constraint but try to form a target that uses as little input as possible.
 
+Let's define the proportion of the studied unit's input needed by the target as $\theta$. A value of $\theta=1$ then means no input reduction can be found in order to produce that unit's level of output. Similarly, $x_j$ is the amount of input used by unit _j_ and $y_j$ is the amount of output produced by unit _j_.  
+
 In fact, we will go one step further and say that we want to find the maximum input possible reduction in k's input or conversely, the minimum amount of the input that could be used by the target while still producing the same or more output.  We do this by adding a new variable, $\theta$, which is the radial reduction in the amount of DMU k's input.  We want to find how low we can drive this by _minimizing_ $\theta$.  This gives us the following linear program, often abbreviated as LP.[^LaTeX] 
 
-[^LaTeX]: The LP was written using LaTeX embedded within this rmarkdown document.  Another benefit of using rmarkdown is that it is possible embed LaTeX without requiring using a full LaTeX document.  Insights for this LP were found online, including: http://tex.stackexchange.com/questions/9625/stating-a-linear-program
+[^LaTeX]: The mathematics in this book is was written using LaTeX embedded within the rmarkdown document.  Another benefit of using rmarkdown is that it is possible embed LaTeX without requiring using a full LaTeX document.  
 
 $$
  \begin{split}
@@ -140,9 +140,11 @@ $$
 
 ## Creating the LP - The Algebraic Approach
 
-There are two fundamentally different approaches to setting up linear programs for solving.  The first approach is to define data structures to pass vectors for the objective function coefficients and constraint right hand sides along with a matrix of data describing the constraints.  This requires careful setting up of the linear programs and is a big cognitive step away from the mathematical representation.  Another approach is to use algebraic modeling languages.  Standalone algebraic optimization modeling languages include LINGO, AMPL, GAMS, GMPL, and others.  Until recently, R did not have the ability to do algebraic modeling optimization but recently a few efforts have provided support for this. A new package, _ompr_, provides an algebraic perspective that matches closely to the summation representation of a linear program shown earlier.  Don't worry, if you want to see the data structure format approach, that is covered in the next chapter.
+There are two fundamentally different approaches to setting up linear programs for solving.  The first approach is to define data structures to pass vectors for the objective function coefficients and constraint right hand sides along with a matrix of data describing the constraints.  This requires careful setting up of the linear programs and is a big cognitive step away from the mathematical representation.  Another approach is to use algebraic modeling languages.  Standalone algebraic optimization modeling languages include LINGO, AMPL, GAMS, GMPL, and others.  
 
-Let's define some data structures for holding our results.
+Until recently, R did not have the ability to do algebraic modeling optimization but recently a few efforts have provided support for this. A new package, _ompr_, provides an algebraic perspective that matches closely to the summation representation of a linear program shown earlier.  Don't worry, if you want to see the data structure format approach, that is covered in the next chapter.
+
+Let's define some data structures for holding our data and results.
 
 ```{r Declaring_Structures_of_Results_ompr}
 
@@ -177,21 +179,22 @@ Let's define some data structures for holding our results.
 
 ```
 
-We're going to use our data from earlier but fits we will load a collection of libraries to be used later.  The ompr package is for optimization and serves as a general human readable format of optimization models that can then interface with a variety of solver engines.  The ROI.plugin.glpk package is for the specific solver engine, glpk, that we used.  Other LP solving engines are available and can be used instead.  
+We're going to use our data from earlier but first we will load a collection of libraries to be used later.  The ompr package is for optimization and serves as a general human readable format of optimization models that can then interface with a variety of solver engines.  The ROI.plugin.glpk package is for the specific solver engine, glpk, that we used.  Other LP solving engines are available and can be used instead.  
 
 ```{r loading_packages, message=FALSE, warning=FALSE}
      # options: message=FALSE, warning=FALSE to turn off display
 
-library(dplyr)            # For data structure manipulation
-library(ROI)              # R Optimization Interface package
-library(ROI.plugin.glpk)  # Connection to glpk as solver
-library(ompr)             # Optimization Modeling using R
-library(ompr.roi)         # Connective tissue
-
+library(dplyr, quietly=TRUE)           # For data structure manipulation
+library(ROI, quietly=TRUE)             # R Optimization Interface package
+library(ROI.plugin.glpk, quietly=TRUE) # Connection to glpk as solver
+library(ompr, quietly=TRUE)            # Optimization Modeling using R
+library(ompr.roi, quietly=TRUE)        # Connective tissue
 ```
+
 Now that we have loaded all of the packages that we use as building blocks, we can start constructing the model.  
 
-We are going to start by building a model for just one DMU
+We are going to start by building a model for just one DMU, in this case, the second DMU (B).
+
 ```{r first_ompr_model}
 
 k<-2    # DMU to analyze.  Let's start with just one DMU, B, for now.
@@ -228,9 +231,9 @@ pander(cbind(results.efficiency, results.lambda),
        caption="Input-Oriented Envelopment Analysis for DMU B (CCR-IO)")
 ```
 
-The above table follows a few convenient conventions.  First, rather than using $\lambda$, we label the efficiency score by the model used for the model, in this case the input-oriented variable returns to scale is labeled as CCR after Charnes, Cooper, and Rhodes.  Later we will cover other models including the variable returns to scale model, labeled BCC after Banker, Charnes, and Cooper.  Another convention is to use "L" in place of the Greek symbol $\lambda$ due to complications with using Greek symbols in R matrix row or column names.  
+The above table follows a few convenient conventions.  First, rather than using $\theta$, we label the efficiency score by the model used for the model, in this case the constant returns to scale is labeled as CCR after Charnes, Cooper, and Rhodes.  Later we will cover other models including the variable returns to scale model, labeled BCC after Banker, Charnes, and Cooper.  Another convention is to use "L" in place of the Greek symbol $\lambda$ due to complications with using Greek symbols in R matrix row or column names.  
 
-Furthermore, the results in the table indicate that DMU _B_ has an efficiency score of 50%.  The target of performance is made of DMU _C_ scaled down by a factor of 0.33.  
+Furthermore, the results in the table indicate that DMU _B_ has an efficiency score of 50%.  The target of performance is made of DMU _C_ scaled down by a factor of 0.33. These results match the graphical results from earlier.
 
 Let's now extend it to handle multiple inputs, NX, and outputs, NY.  Of course this doesn't have any impact on our results just yet since we are still only using a single input and output but we now have the structure to accommodate the more general case.  To provide a little variety, we'll change it to the first DMU, A, to give a little more variety.  
 
@@ -263,7 +266,7 @@ pander(cbind(results.efficiency, results.lambda),
 
 ```
 
-Okay.  This was not so exciting because the data still only had one input and one output so the results are the same.  
+Again, the results match what would be expected from Figure 1. This was not so exciting because the data still only had one input and one output so the results are the same.  
 
 Now we should extend this to handle all four of the decision making units.  
 
@@ -314,7 +317,7 @@ pander (cbind(results.efficiency, results.lambda),
 
 The results match those observed graphically but let's discuss them.  These results indicate that only DMU _C_ is efficient.  A rescaled version of _C_ could produce the same level of output of _A_, _B_, and _D_, while using 25%, 50%, and 20% less input respectively.  The targets of performance for _A_ and _C_ are constructed by scaling down unit _C_ to a much smaller size, as shown by the the values of $\lambda$. In contrast, _D_'s performance is surpassed by a 33% larger version of _C_.  
 
-It is an important step of any DEA study to carefully examine the results.  In this case, it might be argued that for certain applications, _C_'s business practices do not scale linearly and therefore could not be assumed to operate at a much smaller or larger size.  In that case, we should consider modeling returns scale.  
+It is an important step of any DEA study to carefully examine the results.  In this case, it might be argued that for certain applications, _C_'s business practices do not scale linearly and therefore could not be assumed to operate at a much smaller or larger size.  In that case, we should consider modeling returns to scale.  
 
 ## Returns to Scale
 
@@ -427,17 +430,17 @@ pander (cbind(results.efficiency, results.lambda),
 
 ## Multiple Inputs and Multiple Ouptuts
 
-Using DEA for two-dimensional examples such as the one-input, one-output model is easy to draw and visualize but overkill.  
+Using DEA for two-dimensional examples such as the one-input, one-output model is easy to draw and visualize but overkill and not generally very useful.
 
 Let's create a richer dataset.  For this example, we will use the dataset from Kenneth Baker's third edition of _Optimization Modeling with Spreadsheets_, pages 175-178, Example 5.3 titled "Hope Valley Health Care Association." In this example, a health care organization wants to benchmark six nursing homes against each other.
+
+This data is a little more complicated so let's make sure that we understand the definitions.  Look at the line for the inputs which we will call XBaker1.  The list of 12 data values has the structure defined as two columns for two separate inputs by use of 'ncol=2'.  This then means that there are 6 rows or DMUs in this dataset.  The six units are given capital letters for names starting with A.  The names of the inputs are hard coded as "x1" and"x2" to represent the _staff hours per day_ and the _supplies per day_ respectively.  
 
 ```{r Multiple_inputs_outputs}
   XBaker1 <- matrix(c(150, 400, 320, 520, 350, 320, .2, 0.7, 1.2, 2.0, 1.2, 0.7),
                   ncol=2,dimnames=list(LETTERS[1:6],c("x1", "x2")))
   
 ```
-
-This data is a little more complicated so let's make sure that we understand the definitions.  Look at the line for the inputs which we will call XBaker1.  The list of 12 data values has the structure defined as two columns for two separate inputs by use of 'ncol=2'.  This then means that there are 6 rows or DMUs in this dataset.  The six units are given capital letters for names starting with A.  The names of the inputs are hard coded as "x1" and"x2" to represent the _staff hours per day_ and the _supplies per day_ respectively.  
 
 The two outputs of _reimbursed patient-days_ and _privately paid patient-days_ are named "y1" and "y2" but otherwise have the same structure as the inputs.  
 
@@ -450,7 +453,7 @@ ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1); # Define data siz
 
 ```
 
-Note that I'm naming the data sets based on their origin and then loading them into xdata and ydata for actual operation.
+Note that I'm naming the data sets based on their origin and then loading them into xdata and ydata for actual operation.  This allows the model to be generalized.
 
 ```{r Get_Baker_data_ready}
 xdata      <-XBaker1[1:ND,]  # Call it xdata
@@ -473,12 +476,6 @@ Unames<- lapply(list(rep("u",NY)),paste0,1:NY)
 SXnames<- lapply(list(rep("sx",NX)),paste0,1:NX)
 SYnames<- lapply(list(rep("sy",NY)),paste0,1:NY)
 Lambdanames <- lapply(list(rep("L_",ND)),paste0,LETTERS[1:ND])
-#Lambdanames<- lapply(list(rep("\u03BB",ND)),paste0,LETTERS[1:ND])
-              # \u03BB is unicode for lambda symbol.
-              # This would lambda symbol to be embedded               # in row or columns.
-              # Unfortunately implementation of unicode
-              # is not consistent enough in platform.
-              # Instead, capital "L" is used for lambda symbol.
   
 dimnames(xdata)<-c(DMUnames,Xnames)
 dimnames(ydata)<-c(DMUnames,Ynames)
@@ -554,11 +551,11 @@ $$
   (\#eq:LPCCRIOE-Two-Phase)
 $$
 
-A common mistake in implementing DEA is to use a finite approximation for $\epsilon$ such as $10^{-6}$.  Any finite value can cause distortions in $\theta$.  For example, an application comparing companies using revenue and expenses might have inputs and outputs on the order of millions or billions.  In this case, non-radial slacks could also be on the order of $10^{6}$.  Multiplying the two  results in a value similar in magnitude to the maximum possible efficiency score ($10^{-6}10^{6}=1$) which would then potentially overwhelm the radial efficiency, $\theta$, part of the objective function.
+A common mistake in implementing DEA is to use a finite approximation for $\epsilon$ such as $10^{-6}$.  Any finite value can cause distortions in $\theta$.  For example, an application comparing companies using revenue and expenses might have inputs and outputs on the order of millions or billions.  In this case, non-radial slacks could also be on the order of $10^{6}$.  Multiplying the two  results in a value similar in magnitude to the maximum possible efficiency score ($10^{-6}10^{6}=1$) which would then potentially overwhelm the radial efficiency, $\theta$, part of the objective function and lead to distorted results.
 
-The proper way to implement slack maximization is to treat it as a preemptive goal programming problem. The primary goal is to minimize $\theta$ in a first phase linear program and the second goal, holding the level of $\theta$ fixed from the first phase is to then maximize the sum of the slacks.  
+The proper way to implement slack maximization is to treat it as a preemptive goal programming problem. The primary goal is to minimize $\theta$ in a first phase linear program and the second goal, holding the level of $\theta$ fixed from the first phase, is to then maximize the sum of the slacks.  
 
-The first phase can take the form of any of our earlier linear programs without the $\epsilon$ term. The second phase is the following where $\theta^*$ is the optimal value from phase one and $\theta$ is then held constant in the second phase.  This is implemented by adding a constraint, $\theta=\theta^*$ to the second phase linear program.
+The first phase can take the form of any of our earlier linear programs without the $\epsilon$ and sum of slacks in the objective function. The second phase is the following where $\theta^*$ is the optimal value from phase one and $\theta$ is then held constant in the second phase.  This is implemented by adding a constraint, $\theta=\theta^*$ to the second phase linear program.
 
 $$
 \begin{split}
@@ -620,11 +617,33 @@ pander(cbind(results.efficiency,xdata,ydata,results.lambda), round=5, caption="I
 
 ```
 
-The rightmost columns, denoted by "L_" are the result lambda values.  
+The rightmost columns, denoted by "L_" are the resulting lambda values.  
 
 ##To-Do for Chapter
 
 * Enrich example of slacks
 * Add graphical figure showing slack maximization
 * Generalize column name setting for ND where appropriate.
+
+##Exercises
+
+## Exercises
+
+If you have followed along this far - you deserve a medal!  If you work your way through by cutting and pasting code fragments, you should be able to reproduce my exact results.  At this point you are ready for a few challenges:
+
+1. Graphically determine the efficiency score and lambdas for the other units.  _Difficulty: Decaf cup of coffee_
+2. Interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom.  _Difficulty: Cup of coffee_
+3. Add a fifth unit, E, that produces 400 units output using 30 units of input.  Graphically evaluate all five units for their efficiency scores and lambda values.  
+4. Interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom.  _Difficulty: Cup of coffee_
+5. Examine another unit using the R code (hint:  change where k is set.)  _Difficulty: Decaf cup of coffee_
+6. Interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom.  _Difficulty: Cup of coffee_
+7. Wrap a for loop around the model to examine every unit.  _Difficulty: Cup of coffee_
+8. Use a bigger data set (more inputs, outputs, and units.)  _Difficulty: Cup of coffee_
+9. Validate results against other DEA packages (ex. Benchmarking, nonparaeff) _Difficulty: Pot of coffee_
+10. Construct an example where Phase 2 increases positive slacks from Phase 1.  _Difficulty: Pot of coffee_
+11. Create "cool" graphs or plots of results.  _Difficulty: It depends..._
+
+To pass the challenges, work on extending my RMarkdown file or using a similar script.  Some people prefer to use compile all of my code into large chunks in RMarkdown. Others might prefer to create a well documented R script instead of using RMarkdown.  Others might even prefer using LaTeX. If you use RMarkdown or LaTeX, please use section headings to indicate each challenge solved.  
+
+You can use other packages for graphics or data manipulation but don't use a DEA package.  (Don't worry, we'll get there later.)
 

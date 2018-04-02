@@ -1,7 +1,7 @@
 ---
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 # Multiplier Models
 
@@ -9,24 +9,201 @@ Introduction
 -----------------------------
 Every linear program has a related alter ego referred to as the dual.  By duality, the two models have the same optimal objective function values.  In DEA, the multiplier models are simply the dual of the envelopment models.  In terms of the matrix representations of DEA given in chapter 3, the A matrix is transposed, rows give way to columns and columns become rows.  The right hand side values appear in the objective function while the previous objective function coefficients become right hand side values.  More could be said about this but this will be deferred for people interested in duality or more algorithmic aspects of linear programming.  
 
-Let's turn our attention instead to intuitively developing the DEA multiplier model through a simple scoring ratio.
+Let's turn our attention instead to intuitively developing the DEA multiplier model through a few steps. 
+
+##The Two Output, No Input Model
+
+Assume that you, Alfred, are one of six restaurant managers of various franchisees of the popular TexMex chain, Chiposter.  Each restaurant branch is operating under different conditions and are operated by your colleagues:  Barb, Chris, Don, Ed, and Fran.  Each restaurant manager is achieving outcomes (outputs.) At the end of the year, you want to make a case for having done well.
+
+```{r multiplier_model }
+
+library(pander)           # For making nice tables
+
+ YRest1 <- matrix(c(25, 14, 42, 18, 19, 14, 3500, 2100, 1050, 
+                    4200, 2500, 1500), ncol=2,
+                  dimnames=list(c("Alfred", "Barb","Chris", "Don", "Ed","Fran"),
+                                c("y1", "y2")))
+
+ND <- nrow(YRest1); NY <- ncol(YRest1); # Define data size
+
+pander(YRest1, caption="Restaurant Data")  
+
+```
+
+You can select any way of weighting the two outputs with just two conditions:
+* No weight can be negative
+* No one can received a weighted score above 100%
+
+Given these two limitations, your goal is to make your "Alfred score" as high as possible.
+
+While it is possible to experiment with different weights, this can also be framed as an optimization model.  The goal or objective is to find the best Alfred score, using weights ($u_1$, and $u_2$) subject to the constraints that no one's scores is above 100%.  
+
+Let's take the restaurant data and formulate the model.
+
+
+$$
+\begin{split}
+\begin{aligned}
+    \text {max } & 25 u_1 + 3500 u_2 \\
+    \text{subject to } & 25 u_1 + 3500 u_2 \leq 1.0\\
+                       & 14 u_1 + 2100 u_2 \leq 1.0\\
+                       & 42 u_1 + 1050 u_2 \leq 1.0\\
+                       & 18 u_1 + 4200 u_2 \leq 1.0\\
+                       & 19 u_1 + 2500 u_2 \leq 1.0\\
+                       & 14 u_1 + 1500 u_2 \leq 1.0\\
+                       & u_1, u_2\geq 0  \
+  \end{aligned}
+\end{split}
+(\#eq:NLP-HardCode)
+$$
+
+Next let's implement this in ompr.  This will serve as a review for ompr.  
+
+```{r}
+library(dplyr)            # For data structure manipulation
+library(ROI)              # R Optimization Interface package
+library(ROI.plugin.glpk)  # Connection to glpk as solver
+library(ompr)             # Optimization Modeling using R
+library(ompr.roi)         # Connective tissue
+
+result <- MIPModel () %>%
+  add_variable (u1, type="continuous", lb=0) %>%
+  add_variable (u2, type="continuous", lb=0) %>%
+  set_objective (25*u1+3500*u2, "max") %>%
+  add_constraint (25*u1+3500*u2 <= 1.0) %>%
+  add_constraint (14*u1+2100*u2 <= 1.0) %>%
+  add_constraint (42*u1+1050*u2 <= 1.0) %>%
+  add_constraint (28*u1+4200*u2 <= 1.0) %>%
+  add_constraint (19*u1+2500*u2 <= 1.0) %>%
+  add_constraint (14*u1+1500*u2 <= 1.0) %>%
+  solve_model(with_ROI(solver = "glpk"))
+
+u1_result <- get_solution(result, u1) 
+u2_result <- get_solution(result, u2) 
+alfred_score <- 25 * u1_result + 3500 * u2_result
+
+pander(c(alfred_score, u1_result, u2_result), caption="Alfred's Score and Results")
+```
+
+We could repeat the process for each person, simply changing the objective function.  
+
+```{r}
+result <- MIPModel () %>%
+  add_variable (u1, type="continuous", lb=0) %>%
+  add_variable (u2, type="continuous", lb=0) %>%
+  set_objective (14*u1+2100*u2, "max") %>%
+  add_constraint (25*u1+3500*u2 <= 1.0) %>%
+  add_constraint (14*u1+2100*u2 <= 1.0) %>%
+  add_constraint (42*u1+1050*u2 <= 1.0) %>%
+  add_constraint (28*u1+4200*u2 <= 1.0) %>%
+  add_constraint (19*u1+2500*u2 <= 1.0) %>%
+  add_constraint (14*u1+1500*u2 <= 1.0) %>%
+  solve_model(with_ROI(solver = "glpk"))
+
+u1_result <- get_solution(result, u1) 
+u2_result <- get_solution(result, u2) 
+barb_score <- 14 * u1_result + 2100 * u2_result
+
+pander(c(barb_score, u1_result, u2_result), caption="Barb's Score and Weights")
+```
+
+Let's do it for Chris.
+
+```{r}
+result <- MIPModel () %>%
+  add_variable (u1, type="continuous", lb=0) %>%
+  add_variable (u2, type="continuous", lb=0) %>%
+  set_objective (42*u1+1050*u2, "max") %>%
+  add_constraint (25*u1+3500*u2 <= 1.0) %>%
+  add_constraint (14*u1+2100*u2 <= 1.0) %>%
+  add_constraint (42*u1+1050*u2 <= 1.0) %>%
+  add_constraint (28*u1+4200*u2 <= 1.0) %>%
+  add_constraint (19*u1+2500*u2 <= 1.0) %>%
+  add_constraint (14*u1+1500*u2 <= 1.0) %>%
+  solve_model(with_ROI(solver = "glpk"))
+
+u1_result <- get_solution(result, u1) 
+u2_result <- get_solution(result, u2) 
+barb_score <- 42 * u1_result + 1050 * u2_result
+
+pander(c(barb_score, u1_result, u2_result), caption="Chris's Score and Weights")
+```
+
+This process of building the model for each person individually and hard coding the data into the model makes it difficult to maintain, generalize, and apply to other cases.
+
+Let's now generalize this by building the model algebraically.  Let's define the data, $y_{r,j}$ to be the value of output _r_ for manager _j_.  Therefore, in this application, $y_{1,1}=25$ and $y_{2,1}=3500$ reflects Alfred (_j=1_) has outputs _1_ and _2_ of 25 and 3500 respectively.
+
+We can then rewrite the formulation to the following.  The summation is over the two outputs.
+
+
+$$
+\begin{split}
+\begin{aligned}
+    \text {max } \sum_{r=1}^{2} u_r y_{r,1}\\
+    \text{subject to } &  \sum_{r=1}^{2} u_r y_{r,1} \leq 1.0 [Alfred]\\
+     &  \sum_{r=1}^{2} u_r y_{r,2} \leq 1.0 [Barb]\\
+     &  \sum_{r=1}^{2} u_r y_{r,3} \leq 1.0 [Chris]\\
+     &  \sum_{r=1}^{2} u_r y_{r,4} \leq 1.0 [Don]\\
+     &  \sum_{r=1}^{2} u_r y_{r,5} \leq 1.0 [Ed]\\
+     &  \sum_{r=1}^{2} u_r y_{r,6} \leq 1.0 [Fran]\\
+     &                  u_1, u_2\geq 0  
+  \end{aligned}
+\end{split}
+(\#eq:NLP6PeopleHArdCode)
+$$
+
+Now we will extend this further to reflect that the constraint of being less than or equal to 1.0 is the same for every manager.  A key notation to learn is the $\forall$ which means to repeat for all possible values of the index.  
+
+$$
+\begin{split}
+\begin{aligned}
+    \text {max } \sum_{r=1}^{2} u_r y_{r,1}\\
+    \text{subject to } &  \sum_{r=1}^{2} u_r y_{r,j} 
+                          \leq 1.0 \forall \; j\\
+     &                  u_r \geq 0  \; \forall \; r
+  \end{aligned}
+\end{split}
+(\#eq:NLP6People)
+$$
+
+The $\forall$ is also used in the non-negativity constraint to indicate that for every output _r_, the weight, $u_r$, must be non-negative.  
+
+The above formulation is nearly generalized.  Let's replace the last hardcoded items remaining.  The first is that the formulation only calculates the score for first manager.  To generalize this, let's replace the _1_ in the objective function with _k_.  This would allow us to calculate optimal score for any manager, _k_.  Secondly, the summations each assume that there are only two outputs.  Let's replace this with N^Y to serve as a count of the number of outputs.    
+
+
+$$
+\begin{split}
+\begin{aligned}
+    \text {max } \sum_{r=1}^{N^Y} u_r y_{r,k}\\
+    \text{subject to } &  \sum_{r=1}^{N^Y} u_r y_{r,j} 
+                          \leq 1.0 \forall \; j\\
+     &                  u_r \geq 0  \; \forall \; r
+  \end{aligned}
+\end{split}
+(\#eq:NLPScoringk)
+$$
 
 ##The Ratio Model
 
-Put yourself as a competitor trying to argue that you are the best in converting inputs into outputs among a set of other units.  You have data on what the competitors' inputs and outputs.  You can 
+Now, let's further extend this model.  Not only are the restaurant managers producing different outcomes, they are also using different resources, say capital and labor.  Let's denote capital investment as $x_1$ and labor in full-time-equivalents as $x_2$.  
 
-Linear Programs for the Multiplier Models
------------------------------
+We can frame the question of doing a two-input, two-output study in the same way as we did for the two output example earlier.  Instead of a simple score, the manager can have a ratio of weighted outputs over weighted inputs.  
 
-On the other hand, what if it allowed for blending of units.  There are a few assumptions that we could make.  Let's start by saying that we can compare any particular products by rescaling (up or down) any other product as well as any combination of units.  
+For the two-input, two-output case, the formulation is given below.  h
+$$
+\begin{split}
+\begin{aligned}
+    \text {max } \frac{\sum_{r=1}^{2} u_r y_{r,k}} {\sum_{i=1}^{2} v_i x_{i,k} } \\
+    \text{subject to } & \frac{\sum_{r=1}^{2} u_r y_{r,k}} {\sum_{i=1}^{2} v_i x_{i,k} }
+                          \leq 1 \forall \; j\\
+                       u_r, v_i\geq 0  \; \forall \; r,i
+  \end{aligned}
+\end{split}
+(\#eq:NLPCCRIOM-Ratio)
+$$
+We have two important sets of variables now.  The first is $u_r$ which is the weight on the r'th output.  The second is $v_i$ which is the weight on the _i'th_ input.  
 
-We'll start by creating a mathematical framework. Can you find a combination of units that produces at least as much output using less input?  Let's define the proportion of input needed as $\theta$.  A value of $\theta=1$ then means no input reduction can be found in order to produce that unit's level of output.  The blend of other units is described by a vector $\lambda$.  Another way to denote this is $\lambda_j$ is the specific amount of a unit _j_ used in setting the target for for performance for unit _k_.  Similarly, $x_j$ is the amount of input used by unit _j_ and $y_j$ is the amount of output produced by unit _j_.  
-
-This can be easily expanded to the multiple input and multiple output case by defining $x_i,j$ to  be the amount of the _i_'th input used by unit _j_ and $y_r,j$ to be the amount of the _r_'th output produced by unit _j_.  For simplicity, this example will focus on the one input and one output case rather than the _m_ input and _s_ output case but the R code explicitly allows for $m,s>1$.  To make the code more readable, I will use which corresponds to _NX_ instead of _m_ to refer to the number of inputs (x's) and _NY_ to be the number of ouputs (y's) instead of _s_. Also, _n_ is used to denote the number of Decision Making Units (DMUs) and therefore I'll use _ND_ to indicate that in the R code.  
-
-We have two important sets of variables now.  The first is $u_r$ which is the weight on the r'th output.  The second is $v_i$ which is the weight on the i'th input.  
-
-The multiplier model can be thought of as finding a weighting scheme for outputs over inputs that give you the best possible score while giving no one better than _1.0._
+For clarification, we make a small variation from traditional DEA notation.  Normally the number of inputs is _m_ and the number of outputs is _s_.  To make the code more readable, I will use a convention of _NX_ instead of _m_ to refer to the number of inputs (x's) and _NY_ to be the number of ouputs (y's) instead of _s_. Also, _n_ is used to denote the number of Decision Making Units (DMUs) and therefore I'll use _ND_ to indicate that in the R code.  In the mathematical formulations, superscripts are used to differentiate the the different N's resulting in $N^X$,  $N^Y$, and  $N^D$ for NX, NY, and ND or m, s, and n respectively. 
 
 $$
 \begin{split}
@@ -37,12 +214,10 @@ $$
                        u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
 \end{split}
-(\#eq:LPCCRIOM-Ratio)
+(\#eq:NLPCCRIOM-Ratio)
 $$
 
 This isn't a linear program because we are dividing functions of variables by functions of variables.  We need to make a few transformations.  First, we clear the denominator of each of the consraints resulting in the following formulation.
-
-
 
 $$
 \begin{split}
@@ -82,13 +257,6 @@ We're going to use our data from earlier.  For this example, we will use the dat
 
 ```{r multiplier_model }
 
-library(pander)           # For making nice tables
-library(dplyr)            # For data structure manipulation
-library(ROI)              # R Optimization Interface package
-library(ROI.plugin.glpk)  # Connection to glpk as solver
-library(ompr)             # Optimization Modeling using R
-library(ompr.roi)         # Connective tissue
-
   XBaker1 <- matrix(c(150, 400, 320, 520, 350, 320, .2, 0.7, 1.2, 2.0, 1.2, 0.7),
                   ncol=2,dimnames=list(LETTERS[1:6],c("x1", "x2")))
 
@@ -127,6 +295,25 @@ results.vweight    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX)
 results.uweight    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
 results.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
 results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
+
+DMUnames <- list(c(LETTERS[1:ND]))
+Xnames<- lapply(list(rep("X",NX)),paste0,1:NX)
+Ynames<- lapply(list(rep("Y",NY)),paste0,1:NY)
+Vnames<- lapply(list(rep("v",NX)),paste0,1:NX)
+Unames<- lapply(list(rep("u",NY)),paste0,1:NY)
+SXnames<- lapply(list(rep("sx",NX)),paste0,1:NX)
+SYnames<- lapply(list(rep("sy",NY)),paste0,1:NY)
+Lambdanames <- lapply(list(rep("L_",ND)),paste0,LETTERS[1:ND])
+  
+dimnames(xdata)<-c(DMUnames,Xnames)
+dimnames(ydata)<-c(DMUnames,Ynames)
+dimnames(results.efficiency)<-c(DMUnames,"CCR-IO")
+dimnames(results.lambda)<-c(DMUnames,Lambdanames)
+dimnames(results.xslack)<-c(DMUnames,SXnames)
+dimnames(results.yslack)<-c(DMUnames,SYnames)
+dimnames(results.uweight)<-c(DMUnames,Unames)
+dimnames(results.vweight)<-c(DMUnames,Vnames)
+
 ```
 
 We are now ready to do the analysis.  In Baker, the analysis is done using the multiplier model.  In chapter 2 we used the envelopment model to examine this case.  Now we will use the multiplier model.
@@ -158,7 +345,8 @@ for (k in 1:ND) {
 
  }
 
-pander(cbind (results.efficiency, results.vweight, results.uweight))
+pander(cbind (results.efficiency, results.vweight, results.uweight), 
+      caption="Multiplier Model Results from Baker's Example")
 
 ```
 
@@ -170,8 +358,7 @@ Issues to consider in the future for this chapter or other chapters.
 
 * Weak vs. strong efficiency
 * Non-Archimedean Infinitesimal
-* Weight restrictions
-* Cross-efficiency
+* Returns to Scale
 * Adding output-oriented multiplier model
 * Adding returns to scale to multiplier model
-* Better table headings drawn from chapter 2 work
+
