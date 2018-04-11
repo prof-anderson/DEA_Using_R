@@ -1,7 +1,15 @@
 ---
 output:
   html_document: default
+  ioslides_presentation:
+    smaller: yes
+    widescreen: yes
+  slidy_presentation: default
   pdf_document: default
+  beamer_presentation:
+    colortheme: dolphin
+    fonttheme: structurebold
+    theme: AnnArbor
 ---
 # Input-Oriented Envelopment Model
 
@@ -21,7 +29,7 @@ Recently, my research group at PSU adopted the R platfom based on the following 
 * Robust distribution of add-in packages could help improve distribution of our own contributions
 * Multiple linear programming packages to choose from among
 * Widespread usage and acceptace in the research and analytics communities
-* No arbitrary capaicty limits
+* No arbitrary capacity limits
 * One platform that combines optimization and statistical analysis
 
 Creating the Data
@@ -632,19 +640,18 @@ The rightmost columns, denoted by "L_" are the resulting lambda values.
 
 If you have followed along this far - you deserve a medal!  If you work your way through by cutting and pasting code fragments, you should be able to reproduce my exact results.  At this point you are ready for a few challenges:
 
-1. Graphically determine the efficiency score and lambdas for the other units.  _Difficulty: Decaf cup of coffee_
-2. Interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom.  _Difficulty: Cup of coffee_
-3. Add a fifth unit, E, that produces 400 units output using 30 units of input.  Graphically evaluate all five units for their efficiency scores and lambda values.  
-4. Interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom.  _Difficulty: Cup of coffee_
-5. Examine another unit using the R code (hint:  change where k is set.)  _Difficulty: Decaf cup of coffee_
-6. Interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom.  _Difficulty: Cup of coffee_
-7. Wrap a for loop around the model to examine every unit.  _Difficulty: Cup of coffee_
-8. Use a bigger data set (more inputs, outputs, and units.)  _Difficulty: Cup of coffee_
-9. Validate results against other DEA packages (ex. Benchmarking, nonparaeff) _Difficulty: Pot of coffee_
-10. Construct an example where Phase 2 increases positive slacks from Phase 1.  _Difficulty: Pot of coffee_
-11. Create "cool" graphs or plots of results.  _Difficulty: It depends..._
 
-To pass the challenges, work on extending my RMarkdown file or using a similar script.  Some people prefer to use compile all of my code into large chunks in RMarkdown. Others might prefer to create a well documented R script instead of using RMarkdown.  Others might even prefer using LaTeX. If you use RMarkdown or LaTeX, please use section headings to indicate each challenge solved.  
+
+1. Add a fifth unit, E, that produces 400 units output using 30 units of input.  Graphically evaluate all five units for their efficiency scores and lambda values.  
+2. Interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom.  _Difficulty: Cup of coffee_
+3. Examine the new unit, E, using  R   _Difficulty: Decaf cup of coffee_
+4. Interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom.  _Difficulty: Cup of coffee_
+5. Wrap a for loop around the model to examine every unit.  Discuss results.  _Difficulty: Cup of coffee_
+6. Use a bigger data set and conduct an analysis & interpretation (more inputs, outputs, and units.)  _Difficulty: Cup of coffee_
+7. Validate results against a DEA package (ex. DEAMultiplier, TFDEA, Benchmarking, nonparaeff) _Difficulty: Pot of coffee_
+8. Construct an example where Phase 2 increases positive slacks from Phase 1.  _Difficulty: Pot of coffee_
+9. Create "cool" graphs or plots of results.  _Difficulty: It depends..._
+
+To pass the challenges, work on extending my RMarkdown file or using a similar script.  You can use my *.rmd file as a starting point. Others might prefer to create a well documented R script instead of using RMarkdown.  Others might even prefer using LaTeX. If you use RMarkdown or LaTeX, please use section headings to indicate each challenge solved.  
 
 You can use other packages for graphics or data manipulation but don't use a DEA package.  (Don't worry, we'll get there later.)
-

@@ -15,7 +15,7 @@ Let's turn our attention instead to intuitively developing the DEA multiplier mo
 
 Assume that you, Alfred, are one of six restaurant managers of various franchisees of the popular TexMex chain, Chiposter.  Each restaurant branch is operating under different conditions and are operated by your colleagues:  Barb, Chris, Don, Ed, and Fran.  Each restaurant manager is achieving outcomes (outputs.) At the end of the year, you want to make a case for having done well.
 
-```{r multiplier_model }
+```{r multiplier_rest_Y_data }
 
 library(pander)           # For making nice tables
 
@@ -253,7 +253,7 @@ $$
 
 We will implement this using the ompr package again.
 
-We're going to use our data from earlier.  For this example, we will use the dataset from Kenneth Baker's third edition of _Optimization Modeling with Spreadsheets_, pages 175-178, Example 5.3 titled "Hope Valley Health Care Association." In this case, a health care organization wants to benchmark six nursing homes against each other.
+We're going to use our data from earlier.  For this example, we will use the dataset from Kenneth Baker's third edition of _Optimization Modeling with Spreadsheets_, pages 175-178, Example 5.3 titled "Hope Valley Health Care Association." In this case, a health care organization wants to benchmark six nursing homes against each other.y
 
 ```{r multiplier_model }
 

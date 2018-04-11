@@ -96,9 +96,6 @@ library(ompr.roi)         # Connective tissue
   results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
   dimnames(results.yslack)<-c(DMUnames,SYnames)
 
-  dimnames(results.uweight)<-c(DMUnames,Unames)
-  dimnames(results.vweight)<-c(DMUnames,Vnames)
-
 ```
 
 Now the formulation is similar to the input-oriented model that we created in chapter 2.  The three changes are that we will be using $\phi$ rather than $\theta$, a _max_ rather than _min_ objective function, and modifying the output-constraint(s) rather than the input-constraint(s).

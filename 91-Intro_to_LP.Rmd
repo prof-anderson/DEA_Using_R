@@ -118,25 +118,18 @@ For the sake of simplicity, we will implement our R homework using explicit vari
 
 First, let us load the required libraries.  Then we will move on to the actual implementation.
 
-``` {r}
-library(magrittr) #Used for pipes/dplyr
-library(dplyr)
-library(ROI)
+``` {r warning=FALSE}
+library (pander)
+library (magrittr) #Used for pipes/dplyr
+library (dplyr)
+library (ROI)
 library (ROI.plugin.glpk)
-library(ompr)
-library(ompr.roi)
+library (ompr)
+library (ompr.roi)
 ```
 
+Now we move on creating and solving the linear program.  
 
-The first line creates the basic model.  The piple symbol at the end of each line basically means add the next item to the previous so we can build up the model quickly.  
-
-The next three lines are adding variables.  These variables are continuous (as compared to integer or binary), and non-negative.  
-
-Next, we set the objective function as well declaring it to be a *max* rather than a *min* function.
-
-Then we define the constraints.  Notice that we do not need to include non-negativity constraints since they were in the earlier definition of the variables.
-
-Lastly, we tell it to solver our model.  We will select a particular solver engine to be used in the inside of *glpk* but other options exist.
 
 ```{r base_case}
 result0 <- MIPModel() %>%
@@ -156,6 +149,16 @@ result0 <- MIPModel() %>%
 
 ```
 
+The first line creates the basic model.  The pipe symbol at the end of each line basically means add the next item to the previous so we can build up the model quickly.  
+
+The next three lines are adding variables.  These variables are continuous (as compared to integer or binary), and non-negative.  
+
+Next, we set the objective function as well declaring it to be a *max* rather than a *min* function.
+
+Then we define the constraints.  Notice that we do not need to include non-negativity constraints since they were in the earlier definition of the variables.
+
+Lastly, we tell it to solver our model.  We will select a particular solver engine to be used in the inside of *glpk* but other options exist.
+
 ### Base Case Results and Interpretation
 
 Let's check to see the status of the solver.  Did it find the optimal solution?
@@ -174,6 +177,55 @@ get_solution(result0, Bookcases)
 
 These results match those from class so we can proceed to change the problem.
 
+## Linear Programming Sensitivity Results
+
+Now let us explore sensitivity information. This feature is currently being added and tested.  It was first added in ompr 0.7.0.900.  As of April 2018, this requires running a developmental version of ompr and is not yet in official CRAN release of 0.7.0.0. The development version can be downloaded from Dirk's github repository using devtools.  This would be done before doing the analysis with the following commands.
+
+```{r eval=FALSE}
+
+library (devtools)
+install_github("dirkschumacher/ompr")
+install_github("dirkschumacher/ompr.roi")
+
+```
+
+### Shadow Prices
+
+Now, assuming that the LP model has been solved with the enhanced version of ompr, let's view the row duals, also known as shadow prices.  
+
+```{r rduals}
+rduals0 <-as.matrix(get_row_duals(result0), ncol=5)
+
+dimnames(rduals0)<-list(c("fabrication", "assembly", "machining", "wood", "demand"), c("Row Duals"))
+pander(rduals0,caption="Shadow Prices of Constrained Resources")
+```
+
+This means that the marginal value of one additional hour of fabrication labor time is 0.  The company is not using all of the 2000 fabrication department's time available.  Similarly the assembly department is not using all of its hours and so it also has shadow price or marginal value of zero. 
+
+The shadow price in the machining center is more interesting.  All of the 1440 hours of labor available in the machining center are consumed by the optimal production plan.  Increasing the hours available may allow the company to change the production plan and increase the profit.  While you could rerun the model with increased machining hours to determine the new  optimal production plan but if only want to know the change in the optimal objective function value, you can determine that from the shadow price of the machining constraint.  Each additional hour (within a certain range) will increase the profit by $1.2.  
+
+In contrast, all of the available wood is also consumed but each additional square foot of wood only increases profit by $0.32.  
+
+The demand constraint of 200 is an upper limit only on bookcases.  Since no bookcases are produced in the optimal production plan, relaxing this constraint also has no impact (shadow price=0).
+
+### Reduced Costs of Variables
+
+Next, let's discuss the column duals which are often referred to as reduced costs of variables.  Let's extract these from the results just as we did for the shadow prices.
+
+```{r cduals}
+cduals0 <-as.matrix(get_column_duals(result0), ncol=1 )
+
+# dimnames(cduals0)<-list(c("Column Duals"), c("Desks", "Tables", "Bookcases"))
+pander(cduals0,caption="Reduced Costs of Variables")
+```
+
+To-Do In Reduced Costs Subsection
+
+* Fix labeling of cduals0 object.
+* Check values for correctness.
+* Combine optimal decision variables in another column of results in table alongside reduced costs.
+
+
 ## Linear Programming Special Cases
 
 ### Introduction
@@ -189,7 +241,7 @@ Now, let's look at how we would modify the earlier formulation to come up with e
 
 ###Case 1: No Feasible Solution
 
-#### Formulation
+#### Making the Formulation Infeasible
 Each part of this homework requires making a change to the original linear program.
 
 For the purpose of this assignment, we will create an explicit LP by hard coding in the data.  In general, it is best to store data in data frames or matrices and then refer to them in the LP.  For examples of this using ompr, refer to Dirk's website or chapter 2 of Dr. Anderson's book, _DEA using R_.
@@ -213,7 +265,7 @@ $$
   \end{split}
   (\#eq:Base_Model_Ex4)
 $$
-#### Implentation
+#### Implementing the Infeasible Model
 
 Now let's rebuild our formulation with this change.
 
@@ -236,7 +288,7 @@ result1 <- MIPModel() %>%
 
 ```
 
-#### Results and Interpretation
+#### Results and Interpretation of Infeasibility
 
 ```{r}
 print(solver_status(result1))
@@ -251,7 +303,7 @@ Notice that since the solver status was infeasible, there are no values for the 
 
 ### Case 2: Multiple Optima
 
-#### Formulation
+#### Formulating a Situation with Multiple Optima
 
 There are a couple of ways of creating situations for multiple optima.  One situation is to have a decision variable be identical or a linear multiple of another variable.  In this case, each table now consumes  exactly half of the resources as a desk and generates half the profit of a desk.
 
@@ -274,7 +326,7 @@ $$
   (\#eq:Base_Model_Ex4)
 $$
 
-#### Implementation
+#### Implementing a Model with Multiple Optima
 
 The implementation is shown in the following. 
 
@@ -298,7 +350,7 @@ result2a <- MIPModel() %>%
 
 ```
 
-#### Results and Interpretation
+#### Results and Interpretation of Multiple Optima
 
 ```{r}
 print(solver_status(result2a))
@@ -344,7 +396,7 @@ Another way to create an instance of multiple optima would be to have the object
 
 ### Case 3: Redundant Constraint
 
-#### Formulation
+#### Reformulating with a Redundant Constraint
 
 For the redundant constraint, a new constraint for painting is created.  each item is painted. Let's assume each piece of furniture requires one gallon paint but we have 1500 gallons.  
 
@@ -364,7 +416,7 @@ $$
   (\#eq:Base_Model_Ex4)
 $$
 
-#### Implementation
+#### Implementing a Redundant Constraint
 
 Now we can implement the model.
 
@@ -387,7 +439,7 @@ result3 <- MIPModel() %>%
 
 ```
 
-### Results and Interpretation
+### Results and Interpretation with a Redundant Constraint
 
 ```{r}
 
