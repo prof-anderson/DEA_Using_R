@@ -213,13 +213,17 @@ The demand constraint of 200 is an upper limit only on bookcases.  Since no book
 Next, let's discuss the column duals which are often referred to as reduced costs of variables.  Let's extract these from the results just as we did for the shadow prices.
 
 ```{r cduals}
-cduals0 <-as.matrix(get_column_duals(result0), ncol=1 )
+#cduals0 <-as.matrix(get_column_duals(result0), ncol=1 )
 
-# dimnames(cduals0)<-list(c("Column Duals"), c("Desks", "Tables", "Bookcases"))
+cduals0 <-as.matrix(get_column_duals(result0) )
+
+dimnames(cduals0)<-list(c("Desks", "Tables", "Bookcases"), c("Column Duals"))
 pander(cduals0,caption="Reduced Costs of Variables")
 ```
 
-To-Do In Reduced Costs Subsection
+Interesting.  This is not correct.  The Column Dual for Desks and Bookcases are swapped.  It appears that the values passed may be in alphabetical order rather than in the order the variables were declared.  
+
+### To-Do In Reduced Costs Subsection
 
 * Fix labeling of cduals0 object.
 * Check values for correctness.
