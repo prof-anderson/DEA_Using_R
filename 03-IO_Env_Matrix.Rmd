@@ -226,7 +226,7 @@ The name `lpe` is meant to indicate a linear programming object for the envelopm
 
 We easily display what our empty `lpe` object looks like.  We are initializing it without any constraints but columns for each variable that we expect to use: 
 
-* Columns for each lambda, _i.e._ $\lambda_1$, $\lambda_2$, ..., $lambda_N^D$  
+* Columns for each lambda, _i.e._ $\lambda_1$, $\lambda_2$, ..., $lambda_{N^D}$  
 * A column for the efficiency, $\theta$
 * Columns for each input slack and each output slack
 

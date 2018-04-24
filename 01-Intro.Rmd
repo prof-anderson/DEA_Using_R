@@ -42,7 +42,6 @@ This book is currently in a very rough draft state.  As such, the writing needs 
 
 Topics to consider in the future:
 
-* Matrix construction of DEA LPs (Chapter 3)
 * Output-oriented model (Half done in Chapter 4)
 * Beautifying display of information
 * Extracting weights from the dual results
