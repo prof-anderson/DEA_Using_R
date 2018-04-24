@@ -7,9 +7,11 @@ output:
 
 Introduction
 -----------------------------
-In chapter 2 and 3 we focused on the input-oriented envelopment model.  This chapter will focus on the output-oriented model.  People can sometimes be confused over when to use an input-oriented or an output-oriented model.  Think of input-oriented as a _input-reducing_ and output-oriented as _output increasing_.  In an input-oriented model, the primary goal is to reduce the input while not sacrificing any output.   In contrast, the primary goal for an output-oriented model is to increase the output while not increasing the usage of any input.  
+In chapter 2 and 3 we focused on the input-oriented envelopment model. This chapter will focus on the output-oriented model.  People can sometimes be confused over when to use an input-oriented or an output-oriented model. Think of input-oriented as _input-reducing_ and output-oriented as _output increasing_. In an input-oriented model, the primary goal is to reduce the input while not sacrificing any output. In contrast, the primary goal for an output-oriented model is to increase the output while not increasing the usage of any input.
 
-In the case of constant returns to scale, the results will similar.  Under other returns to scale assumptions, the orientation can have a significant impact on efficiency.  
+Think of selecting the model orientation by looking at a simple model of say, a set of restaurants where the input the input is labor and the output is customers served. The question than is what do the managers have more control over. If managers of restaurants have the opportunity to serve more customers, perhaps an output-oriented model is best. On the other hand, they have may have weak influence over the number of customers served, perhaps due to advertising being done at a regional level.  In this case, perhaps cost control is the primary goal which means that an input-oriented model should be applied to emphasize reducing labor.
+
+In the case of constant returns to scale, the results will be consistent. Under other returns to scale assumptions, the orientation can have a significant impact on efficiency.  
 
 The linear program for the output-oriented model is very similar to that of the input-oriented model.  The major change now is that rather finding the minimum level of input capable of producing the desired output, now the goal is to find the maximum output without reducing the input.  This expansion of output is denoted as $\phi$ and the resulting constant returns to scale model is given below.
 
@@ -85,7 +87,7 @@ library(ompr.roi)         # Connective tissue
 
   results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
 #  dimnames(results.efficiency)<-list(c(LETTERS[1:ND]),c("Eff"))
-  dimnames(results.efficiency)<-c(DMUnames,"CCR-IO")  # Attach names
+  dimnames(results.efficiency)<-c(DMUnames,"CCR-OO")  # Attach names
   
   results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
   dimnames(results.lambda)<-c(DMUnames,Lambdanames)

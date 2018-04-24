@@ -79,12 +79,12 @@ We're going to use our data from earlier.  For this example, we will use the dat
 
 ```{r multiplier_model }
 
-library(pander)           # For better tables
-library(dplyr)            # For data structure manipulation
-library(ROI)              # R Optimization Interface package
-library(ROI.plugin.glpk)  # Connection to glpk as solver
-library(ompr)             # Optimization Modeling using R
-library(ompr.roi)         # Connective tissue
+library(pander, quietly=TRUE)           # For better tables
+library(dplyr, quietly=TRUE)            # For data structure manipulation
+library(ROI, quietly=TRUE)              # R Optimization Interface 
+library(ROI.plugin.glpk, quietly=TRUE)  # Connection to glpk as solver
+library(ompr, quietly=TRUE)             # Optimization Modeling using R
+library(ompr.roi, quietly=TRUE)         # Connective tissue
 
   XBaker1 <- matrix(c(150, 400, 320, 520, 350, 320, .2, 0.7, 1.2, 2.0, 1.2, 0.7),
                   ncol=2,dimnames=list(LETTERS[1:6],c("x1", "x2")))
@@ -175,7 +175,7 @@ As might be expected, the cross-efficiency values are all significantly lower th
 
 ## Implementing Cross-Efficiency
 
-Let's revisit the baker model again.  
+Let's revisit the Baker model again.  
 
 ```{r Baker_cross, eval=TRUE}
 
@@ -221,11 +221,17 @@ multiplierIO <- function (x,y)
 
 } # End of function  
 
-
 resfunc <- multiplierIO(x,y)
+DMUnames <- list(c(LETTERS[1:ND]))
+Vnames<- lapply(list(rep("v",NX)),paste0,1:NX)   # Input weight names: v1, ...
+Unames<- lapply(list(rep("u",NY)),paste0,1:NY)   # Output weight names: u1, ...
 
-pander (c(resfunc$efficiency,resfunc$vweight,resfunc$uweight), 
-        caption="Cross-Efficiency Scores and weights")
+dimnames(resfunc$efficiency) <- c(DMUnames,"CCR-IO")
+dimnames(resfunc$vweight)    <- c(DMUnames,Vnames)
+dimnames(resfunc$uweight)    <- c(DMUnames,Unames)
+
+pander (cbind(resfunc$efficiency,resfunc$vweight,resfunc$uweight), 
+        caption="Efficiency Scores and Weights")
 ```
 
 You can think of the cross-efficiency by going back to revisit the original ratio model of the multiplier model.  Let's extend the definition of the input and output weights to reflect for which unit the weights were determined.  For example, $u_{r,k}$ is then the weight on output r when analyzed from the perspetive of DMU k and a similar interpretation applies to input weight.  
@@ -279,13 +285,18 @@ results.crosseval  <- matrix(rep(-1.0, ND*ND), nrow=ND,ncol=ND)
 results.crosseff   <- matrix(rep(-1.0, ND)) 
 
 for (k in 1:ND) {
-   for (j in 1:ND) {results.crosseval[k,j]<-sum(results.uweight[k,]*ydata[j,])/sum(results.vweight[k,]*xdata[j,])
+   for (j in 1:ND) {results.crosseval[k,j]<-sum(resfunc$uweight[k,]*y[j,])/sum(resfunc$vweight[k,]*x[j,])
                    }
 }
+for (k in 1:ND) {
+  results.crosseff[k]<-mean(results.crosseval[,k])
+}
+
+dimnames(results.crosseval) <- c(DMUnames,DMUnames)
 pander(results.crosseval, caption = "Cross-evaluation Matrix")
 
-for (j in 1:ND) {results.crosseff[j]<-sum(results.crosseval[,j])/ND}
-pander(results.crosseff, caption = "results.crosseff?")
+#for (j in 1:ND) {results.crosseff[j]<-sum(results.crosseval[,j])/ND}
+pander(results.crosseff, caption = "Cross-Efficiency Results")
 
 ```
 
@@ -298,8 +309,14 @@ calccrosseff <- function (x,y,vmatrix,umatrix) {
 
   ND <- nrow(x); NX <- ncol(y); NY <- ncol(y); # Define data size
   
-  crosseval  <- matrix(rep(-1.0, ND*ND), nrow=ND,ncol=ND) 
-  crosseff   <- matrix(rep(-1.0, ND)) 
+  DMUnames <- rownames(x)
+  
+  if (is.null(DMUnames)) {DMUnames<-list(c(LETTERS[1:ND]))}  
+  
+  crosseval  <- matrix(rep(-1.0, ND*ND), nrow=ND, ncol=ND,
+                       dimnames=list(DMUnames,DMUnames))
+  crosseff   <- matrix(rep(-1.0, ND), nrow=ND, 
+                       dimnames=list(DMUnames, "Cross-Eff") )
 
   for (k in 1:ND) {
      for (j in 1:ND) {crosseval[k,j]<-sum(umatrix[k,]*y[j,])/sum(vmatrix[k,]*x[j,])
@@ -316,12 +333,10 @@ calccrosseff <- function (x,y,vmatrix,umatrix) {
 ```
 
 ```{r}
-rescross <- calccrosseff (xdata, ydata, results.vweight, results.uweight)
+rescross <- calccrosseff (x, y, resfunc$vweight, resfunc$uweight)
 
-print("Printing results from function for calculating cross-efficiency")
-
-pander(rescross$crosseval, "Cross-Evaluation Matrix")
-pander(rescross$crosseff, "Cross-Efficiency Scores")
+pander(rbind(rescross$crosseval,t(rescross$crosseff)), 
+             caption="Cross-Evaluation Matrix and Cross-Evaluation Scores")
 
 ```
 
@@ -401,8 +416,6 @@ multiplierIOSec <- function (x, y)
 
 ```
 
-
-
 Next, let's review the implementation of multiple optima in Auro's multiplier model.  To test it, we'll load data from Takamura and Tone's 2003 paper on sites for relocating the capital of Japan.
 
 ```{r}
@@ -433,9 +446,6 @@ SpringLres <- CrossEfficiency(XSpringL, YSpringL)
 ```
 
 
-
-
-
 ## Future Issues for Cross-Efficiency Chapter
 
 Issues to consider in the future for this chapter or other chapters:
@@ -443,5 +453,5 @@ Issues to consider in the future for this chapter or other chapters:
 * Multiple Optima
 * Secondary Objective Functions
 * Fixed Weighting nature of certain model dimensions
-* Need to add row and column names along with captions for tables to make sense.
+
 

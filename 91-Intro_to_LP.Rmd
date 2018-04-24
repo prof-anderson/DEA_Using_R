@@ -119,17 +119,16 @@ For the sake of simplicity, we will implement our R homework using explicit vari
 First, let us load the required libraries.  Then we will move on to the actual implementation.
 
 ``` {r warning=FALSE}
-library (pander)
-library (magrittr) #Used for pipes/dplyr
-library (dplyr)
-library (ROI)
-library (ROI.plugin.glpk)
-library (ompr)
-library (ompr.roi)
+library (pander, quietly = TRUE)
+library (magrittr, quietly = TRUE) #Used for pipes/dplyr
+library (dplyr, quietly = TRUE)
+library (ROI, quietly = TRUE)
+library (ROI.plugin.glpk, quietly = TRUE)
+library (ompr, quietly = TRUE)
+library (ompr.roi, quietly = TRUE)
 ```
 
 Now we move on creating and solving the linear program.  
-
 
 ```{r base_case}
 result0 <- MIPModel() %>%
@@ -218,17 +217,29 @@ Next, let's discuss the column duals which are often referred to as reduced cost
 cduals0 <-as.matrix(get_column_duals(result0) )
 
 dimnames(cduals0)<-list(c("Desks", "Tables", "Bookcases"), c("Column Duals"))
-pander(cduals0,caption="Reduced Costs of Variables")
+pander(cduals0,caption="Incorrect Reduced Costs of Variables")
 ```
 
 Interesting.  This is not correct.  The Column Dual for Desks and Bookcases are swapped.  It appears that the values passed may be in alphabetical order rather than in the order the variables were declared.  
+
+Let's add a sort field to the names before naming the rows.  
+
+```{r cduals_sorted}
+#cduals0 <-as.matrix(get_column_duals(result0), ncol=1 )
+
+cduals0 <-as.matrix(get_column_duals(result0) )
+
+dimnames(cduals0)<-list(sort(c("Desks", "Tables", "Bookcases")), c("Column Duals"))
+pander(cduals0,caption="Correct Reduced Costs of Variables")
+```
+
+More testing is needed to confirm that this issue is cause by alphabetizing the variables (columns).  
 
 ### To-Do In Reduced Costs Subsection
 
 * Fix labeling of cduals0 object.
 * Check values for correctness.
 * Combine optimal decision variables in another column of results in table alongside reduced costs.
-
 
 ## Linear Programming Special Cases
 

@@ -173,7 +173,6 @@ Let's define some data structures for holding our data and results.
   Lambdanames<- lapply(list(rep("L_",ND)),paste0,LETTERS[1:ND])
 
   results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
-#  dimnames(results.efficiency)<-list(c(LETTERS[1:ND]),c("Eff"))
   dimnames(results.efficiency)<-c(DMUnames,"CCR-IO")  # Attach names
   
   results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
@@ -190,8 +189,6 @@ Let's define some data structures for holding our data and results.
 We're going to use our data from earlier but first we will load a collection of libraries to be used later.  The ompr package is for optimization and serves as a general human readable format of optimization models that can then interface with a variety of solver engines.  The ROI.plugin.glpk package is for the specific solver engine, glpk, that we used.  Other LP solving engines are available and can be used instead.  
 
 ```{r loading_packages, message=FALSE, warning=FALSE}
-     # options: message=FALSE, warning=FALSE to turn off display
-
 library(dplyr, quietly=TRUE)           # For data structure manipulation
 library(ROI, quietly=TRUE)             # R Optimization Interface package
 library(ROI.plugin.glpk, quietly=TRUE) # Connection to glpk as solver
@@ -241,7 +238,7 @@ pander(cbind(results.efficiency, results.lambda),
 
 The above table follows a few convenient conventions.  First, rather than using $\theta$, we label the efficiency score by the model used for the model, in this case the constant returns to scale is labeled as CCR after Charnes, Cooper, and Rhodes.  Later we will cover other models including the variable returns to scale model, labeled BCC after Banker, Charnes, and Cooper.  Another convention is to use "L" in place of the Greek symbol $\lambda$ due to complications with using Greek symbols in R matrix row or column names.  
 
-Furthermore, the results in the table indicate that DMU _B_ has an efficiency score of 50%.  The target of performance is made of DMU _C_ scaled down by a factor of 0.33. These results match the graphical results from earlier.
+The results in the table indicate that DMU _B_ has an efficiency score of 50%.  The target of performance is made of DMU _C_ scaled down by a factor of 0.33. These results match the graphical results from earlier.
 
 Let's now extend it to handle multiple inputs, NX, and outputs, NY.  Of course this doesn't have any impact on our results just yet since we are still only using a single input and output but we now have the structure to accommodate the more general case.  To provide a little variety, we'll change it to the first DMU, A, to give a little more variety.  
 
@@ -329,7 +326,7 @@ It is an important step of any DEA study to carefully examine the results.  In t
 
 ## Returns to Scale
 
-Let's also add a constraint that will accommodate returns to scale.  All it needs to do is constrain the sum of the $\lambda$ variables equal to 1 enforces variables returns to scale or VRS.  The other very common returns to scale option is constant returns to scale or CRS.  For CRS, you can delete the constraint but it is helpful to maintain a consistent model size so we can make it a redundant constraint by constraining it to be greater than or equal to zero.  Since $\lambda$'s are by definition non-negative, so must the sum of $\lambda$'s and therefore the constraint is superfluous under CRS.
+Let's also add a constraint that will accommodate returns to scale.  All it needs to do is constrain the sum of the $\lambda$ variables equal to 1 enforces variables returns to scale or VRS.  The other very common returns to scale option is constant returns to scale or CRS.  For CRS, you can delete the constraint but it is helpful to maintain a consistent model size so we can make it a redundant constraint by constraining it to be greater than or equal to zero.  Since $\lambda$'s are by definition non-negative, the sum of $\lambda$'s is also non-negative and therefore the constraint is superfluous or redundant under CRS.
 
 $$
 \begin{split}
@@ -384,7 +381,7 @@ pander (cbind(results.efficiency, results.lambda),
 
 Notice that the efficiencies have generally increased or stayed the same.  Whereas earlier three out of four DMUs were inefficient, now three out of four are efficient.  Much more could be said about returns to scale.  One way of thinking of returns to scale is whether doubling the inputs should be expected to result in doubling the outputs that should be achieved.  Another way to think of it is whether it is fair to think of scaling up or down an efficient significantly to set a performance target for a much bigger or smaller unit.  For example, would it be _fair_ to compare a small convenience store such as 7-11 to a CostCo store scaled down by a factor of a 100?  
 
-In addition to Constant returns to scale (CRS) and variable returns to scale (VRS), two other common approaches are increasing returns to scale (IRS) and decreasing returns to scale (DRS).  Technically, IRS is sometimes more formally referred to as non-decreasing returns to scale.  Similarly, DRS corresponds to non-increasing returns to scale. 
+In addition to Constant Returns to Scale (CRS) and Variable Returns to Scale (VRS), two other common approaches are Increasing Returns to Scale (IRS) and Decreasing Returns to Scale (DRS).  Technically, IRS is sometimes more formally referred to as non-decreasing returns to scale.  Similarly, DRS corresponds to non-increasing returns to scale. 
 
 The actual returns to scale models are straightforward to implement.  
 
@@ -459,6 +456,7 @@ YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 3500, 21000, 10500
 
 ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1); # Define data size
 
+pander(cbind(XBaker1,YBaker1))
 ```
 
 Note that I'm naming the data sets based on their origin and then loading them into xdata and ydata for actual operation.  This allows the model to be generalized.
@@ -523,14 +521,33 @@ results <-   solve_model(result, with_ROI(solver = "glpk"))
     results.lambda[k,] <- t(as.matrix(as.numeric(
                      get_solution(results, vlambda[j])[,3] )))
 }
-pander (cbind(results.efficiency, results.lambda),round=6, 
-        caption="Results from Baker's Example")
+pander (cbind(results.efficiency, results.lambda), 
+        caption="Results from Baker's Example (CRS)")
 
+BakerCCR.Res<-cbind(results.efficiency, results.lambda)
 ```
 
-The efficiency scores match those reported in Baker, page 176, Figure 5.8.  The columns to the right of the efficiency sore are the lambdas.  The lambdas for facility 5 are given on page 177 and match the fifth column of our results.
+The efficiency scores match those reported in Baker, page 176, Figure 5.8.  The columns to the right of the efficiency score are the lambdas.  The lambdas for facility 5, (E), are given on page 177 of Baker and match the fifth row of our results.
 
-In contrast, the second and third column warrant a more careful look.  Both of those columns report very small negative numbers.  These numbers are due to computational issues in the linear programming solvers and should be interpreted as zero.  
+In contrast, the second and third column warrant a more careful look.  Both of those columns report very small negative numbers.  These numbers are due to computational issues in the linear programming solvers and should be interpreted as zero.  Rounding the results can make the tables easier for interpretation by the user.  The pander packages makes it easy to round numbers to varying levels of precision.  
+
+```{r rounded-table}
+pander (cbind(results.efficiency, results.lambda), 
+        caption="Results from Baker's Example (CRS) with Rounded Values")
+```
+
+The small, nearly zero, values that may appear in DEA calculations can cause some computational difficulty.  For example, testing for zero lambda values could miss cases where the value is approximately but not exactly zero.  
+
+Let's compare the results from the constant and variable returns to scale cases.
+
+```{r}
+pander(cbind(results.efficiency,BakerCCR.Res), round=6,
+       caption="Comparison of CRS vs. VRS Efficiency Scores")
+```
+
+A few takeaways from these results:
+
+* Switching from CRS to VRS will never hurt the efficiency of a DMU.  From an optimization perspective, think of this as adding a constraint which will increase or leave unchanged the objective function value from a minimization linear program.  makes it _easier_ for a find
 
 ## Extracting Multiplier Weights from Envelopment Results
 
@@ -595,7 +612,7 @@ pander (cbind(results.efficiency, results.lambda, results.vweight,
 A few things should be noticed with respect the the multiplier weights:
 
 * Multiplier weights can be quite small because in general, they are multiplied by inputs and the product is typically less than one.  They may appear to round to zero but still be significant.
-* Multiplier weights are not unique for strongly efficient DMUs.  This is explored in more detail in the multiplier chapter.  
+* Multiplier weights are not unique for strongly efficient DMUs.  This is explored in more detail in the multiplier chapter.
 * Multiplier weights are usually unique for inefficient DMUs and should match the results obtained using either the row duals of the envelopment model or those obtained directly from the multiplier model.
 
 ## Slack Maximization
@@ -616,7 +633,7 @@ $$
   (\#eq:LPCCRIOE-Slacks)
 $$
 
-Simply formulating the model with slacks is insufficient.  We want to maximize these slacks after having found the best possible radial contraction (minimum value of $\theta$.)  This is done by adding a term summing the slacks to the objective function.  Note that this sum of slacks is multiplied by $\epsilon$ which is a  non-Archimedean infinitesimal.   The value of $\epsilon$ should be considered to be so small as to ensure that minimizing theta takes priority or maximizing the sum of slacks.  Note also that  maximizing the sum of slacks is done by substracting this sum of slacks.
+Simply formulating the model with slacks is insufficient.  We want to maximize these slacks after having found the best possible radial contraction (minimum value of $\theta$.)  This is done by adding a term summing the slacks to the objective function.  Note that this sum of slacks is multiplied by $\epsilon$ which is a  non-Archimedean infinitesimal.   The value of $\epsilon$ should be considered to be so small as to ensure that minimizing theta takes priority or maximizing the sum of slacks.  Note also that  maximizing the sum of slacks is denoted by miniimizing the negative  sum of slacks.
 
 $$
 \begin{split}
@@ -676,7 +693,8 @@ for (k in 1:ND) {
 
     result <-   solve_model(LPSlack, with_ROI(solver = "glpk")) 
 
-    phase1obj <-  get_solution(result, vtheta)    
+    # The following are the key steps to slack maximization 
+    phase1obj <-  get_solution(result, vtheta)  # Get Phase 1 objective value
 
     add_constraint(LPSlack, vtheta==phase1obj)   
                      # Passing result from phase 1 to phase 2
@@ -692,25 +710,22 @@ for (k in 1:ND) {
 
 rownames(results.efficiency)<-c("A", "B", "C", "D", "E", "F")
 #print (results.efficiency)
-pander(cbind(results.efficiency,xdata,ydata,results.lambda), round=5, caption="Input-oriented Efficiency Results")
+pander(cbind(results.efficiency,xdata,ydata,results.lambda), round=5,
+       caption="Input-oriented Efficiency Results")
 
 ```
 
 The rightmost columns, denoted by "L_" are the resulting lambda values.  
 
-##To-Do for Chapter
+## To-Do for Chapter
 
 * Enrich example of slacks
 * Add graphical figure showing slack maximization
 * Generalize column name setting for ND where appropriate.
 
-##Exercises
-
 ## Exercises
 
 If you have followed along this far - you deserve a medal!  If you work your way through by cutting and pasting code fragments, you should be able to reproduce my exact results.  At this point you are ready for a few challenges:
-
-
 
 1. Add a fifth unit, E, that produces 400 units output using 30 units of input.  Graphically evaluate all five units for their efficiency scores and lambda values.  
 2. Interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom.  _Difficulty: Cup of coffee_

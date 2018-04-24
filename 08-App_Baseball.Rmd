@@ -11,6 +11,7 @@ output:
 Now that we have covered an introduction to benchmarking using data envelopment analysis, let's look at a variety of models applied to sports - in particular, baseball.  
 
 Sports has a long history in operatons research and management science, long before the idea of sports analytics was popularized by Michael Lewis' *Moneyball*.  While it doesn't have the life and death significance of emergency relief or health care applications, it provides quite a few benefits:
+
 * Accurate and well curated historical data
 * Easy to understand models
 * Opportuntities to validate results
@@ -32,12 +33,12 @@ There are a variety of less frequent outcomes of a plate appearance such as a sa
 Over the course of the current 162 game season, most full-time players will have over 500 plate appearances.  
 
 ```{r load_ch8_packages, echo = TRUE, message = FALSE}
-library ("Lahman")
-library ("dplyr")
-library("pander")
-library(DiagrammeRsvg)
-library(rsvg)
-library(htmltools)
+library ("Lahman", quietly=TRUE)
+library ("dplyr", quietly=TRUE)
+library("pander", quietly=TRUE)
+library(DiagrammeRsvg, quietly=TRUE)
+library(rsvg, quietly=TRUE)
+library(htmltools, quietly=TRUE)
 source('Helperfiles.R')
 
 #knitr::read_chunk('Helperfiles.R')
@@ -71,8 +72,6 @@ tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),'BaseballBatting.png'
 ```
 
 ![Model of Baseball Batting](BaseballBatting.png){#fig:BaseballBatting}
-
-
 
 Now, let's wrestle with data sources.  Sean Lahman's baseball database has been made available as an R package.  This is a wonderful resource.  http://seanlahman.com/
 
@@ -198,14 +197,17 @@ pander (head (y), caption="Outputs for the 1920AL")
 ```
 
 ```{r doing_DEA}
-library(TFDEA)
+library(TFDEA, quietly=TRUE)
 
 res1920AL<-DEA(x,y, rts="CRS", orientation="output", slack=TRUE, dual=TRUE)
 
-pander (head(res1920AL$eff), caption="Efficiency Scores for 1920AL")
+phi <- res1920AL$eff
+theta <- 1/phi
+
+pander (cbind(head(phi),head(theta)), caption="CCR-OO Scores for 1920AL (Phi and Theta)")
 ```
 
-Success.  We have now run DEA using the TFDEA package, principally developed by Tom Shott with important contributions from Dong-Joon Lim, Kevin van Blommestein, and others.  Notice that this is an output-oriented model so the values greater than 1.0 indicate that decreasing radial efficiency (increasing inefficiency), and describe the amount of additional outputs that should be acheived at the same level of input usage.  In other words, how much more walks, singles, doubles, triples, and home runs the player should be producing in the same number of plate appearances if he was batting _efficiently_.
+Success.  We have now run DEA using the TFDEA package, principally developed by Tom Shott with important contributions from Dong-Joon Lim, Kevin van Blommestein, and others.  Notice that this is an output-oriented model so the values greater than 1.0 indicate that decreasing radial efficiency (increasing inefficiency), and describe the amount of additional outputs that should be acheived at the same level of input usage.  In other words, how much more walks, singles, doubles, triples, and home runs the player should be producing in the same number of plate appearances if he was batting _efficiently_.  As discussed in the chapter on the output-oriented model, under constant returns to scale, the input and output-oriented models are reciprocals of each other ($\theta=\frac{1}{\phi}$)
 
 Let's dig a little deeper now.  Let's start by reviewing the output weights for the first few players.  We'll display the table in two ways.  
 
@@ -252,10 +254,40 @@ pander(head(res1920ALmult$uy), round=6, caption="Output Weights from Multiplier 
 pander(head (res1920AL$uy), round=6, caption="Output Weights from Envelopment Model")
 ```
 
-
 Again, we see that the results are similar to what was observed earlier.  Note that the results for Eddie Collins (collied01) are different.  Eddie Collins was efficient and it is common that efficient players have multiple weighting schemes that still result in being efficient.  The MultiplierDEA package puts weight on triples (X3B) while the TFDEA package's solution puts a zero weight on triples and distributes weight among other outputs.  
 
 In any case, the output weights do not meet the requirements of a realistic baseball application.  Let's apply weight restrictions.  
+
+We want to enforce the following restrictions on our output weights, _u_.  
+
+$$
+ \begin{split}
+ \begin{aligned}
+    \ & u_{singles} \geq u_{walks}\\
+    \ & u_{doubles} \geq u_{singles}\\
+    \ & u_{triples} \geq u_{doubles}\\
+    \ & u_{home runs} \geq u_{triples}\\
+  \end{aligned}
+  \end{split}
+  (\#eq:BasicWeightRestrictions)
+$$
+
+A more generalized data structure for the weight restrictions looks at these as a ratio.  
+
+
+$$
+ \begin{split}
+ \begin{aligned}
+    \ & 1 \leq \frac{u_{singles}} {u_{walks}} \leq \infty \\
+    \ & 1 \leq \frac{u_{doubles}} {u_{singles}} \leq \infty \\
+    \ & 1 \leq \frac{u_{triples}} {u_{doubles}} \leq \infty \\
+    \ & 1 \leq \frac{u_{home runs}} {u_{triples}} \leq \infty \\
+  \end{aligned}
+  \end{split}
+  (\#eq:RatioWeightRestrictions)
+$$
+
+We can now specify these ratios in a data frame that will be passed to multiplierDEA package by defining a lower bound, numerator, denominator, and upper bound for each weight restriction ratio relationship.  Note that rather than specifying the upper limit of infinity, we declare it as "NaN" to indicate that it is not a number.  
 
 ```{r}
 
@@ -266,10 +298,13 @@ BattingWR<-data.frame(lower = c(1.0,1.0,1.0,1.0),
                       denominator = c("BB", "X1B", "X2B","X3B"), 
                       upper = c(NaN, NaN, NaN, NaN))
 
+pander(BattingWR, caption="Data Structure for Batting Weight Restrictions")
+
 res1920ALmultWR<-DeaMultiplierModel(x,y,rts = "crs", orientation="output", 
                                   weightRestriction = BattingWR)
 
 ```
+
 
 Let's talk about a particular hitter, Eddie Collins.  Without weight restrictions, he was efficient.  With weight restrictions, his efficiency was `r res1920ALmultWR$Efficiency["collied01",]`.  In fact, the histogram of efficiency scores is more telling.  
 
@@ -307,11 +342,15 @@ pander(head (res1920ALcross$ce_ave), round=4,
 pander(head (res1920ALmult$Efficiency), round=4,
        caption="CCR Efficiency Scores")
 pander(head (res1920ALcross$ceva_max), round=4,
-       caption="Maximum Cross Evaluation Score for Each Player")
+       caption="Maximum Cross-Evaluation Score for Each Player")
+
+colnames(res1920ALmult$Efficiency)<-"Efficiency"
+colnames(res1920ALmultWR$Efficiency)<-"Efficiency w WR"
+colnames(res1920ALcross$ce_ave)<-"Cross-Efficiency"
 
 pander(cor(cbind(res1920ALmult$Efficiency, res1920ALcross$ce_ave,
                  res1920ALmultWR$Efficiency)),round=4,
-                 caption="Correlation between Scores")
+                 caption="Correlation of DEA Models for the 1920 AL")
 
 ```
 
@@ -347,7 +386,7 @@ library("ggplot2")
 #collectedeff <- data.frame(c(res1920ALmult$Efficiency, res1920ALcross$ce_ave,  res1920ALmultWR$Efficiency) )
 
 collectedeff2 <- data.frame(cbind(res1920ALmult$Efficiency, 
-                                 res1920ALcross$ce_ave,  res1920ALmultWR$Efficiency) )
+                                 res1920ALcross$ce_ave,    res1920ALmultWR$Efficiency) )
 
 #pander(head(collectedeff, caption="Table of collected eff for ggplot debug"))
 
@@ -356,10 +395,10 @@ collectedeff2 <- data.frame(cbind(res1920ALmult$Efficiency,
 
 
 ```{r}
-ggplot (collectedeff2, aes(x=Eff, y=Average)) +
-      xlab("CCRIO Efficiency") + 
+ggplot (collectedeff2, aes(x=Efficiency, y=Cross.Efficiency)) +
+      xlab("CCR-IO Efficiency") + 
       ylab("Cross-Efficiency") +
-      ggtitle("Impact of Cross-Efficiency on 1920 AL CCRIO Efficiency") +
+      ggtitle("Impact of Cross-Efficiency on 1920 AL CCR-IO Efficiency") +
       geom_point(shape=1) +
       geom_abline(slope=1, color="red")
 
@@ -368,7 +407,7 @@ ggplot (collectedeff2, aes(x=Eff, y=Average)) +
 
 
 ```{r}
-ggplot (collectedeff2, aes(x=Average, y=Eff.1)) +
+ggplot (collectedeff2, aes(x=Cross.Efficiency, y=Efficiency.w.WR)) +
       xlab("Cross-Efficiency") + 
       ylab("Cross-Efficiency with Weight Restrictions") +
       ggtitle("Impact of Weight Restrictions on 1920 AL CC Efficiency") +
