@@ -272,12 +272,7 @@ $$
   (\#eq:BasicWeightRestrictions)
 $$
 
-<<<<<<< HEAD
-A more generalized data structure for the weight restrictions looks at these as as a series ratios. 
-=======
-A more generalized data structure for the weight restrictions looks at these as a ratio.  
-
->>>>>>> 63a7b0dc20a835e43443c9e3c08a9e1ef02c8490
+A more generalized data structure for the weight restrictions looks at these as a series of ratios.  
 
 $$
  \begin{split}
@@ -292,11 +287,6 @@ $$
 $$
 
 We can now specify these ratios in a data frame that will be passed to multiplierDEA package by defining a lower bound, numerator, denominator, and upper bound for each weight restriction ratio relationship.  Note that rather than specifying the upper limit of infinity, we declare it as "NaN" to indicate that it is not a number.  
-<<<<<<< HEAD
-=======
-
-```{r}
->>>>>>> 63a7b0dc20a835e43443c9e3c08a9e1ef02c8490
 
 ```{r}
 
@@ -354,7 +344,6 @@ pander(head (res1920ALmult$Efficiency), round=4,
 pander(head (res1920ALcross$ceva_max), round=4,
        caption="Maximum Cross-Evaluation Score for Each Player")
 
-<<<<<<< HEAD
 collectedeff1 <- data.frame(cbind(res1920ALmult$Efficiency,
                                   res1920ALmultWR$Efficiency,
                                   res1920ALcross$ce_ave,
@@ -388,7 +377,6 @@ pander(cor(collectedeff1[,1:4]), round=4,
 
 collectedeff1$name <- row.names(collectedeff1)
              # Add column for player names to make labels in ggplot
-=======
 colnames(res1920ALmult$Efficiency)<-"Efficiency"
 colnames(res1920ALmultWR$Efficiency)<-"Efficiency w WR"
 colnames(res1920ALcross$ce_ave)<-"Cross-Efficiency"
@@ -396,7 +384,6 @@ colnames(res1920ALcross$ce_ave)<-"Cross-Efficiency"
 pander(cor(cbind(res1920ALmult$Efficiency, res1920ALcross$ce_ave,
                  res1920ALmultWR$Efficiency)),round=4,
                  caption="Correlation of DEA Models for the 1920 AL")
->>>>>>> 63a7b0dc20a835e43443c9e3c08a9e1ef02c8490
 
 ```
 
@@ -426,13 +413,6 @@ This chart of efficiency vs. efficiency with weight restrictions clearly shows t
 
 ```{r}
 
-<<<<<<< HEAD
-#collectedeff2$name <- row.names(collectedeff2)
-=======
-collectedeff2 <- data.frame(cbind(res1920ALmult$Efficiency, 
-                                 res1920ALcross$ce_ave,    res1920ALmultWR$Efficiency) )
->>>>>>> 63a7b0dc20a835e43443c9e3c08a9e1ef02c8490
-
 ggplot (collectedeff1, aes(x=CCRIO, y=CE)) +
       xlab("CCR-IO Efficiency") + 
       ylab("Cross-Efficiency") +
@@ -450,17 +430,10 @@ Now, let's move on to examine the story of cross-efficiency vs. regular CCR Inpu
 This brings us to the last three of the formerly efficient players:  Harry Hooper, Bob Meusel, and Babe Ruth.  All three of these players are outscored in cross-efficiency by many other players.  Their cross-efficiency scores are all approximately the leage average.  All of this despite the fact that as discussed earlier, Babe Ruth was not just inarguably the _best_ batter in 1920 but arguably the best of the century.  
 
 ```{r}
-<<<<<<< HEAD
 ggplot (collectedeff1, aes(x=CE, y=CEWR)) +
       xlab("Cross-Efficiency") + 
       ylab("Cross-Efficiency with Weight Restrictions") +
       ggtitle("Impact of Weight Restrictions on 1920 AL Cross-Efficiency") +
-=======
-ggplot (collectedeff2, aes(x=Efficiency, y=Cross.Efficiency)) +
-      xlab("CCR-IO Efficiency") + 
-      ylab("Cross-Efficiency") +
-      ggtitle("Impact of Cross-Efficiency on 1920 AL CCR-IO Efficiency") +
->>>>>>> 63a7b0dc20a835e43443c9e3c08a9e1ef02c8490
       geom_point(shape=1) +
       geom_abline(slope=1, color="red")+
       geom_text(data=subset(collectedeff1, CEWR > 0.85 ),
@@ -486,7 +459,6 @@ The result is that the only way that Babe Ruth could get a cross-efficiency scor
 Let's look at the calculations for Babe Ruth using his own weighting scheme.  
 
 ```{r}
-<<<<<<< HEAD
 
 ybabe  <- y["ruthba01", ]
 uybabe <- as.data.frame(t(res1920ALcross$uy["ruthba01",]))
@@ -528,15 +500,6 @@ vxmean <- as.data.frame(t(colMeans(res1920ALcross$vx)))
 rownames(uymean) <- "output weights"
 pander (rbind(ybabe, uymean),
         caption = "Ruth's Outputs and Mean Cross-Efficiency Output Weights")
-=======
-ggplot (collectedeff2, aes(x=Cross.Efficiency, y=Efficiency.w.WR)) +
-      xlab("Cross-Efficiency") + 
-      ylab("Cross-Efficiency with Weight Restrictions") +
-      ggtitle("Impact of Weight Restrictions on 1920 AL CC Efficiency") +
-      geom_point(shape=1) +
-      geom_abline(slope=1, color="red")
->>>>>>> 63a7b0dc20a835e43443c9e3c08a9e1ef02c8490
-
 ```
 
 Once again we multiply each output by the corresponding output weight and then add these products together.  The result is `r as.matrix(ybabe) %*% t(as.matrix(uymean))`.  The mean input weight was `r vxmean` while his input (Plate Appearances) was `r xbabe`. Simply multiplying them together gives us  `r as.matrix(xbabe) %*% t(as.matrix(vxmean))`  The final result is taking the weighted output divided by the weighted output which gives us `r as.matrix(ybabe) %*% t(as.matrix(uymean))/as.matrix(xbabe) %*% t(as.matrix(vxmean))`.  Babe Ruth's cross-evaluation score based on the league-wide mean weights results in a higher score score than what Sisler gave him but far below his own efficiency score.

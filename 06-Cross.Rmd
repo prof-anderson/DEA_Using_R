@@ -293,11 +293,7 @@ for (k in 1:ND) {
 }
 
 dimnames(results.crosseval) <- c(DMUnames,DMUnames)
-<<<<<<< HEAD
 dimnames(results.crosseff) <- c(DMUnames)
-
-=======
->>>>>>> 63a7b0dc20a835e43443c9e3c08a9e1ef02c8490
 pander(results.crosseval, caption = "Cross-evaluation Matrix")
 
 #for (j in 1:ND) {results.crosseff[j]<-sum(results.crosseval[,j])/ND}
@@ -421,7 +417,6 @@ pander(cbind(x,y),caption="Data Passed to function")
 
 #resfunc <- multiplierIOSec (x=xdata, y=ydata)
 
-<<<<<<< HEAD
 resfunc    <- CrossEfficiency (x, y, rts="crs", orientation="input")
 resfuncmal <- Mal_Ben (x, y, rts="crs", orientation="input", phase="mal")
 resfuncben <- Mal_Ben (x, y, rts="crs", orientation="input", phase="ben")
