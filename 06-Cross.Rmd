@@ -293,6 +293,8 @@ for (k in 1:ND) {
 }
 
 dimnames(results.crosseval) <- c(DMUnames,DMUnames)
+dimnames(results.crosseff) <- c(DMUnames)
+
 pander(results.crosseval, caption = "Cross-evaluation Matrix")
 
 #for (j in 1:ND) {results.crosseff[j]<-sum(results.crosseval[,j])/ND}
@@ -344,7 +346,7 @@ pander(rbind(rescross$crosseval,t(rescross$crosseff)),
 
 As discussed in the chapter on the Multiplier model, DEA often has multiple optima, particularly for efficient DMUs.  While this doesn't affect the efficiency scores, it can have a major impact on the cross-evaluation scores and therefore the cross-efficiency scores.
 
-To examine this issue, we need to invoke a secondary objectiv function again in the same manner as we did for the envelopment model.
+To examine this issue, we need to invoke a secondary objective function again in the same manner as we did for the envelopment model.
 
 A variety of mechanisms exist for dealing with the issue of multiple optima.
 
@@ -406,32 +408,46 @@ multiplierIOSec <- function (x, y)
 
 } # End of function  
 
-#pander(cbind(xdata,ydata),caption="Data Passed to function")
-#pander(xdata, caption="xdata Passed to function")
+```
 
-# resfunc <- multiplierIOSec (xdata, ydata)
-#  Bug in my code, gives message:
-#     Error in typeof(x) : argument "x" is missing, with no default
-# print (resfunc$efficiency)
+Let's explore the impact of the secondary objective function.  The MultiplierDEA package has a cross-efficiency function but the Mal_Ben is a specialized version of the cross-efficiency function that implements the secondary goal of either malevolently trying to minimize other people's scores or benevelolently trying to maximize other people's scores.  Let's compare these to this to the arbitrary cross-efficiency function which does neither.  
+
+```{r}
+
+pander(cbind(x,y),caption="Data Passed to function")
+
+#resfunc <- multiplierIOSec (x=xdata, y=ydata)
+
+resfunc    <- CrossEfficiency (x, y, rts="crs", orientation="input")
+resfuncmal <- Mal_Ben (x, y, rts="crs", orientation="input", phase="mal")
+resfuncben <- Mal_Ben (x, y, rts="crs", orientation="input", phase="ben")
+
+colnames(resfunc$ce_ave)<-"Single-Phase Cross-Efficiency"
+rownames(resfuncmal$ce_ave)<-"Malevolent Cross-Efficiency"
+rownames(resfuncben$ce_ave)<-"Benevolent Cross-Efficiency"
+
+pander(rbind(t(resfunc$ce_ave), resfuncmal$ce_ave, resfuncben$ce_ave) )
 
 ```
+
 
 Next, let's review the implementation of multiple optima in Auro's multiplier model.  To test it, we'll load data from Takamura and Tone's 2003 paper on sites for relocating the capital of Japan.
 
 ```{r}
 
-library(pander)
+XTT03 <- matrix(c(1,1,1,1,1,1,1),ncol=1,dimnames=list(LETTERS[1:7],"x"))
 
-XTT <- matrix(c(1,1,1,1,1,1,1),ncol=1,dimnames=list(LETTERS[1:7],"x"))
+YTT03 <- matrix(c(5,7,8,4,9,10,4,10,10,7,8,4,2,7,3,3,5,3,4,10,7),
+                ncol=3, dimnames=list(LETTERS[1:7], c("C1","C2","C3")))
 
-YTT <- matrix(c(5,7,8,4,9,10,4,10,10,7,8,4,2,7,3,3,5,3,4,10,7),ncol=3,dimnames=list(LETTERS[1:7],c("C1","C2","C3")))
+pander (cbind(XTT03, YTT03), caption = "Input-Output Data for Takamura and Tone, 2003")
 ```
 
-Comments about cross-efficiency model.
+Comments about cross-efficiency functions from DEAmultiplier package.
 
 * Mal_and_Ben is not defined as a function.
-* CrossEfficiniency funciton should allow secondary objective function choice of "Malevelent" or "Benevelent"
-* Results from CrossEfficiency do not Takamura and Tone. CE Matrix 
+* CrossEfficiency function should allow secondary objective function choice of "Malevelent" or "Benevelent"
+* Results from CrossEfficiency do not Takamura and Tone.  
 * Naming convention from results of analysis.   Would be good if column names follow convention like my "helper file"-For example lambdas could use L_ as a prefix.
 * data validation.  Ex. allow "Ben", "ben" "benevelent", "Benevelent".  Also, RTS could do "CRS" or "crs"
 

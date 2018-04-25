@@ -329,7 +329,7 @@ The weight restrictions have dropped the number of efficient players from seven 
 
 ### Cross-Efficiency of Baseball Batters
 
-Now, let's turn our attention to a variation of DEA called cross-efficiency.  Cross-efficiency was discussed in an earlier chapter.  Let's focus on the ten players with the top CCR input-oriented efficiency scores.  
+Now, let's turn our attention to a variation of DEA called cross-efficiency. Cross-efficiency was discussed in an earlier chapter.  Proponents of Cross-efficiency contend that it can differentiate between players DMUs that are DEA efficient.  Simple CCR DEA finds nine out of 54 players to be efficient. We will focus on the ten players with the top CCR input-oriented efficiency scores.  
 
 ```{r}
 res1920ALcross<-CrossEfficiency(x,y,rts = "crs", orientation="output")
@@ -442,6 +442,71 @@ Most DEA applications do not have the benefit of a historically trancendent perf
 
 This analysis demonstrates that cross-efficiency is not a substitute for the hard work of good modeling.  
 
+### Cross-Efficiency and Fixed Weights
+
+Babe Ruth's scores showed high variability across the different analysis.  Let's explore this in more detail by digging into the actual weights from the multiplier model used.  
+
+The cross-efficiency score for a player, say Babe Ruth, is computed by averaging each cross-evaluation score which is the score that each of the players implicitly give Babe Ruth using their own preferred weighting scheme.
+
+The result is that the only way that Babe Ruth could get a cross-efficiency score of 1.0 would be for every player to say that based on their own weighting scheme, they find that Babe Ruth was efficient.  
+
+Let's look at the calculations for Babe Ruth using his own weighting scheme.  
+
+```{r}
+
+ybabe  <- y["ruthba01", ]
+uybabe <- as.data.frame(t(res1920ALcross$uy["ruthba01",]))
+xbabe  <- x["ruthba01", ]
+vxbabe <- as.data.frame(t(res1920ALcross$vx["ruthba01",]))
+rownames(uybabe) <- "output weights"
+pander (rbind(ybabe, uybabe),
+        caption = "Ruth's Outputs and Ruth's Cross-Efficiency Output Weights")
+
+```
+
+Now, we can multiply each output by the corresponding output weight and then add these products together.  The result is `r as.matrix(ybabe) %*% t(as.matrix(uybabe))`.  The input weight for Babe was `r vxbabe` while his input (Plate Appearances) was `r xbabe`. Simply multiplying them together gives us  `r as.matrix(xbabe) %*% t(as.matrix(vxbabe))`  The final result is taking the weighted output divided by the weighted output which gives us `r as.matrix(ybabe) %*% t(as.matrix(uybabe))/as.matrix(xbabe) %*% t(as.matrix(vxbabe))`.  Not surprisingly, Babe Ruth's cross-evaluation score based on his own weights is the same as his CCR output-oriented efficiency score.  In this case, simply 1.0.
+
+Now, let's go through the process of seeing the calculation of Babe Ruth's cross-evaluation score using the weights of George Sisler.  
+
+
+```{r}
+
+uysisl <- as.data.frame(t(res1920ALcross$uy["sislege01",]))
+vxsisl <- as.data.frame(t(res1920ALcross$vx["sislege01",]))
+rownames(uysisl) <- "output weights"
+pander (rbind(ybabe, uysisl),
+        caption = "Ruth's Outputs and Sisler's Cross-Efficiency Output Weights")
+
+```
+
+Now, we again multiply each output by the corresponding output weight and then add these products together.  The result is `r as.matrix(ybabe) %*% t(as.matrix(uysisl))`.  The input weight for Sisler was `r vxsisl` while Babe's input (Plate Appearances) was `r xbabe`. Simply multiplying them together gives us  `r as.matrix(xbabe) %*% t(as.matrix(vxsisl))`  The final result is taking the weighted output divided by the weighted output which gives us `r (as.matrix(ybabe) %*% t(as.matrix(uysisl)))/(as.matrix(xbabe) %*% t(as.matrix(vxsisl)))`.  Babe Ruth's cross-evaluation score based on George Sisler's weights results in a much lower score than his own score.  
+
+Both George Sisler's and Babe Ruth's output weights violate the pattern of increasing (or more precisely, non-decreasing) values as you move to the right.  In the case of Babe Ruth's efficiency score, it does not hurt him to have this unrealistic scheme because he gave himself a _1.0_.  On the other hand, in cross-efficiency, this unrealistic weighting scheme used by George Sisler _hurt_ the final cross-efficiency score of Babe Ruth.  
+
+In fact, a paper by Anderson, Inman, and Hollingsworth found that under certain circumstances, cross-efficiency is effectively a fixed weighting scheme that may assess everyone under the same possibly incorrect weighting scheme.  The authors show that in a single-input, output-oriented model or single output, input-oriented model, the cross-efficiency calculations, cross-efficiency just relies on an average of the weights.  
+
+Let's repeat this exercise one more time based on the mean output and mean input weights for all 54 players in the 1920 American League.
+
+```{r}
+
+uymean <- as.data.frame(t(colMeans(res1920ALcross$uy)))
+vxmean <- as.data.frame(t(colMeans(res1920ALcross$vx)))
+rownames(uymean) <- "output weights"
+pander (rbind(ybabe, uymean),
+        caption = "Ruth's Outputs and Mean Cross-Efficiency Output Weights")
+
+```
+
+Once again we multiply each output by the corresponding output weight and then add these products together.  The result is `r as.matrix(ybabe) %*% t(as.matrix(uymean))`.  The mean input weight was `r vxmean` while his input (Plate Appearances) was `r xbabe`. Simply multiplying them together gives us  `r as.matrix(xbabe) %*% t(as.matrix(vxmean))`  The final result is taking the weighted output divided by the weighted output which gives us `r as.matrix(ybabe) %*% t(as.matrix(uymean))/as.matrix(xbabe) %*% t(as.matrix(vxmean))`.  Babe Ruth's cross-evaluation score based on the league-wide mean weights results in a higher score score than what Sisler gave him but far below his own efficiency score.
+
+Notably, this calculated value roughly matches the original cross-efficiency score for Babe Ruth of `r res1920ALcross$ce_ave["ruthba01",]`.  *Note that the value should match better than it does!* 
+
+The same procedure could be be used for calculating the cross-efficiency score for each of the other players.  This is not a matter of some (or most) players occassionally violating the relationship in some way but a systematic error.  What this means is that _every_ player is now being assessed against the same fixed and in this case, implausible weighting scheme. If you look carefully at the mean output weights, the mean weight for Home Runs is lower than that of any other output. 
+
+This is in effect a _ganging up_ phenomenon where most players do poorly on Home Runs relative to Babe Ruth so they choose to not put weight on that output.  On the whole, the league then does not on average puts a low weight on Home Runs. Furthermore, outputs that tend to have low values (such as triples) will tend to have higher output weights than those with higher values such as home runs.  Rightly or wrongly, these distributional characteristics of the data set will affect cross-efficiency scores.
+
+Most studies that do cross-efficiency do not take a careful look at the weights.  
+
 ## To-Do Items for this Chapter
 * Validate results with previous papers
 * Better format tables of results
@@ -450,11 +515,10 @@ This analysis demonstrates that cross-efficiency is not a substitute for the har
 * Discuss modeling issues from previous chapter
 
 ## To-Do Items for DEAMultiplier Model (some for later)
+
 * Secondary objective functions for cross-efficiency (benev vs. malev formulations)
 * Unbounded side for weight restrictions
 * A switch for phi vs/ 1/phi interpretations
 * Results of cross-efficiency should include matrix of vx and uy weights
 * Fix documentation links
 * Super-efficiency option
-
-
