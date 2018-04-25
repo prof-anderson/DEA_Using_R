@@ -293,8 +293,11 @@ for (k in 1:ND) {
 }
 
 dimnames(results.crosseval) <- c(DMUnames,DMUnames)
+<<<<<<< HEAD
 dimnames(results.crosseff) <- c(DMUnames)
 
+=======
+>>>>>>> 63a7b0dc20a835e43443c9e3c08a9e1ef02c8490
 pander(results.crosseval, caption = "Cross-evaluation Matrix")
 
 #for (j in 1:ND) {results.crosseff[j]<-sum(results.crosseval[,j])/ND}
@@ -418,6 +421,7 @@ pander(cbind(x,y),caption="Data Passed to function")
 
 #resfunc <- multiplierIOSec (x=xdata, y=ydata)
 
+<<<<<<< HEAD
 resfunc    <- CrossEfficiency (x, y, rts="crs", orientation="input")
 resfuncmal <- Mal_Ben (x, y, rts="crs", orientation="input", phase="mal")
 resfuncben <- Mal_Ben (x, y, rts="crs", orientation="input", phase="ben")
@@ -431,6 +435,8 @@ pander(rbind(t(resfunc$ce_ave), resfuncmal$ce_ave, resfuncben$ce_ave) )
 ```
 
 
+=======
+>>>>>>> 63a7b0dc20a835e43443c9e3c08a9e1ef02c8490
 Next, let's review the implementation of multiple optima in Auro's multiplier model.  To test it, we'll load data from Takamura and Tone's 2003 paper on sites for relocating the capital of Japan.
 
 ```{r}
