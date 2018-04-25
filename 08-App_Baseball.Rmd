@@ -18,17 +18,17 @@ Sports has a long history in operatons research and management science, long bef
 * Clear, quantifiable, and objective metrics
 * Input-output models can be agreed upon
 
-The range of applications can cover benchmarking individual players, managers, general managers, and teams.  Analyzing individual players is the most common type of baseball application and will be the bulk of this chapter.  Each baseball player typically plays a role as a batter, a fielder, and/or a pitcher.  We will focus on batting for this first section.
+The range of applications can cover benchmarking individual players, managers, general managers, and teams.  Analyzing individual players is the most common type of baseball application and will be the bulk of this chapter. Each baseball player typically plays a role as a batter, a fielder, and/or a pitcher. We will focus on batting for this first section.
 
 ## Baseball Data, R, and dplyr
 
 For the sake of readers unfamiliar with baseball, we will provide a brief introduction. If you want to think of a baseball batter as a simple factory that uses Plate Appearances as a resource to produce five different kinds of products.  The following discussion gives more context for baseball fans.  
 
-Batting is in many ways the simplest to examine.  In the abstract, a batter uses their at-bats or plate appearances as opportunities to create events that help create runs for their team.  In each game, a batter typically has four to six at-bats.  These at-bats may be framed as a contest between a pitcher trying to make the batter create an out and the batter trying to get a hit.  Hits include singles, doubles, triples, and home runs, in increasing order of value. A fifth common outcome is a walk or "base-on-balls" which occurs when the pitcher throws four balls that gives the batter a free pass to first base.  There is a common expression that "a walk is as good as a hit" but a walk may not give as much advancement to other runners as a single so it may be considered as slightly less valuable than a single.  
+Batting is in many ways the simplest to examine. In the abstract, a batter uses their at-bats or plate appearances as opportunities to create events that help create runs for their team. In each game, a batter typically has four to six at-bats. These at-bats may be framed as a contest between a pitcher trying to make the batter create an out and the batter trying to get a hit. Hits include singles, doubles, triples, and home runs, in increasing order of value. A fifth common outcome is a walk or "base-on-balls" which occurs when the pitcher throws four balls that gives the batter a free pass to first base. There is a common expression that "a walk is as good as a hit" but a walk may not give as much advancement to other runners as a single so it may be considered as slightly less valuable than a single.
 
 In the past, batters weren't given much "recognition" for walks and a batter's receiving a walk did not count as an at-bat. Plate appearances count the opportunities for creating a hit or a walk and is sum of at-bats and walks. 
 
-There are a variety of less frequent outcomes of a plate appearance such as a sacrifice fly, an error, or hit by pitch.  These are all less common and often an accidental outcome from the batters perspective.  
+There are a variety of less frequent outcomes of a plate appearance such as a sacrifice fly, an error, or hit by pitch. These are all less common and often an accidental outcome from the batters perspective.  
 
 Over the course of the current 162 game season, most full-time players will have over 500 plate appearances.  
 
@@ -54,9 +54,9 @@ source('Helperfiles.R')
 
 ```
 
-Our exploration will also serve as a review of data manipulation in R. There are many ways of doing this.  Feel free to explore further.
+Our exploration will also serve as a review of data manipulation in R. There are many ways of doing this. Feel free to explore further.
 
-As usual, we want to see get familiar with the data.  Let's look at the first few rows of the batting data. We are going to want to make a model of baseball batting.  A good model is that a batter uses plate appearances to produce singles, doubles, triple, home runs, and walks.  Baseball fans might think of other outcomes such as sacrifice flies but these are generally less common, less desireable, and often not even intentional.  These five outcomes constitute a model that fits well enough.  The following figure shows what we will want to construct for a model.
+As usual, we want to see get familiar with the data. Let's look at the first few rows of the batting data. We are going to want to make a model of baseball batting. A good model is that a batter uses plate appearances to produce singles, doubles, triple, home runs, and walks.  Baseball fans might think of other outcomes such as sacrifice flies but these are generally less common, less desireable, and often not even intentional. These five outcomes constitute a model that fits well enough. The following figure shows what we will want to construct for a model.
 
 ```{r}
 
@@ -73,7 +73,7 @@ tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),'BaseballBatting.png'
 
 ![Model of Baseball Batting](BaseballBatting.png){#fig:BaseballBatting}
 
-Now, let's wrestle with data sources.  Sean Lahman's baseball database has been made available as an R package.  This is a wonderful resource.  http://seanlahman.com/
+Now, let's wrestle with data sources. Sean Lahman's baseball database has been made available as an R package. This is a wonderful resource. http://seanlahman.com/
 
 Now we need to work on getting the data for different players.
 
@@ -82,15 +82,15 @@ Now we need to work on getting the data for different players.
 pander(head(Lahman::Batting), caption="Sample of Lahman Baseball Data")
 ```
 
-What does this all mean?  The first column, playerID, is a uniquely coded ID for each player consisting of the first six letters of the last name, first two letters of the first name, and which instance of that eight letter combination the player is.  For example, row 5 is ansonca01, which corresponds to the  Hall of Famer, Cap Anson.  Each row gives the statistics for a year that he had with a particular team.  If the player plays for multiple teams in a year, they will have multiple rows.  Also, if their career lasts more than one year, they will have more than one row.
+What does this all mean? The first column, playerID, is a uniquely coded ID for each player consisting of the first six letters of the last name, first two letters of the first name, and which instance of that eight letter combination the player is. For example, row 5 is ansonca01, which corresponds to the  Hall of Famer, Cap Anson. Each row gives the statistics for a year that he had with a particular team. If the player plays for multiple teams in a year, they will have multiple rows. Also, if their career lasts more than one year, they will have more than one row.
 
-In this case, in 1871 Cap Anson played in 25 Games, had 120 at-bats, scored 29 runs, had 39 hits, and 11 doubles, 3 triples, and no home runs.  He also had 16 runs-batted-in, 6 stolen bases while being caught stealing twice.  He had 2 walks (base on balls) while striking out once.  Other values of intentional base on balls, hit by pitches, sacrifice hits, sacrifice flies, and grounded into double plays are not available.  
+In this case, in 1871 Cap Anson played in 25 Games, had 120 at-bats, scored 29 runs, had 39 hits, and 11 doubles, 3 triples, and no home runs. He also had 16 runs-batted-in, 6 stolen bases while being caught stealing twice. He had 2 walks (base on balls) while striking out once. Other values of intentional base on balls, hit by pitches, sacrifice hits, sacrifice flies, and grounded into double plays are not available.  
 
 This is pretty impressive to have such detailed and specific data going back almost 150 years! 
 
-Using the Summary command will  provide all kinds of interesting information such as that over half of the player seasons occurred after 1970, the maximum number of stints with different teams was 5 and the most player seasons were for the National League's Chicago Cubs (teamID=CHN).  I'll leave this for your exploration.  
+Using the Summary command will  provide all kinds of interesting information such as that over half of the player seasons occurred after 1970, the maximum number of stints with different teams was 5 and the most player seasons were for the National League's Chicago Cubs (teamID=CHN). I'll leave this for your exploration.  
 
-Alas, most of the columns are not needed and some of those that are listed need some transformations.  Hadley Wickham has written an excellent package for wrestling with data called dplyr which we will use for preparing the dataset.  
+Alas, most of the columns are not needed and some of those that are listed need some transformations. Hadley Wickham has written an excellent package for wrestling with data called dplyr which we will use for preparing the dataset.  
 
 Let's start by subbsetting the data in terms of including only the columns that we will be using.  
 
@@ -109,7 +109,7 @@ batting<-dplyr::filter(batting,yearID>1900)
 pander(head(batting), caption="Batting Statistics for Players after 1901")
 ```
 
-As we discussed earlier, At-Bats (AB) is good but let's convert that to plat appearances.  Also, let's get the number of singles.
+As we discussed earlier, At-Bats (AB) is good but let's convert that to plat appearances. Also, let's get the number of singles.
 
 ```{r converting_data}
 batting<-dplyr::mutate(batting,X1B=H-HR-X3B-X2B)
@@ -160,7 +160,7 @@ Now that we have data prepared along with the tools for further manipulation, we
 
 Our basic input-output model for baseball batting consists of plate appearances as the sole input and the five most common results of types of hits along with walks. 
 
-In 1920, the American League featured a batter so dominant that he transformed the "industry" of baseball.  Let's focus on this year for now.  The core model for analysis is described in the following figure.  We are going to use an output-oriented, constant returns to scale model.  The following figures illustrates the DEA model that we will be using.  
+In 1920, the American League featured a batter so dominant that he transformed the "industry" of baseball. Let's focus on this year for now. The core model for analysis is described in the following figure. We are going to use an output-oriented, constant returns to scale model. The following figures illustrates the DEA model that we will be using.  
 
 t we will want to construct for a model.
 
@@ -207,19 +207,19 @@ theta <- 1/phi
 pander (cbind(head(phi),head(theta)), caption="CCR-OO Scores for 1920AL (Phi and Theta)")
 ```
 
-Success.  We have now run DEA using the TFDEA package, principally developed by Tom Shott with important contributions from Dong-Joon Lim, Kevin van Blommestein, and others.  Notice that this is an output-oriented model so the values greater than 1.0 indicate that decreasing radial efficiency (increasing inefficiency), and describe the amount of additional outputs that should be acheived at the same level of input usage.  In other words, how much more walks, singles, doubles, triples, and home runs the player should be producing in the same number of plate appearances if he was batting _efficiently_.  As discussed in the chapter on the output-oriented model, under constant returns to scale, the input and output-oriented models are reciprocals of each other ($\theta=\frac{1}{\phi}$)
+Success. We have now run DEA using the TFDEA package, principally developed by Tom Shott with important contributions from Dong-Joon Lim, Kevin van Blommestein, and others. Notice that this is an output-oriented model so the values greater than 1.0 indicate that decreasing radial efficiency (increasing inefficiency), and describe the amount of additional outputs that should be acheived at the same level of input usage. In other words, how much more walks, singles, doubles, triples, and home runs the player should be producing in the same number of plate appearances if he was batting _efficiently_. As discussed in the chapter on the output-oriented model, under constant returns to scale, the input and output-oriented models are reciprocals of each other ($\theta=\frac{1}{\phi}$)
 
-Let's dig a little deeper now.  Let's start by reviewing the output weights for the first few players.  We'll display the table in two ways.  
+Let's dig a little deeper now. Let's start by reviewing the output weights for the first few players. We'll display the table in two ways.  
 
 ```{r display_weights}
 pander(head(res1920AL$uy), round=6, caption = "Output Weights for 1920 AL")
 ```
 
-A few things stand out.  First, only one of the first six players puts any weight on home runs.  There should be a heirarchy that singles are at least as good as walks, doubles are at least as good singles, triples are at least as good as doubles, and home runs are at least as good triples.  Every player violates at least one of these relationships.  Any plausible analysis of baseball batting needs to reflect these relationships.  While very different, common metrics such as batting average and slugging average satisfy these relationships but our first DEA model does not.
+A few things stand out. First, only one of the first six players puts any weight on home runs. There should be a heirarchy that singles are at least as good as walks, doubles are at least as good singles, triples are at least as good as doubles, and home runs are at least as good triples. Every player violates at least one of these relationships. Any plausible analysis of baseball batting needs to reflect these relationships. While very different, common metrics such as batting average and slugging average satisfy these relationships but our first DEA model does not.
 
-In Anderson and Sharpe's 1997 paper, ordinal weight restrictions were incorporated into the envelopment model for examining baseball batters by accumulating hits.  This created new outputs of Singles or better (BB+X1B), doubles or better (BB+X1B+X2B), etc.  
+In Anderson and Sharpe's 1997 paper, ordinal weight restrictions were incorporated into the envelopment model for examining baseball batters by accumulating hits.  This created new outputs of Singles or better (BB+X1B), doubles or better (BB+X1B+X2B), _etc._
 
-Another approach is to analyze the data set using the multiplier model and directly incorporating weight restrictions.  For this, we will make use of the DEAMultiplier package written by Aurobindh Kalathil Puthanpura.  
+Another approach is to analyze the data set using the multiplier model and directly incorporating weight restrictions. For this, we will make use of the DEAMultiplier package written by Aurobindh Kalathil Puthanpura.  
 
 ```{r}
 library(MultiplierDEA)
@@ -254,9 +254,9 @@ pander(head(res1920ALmult$uy), round=6, caption="Output Weights from Multiplier 
 pander(head (res1920AL$uy), round=6, caption="Output Weights from Envelopment Model")
 ```
 
-Again, we see that the results are similar to what was observed earlier.  Note that the results for Eddie Collins (collied01) are different.  Eddie Collins was efficient and it is common that efficient players have multiple weighting schemes that still result in being efficient.  The MultiplierDEA package puts weight on triples (X3B) while the TFDEA package's solution puts a zero weight on triples and distributes weight among other outputs.  
+Again, we see that the results are similar to what was observed earlier.  Note that the results for Eddie Collins (collied01) are different. Eddie Collins was efficient and it is common that efficient players have multiple weighting schemes that still result in being efficient. The MultiplierDEA package puts weight on triples (X3B) while the TFDEA package's solution puts a zero weight on triples and distributes weight among other outputs.  
 
-In any case, the output weights do not meet the requirements of a realistic baseball application.  Let's apply weight restrictions.  
+In any case, the output weights do not meet the requirements of a realistic baseball application. Let's apply weight restrictions.  
 
 We want to enforce the following restrictions on our output weights, _u_.  
 
@@ -286,7 +286,7 @@ $$
   (\#eq:RatioWeightRestrictions)
 $$
 
-We can now specify these ratios in a data frame that will be passed to multiplierDEA package by defining a lower bound, numerator, denominator, and upper bound for each weight restriction ratio relationship.  Note that rather than specifying the upper limit of infinity, we declare it as "NaN" to indicate that it is not a number.  
+We can now specify these ratios in a data frame that will be passed to multiplierDEA package by defining a lower bound, numerator, denominator, and upper bound for each weight restriction ratio relationship. Note that rather than specifying the upper limit of infinity, we declare it as "NaN" to indicate that it is not a number.  
 
 ```{r}
 
@@ -301,7 +301,6 @@ res1920ALmultWR<-DeaMultiplierModel(x,y,rts = "crs", orientation="output",
                                   weightRestriction = BattingWR)
 
 ```
-
 
 Let's talk about a particular hitter, Eddie Collins.  Without weight restrictions, he was efficient.  With weight restrictions, his efficiency was `r res1920ALmultWR$Efficiency["collied01",]`.  In fact, the histogram of efficiency scores is more telling.  
 
@@ -326,11 +325,11 @@ hist(res1920ALmultWR$Efficiency,
 
 ```
 
-The weight restrictions have dropped the number of efficient players from seven to two.  As might be expected, Babe Ruth was efficient in both models.    
+The weight restrictions have dropped the number of efficient players from seven to two. As might be expected, Babe Ruth was efficient in both models.    
 
 ### Cross-Efficiency of Baseball Batters
 
-Now, let's turn our attention to a variation of DEA called cross-efficiency. Cross-efficiency was discussed in an earlier chapter.  Proponents of Cross-efficiency contend that it can differentiate between players DMUs that are DEA efficient.  Simple CCR DEA finds nine out of 54 players to be efficient. We will focus on the ten players with the top CCR input-oriented efficiency scores.  
+Now, let's turn our attention to a variation of DEA called cross-efficiency. Cross-efficiency was discussed in an earlier chapter. Proponents of Cross-efficiency contend that it can differentiate between players DMUs that are DEA efficient.  Simple CCR DEA finds nine out of 54 players to be efficient. We will focus on the ten players with the top CCR input-oriented efficiency scores.  
 
 ```{r}
 res1920ALcross<-CrossEfficiency(x,y,rts = "crs", orientation="output")
@@ -389,9 +388,9 @@ pander(cor(cbind(res1920ALmult$Efficiency, res1920ALcross$ce_ave,
 
 The cross-efficiency and the regular efficiency scores are related - they have a correlation of 0.870 but the cross-efficiency has a 0.910 correlation with the weight restricted DEA results.  This suggests that perhaps cross-efficiency can help deal with decreasing the impact of unrealistic weight schemes but let's take a closer look at the results.
 
-First, let's examine one hitter in particular.  In 1920, Babe Ruth had one of the best seasons ever by a baseball hitter. Various statistics demonstrate his dominance but home runs really highlight the impact.  His 54 home runs nearly doubled the previous record of 29 in a season he had set the previous year. Alone, he hit more home runs than 14 of the 16 teams in the leagues. Until the recent steroid era, Babe Ruth's 1920 and 1921 seasons are generally considered to be the two best offensive seasons in baseball.  
+First, let's examine one hitter in particular. In 1920, Babe Ruth had one of the best seasons ever by a baseball hitter. Various statistics demonstrate his dominance but home runs really highlight the impact. His 54 home runs nearly doubled the previous record of 29 in a season he had set the previous year. Alone, he hit more home runs than 14 of the 16 teams in the leagues. Until the recent steroid era, Babe Ruth's 1920 and 1921 seasons are generally considered to be the two best offensive seasons in baseball.  
 
-Babe's cross-efficiency score was `r round(res1920ALcross$ce_ave["ruthba01",1],6)`.  Coincidentally, his cross-efficiency score was nearly identical to the average cross-efficiency of other regular baseball batters of `r round(mean(res1920ALcross$ce_ave),6)`.  In other words, what may have been one of the best batting performances in a century of baseball was wrongly misclassified as being just average by cross-efficiency.
+Babe's cross-efficiency score was `r round(res1920ALcross$ce_ave["ruthba01",1],6)`. Coincidentally, his cross-efficiency score was nearly identical to the average cross-efficiency of other regular baseball batters of `r round(mean(res1920ALcross$ce_ave),6)`. In other words, what may have been one of the best batting performances in a century of baseball was wrongly misclassified as being just average by cross-efficiency.
 
 The reason for this can be seen by the cross-efficiency matrix of weights. 
 
@@ -409,7 +408,7 @@ ggplot (collectedeff1, aes(x=CCRIO, y=CCRIOWR)) +
 
 ```
 
-This chart of efficiency vs. efficiency with weight restrictions clearly shows that no one has their efficiency improved by the imposition of weight resctrictions.  In fact, only two players have the same score in both models: sislege01 (George Sisler) and ruthba01 (Babe Ruth).  Both Sisler and Ruth are efficient in both models.  
+This chart of efficiency vs. efficiency with weight restrictions clearly shows that no one has their efficiency improved by the imposition of weight resctrictions. In fact, only two players have the same score in both models: sislege01 (George Sisler) and ruthba01 (Babe Ruth). Both Sisler and Ruth are efficient in both models.  
 
 ```{r}
 
@@ -425,7 +424,7 @@ ggplot (collectedeff1, aes(x=CCRIO, y=CE)) +
 
 ```
 
-Now, let's move on to examine the story of cross-efficiency vs. regular CCR Input-Oriented Efficiency.  This chart makes it clear that while they are correlated, the nine players that were originally deemed CCR-IO Efficient are treated quite differently by cross-efficiency. George Sisler is rated highest but is closely followed by Tris Speaker, Eddie Collins, and "Shoeless" Joe Jackson.  These four are clearly separated from all of the other players. The next two formerly efficient players, Sam Rice and Joe Judge, still receive cross-efficiency scores over 0.85 but are now even surpassed by one CCR-IO inefficient player.  
+Now, let's move on to examine the story of cross-efficiency vs. regular CCR Input-Oriented Efficiency. This chart makes it clear that while they are correlated, the nine players that were originally deemed CCR-IO Efficient are treated quite differently by cross-efficiency. George Sisler is rated highest but is closely followed by Tris Speaker, Eddie Collins, and "Shoeless" Joe Jackson. These four are clearly separated from all of the other players. The next two formerly efficient players, Sam Rice and Joe Judge, still receive cross-efficiency scores over 0.85 but are now even surpassed by one CCR-IO inefficient player.  
 
 This brings us to the last three of the formerly efficient players:  Harry Hooper, Bob Meusel, and Babe Ruth.  All three of these players are outscored in cross-efficiency by many other players.  Their cross-efficiency scores are all approximately the leage average.  All of this despite the fact that as discussed earlier, Babe Ruth was not just inarguably the _best_ batter in 1920 but arguably the best of the century.  
 
@@ -470,7 +469,7 @@ pander (rbind(ybabe, uybabe),
 
 ```
 
-Now, we can multiply each output by the corresponding output weight and then add these products together.  The result is `r as.matrix(ybabe) %*% t(as.matrix(uybabe))`.  The input weight for Babe was `r vxbabe` while his input (Plate Appearances) was `r xbabe`. Simply multiplying them together gives us  `r as.matrix(xbabe) %*% t(as.matrix(vxbabe))`  The final result is taking the weighted output divided by the weighted output which gives us `r as.matrix(ybabe) %*% t(as.matrix(uybabe))/as.matrix(xbabe) %*% t(as.matrix(vxbabe))`.  Not surprisingly, Babe Ruth's cross-evaluation score based on his own weights is the same as his CCR output-oriented efficiency score.  In this case, simply 1.0.
+Now, we can multiply each output by the corresponding output weight and then add these products together. The result is `r as.matrix(ybabe) %*% t(as.matrix(uybabe))`. The input weight for Babe was `r vxbabe` while his input (Plate Appearances) was `r xbabe`. Simply multiplying them together gives us  `r as.matrix(xbabe) %*% t(as.matrix(vxbabe))`. The final result is taking the weighted output divided by the weighted output which gives us `r as.matrix(ybabe) %*% t(as.matrix(uybabe))/as.matrix(xbabe) %*% t(as.matrix(vxbabe))`.  Not surprisingly, Babe Ruth's cross-evaluation score based on his own weights is the same as his CCR output-oriented efficiency score. In this case, simply 1.0.
 
 Now, let's go through the process of seeing the calculation of Babe Ruth's cross-evaluation score using the weights of George Sisler.  
 
@@ -485,30 +484,49 @@ pander (rbind(ybabe, uysisl),
 
 ```
 
-Now, we again multiply each output by the corresponding output weight and then add these products together.  The result is `r as.matrix(ybabe) %*% t(as.matrix(uysisl))`.  The input weight for Sisler was `r vxsisl` while Babe's input (Plate Appearances) was `r xbabe`. Simply multiplying them together gives us  `r as.matrix(xbabe) %*% t(as.matrix(vxsisl))`  The final result is taking the weighted output divided by the weighted output which gives us `r (as.matrix(ybabe) %*% t(as.matrix(uysisl)))/(as.matrix(xbabe) %*% t(as.matrix(vxsisl)))`.  Babe Ruth's cross-evaluation score based on George Sisler's weights results in a much lower score than his own score.  
+Now, we again multiply each output by the corresponding output weight and then add these products together. The result is `r as.matrix(ybabe) %*% t(as.matrix(uysisl))`.The input weight for Sisler was `r vxsisl` while Babe's input (Plate Appearances) was `r xbabe`. Simply multiplying them together gives us  `r as.matrix(xbabe) %*% t(as.matrix(vxsisl))`  The final result is taking the weighted output divided by the weighted output which gives us `r (as.matrix(ybabe) %*% t(as.matrix(uysisl)))/(as.matrix(xbabe) %*% t(as.matrix(vxsisl)))`. Babe Ruth's cross-evaluation score based on George Sisler's weights results in a much lower score than his own score.  
 
-Both George Sisler's and Babe Ruth's output weights violate the pattern of increasing (or more precisely, non-decreasing) values as you move to the right.  In the case of Babe Ruth's efficiency score, it does not hurt him to have this unrealistic scheme because he gave himself a _1.0_.  On the other hand, in cross-efficiency, this unrealistic weighting scheme used by George Sisler _hurt_ the final cross-efficiency score of Babe Ruth.  
+Both George Sisler's and Babe Ruth's output weights violate the pattern of increasing (or more precisely, non-decreasing) values as you move to the right. In the case of Babe Ruth's efficiency score, it does not hurt him to have this unrealistic scheme because he gave himself a _1.0_. On the other hand, in cross-efficiency, this unrealistic weighting scheme used by George Sisler _hurt_ the final cross-efficiency score of Babe Ruth.  
 
-In fact, a paper by Anderson, Inman, and Hollingsworth found that under certain circumstances, cross-efficiency is effectively a fixed weighting scheme that may assess everyone under the same possibly incorrect weighting scheme.  The authors show that in a single-input, output-oriented model or single output, input-oriented model, the cross-efficiency calculations, cross-efficiency just relies on an average of the weights.  
+In fact, a paper by Anderson, Inman, and Hollingsworth found that under certain circumstances, cross-efficiency is effectively a fixed weighting scheme that may assess everyone under the same possibly incorrect weighting scheme. The authors show that in a single-input, output-oriented model or single output, input-oriented model, the cross-efficiency calculations, cross-efficiency just relies on an average of the weights.  
+
+The cross-efficiency mean output weights can be expressed as the following:
+
+$$
+\begin{split}
+\begin{aligned}
+    u_r^{CE} = \frac{1} {N^D} \sum_{j=1}^{N^D} \frac {u_{r,j}} {v_{1,j}}  \\
+    \\
+    v_1^{CE} = 1 \\
+    \end{aligned}
+\end{split}
+(\#eq:CEFixedWeights)
+$$
 
 Let's repeat this exercise one more time based on the mean output and mean input weights for all 54 players in the 1920 American League.
 
+
 ```{r}
 
-uymean <- as.data.frame(t(colMeans(res1920ALcross$uy)))
-vxmean <- as.data.frame(t(colMeans(res1920ALcross$vx)))
+vxmeantemp <- matrix(rep(res1920ALcross$vx,each=5),ncol=5, byrow=TRUE)
+uymeantemp <- res1920ALcross$uy / vxmeantemp
+uymean <- as.data.frame(t(colMeans(uymeantemp)))
+vxmean <- 1
+
+#uymean <- as.data.frame(t(colMeans(res1920ALcross$uy)))
+#vxmean <- as.data.frame(t(colMeans(res1920ALcross$vx)))
 rownames(uymean) <- "output weights"
 pander (rbind(ybabe, uymean),
         caption = "Ruth's Outputs and Mean Cross-Efficiency Output Weights")
 ```
 
-Once again we multiply each output by the corresponding output weight and then add these products together.  The result is `r as.matrix(ybabe) %*% t(as.matrix(uymean))`.  The mean input weight was `r vxmean` while his input (Plate Appearances) was `r xbabe`. Simply multiplying them together gives us  `r as.matrix(xbabe) %*% t(as.matrix(vxmean))`  The final result is taking the weighted output divided by the weighted output which gives us `r as.matrix(ybabe) %*% t(as.matrix(uymean))/as.matrix(xbabe) %*% t(as.matrix(vxmean))`.  Babe Ruth's cross-evaluation score based on the league-wide mean weights results in a higher score score than what Sisler gave him but far below his own efficiency score.
+Once again we multiply each output by the corresponding output weight and then add these products together. The result is `r as.matrix(ybabe) %*% t(as.matrix(uymean))`. The mean input weight was `r vxmean` while his input (Plate Appearances) was `r xbabe`. Simply multiplying them together gives us `r as.matrix(xbabe) %*% t(as.matrix(vxmean))`. The final result is taking the weighted output divided by the weighted output which gives us `r as.matrix(ybabe) %*% t(as.matrix(uymean))/as.matrix(xbabe) %*% t(as.matrix(vxmean))`. Babe Ruth's cross-evaluation score based on the league-wide mean weights results in a higher score score than what Sisler gave him but far below his own efficiency score.
 
-Notably, this calculated value roughly matches the original cross-efficiency score for Babe Ruth of `r res1920ALcross$ce_ave["ruthba01",]`.  *Note that the value should match better than it does!* 
+Note, this calculated value matches the original cross-efficiency score for Babe Ruth of `r res1920ALcross$ce_ave["ruthba01",] calculated as simply the column average of the cross-evaluation matrix.
 
-The same procedure could be be used for calculating the cross-efficiency score for each of the other players.  This is not a matter of some (or most) players occassionally violating the relationship in some way but a systematic error.  What this means is that _every_ player is now being assessed against the same fixed and in this case, implausible weighting scheme. If you look carefully at the mean output weights, the mean weight for Home Runs is lower than that of any other output. 
+The same mean cross-efficiency weights can be used for calculating the cross-efficiency score for each of the other players. This is not a matter of some (or most) players occassionally violating the relationship in some way but a systematic error. What this means is that _every_ player is now being assessed against the same fixed and in this case, implausible weighting scheme. If you look carefully at the mean output weights, the mean weight for Home Runs is lower than that of any other output. 
 
-This is in effect a _ganging up_ phenomenon where most players do poorly on Home Runs relative to Babe Ruth so they choose to not put weight on that output.  On the whole, the league then does not on average puts a low weight on Home Runs. Furthermore, outputs that tend to have low values (such as triples) will tend to have higher output weights than those with higher values such as home runs.  Rightly or wrongly, these distributional characteristics of the data set will affect cross-efficiency scores.
+This is in effect a _ganging up_ phenomenon where most players do poorly on Home Runs relative to Babe Ruth so they choose to not put weight on that output. On the whole, the league then does not on average puts a low weight on Home Runs. Furthermore, outputs that tend to have low values (such as triples) will tend to have higher output weights than those with higher values such as home runs. Rightly or wrongly, these distributional characteristics of the data set will affect cross-efficiency scores.
 
 Most studies that do cross-efficiency do not take a careful look at the weights.  
 
