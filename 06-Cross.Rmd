@@ -421,17 +421,14 @@ resfunc    <- CrossEfficiency (x, y, rts="crs", orientation="input")
 resfuncmal <- Mal_Ben (x, y, rts="crs", orientation="input", phase="mal")
 resfuncben <- Mal_Ben (x, y, rts="crs", orientation="input", phase="ben")
 
-colnames(resfunc$ce_ave)<-"Single-Phase Cross-Efficiency"
+rownames(resfunc$ce_ave)<-"Single-Phase Cross-Efficiency"
 rownames(resfuncmal$ce_ave)<-"Malevolent Cross-Efficiency"
 rownames(resfuncben$ce_ave)<-"Benevolent Cross-Efficiency"
 
-pander(rbind(t(resfunc$ce_ave), resfuncmal$ce_ave, resfuncben$ce_ave) )
+pander(rbind(resfunc$ce_ave, resfuncmal$ce_ave, resfuncben$ce_ave) )
 
 ```
 
-
-=======
->>>>>>> 63a7b0dc20a835e43443c9e3c08a9e1ef02c8490
 Next, let's review the implementation of multiple optima in Auro's multiplier model.  To test it, we'll load data from Takamura and Tone's 2003 paper on sites for relocating the capital of Japan.
 
 ```{r}

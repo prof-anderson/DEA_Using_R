@@ -1,8 +1,9 @@
 ---
 output:
+  word_document: default
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
 ---
 # Baseball Benchmarking Applications
 
@@ -329,24 +330,24 @@ The weight restrictions have dropped the number of efficient players from seven 
 
 ### Cross-Efficiency of Baseball Batters
 
-Now, let's turn our attention to a variation of DEA called cross-efficiency. Cross-efficiency was discussed in an earlier chapter. Proponents of Cross-efficiency contend that it can differentiate between players DMUs that are DEA efficient.  Simple CCR DEA finds nine out of 54 players to be efficient. We will focus on the ten players with the top CCR input-oriented efficiency scores.  
+Now, let's turn our attention to a variation of DEA called cross-efficiency. Cross-efficiency was discussed in an earlier chapter. Proponents of Cross-efficiency contend that it can differentiate between players DMUs that are DEA efficient.  Simple CCR DEA finds nine out of 54 players to be efficient. We will focus on the ten players with the top CCR efficiency scores.  
 
 ```{r}
 res1920ALcross<-CrossEfficiency(x,y,rts = "crs", orientation="output")
 res1920ALCEWR<-CrossEfficiency(x,y,rts = "crs", orientation="output", 
                                    weightRestriction = BattingWR)
 
-pander(head (res1920ALcross$ce_ave), round=4,
+pander(head (t(res1920ALcross$ce_ave)), round=4,
        caption="Cross-efficiency scores for 1920AL")
 pander(head (res1920ALmult$Efficiency), round=4,
        caption="CCR Efficiency Scores")
-pander(head (res1920ALcross$ceva_max), round=4,
+pander(head (t(res1920ALcross$ceva_max)), round=4,
        caption="Maximum Cross-Evaluation Score for Each Player")
 
 collectedeff1 <- data.frame(cbind(res1920ALmult$Efficiency,
                                   res1920ALmultWR$Efficiency,
-                                  res1920ALcross$ce_ave,
-                                  res1920ALCEWR$ce_ave) ) 
+                                  t(res1920ALcross$ce_ave),
+                                  t(res1920ALCEWR$ce_ave))) 
 
 colnames(collectedeff1)<-c("CCRIO", "CCRIOWR", "CE", "CEWR")
 
@@ -378,9 +379,9 @@ collectedeff1$name <- row.names(collectedeff1)
              # Add column for player names to make labels in ggplot
 colnames(res1920ALmult$Efficiency)<-"Efficiency"
 colnames(res1920ALmultWR$Efficiency)<-"Efficiency w WR"
-colnames(res1920ALcross$ce_ave)<-"Cross-Efficiency"
+#rownames(res1920ALcross$ce_ave)<-"Cross-Efficiency"
 
-pander(cor(cbind(res1920ALmult$Efficiency, res1920ALcross$ce_ave,
+pander(cor(cbind(res1920ALmult$Efficiency, t(res1920ALcross$ce_ave),
                  res1920ALmultWR$Efficiency)),round=4,
                  caption="Correlation of DEA Models for the 1920 AL")
 
@@ -390,7 +391,7 @@ The cross-efficiency and the regular efficiency scores are related - they have a
 
 First, let's examine one hitter in particular. In 1920, Babe Ruth had one of the best seasons ever by a baseball hitter. Various statistics demonstrate his dominance but home runs really highlight the impact. His 54 home runs nearly doubled the previous record of 29 in a season he had set the previous year. Alone, he hit more home runs than 14 of the 16 teams in the leagues. Until the recent steroid era, Babe Ruth's 1920 and 1921 seasons are generally considered to be the two best offensive seasons in baseball.  
 
-Babe's cross-efficiency score was `r round(res1920ALcross$ce_ave["ruthba01",1],6)`. Coincidentally, his cross-efficiency score was nearly identical to the average cross-efficiency of other regular baseball batters of `r round(mean(res1920ALcross$ce_ave),6)`. In other words, what may have been one of the best batting performances in a century of baseball was wrongly misclassified as being just average by cross-efficiency.
+Babe's cross-efficiency score was `r round(res1920ALcross$ce_ave[1,"ruthba01"],6)`. Coincidentally, his cross-efficiency score was nearly identical to the average cross-efficiency of other regular baseball batters of `r round(mean(res1920ALcross$ce_ave),6)`. In other words, what may have been one of the best batting performances in a century of baseball was wrongly misclassified as being just average by cross-efficiency.
 
 The reason for this can be seen by the cross-efficiency matrix of weights. 
 
@@ -509,12 +510,16 @@ Let's repeat this exercise one more time based on the mean output and mean input
 ```{r}
 
 vxmeantemp <- matrix(rep(res1920ALcross$vx,each=5),ncol=5, byrow=TRUE)
+      # Expand vx from one column to as many columns as uy (5)
 uymeantemp <- res1920ALcross$uy / vxmeantemp
+      # Now it is easy to do term by term division of the two matrices
 uymean <- as.data.frame(t(colMeans(uymeantemp)))
+      # Mean cross-efficiency output weights are now just the column means
 vxmean <- 1
+      # Mean cross-efficiency input weight is just unity.
+      # Equivalently, could output weights using column sums 
+      #    and input weight of ND
 
-#uymean <- as.data.frame(t(colMeans(res1920ALcross$uy)))
-#vxmean <- as.data.frame(t(colMeans(res1920ALcross$vx)))
 rownames(uymean) <- "output weights"
 pander (rbind(ybabe, uymean),
         caption = "Ruth's Outputs and Mean Cross-Efficiency Output Weights")
@@ -524,24 +529,223 @@ Once again we multiply each output by the corresponding output weight and then a
 
 Note, this calculated value matches the original cross-efficiency score for Babe Ruth of `r res1920ALcross$ce_ave["ruthba01",] calculated as simply the column average of the cross-evaluation matrix.
 
-The same mean cross-efficiency weights can be used for calculating the cross-efficiency score for each of the other players. This is not a matter of some (or most) players occassionally violating the relationship in some way but a systematic error. What this means is that _every_ player is now being assessed against the same fixed and in this case, implausible weighting scheme. If you look carefully at the mean output weights, the mean weight for Home Runs is lower than that of any other output. 
+The same mean cross-efficiency weights can be used for calculating the cross-efficiency score for each of the other players. This is not a matter of some (or most) players occassionally violating the relationship in some way but a systematic error. What this means is that _every_ player is now being assessed against the same fixed and in this case, implausible weighting scheme. If you look carefully at the mean output weights, the mean weight for Home Runs is just half that of the next lowest output weight (base on balls).   Singles, doubles, and triples are all given four or fives times as much weight as home runs.     
 
-This is in effect a _ganging up_ phenomenon where most players do poorly on Home Runs relative to Babe Ruth so they choose to not put weight on that output. On the whole, the league then does not on average puts a low weight on Home Runs. Furthermore, outputs that tend to have low values (such as triples) will tend to have higher output weights than those with higher values such as home runs. Rightly or wrongly, these distributional characteristics of the data set will affect cross-efficiency scores.
+The low weighting of home runs is in effect caused by a _ganging up_ phenomenon where most players do poorly on Home Runs relative to Babe Ruth so they choose to not put weight on that output. On the whole, the league then does not on average puts a low weight on Home Runs. Furthermore, outputs that tend to have low values (such as triples) will tend to have higher output weights than those with higher values such as home runs. Rightly or wrongly, these distributional characteristics of the data set will affect cross-efficiency scores.
 
 Most studies that do cross-efficiency do not take a careful look at the weights.  
 
+## Baseball Team Management
+
+Examining baseball batters is interesting but let's change our perspective the team.  A baseball general manager tries to construct the best team.  Players have different salaries and the Lahman baseball dataset includes salary information.  An interesting statistical analysis of the relationship between team salary and wins can be found at https://rpubs.com/grigory/MLBSalaryPerfLR by Gregory Kanevsky.  Instead of a regression model, we will use a benchmarking approach.
+
+We will draw inspiration from Gregory Kanevsky's analysis and data wrestling to get us started.
+
+```{r}
+
+library(data.table, quietly=TRUE)
+teams = as.data.table(Teams)
+teams = teams[, .(yearID, 
+                  lgID = as.character(lgID), 
+                  teamID = as.character(teamID), 
+                  franchID = as.character(franchID),
+                  Rank, G, W, L, R, ERA, SO, 
+                  PostW = 4*(LgWin=="Y")+4*(WSWin=="Y"),
+                        # Construct Post Season wins based on games to win a series
+                        # Would prefer to get actual postseason games won
+                  WinPercent = W/(W+L),
+                  name, attendance
+                  )]
+  
+salaries = as.data.table(Salaries)
+salaries = salaries[, c("lgID", "teamID", "salary1M") := 
+                      list(as.character(lgID), as.character(teamID), salary / 1e6L)]
+payroll = salaries[, .(payroll = sum(salary1M)), by=.(teamID, yearID)]
+
+teamPayroll = merge(teams, payroll, by=c("teamID","yearID"))
+
+MLB1991AL <- subset (teamPayroll, yearID==1991 & lgID=="AL")
+
+#pander (teamPayroll, caption="1991 Major League Baseball Team Data")
+
+```
+
+```{r}
+res1991MLB<-DEA(MLB1991AL$payroll, MLB1991AL$W, rts="vrs")
+rownames(res1991MLB$eff)<-MLB1991AL$teamID
+colnames(res1991MLB$lambda)<-t(MLB1991AL$teamID)
+pander(poscol(cbind(res1991MLB$eff,res1991MLB$lambda)), 
+       caption="BCC Efficiency and Lambda Values of 1991 AL Teams")
+```
+
+These results show that only four teams were efficient:  Chicago White Sox (CHA), Minnesota Twins (MIN), Seattle Mariners (SEA), and Toronto Blue Jays (TOR).  All other teams were compared to a combination of these these teams. Since this is a simple, one-input, one-outuput model, it is easy to show graphically.  The _Benchmarking_ package from Bogetoft and Otto does a great job of drawing 2 dimensional DEA plots so we will again use this package.  
+
+```{r}
+library (Benchmarking)
+dea.plot.frontier (MLB1991AL$payroll, MLB1991AL$W, RTS="vrs", 
+                   txt=MLB1991AL$teamID,
+                   fex = 0.7, # Scales data text label size 
+                   xlab = "Team Salary ($Millions)",
+                   ylab = "Regular Season Wins")
+```
+
+Now, let's rerun it for multiple years.  
+
+```{r}
+teampayroll2 <- as.data.frame(t(c(rep_len("",17))))
+
+
+class(teamPayroll$yearID)<-"numeric"
+
+colnames(teampayroll2)<-c(colnames(teamPayroll),"V2")
+                    # Above feels like a kludge to aggregate reesults
+                    #   Feel free to come up with cleaner alternatives
+
+class(teampayroll2$payroll)<-"numeric"
+class(teampayroll2$W)<-"numeric"
+class(teampayroll2$yearID)<-"numeric"
+class(teampayroll2$V2)<-"numeric"
+
+lastyear <- 2016  
+    # Note that as of April 2018, the Lahman package only includes data through 2016
+
+for (year in 1991:lastyear) {
+  MLBteamAL <- subset (teamPayroll, yearID==year & lgID=="AL")
+
+  resMLB  <-DEA(MLBteamAL$payroll, MLBteamAL$W, rts="vrs")
+  rownames(resMLB$eff)    <-MLBteamAL$teamID
+  colnames(resMLB$lambda) <-t(MLBteamAL$teamID)
+  teampayroll2 <- rbind(teampayroll2, cbind (
+    subset (teamPayroll, yearID==year & lgID=="AL"),resMLB$eff))
+  }
+
+#colnames(teampayroll2[,17])<-"Efficiency"
+colnames(teampayroll2)[colnames(teampayroll2)=="V2"] <- "Efficiency"
+class(teampayroll2$payroll)<-"numeric"
+class(teampayroll2$W)<-"numeric"
+class(teampayroll2$Efficiency)<-"numeric"
+
+teampayroll2 <- teampayroll2[-1,]
+#pander(poscol(cbind(resMLB$eff,resMLB$lambda)), 
+#      caption="BCC Efficiency and Lambda Values of AL Teams")
+
+```
+
+Now, let's plot the data.
+
+```{r}
+library(ggplot2)
+
+#ggplot (subset (teampayroll2, yearID==1991 & lgID=="AL"), 
+ggplot (subset (teampayroll2,  lgID=="AL"), 
+        aes (x=payroll, y=W))+geom_point() +
+        xlab("Payroll ($Millions") + ylab("Regular Season Wins") +
+        ggtitle("Salary and Wins: American League (1991-2016)")  
+
+# teampayroll2 <- rbind(cbind (subset (teamPayroll, yearID==year & lgID=="AL"),resMLB$eff))
+
+pander(head(subset (teampayroll2, yearID==1991 & lgID=="AL")))
+```
+
+```{r}
+
+ggplot (subset (teampayroll2,  lgID=="AL"), 
+        aes (x=payroll, y=W, color=yearID)) + geom_point() +
+        scale_color_gradient(low="blue", high="red") +
+        xlab("Payroll ($Millions") + ylab("Regular Season Wins") +
+        ggtitle("Salary and Wins: American League (1991-2016)")  
+
+
+```
+
+This chart shows that salaries have been going up over time with the colors on the left being generally blue and the colors on the right being red.
+
+Now, let's look at changes for two specific teams over time that are featured in Michael Lewis'  _Moneyball_:  the New York Yankees and the Oakland Athletics.  They Yankees are generally among the biggest highest spending of teams while the Oakland Athletics are among the lowest.
+
+```{r}
+moneyballplot <- ggplot (subset (teampayroll2,  
+                                 lgID=="AL"  & 
+                                   (teamID=="NYA" | teamID=="OAK")),
+        aes (x=payroll, y=W, color=yearID)) + geom_point() +
+        scale_color_gradient(low="blue", high="red") +
+        xlab("Payroll ($Millions") + ylab("Regular Season Wins") +
+        ggtitle("Salary and Wins: Oakland and New York Yankees (1991-2016)")  
+
+
+#Moneyballplot <- Moneyballplot + 
+moneyballplot
+```
+
+
+```{r}
+moneyballplot2 <- ggplot (data=teampayroll2) +
+        geom_point(data=teampayroll2[teampayroll2$teamID %in% c("NYA"),],
+             aes(x=payroll, y=W, group=teamID, color=yearID, shape="b")) + 
+        geom_point(data=teampayroll2[teampayroll2$teamID %in% c("OAK"),],
+             aes(x=payroll, y=W, group=teamID, color=yearID, shape="a")) + 
+        scale_color_gradient(low="blue", high="red") +
+        xlab("Payroll ($Millions") + ylab("Regular Season Wins") +
+        ggtitle("Salary and Wins: Oakland and New York Yankees (1991-2016)")  
+
+
+#Moneyballplot <- Moneyballplot + 
+moneyballplot2
+```
+
+
+```{r}
+moneyballplot2 <- ggplot (data=teampayroll2) +
+        geom_point(data=teampayroll2[teampayroll2$teamID %in% c("NYA"),],
+             aes(x=yearID, y=Efficiency, color="Red")) + 
+        geom_point(data=teampayroll2[teampayroll2$teamID %in% c("OAK"),],
+             aes(x=yearID, y=Efficiency, color="Blue")) + 
+        xlab("Year") + ylab("Team Efficiency") +
+        ggtitle("Team Efficiency Oakland and New York Yankees (1991-2016)") +
+        scale_colour_discrete(name="Team",
+                         breaks=c("NYA", "OAK"),
+                         labels=c("Yankees", "Athletics"))
+
+
+#Moneyballplot <- Moneyballplot + 
+moneyballplot2
+```
+
+The book, _Moneyball_ was published in 2003 and tells the story of Billy Beane as the Oakland A's General Manager.  He took over as General Manager at the end of the 1997 season.  The central thesis is that the Oakland A's outcompleted the New York Yankees despite having a much lower salary for players by recognizing a skill that was overlooked by industry conventional wisdom.  We can then divide our salary data and analysis into three periods: Before Billy Beane's General Manager role (1991-1997), Billy Beane before _Moneyball_ (1998-2002), and the after _Moneyball_ era (2004-2010).  This leads to a few potential hypotheses.
+
+Oakland's salary efficiency should have improved with the hiring of Billy Beane. $\theta ^{1991-1997}_{OAK}$=`r mean(subset(teampayroll2, teamID=="OAK" & yearID>1990 & yearID<1998)[["Efficiency"]],round=4)`<$\theta ^{1998-2002}_{OAK}$=`r mean(subset(teampayroll2, teamID=="OAK" & yearID>1997 & yearID<2003)[["Efficiency"]],round=4)`: *H1 Supported*
+
+Oakland's salary efficiency should have been higher than New York's before the book was published while Billy Beane was running Oakland. $\theta ^{1998-2002}_{OAK}$=`r mean(subset(teampayroll2, teamID=="OAK" & yearID>1997 & yearID<2003)[["Efficiency"]],round=4)`>$\theta ^{1998-2002}_{NYA}$=`r mean(subset(teampayroll2, teamID=="NYA" & yearID>1997 & yearID<2003)[["Efficiency"]],round=4)`: *H2 Supported*
+
+After the book was published, Oakland's strategy was widely known.  The _efficient market hypothesis_ would indicate that Oakland's salary efficiency would decline as the market would then reflect this information in player pricing. $\theta ^{1998-2003}_{OAK}$=`r mean(subset(teampayroll2, teamID=="OAK" & yearID<2003 & yearID>1997)[["Efficiency"]],round=4)`>$\theta ^{2004-2009}_{OAK}$=`r mean(subset(teampayroll2, teamID=="OAK" & yearID>2003 & yearID<2010)[["Efficiency"]],round=4)`: *H3 Supported*
+
+```{r}
+#library(dplyr)
+#pander(ddply(teampayroll2, c("teamID"), summarise, mean(Efficiency)), 
+#       caption="Average Team Efficiency", round=4)
+
+#subset(teampayroll2, teamID=="HOU") 
+
+#subset(teampayroll2, teamID=="NYA", select=c(teamID, yearID, Efficiency))
+#mean(subset(teampayroll2, teamID=="NYA", select=c(teamID, Efficiency))[["Efficiency"]])
+#mean(subset(teampayroll2, teamID=="HOU" & yearID>2003 )[["Efficiency"]])
+mean(subset(teampayroll2, teamID=="NYA" & yearID<2003 )[["Efficiency"]])
+mean(subset(teampayroll2, teamID=="NYA" & yearID>2003 )[["Efficiency"]])
+
+mean(subset(teampayroll2, teamID=="OAK" & yearID<2003 )[["Efficiency"]])
+mean(subset(teampayroll2, teamID=="OAK" & yearID>2003 )[["Efficiency"]])
+```
+
+Future research could consider the following:
+
+* The above hypotheses were considered based on means. It could be extended for statistical significance.  
+* The spread of best practices from the Oakland A's through baseball could be modeled from the perspective of the diffusion of innovation.
+* The book _Moneyball_ helped to popularize and legitimize analytics in sports management.  Other industries could be explored to see if they have similar pre- and post-_Moneyball_ effects.
+* General managers spend salary between pitchers and position players.  Extending the model by separating salaries between the two players could be used to reveal patterns of allocative inefficiency between teams. 
+* Salary efficiency could be used to explore and test the impact of organizational practices and structures.
+
 ## To-Do Items for this Chapter
+
 * Validate results with previous papers
-* Better format tables of results
 * Malmquist Productivity Index application in baseball
 * Salary and team information benchmarking
 * Discuss modeling issues from previous chapter
-
-## To-Do Items for DEAMultiplier Model (some for later)
-
-* Secondary objective functions for cross-efficiency (benev vs. malev formulations)
-* Unbounded side for weight restrictions
-* A switch for phi vs/ 1/phi interpretations
-* Results of cross-efficiency should include matrix of vx and uy weights
-* Fix documentation links
-* Super-efficiency option
