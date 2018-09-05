@@ -1,7 +1,7 @@
 ---
 title: "Appendix-An Introduction to Linear Programming in R"
 author: "Tim Anderson"
-date: "October 4, 2017"
+date: "September 3, 2018"
 output:
   pdf_document: default
   html_document: default
@@ -13,33 +13,169 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Introduction to Linear Programming
 
-This Appendix was inspired by a solution set for ETM 540/640-Operations Research.  It will grow into more of an introduction to linear programming using R and ompr.  
-
-I saw that many people were working on doing the homework using R markdown.  This document is inspired by one of the first homeworks that I saw doing this with signficant expansion and additional content.  I rewrote most of it and greatly expanded it but a shout out on a good job to Konrad Miziolekk for providing the start.  
-
 ## What is Linear Programming
 
-## Base Case
+Linear programming is a tool for optimization.  It is a widely used tool for planning, scheduling, resource allocation and many other applications.  
+
+## Two Variable Base Case
 
 This data and case is drawn from an example in Chapter 2 of Kenneth Baker's *Optimization Modeling with Spreadsheets*, 3rd Edition.  The example is a modification of the example 2.1 on page 29.  
 
-The goal of the furniture manufacturer  in this case is to find the best product mix of desks, tables, and bookcases.  
+The goal of the furniture manufacturer in this case is to find the best product mix of Chairs and Desks.  
 
 ### Base Data
 
-This exercise is based on material from week 1 class notes.  Making a piece of furniture requires time in fabrication, assembly, and machining as a certain amount of wood.  For example, a desk requires 6 hours of fabrication time, 8 hours of assembly, and 6 hours of machining.  It uses 40 square feet of wood but the net profit is $20.  The characteristics of Tables and Bookcases are similar but different and shown in the following table.  Also, the table lists the available amount of each limited resource. 
+This exercise is based on material from week 1 class notes. Making a piece of furniture requires time in fabrication, assembly, and machining as a certain amount of wood.  For example, a chair requires 6 hours of fabrication time, 8 hours of assembly, and 6 hours of machining. It uses 40 square feet of wood but the net profit is $20.  The characteristics of desks are similar but different and shown in the following table. Also, the table lists the available amount of each limited resource. 
   
-| Characteristic | Desks | Tables | Bookcases | Available  | 
-|---------------:|:------|--------|:---------:|:----------:|
+| Characteristic | Chairs | Desks |  Available| 
+|---------------:|:-----:|:------:|:----------:|
+|  Profit        |  $20  |   $14  |            |
+|  Fabrication   |   6   |     2  |   1440     |
+|  Assembly      |   8   |     6  |   1440     |
+|  Machining     |   6   |     4  |   2000     |
+|  Wood          |  40   |    25  |   9600     |
+
+A simple LP now is to find the production plan of products that results in the most profit.
+
+In order to do so, we need to define certain key items:
+
+* the goal(s)
+* the decisions
+* the limitations
+
+Let's start with the goal(s).  In this case, the production manager is simply trying to make as much profit as possible. While cost cutting is also a goal for many organizations, in this case and many applications profit maximization is appropriate. Maximizing profit is the referred to as the *objective* of the model.
+
+People new to linear programming will often think of the decisions as the amount of each resource to use. Instead, the decisions in this case would be how much to make of each particular product.  This drives the resource usage and the resource usage is a byproduct of these decisions. These decisions can take on a range of values and are therefore called *decision variables*.  
+
+The decision variables are then combined in some way to reflect the performance with respect to the organization's objective. The equation combining the decision variables to reflect this is then the *objective function*.  In general we will assume that there is a single objective function, at least for now.  There is a field of multiple-objective linear programming where multiple objectives or goals can be accommodated. 
+
+Lastly, what is limiting the organization from even better performance?  There are typically many limits such as the number of customers, personnel, supplier capacity, etc.  In this case, we simplify it to have a set of resource limits based on staffing in different centers and raw material (wood).  Since these limitations constrain the possible values of decision variables, they are called constraints.  
+
+Every optimization model can be thought of a collection of:
+* An objective function  (goal)
+* Decision variable(s) (decisions)
+* Constraint(s)  (limitations)
+
+### Base Case Formulation
+
+Let's put things together in the context of this application.  
+
+In the base case, our objective function is to Maximize Profit. We can't express it though until we precisely define our decision variables.
+
+It is good practice to very clearly and precise define our decision variables.  In this case it is straightforward but they can get much more complicated as we move into richer and larger models.
+
+Let's define them:
+
+* Chairs = # of Chairs to Make
+* Desks = # of Desks to Make
+
+Our objective function and constraints can now be written as the following optimization model.
+
+$$
+ \begin{split}
+ \begin{aligned}
+    \text{Max  }   & 20*Chairs+14*Desks \\
+    \text{subject to } & 6*Chairs+2*Desks \leq 2000 \\
+                       & 8*Chairs+6*Desks \leq 2000 \\
+                       & 6*Chairs+4*Desks \leq 1440 \\
+                       & 40*Chairs+25*Desks \leq 9600 \\
+                       & Chairs, Desks \geq 0  
+  \end{aligned}
+  \end{split}
+  (\#eq:BaseModel2var)
+$$
+
+Note that since the objective function and each constraint is a simple linear function of the decision variables, this is what we call a *linear* programming model or LP for short. It would not be linear if any nonlinear function is made of the decision variables.  For example, squaring a decision variable, using conditional logic based on the variable value, or multipying two variables.  These and other issues would then require using nonlinear programming or NLP.  NLP is also widely used but has limitations.  
+
+### Base Case Implementation
+
+For the sake of simplicity, we will implement our first R LP model using explicit variables and data consistent with the first formulation.  
+
+First, let us load the required libraries.  Then we will move on to the actual implementation.
+
+``` {r warning = FALSE, message = FALSE}
+library (pander, quietly = TRUE)   # Used for nicely formatted tables
+library (magrittr, quietly = TRUE) # Used for pipes/dplyr
+library (dplyr, quietly = TRUE)    # Data management
+library (ROI, quietly = TRUE)      # R Optimization Interface
+library (ROI.plugin.glpk, quietly = TRUE) # Plugin for solving
+library (ompr, quietly = TRUE)     # Allows specifying model algebraically
+library (ompr.roi, quietly = TRUE) # Glue for ompr to solve with ROI
+```
+
+Now we move on to implement and solve the linear program.  
+
+```{r base_case}
+result0 <- MIPModel() %>%
+  add_variable(Chairs, type = "continuous", lb = 0) %>%
+  add_variable(Desks, type = "continuous",lb = 0) %>%
+ 
+  set_objective(20*Chairs + 14*Desks, "max") %>%
+  
+  add_constraint(6*Chairs + 2*Desks <= 2000) %>% #fabrication
+  add_constraint(8*Chairs + 6*Desks <= 2000) %>% #assembly
+  add_constraint(6*Chairs + 4*Desks <= 1440) %>% #machining
+  add_constraint(40*Chairs + 25*Desks <= 9600) %>% #wood
+  
+  solve_model(with_ROI(solver = "glpk"))
+
+```
+
+The first line creates the basic model.  The %>% serves as a pipe symbol at the end of each line.  It  basically means add the next item to the previous so we can build up the model quickly.  
+
+The next three lines are adding variables.  These variables are continuous (as compared to integer or binary), and non-negative.  
+
+Next, we set the objective function as well declaring it to be a *max* rather than a *min* function.
+
+Then we define the constraints.  Notice that we do not need to include non-negativity constraints since they were in the earlier definition of the variables.
+
+Lastly, we tell it to solver our model.  We will select a particular solver engine to be used in the inside of *glpk* but other options exist.
+
+### Base Case Results and Interpretation
+
+Let's check to see the status of the solver.  Did it find the optimal solution?  We do this by extracting the solver status from the result object.  
+
+```{r base_status_2var}
+print(solver_status(result0))
+```
+
+Furthermore, we can do the same thing to extract the objective function value.  
+
+
+```{r base_objecfunc_2var}
+print(objective_value(result0))
+```
+
+This tells us the maximum amount of profit that we can achieve, 'objective_value(result0)' but it does not tell us what decisions give us this profit.  
+
+Since the LP solver found an optimal solution, let's now extract the solution values of the decision variables that give us this profit.  
+
+```{r base_solution_2var}
+print(get_solution(result0, Chairs))
+print(get_solution(result0, Desks))
+```
+
+These results match those from class so we can proceed to change the problem.
+
+
+## Adding a Third Product (Variable)
+
+We will now extend the previous model to account for a third product, Tables.  The goal is now to find the best product mix of Chairs, Desks, and Tables.  
+
+### Three Product Data
+
+
+| Characteristic | Chairs | Desks | Tables | Available  | 
+|---------------:|:-----:|:------:|:---------:|:----------:|
 |  Profit        |  $20  |   $14  |  $16      |            |
 |  Fabrication   |   6   |     2  |    4      |   1440     |
 |  Assembly      |   8   |     6  |    8      |   1440     |
 |  Machining     |   6   |     4  |   25      |   2000     |
 |  Wood          |  40   |    25  |   16      |   9600     |
 
-There is an additional constraint that the number of bookcases made(sold) could not exceed 200.
+There is an additional constraint that the number of Tables made(sold) could not exceed 200.
 
-A simple LP now is to find the production plan of products that results in the most profit.
+A simple LP now is to find the production plan or amount of each of the  products that results in the most profit.  This will require a new decision variable, Tables, to be added to the model.
 
 In order to do so, we need to define certain key items:
 
@@ -56,12 +192,11 @@ The decision variables are then combined in some way to reflect the performance 
 Lastly, what is limiting the organization from even better performance?  There are typically many limits such as the number of customers, personnel, supplier capacity, etc.  In this case, we simplify it to have a set of resource limits based on staffing in different centers and raw material (wood).  Since these limitations constrain the possible values of decision variables, they are called constraints.  
 
 Every optimization model can be thought of a collection of:
-* An objective function
-* Decision variable(s)
-* Constraint(s)
+* An objective function  (goal)
+* Decision variable(s) (decisions)
+* Constraint(s)  (limitations)
 
-
-### Base Case Formulation
+### Three Variable Case Formulation
 
 Let's put things together in the context of this application.  
 
@@ -71,22 +206,26 @@ It is good practice to very clearly and precise define our decision variables.  
 
 Let's define them:
 
+* Chairs = # of Chairs to Make
 * Desks = # of Desks to Make
 * Tables = # of Tables to Make
-* Bookcases = # of Bookcases to Make
 
 Our objective function and constraints can now be written as the following optimization model.
+
+Desk become chair
+Table become desk
+Tablese become table
 
 $$
  \begin{split}
  \begin{aligned}
-    \text{Max  }   & 20*Desks+14*Tables+16*Bookcases \\
-    \text{subject to } & 6*Desks+2*Tables+4*Bookcases \leq 2000 \\
-                       & 8*Desks+6*Tables+4*Bookcases \leq 2000 \\
-                       & 6*Desks+5*Tables+8*Bookcases \leq 1440 \\
-                       & 40*Desks+25*Tables+25*Bookcases \leq 9600 \\
-                       & Bookcases \leq 200 \\
-                       & Desks, Tables, Bookcases \geq 0  
+    \text{Max  }   & 20*Chairs+14*Desks+16*Tables \\
+    \text{subject to } & 6*Chairs+2*Desks+4*Tables \leq 2000 \\
+                       & 8*Chairs+6*Desks+4*Tables \leq 2000 \\
+                       & 6*Chairs+4*Desks+8*Tables \leq 1440 \\
+                       & 40*Chairs+25*Desks+25*Tables \leq 9600 \\
+                       & Tables \leq 200 \\
+                       & Chairs, Desks, Tables \geq 0  
   \end{aligned}
   \end{split}
   (\#eq:Base_Model_Ex4)
@@ -96,7 +235,7 @@ Note that since the objective function and each constraint is a simple linear fu
 
 It is amazing the number of situations that can be modeled well using linear programming.  Keeping to the world of linear programming allows for in general finding the very best solution to very big problems in a short amount of time.  It is not uncommon for practitioners to be anlayzing problems with hundreds of thousands of decision variables and constraints.  
 
-We could also reframe the model more algebraically. Let's use subscripts to differentiate between products and resources. We can define that i=1 represents Desks, i=2 represents Tables, and i=3 represents Bookcases.  Similarly, j=1 represents fabrication, j=2, represents assembly, etc.   Now, let's move on to defining the data.  Let's define the amount to produce of each product, i, as $x_i$ and resource consumed as $R_{i,j}$ as well as the available resource as $A_j$. The profit per product is then $P_i$. The LP can now be rewritten in more general terms as the following.
+We could also reframe the model more algebraically. Let's use subscripts to differentiate between products and resources. We can define that i=1 represents Chairs, i=2 represents Desks, and i=3 represents Tables.  Similarly, j=1 represents fabrication, j=2, represents assembly, etc.   Now, let's move on to defining the data.  Let's define the amount to produce of each product, i, as $x_i$ and resource consumed as $R_{i,j}$ as well as the available resource as $A_j$. The profit per product is then $P_i$. The LP can now be rewritten in more general terms as the following.
 
 $$
  \begin{split}
@@ -112,7 +251,7 @@ $$
 
 This concise, algebraic representation can be easily scaled to any number of products and resources. 
 
-### Base Case Implementation
+### Three Variable Case Implementation
 
 For the sake of simplicity, we will implement our R homework using explicit variables and data consistent with the first formulation.  Examples of how to create general LPs that map directly to algebraic formulations are available in chapter 2 of *DEA Using R*.  
 
@@ -130,19 +269,19 @@ library (ompr.roi, quietly = TRUE)
 
 Now we move on creating and solving the linear program.  
 
-```{r base_case}
-result0 <- MIPModel() %>%
-  add_variable(Desks, type = "continuous", lb = 0) %>%
-  add_variable(Tables, type = "continuous",lb = 0) %>%
-  add_variable(Bookcases, type = "continuous", lb = 0) %>%
+```{r base_case_3var}
+result1 <- MIPModel() %>%
+  add_variable(Chairs, type = "continuous", lb = 0) %>%
+  add_variable(Desks, type = "continuous",lb = 0) %>%
+  add_variable(Tables, type = "continuous", lb = 0) %>%
   
-  set_objective(20*Desks + 14*Tables + 16*Bookcases, "max") %>%
+  set_objective(20*Chairs + 14*Desks + 16*Tables, "max") %>%
   
-  add_constraint(6*Desks + 2*Tables + 4*Bookcases <= 2000) %>% #fabrication
-  add_constraint(8*Desks + 6*Tables + 4*Bookcases <= 2000) %>% #assembly
-  add_constraint(6*Desks + 5*Tables + 8*Bookcases <= 1440) %>% #machining
-  add_constraint(40*Desks + 25*Tables + 25*Bookcases <= 9600) %>% #wood
-  add_constraint(Bookcases <= 200) %>% #
+  add_constraint(6*Chairs + 2*Desks + 4*Tables <= 2000) %>% #fabrication
+  add_constraint(8*Chairs + 6*Desks + 4*Tables <= 2000) %>% #assembly
+  add_constraint(6*Chairs + 4*Desks + 8*Tables <= 1440) %>% #machining
+  add_constraint(40*Chairs + 25*Desks + 25*Tables <= 9600) %>% #wood
+  add_constraint(Tables <= 200) %>% #
   
   solve_model(with_ROI(solver = "glpk"))
 
@@ -158,20 +297,20 @@ Then we define the constraints.  Notice that we do not need to include non-negat
 
 Lastly, we tell it to solver our model.  We will select a particular solver engine to be used in the inside of *glpk* but other options exist.
 
-### Base Case Results and Interpretation
+### Three Variable Case Results and Interpretation
 
 Let's check to see the status of the solver.  Did it find the optimal solution?
 
-```{r base_status}
-print(solver_status(result0))
+```{r base_status_3var}
+print(solver_status(result1))
 ```
 
-Since the LP solver found an optimal solution, let's now extract the solution values found.  
+Again, the LP solver found an optimal solution, let's now extract the solution values found.  
 
-```{r base_solution}
-get_solution(result0, Desks)
-get_solution(result0, Tables)
-get_solution(result0, Bookcases)
+```{r base_solution_3var}
+get_solution(result1, Chairs)
+get_solution(result1, Desks)
+get_solution(result1, Tables)
 ```
 
 These results match those from class so we can proceed to change the problem.
@@ -192,11 +331,11 @@ install_github("dirkschumacher/ompr.roi")
 
 Now, assuming that the LP model has been solved with the enhanced version of ompr, let's view the row duals, also known as shadow prices.  
 
-```{r rduals}
-rduals0 <-as.matrix(get_row_duals(result0), ncol=5)
+```{r rduals_3var}
+rduals1 <-as.matrix(get_row_duals(result1), ncol=5)
 
-dimnames(rduals0)<-list(c("fabrication", "assembly", "machining", "wood", "demand"), c("Row Duals"))
-pander(rduals0,caption="Shadow Prices of Constrained Resources")
+dimnames(rduals1)<-list(c("fabrication", "assembly", "machining", "wood", "demand"), c("Row Duals"))
+pander(rduals1,caption="Shadow Prices of Constrained Resources")
 ```
 
 This means that the marginal value of one additional hour of fabrication labor time is 0.  The company is not using all of the 2000 fabrication department's time available.  Similarly the assembly department is not using all of its hours and so it also has shadow price or marginal value of zero. 
@@ -205,35 +344,39 @@ The shadow price in the machining center is more interesting.  All of the 1440 h
 
 In contrast, all of the available wood is also consumed but each additional square foot of wood only increases profit by $0.32.  
 
-The demand constraint of 200 is an upper limit only on bookcases.  Since no bookcases are produced in the optimal production plan, relaxing this constraint also has no impact (shadow price=0).
+The demand constraint of 200 is an upper limit only on Tables.  Since no Tables are produced in the optimal production plan, relaxing this constraint also has no impact (shadow price=0).
 
 ### Reduced Costs of Variables
 
+Next, we move on to the *reduced costs* of variables. This concept often requires looking over several times.  Let's start with making it specific by examining the Chairs.  The reduced cost for Chairs is the per desk marginal profit minus the per unit value (in terms of shadow prices) of the resources used by a unit in production.  
+
+Recall that each desk has a profit of $20.  Each desk requires  6, 8, and 6 hours of Fabrication, Assembly, and Machining respectively along with 40 square feet of wood. The shadow prices were zero for the first two resources so a marginal impact of producing one more or less desk in terms of fabrication and assembly time is also zero.  On the other hand making one more desk means using the crucial constrained resources of A machining and wood.  The value of the machining hours used by producing one more desk is 6*1.2 or $7.2. Similarly, 
+
 Next, let's discuss the column duals which are often referred to as reduced costs of variables.  Let's extract these from the results just as we did for the shadow prices.
 
-```{r cduals}
-#cduals0 <-as.matrix(get_column_duals(result0), ncol=1 )
+```{r cduals_3var}
+#cduals1 <-as.matrix(get_column_duals(result1), ncol=1 )
 
-cduals0 <-as.matrix(get_column_duals(result0) )
+cduals1 <-as.matrix(get_column_duals(result1) )
 
-dimnames(cduals0)<-list(c("Desks", "Tables", "Bookcases"), c("Column Duals"))
-pander(cduals0,caption="Incorrect Reduced Costs of Variables")
+dimnames(cduals1)<-list(c("Chairs", "Desks", "Tables"), c("Column Duals"))
+pander(cduals1,caption="Incorrect Reduced Costs of Variables")
 ```
 
-Interesting.  This is not correct.  The Column Dual for Desks and Bookcases are swapped.  It appears that the values passed may be in alphabetical order rather than in the order the variables were declared.  
+Interesting.  This is not correct.  The Column Dual for Chairs and Tables are swapped.  It appears that the values passed may be in alphabetical order rather than in the order the variables were declared.  
 
 Let's add a sort field to the names before naming the rows.  
 
-```{r cduals_sorted}
-#cduals0 <-as.matrix(get_column_duals(result0), ncol=1 )
+```{r cduals_sorted_3var}
+#cduals1 <-as.matrix(get_column_duals(result1), ncol=1 )
 
-cduals0 <-as.matrix(get_column_duals(result0) )
+cduals1 <-as.matrix(get_column_duals(result1) )
 
-dimnames(cduals0)<-list(sort(c("Desks", "Tables", "Bookcases")), c("Column Duals"))
-pander(cduals0,caption="Correct Reduced Costs of Variables")
+dimnames(cduals1)<-list(sort(c("Chairs", "Desks", "Tables")), c("Column Duals"))
+pander(cduals1,caption="Correct Reduced Costs of Variables")
 ```
 
-More testing is needed to confirm that this issue is cause by alphabetizing the variables (columns).  
+More testing is needed to confirm that this issue is caused by alphabetizing the variables (columns).  
 
 ### To-Do In Reduced Costs Subsection
 
@@ -257,47 +400,49 @@ Now, let's look at how we would modify the earlier formulation to come up with e
 ###Case 1: No Feasible Solution
 
 #### Making the Formulation Infeasible
+
 Each part of this homework requires making a change to the original linear program.
 
 For the purpose of this assignment, we will create an explicit LP by hard coding in the data.  In general, it is best to store data in data frames or matrices and then refer to them in the LP.  For examples of this using ompr, refer to Dirk's website or chapter 2 of Dr. Anderson's book, _DEA using R_.
 
-Let's modify the fabrication constraint to say that instead of using no more than 2000 fabrication hours, instead, the company is required to use at least 2000 fabrication hours.  This is a little hard to envision in the context of the application but perhaps a union rule requires at least 2000 hours of productive work to be done by fabrication employees.  Another, more straightforward way of modifying the application to make it infeasible would be to say that the sales manager comes in and says that we have a contractual requirement to deliver 300 desks to customers.  
+Let's modify the fabrication constraint to say that instead of using no more than 2000 fabrication hours, instead, the company is required to use at least 2000 fabrication hours.  This is a little hard to envision in the context of the application but perhaps a union rule requires at least 2000 hours of productive work to be done by fabrication employees.  Another, more straightforward way of modifying the application to make it infeasible would be to say that the sales manager comes in and says that we have a contractual requirement to deliver 300 Chairs to customers.  
 
 This results in the following LP.
 
 $$
  \begin{split}
  \begin{aligned}
-    \text{Max  }   & 20*Desks+14*Tables+16*Bookcases \\
-    \text{subject to } & 6*Desks+2*Tables+4*Bookcases \leq 2000 \\
-                       & 8*Desks+6*Tables+4*Bookcases \leq 2000 \\
-                       & 6*Desks+5*Tables+8*Bookcases \leq 1440 \\
-                       & 40*Desks+25*Tables+25*Bookcases \leq 9600 \\
-                       & Bookcases \leq 200 \\
-                       & Desks \geq 300 \\
-                       & Tables, Bookcases \geq 0  
+    \text{Max  }   & 20*Chairs+14*Desks+16*Tables \\
+    \text{subject to } & 6*Chairs+2*Desks+4*Tables \leq 2000 \\
+                       & 8*Chairs+6*Desks+4*Tables \leq 2000 \\
+                       & 6*Chairs+5*Desks+8*Tables \leq 1440 \\
+                       & 40*Chairs+25*Desks+25*Tables \leq 9600 \\
+                       & Tables \leq 200 \\
+                       & Chairs \geq 300 \\
+                       & Desks, Tables \geq 0  
   \end{aligned}
   \end{split}
   (\#eq:Base_Model_Ex4)
 $$
+
 #### Implementing the Infeasible Model
 
 Now let's rebuild our formulation with this change.
 
 ```{r infeasible_case}
 result1 <- MIPModel() %>%
-  add_variable(Desks, type = "continuous", lb = 0) %>%
-  add_variable(Tables, type = "continuous",lb = 0) %>%
-  add_variable(Bookcases, type = "continuous", lb = 0) %>%
+  add_variable(Chairs, type = "continuous", lb = 0) %>%
+  add_variable(Desks, type = "continuous",lb = 0) %>%
+  add_variable(Tables, type = "continuous", lb = 0) %>%
   
-  set_objective(20*Desks + 14*Tables + 16*Bookcases, "max") %>%
+  set_objective(20*Chairs + 14*Desks + 16*Tables, "max") %>%
   
-  add_constraint(6*Desks + 2*Tables + 4*Bookcases <= 2000) %>% #fabrication
-  add_constraint(8*Desks + 6*Tables + 4*Bookcases <= 2000) %>% #assembly
-  add_constraint(6*Desks + 5*Tables + 8*Bookcases <= 1440) %>% #machining
-  add_constraint(40*Desks + 25*Tables + 25*Bookcases <= 9600) %>% #wood
-  add_constraint(Bookcases <= 200) %>% #
-  add_constraint(Desks >= 300) %>% #THIS IS THE NEW CHANGE
+  add_constraint(6*Chairs + 2*Desks + 4*Tables <= 2000) %>% #fabrication
+  add_constraint(8*Chairs + 6*Desks + 4*Tables <= 2000) %>% #assembly
+  add_constraint(6*Chairs + 5*Desks + 8*Tables <= 1440) %>% #machining
+  add_constraint(40*Chairs + 25*Desks + 25*Tables <= 9600) %>% #wood
+  add_constraint(Tables <= 200) %>% #
+  add_constraint(Chairs >= 300) %>% #THIS IS THE NEW CHANGE
   
   solve_model(with_ROI(solver = "glpk"))
 
@@ -308,9 +453,9 @@ result1 <- MIPModel() %>%
 ```{r}
 print(solver_status(result1))
 
+get_solution(result1, Chairs)
 get_solution(result1, Desks)
 get_solution(result1, Tables)
-get_solution(result1, Bookcases)
 
 ```
 
@@ -329,13 +474,13 @@ $$
  \begin{split}
  \begin{aligned}
     \text{Max  }   & Profit \\
-    \text{subject to } & Profit=20*Desks+10*Tables+16*Bookcases \\
-                       & 6*Desks+3*Tables+4*Bookcases \leq 2000 \\
-                       & 8*Desks+4*Tables+4*Bookcases \leq 2000 \\
-                       & 6*Desks+3*Tables+8*Bookcases \leq 1440 \\
-                       & 40*Desks+20*Tables+25*Bookcases \leq 9600 \\
-                       & Bookcases \leq 200 \\
-                       & Desks, Tables, Bookcases \geq 0  
+    \text{subject to } & Profit=20*Chairs+10*Desks+16*Tables \\
+                       & 6*Chairs+3*Desks+4*Tables \leq 2000 \\
+                       & 8*Chairs+4*Desks+4*Tables \leq 2000 \\
+                       & 6*Chairs+3*Desks+8*Tables \leq 1440 \\
+                       & 40*Chairs+20*Desks+25*Tables \leq 9600 \\
+                       & Tables \leq 200 \\
+                       & Chairs, Desks, Tables \geq 0  
   \end{aligned}
   \end{split}
   (\#eq:Base_Model_Ex4)
@@ -347,20 +492,20 @@ The implementation is shown in the following.
 
 ```{r}
 result2a <- MIPModel() %>%
-  add_variable(Desks, type = "continuous", lb = 0) %>%
-  add_variable(Tables, type = "continuous",lb = 0) %>%
-  add_variable(Bookcases, type = "continuous", lb = 0) %>%
+  add_variable(Chairs, type = "continuous", lb = 0) %>%
+  add_variable(Desks, type = "continuous",lb = 0) %>%
+  add_variable(Tables, type = "continuous", lb = 0) %>%
   add_variable(Profit, type = "continuous", lb = 0) %>%
   
   set_objective(Profit, "max") %>%
   
-  add_constraint(Profit==20*Desks + 10*Tables + 16*Bookcases) %>%
+  add_constraint(Profit==20*Chairs + 10*Desks + 16*Tables) %>%
   
-  add_constraint(6*Desks + 3*Tables + 4*Bookcases <= 2000) %>% #fabrication
-  add_constraint(8*Desks + 4*Tables + 4*Bookcases <= 2000) %>% #assembly
-  add_constraint(6*Desks + 3*Tables + 8*Bookcases <= 1440) %>% #machining
-  add_constraint(40*Desks + 20*Tables + 25*Bookcases <= 9600) %>% #wood
-  add_constraint(Bookcases <= 200) %>% #
+  add_constraint(6*Chairs + 3*Desks + 4*Tables <= 2000) %>% #fabrication
+  add_constraint(8*Chairs + 4*Desks + 4*Tables <= 2000) %>% #assembly
+  add_constraint(6*Chairs + 3*Desks + 8*Tables <= 1440) %>% #machining
+  add_constraint(40*Chairs + 20*Desks + 25*Tables <= 9600) %>% #wood
+  add_constraint(Tables <= 200) %>% #
   solve_model(with_ROI(solver = "glpk"))
 
 ```
@@ -370,42 +515,42 @@ result2a <- MIPModel() %>%
 ```{r}
 print(solver_status(result2a))
 get_solution(result2a, Profit)
+get_solution(result2a, Chairs)
 get_solution(result2a, Desks)
 get_solution(result2a, Tables)
-get_solution(result2a, Bookcases)
 
 ```
 
-Okay.  When I ran it, all the production was focused on Desks.  I think that there is an alternate solution producing Tables with the same total profit. The LP engine won't necessarily tell you that there is an alternate optimal solution.  Let's see if we can "trick" the LP to show an alternate solution by disallowing the previous solution by setting Desks=0.  
+Okay.  When I ran it, all the production was focused on Chairs.  I think that there is an alternate solution producing Desks with the same total profit. The LP engine won't necessarily tell you that there is an alternate optimal solution.  Let's see if we can "trick" the LP to show an alternate solution by disallowing the previous solution by setting Chairs=0.  
 
 ```{r }
 result2b <- MIPModel() %>%
-  add_variable(Desks, type = "continuous", lb = 0) %>%
-  add_variable(Tables, type = "continuous",lb = 0) %>%
-  add_variable(Bookcases, type = "continuous", lb = 0) %>%
+  add_variable(Chairs, type = "continuous", lb = 0) %>%
+  add_variable(Desks, type = "continuous",lb = 0) %>%
+  add_variable(Tables, type = "continuous", lb = 0) %>%
   add_variable(Profit, type = "continuous", lb = 0) %>%
   
   set_objective(Profit, "max") %>%
 
-  add_constraint(Profit==20*Desks + 10*Tables + 16*Bookcases ) %>% #profit calculation
+  add_constraint(Profit==20*Chairs + 10*Desks + 16*Tables ) %>% #profit calculation
 
-  add_constraint(6*Desks + 3*Tables + 4*Bookcases <= 2000) %>% #fabrication
-  add_constraint(8*Desks + 4*Tables + 4*Bookcases <= 2000) %>% #assembly
-  add_constraint(6*Desks + 3*Tables + 8*Bookcases <= 1440) %>% #machining
-  add_constraint(40*Desks + 20*Tables + 25*Bookcases <= 9600) %>% #wood
-  add_constraint(Bookcases <= 200) %>% # 
-  add_constraint(Desks <= 0) %>%   # FORCING LP TO FIND A DIFFERENT SOLUTION
+  add_constraint(6*Chairs + 3*Desks + 4*Tables <= 2000) %>% #fabrication
+  add_constraint(8*Chairs + 4*Desks + 4*Tables <= 2000) %>% #assembly
+  add_constraint(6*Chairs + 3*Desks + 8*Tables <= 1440) %>% #machining
+  add_constraint(40*Chairs + 20*Desks + 25*Tables <= 9600) %>% #wood
+  add_constraint(Tables <= 200) %>% # 
+  add_constraint(Chairs <= 0) %>%   # FORCING LP TO FIND A DIFFERENT SOLUTION
   solve_model(with_ROI(solver = "glpk"))
 
 print(solver_status(result2b))
 get_solution(result2b, Profit)
+get_solution(result2b, Chairs)
 get_solution(result2b, Desks)
 get_solution(result2b, Tables)
-get_solution(result2b, Bookcases)
 
 ```
 
-Again, only one product is made but now it is tables instead of desks.  The number of tables made is now double the number of desks previously made.  The total profit is the same.  This is an instance of multiple optima.
+Again, only one product is made but now it is Desks instead of Chairs.  The number of Desks made is now double the number of Chairs previously made.  The total profit is the same.  This is an instance of multiple optima.
 
 Another way to create an instance of multiple optima would be to have the objective function be parallel to one of the constraints.  That constraint would need to be binding at the solution.  
 
@@ -418,17 +563,17 @@ For the redundant constraint, a new constraint for painting is created.  each it
 $$
  \begin{split}
  \begin{aligned}
-    \text{Max  }   & 20*Desks+14*Tables+16*Bookcases \\
-    \text{subject to } & 6*Desks+2*Tables+4*Bookcases \leq 2000 \\
-                       & 8*Desks+6*Tables+4*Bookcases \leq 2000 \\
-                       & 6*Desks+5*Tables+8*Bookcases \leq 1440 \\
-                       & 40*Desks+25*Tables+25*Bookcases \leq 9600 \\
-                       & Desks+Tables+Bookcases \leq 1500 \\
-                                             & Bookcases \leq 200 \\
-                       & Desks, Tables, Bookcases \geq 0  
+    \text{Max  }   & 20*Chairs+14*Desks+16*Tables \\
+    \text{subject to } & 6*Chairs+2*Desks+4*Tables \leq 2000 \\
+                       & 8*Chairs+6*Desks+4*Tables \leq 2000 \\
+                       & 6*Chairs+5*Desks+8*Tables \leq 1440 \\
+                       & 40*Chairs+25*Desks+25*Tables \leq 9600 \\
+                       & Chairs+Desks+Tables \leq 1500 \\
+                                             & Tables \leq 200 \\
+                       & Chairs, Desks, Tables \geq 0  
   \end{aligned}
   \end{split}
-  (\#eq:Base_Model_Ex4)
+  (\#eq:BaseModelEx4c)
 $$
 
 #### Implementing a Redundant Constraint
@@ -437,18 +582,18 @@ Now we can implement the model.
 
 ```{r}
 result3 <- MIPModel() %>%
+  add_variable(Chairs, type = "continuous", lb = 0) %>%
   add_variable(Desks, type = "continuous", lb = 0) %>%
   add_variable(Tables, type = "continuous", lb = 0) %>%
-  add_variable(Bookcases, type = "continuous", lb = 0) %>%
   
-  set_objective(20*Desks + 14*Tables + 16*Bookcases, "max") %>%
+  set_objective(20*Chairs + 14*Desks + 16*Tables, "max") %>%
   
-  add_constraint(6*Desks + 2*Tables + 4*Bookcases <= 2000) %>% #fabrication
-  add_constraint(8*Desks + 6*Tables + 4*Bookcases <= 2000) %>% #assembly
-  add_constraint(6*Desks + 4*Tables + 8*Bookcases <= 1440) %>% #machining
-  add_constraint(40*Desks + 25*Tables + 25*Bookcases <= 9600) %>% #wood
-  add_constraint(1*Desks + 1*Tables + 1*Bookcases <= 1500) %>% # NEW CONSTRAINT-PAINT
-  add_constraint(Bookcases <= 200) %>% 
+  add_constraint(6*Chairs + 2*Desks + 4*Tables <= 2000) %>% #fabrication
+  add_constraint(8*Chairs + 6*Desks + 4*Tables <= 2000) %>% #assembly
+  add_constraint(6*Chairs + 4*Desks + 8*Tables <= 1440) %>% #machining
+  add_constraint(40*Chairs + 25*Desks + 25*Tables <= 9600) %>% #wood
+  add_constraint(1*Chairs + 1*Desks + 1*Tables <= 1500) %>% # NEW CONSTRAINT-PAINT
+  add_constraint(Tables <= 200) %>% 
   
   solve_model(with_ROI(solver = "glpk"))
 
@@ -459,37 +604,37 @@ result3 <- MIPModel() %>%
 ```{r}
 
 print(solver_status(result3))
+get_solution(result3, Chairs)
 get_solution(result3, Desks)
 get_solution(result3, Tables)
-get_solution(result3, Bookcases)
 ```
 
 This constraint was a redundant constraint because the other constraints would keep us from ever having 1500 pieces of furniture or therfore needing 1500 gallons of paint.  In other words, there is no way that this constraint could ever be binding at any solution regardless of what the objective function is.  More precisely, elimination of a redundant constraint does not change the size of the feasible region at all.
 
 Note that not all non-binding constraints at an optimal solution are redundant.  Deleting a non-binding constraint and resolving won't change the optimal objective function value.  On the other hand, for a different objective function, that non-binding constraint might become binding and therefore different solutions would be found if it were deleted. 
 
-Challenge:  Can you use a calculator to simply estimate the maximum number of desks that could be made?  Tables?  Bookcases?  
+Challenge:  Can you use a calculator to simply estimate the maximum number of Chairs that could be made?  Desks?  Tables?  
 Challenge:  How would you modify the formulation to find the most pieces of furniture that could be produced?
 
 ### Case 4: Unbounded Solution
 
 #### Formulation 
 
-For the unbounded solution, instead of at most certain resources must be used, the constraints are changed to at *least* that amount of each resource must be used.  This doesn't make a lot of sense in the setting of this application.  Perhaps a cynic would say that in a cost-plus business arrangement or a situation where the factory manager has a limited purview and doesn't see issues such as downstream demand limits and cost impacts, it results in this kind of myopic perspective.  
+As with other cases, there are multiple ways of triggering this condition.  For the unbounded solution, instead of at *most* a certain amount of resources can be used, the constraints are changed to at *least* that amount of each resource must be used.  This doesn't make a lot of sense in the setting of this application.  Perhaps a cynic would say that in a cost-plus business arrangement or a situation where the factory manager has a limited purview and doesn't see issues such as downstream demand limits and cost impacts, it results in this kind of myopic perspective.  
 
 $$
  \begin{split}
  \begin{aligned}
-    \text{Max  }   & 20*Desks+14*Tables+16*Bookcases \\
-    \text{subject to } & 6*Desks+2*Tables+4*Bookcases \geq 2000 \\
-                       & 8*Desks+6*Tables+4*Bookcases \geq 2000 \\
-                       & 6*Desks+5*Tables+8*Bookcases \geq 1440 \\
-                       & 40*Desks+25*Tables+25*Bookcases \geq 9600 \\
-                       & Bookcases \geq 200 \\
-                       & Desks, Tables, Bookcases \geq 0  
+    \text{Max  }   & 20*Chairs+14*Desks+16*Tables \\
+    \text{subject to } & 6*Chairs+2*Desks+4*Tables \geq 2000 \\
+                       & 8*Chairs+6*Desks+4*Tables \geq 2000 \\
+                       & 6*Chairs+5*Desks+8*Tables \geq 1440 \\
+                       & 40*Chairs+25*Desks+25*Tables \geq 9600 \\
+                       & Tables \geq 200 \\
+                       & Chairs, Desks, Tables \geq 0  
   \end{aligned}
   \end{split}
-  (\#eq:Base_Model_Ex4)
+  (\#eq:BaseModelEx4d)
 $$
 
 #### Implementation
@@ -498,18 +643,18 @@ The implementation simply requires changing a < to a > for each constraint as we
 
 ```{r}
 result4 <- MIPModel() %>%
+  add_variable(Chairs, type = "continuous", lb = 0) %>%
   add_variable(Desks, type = "continuous", lb = 0) %>%
   add_variable(Tables, type = "continuous", lb = 0) %>%
-  add_variable(Bookcases, type = "continuous", lb = 0) %>%
   
-  set_objective(20*Desks + 14*Tables + 16*Bookcases, "max") %>%
+  set_objective(20*Chairs + 14*Desks + 16*Tables, "max") %>%
   
-  add_constraint(6*Desks + 2*Tables + 4*Bookcases >= 2000) %>% #fabrication
-  add_constraint(8*Desks + 6*Tables + 4*Bookcases >= 2000) %>% #assembly
-  add_constraint(6*Desks + 4*Tables + 8*Bookcases >= 1440) %>% #machining
-  add_constraint(40*Desks + 25*Tables + 25*Bookcases >= 9600) %>% #wood
+  add_constraint(6*Chairs + 2*Desks + 4*Tables >= 2000) %>% #fabrication
+  add_constraint(8*Chairs + 6*Desks + 4*Tables >= 2000) %>% #assembly
+  add_constraint(6*Chairs + 4*Desks + 8*Tables >= 1440) %>% #machining
+  add_constraint(40*Chairs + 25*Desks + 25*Tables >= 9600) %>% #wood
   
-  add_constraint(Bookcases >= 200) %>% 
+  add_constraint(Tables >= 200) %>% 
   
   solve_model(with_ROI(solver = "glpk"))
 
@@ -519,40 +664,104 @@ result4 <- MIPModel() %>%
 
 ```{r}
 print(solver_status(result4))
+get_solution(result4, Chairs)
 get_solution(result4, Desks)
 get_solution(result4, Tables)
-get_solution(result4, Bookcases)
 ```
 
-Again, the solver status indicates that there is a special case warranting attention and is not able to find solution values for the decision variables.  Oddly, it is report that the problem is *infeasible* rather than *unbounded* but by inspection, the LP is feasible.  A value for Bookcases = 1000, Desks=Tables=0, satisfied all of the constraints.  Perhaps I am missing something in my model or it might be a bug in one of the packages that is misreporting the solver status.  I need to do more digging to check on that.
+Again, the solver status indicates that there is a special case warranting attention and is not able to find solution values for the decision variables.  Oddly, it is report that the problem is *infeasible* rather than *unbounded* but by inspection, the LP is feasible.  A value for Tables = 1000, Chairs=Desks=0, satisfied all of the constraints.  Perhaps I am missing something in my model or it might be a bug in one of the packages that is misreporting the solver status.  I need to do more digging to check on that.
+
+## Generalizing the Production Planning Model
+
+We have explicitly created two variable model and a three variable model by naming each variable independently.  This process doesn't scale well for companies with dozens, hundreds, or thousands of different products.  Simply writing out the full linear program gets very tedious, hard to read, and even maintain.  An application for a company with a thousand products and a thousand resources would have a million terms.  Assume that variables are on average seven letters long, each resource consumed is a single digit whole number and a plus symbol is used to add terms together and no spaces.  This means that there will be (7+1)*1000+999=8999 characters in each line before the inequality.  Just say each constraint corresponds to 9000.  If a line has 60 characters, this would be mean 150 lines or around two pages for each resource (constraint.)  The 1000 resources then would correspond to about 2000 pages along with an objective function and non-negativity constraints.  All in all, this one model would make for some rather dry reading.
+
+In practice, people don't write out the full LP for large models.  This includes journals, no journal's page limit would be able to accommodate the above explicit linear program even if readers had the patience to wade through the model.  
+
+Rather than writing out models explicitly, instead we should express them algebraically.  The products are numbered instead of given names:  Chairs, Desks, and Tables become products 1, 2, and 3.  
+
+We could view the naming conventions of the variables as going from least to most generalized:
+
+* Chairs, Desks, Tables
+* Product1, Product2, Product3
+* X1, X2, X3
+* X[1], X[2], X[3]
+
+The last one allows us to simply use a vector of X where we can use each element of the vector for each of the products to use.  This connects in very well with the data structures available to us in R (and other languages.)  It would also allow us to handle any number of products.  If we had a thousand products, the thousandth product is simply X[1000].  
+
+Similarly, the resources:  Fabrication, Assembly, Machining, and Wood resources are numbered as 1, 2, 3, and 4 respectively.  Note that we do not need to separate the resources by units, the first three are in units of hours while the last is in units of square feet of wood.
+
+## Common LP Models
+
+### Blending Problems
+
+Specific blend limitations are common situtations such as Chairs can make up no more than 10% of the overall product plan.  In our original case, this would be expressed as   
+
+Blending constraints can appear as nonlinear constraints but can be readily linearized.  
+
+### Allocation Models
+
+### Covering Models
+
+You can often recogize these models as they often 
+
+### Standard Form
+
+### Network Models
+
+## Integer Programming Models
+
+### Branch and Bound Algorithm
+
+### Logical Relations
+
+
+## Fixed Charge Models
+
+Fixed charge models are a special case of integer programming models where situations have a fixed and marginal compoenent.  
+
+A common example of this is when a machine must be setup before any production can occur.  For example let's assume that desk, table, and bookcase production would each require fixtures for production with varying cost, say $ \$800$, $ \$600$, and $ \$500$ respectively.  How would this affect your decision to produce items?  
+
+One option is to pay for manufacturing setups of all three products.  At $ \$1900$, this eliminates the potential option of choosing to make only two or three products.  
+(Create a model....)
+
+Now, We could introcude a decision variable to represent the "go-no go" decision for each product.  If we now solve for this case, let's examine the solution.
+
+What we can see is that we are producing some of xxxx and yyy but we don't have any fixtures for producing these products.  
+
+What we need to do is connect the decision variables of how much of a product to make and whether we make any of that product.  
+
+We do that by connecting the two decision variables for each of the products.
+
+We do this by 
+
+### Example: Shiploading
+
+## Goal Programming Models
 
 ## Advice on Homeworks
 
-Let's see some advice on homeworks.  My writeup is **much** longer and more detailed than I expected from anyone but I did this to provide examples of many things and from which advice can be given.  
-
-First, general comments that apply to people doing it in either Excel or R.  
-
 ### General Comments on Homeworks
   
-* Explain your model or modifications and interpret the results. I explicitly had a subsection for each formulation, implementation, and results/interpretation.  Frequently people try to mix all three together and this makes it very hard to help or debug.  Also, formulations should be understood before moving into implementation.  My implementation for this writeup could also be done in Excel as well with a lot of embedded screen captures.
+* Explain your model or modifications and interpret the results. I explicitly had a subsection for each formulation, implementation, and results/interpretation.  Frequently people try to mix all three together and this makes it very hard to help or debug.  Also, formulations should be understood before moving into implementation.
 * If the solution does not make sense, acknowledge and explain.  See my solution for unbounded result discussion.
-* Always show your LP.  Best to show it algebraically as the problems get bigger.  This will also pay off for most projects where the models frequently get bigger.  
+* Always show your LP.  It is best to show it algebraically as the problems get bigger.  This will also pay off for most projects where the models become larger.  
 * Discussion of results does not need to be long but this can be an interesting part of any paper.
   
 ### Comments specific to R
 
-* Using the LaTeX equations and rendering is helpful.  Getting the first one written is sometimes tricky but then it is just a matter of cut and paste.
+* Using the LaTeX equations and rendering it in rmarkdown is helpful.  Getting the first one written is sometimes tricky but then it is just a matter of cut and paste.
 * Installing LaTeX allows knitting to PDF which may be good for readability and turning in but please be sure to also turn in the .rmd file.
+* The R markdown documents (*.rmd files) may cause problems with the previews in the D2L learning management system.  
 * Using R markdown documents allows you to mix both analysis and interpretation cleanly.
 * Look over this .rmd file for information and try knitting it to HTML and PDF on your computer.  If you have everything installed correctly, it should work fine including the mathematical notation. If it doesn't worky, you may need to do a little extra free software installation.
   
 In particular, you might want to look over this document with respect to:
 
 * How to embed a linear programming formulation
-* How to denote proper subscripts in text. Ex. dollarsign-x-underscore-i-dollarsign becomes $x_i$
+* How to denote proper subscripts in text. Ex. a dollarsign-x-underscore-i-dollarsign becomes $x_i$
 * Double subscripts such as $R_{i,j}$ would be done by replacing the i with i,j surrounded by curly brackets
 * Summations are a little tricky in both creating equations and the *ompr* model.  For the former, you can just emulate my material to learn enough LaTeX to make it work.  For the latter, look at Dirk's online documentation for *ompr* or chapter 2 of my book, *DEA Using R.*
-* Organizing information in tables for display is helpful. Raw output can be verbose.  I hard coded a table at the beginning that works for simple data in explicit LPs.  For richer data models and nicer tables, see Chapter 2 again.  The pander package makes it easy to display matrices and data tables nicely in HTML and PDF outputs.
+* Organizing information in Desks for display is helpful. Raw output can be verbose.  I hard coded a table at the beginning that works for simple data in explicit LPs.  For richer data models and nicer Desks, see Chapter 2 again.  The pander package makes it easy to display matrices and data Desks nicely in HTML and PDF outputs.
 * Use of section and subsection headings to organize your writeups.
 
 ### Optional Challenges:

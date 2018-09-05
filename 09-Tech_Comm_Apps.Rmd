@@ -16,7 +16,14 @@ library(rsvg)
 library(htmltools)
 ```
 
-Now, let's install some small helper functions.  These are described in more detail in a later chapter.
+
+# Revisiting _Technology Commercialization_
+
+## Introduction
+
+In 2002, Sten Thore edited a book, *Technology Commercialization:  DEA and Related Analytical Methods for Evaluating the Use and Implementation of Technological Innovation.*  This book compiled a series of cases applying Data Envelopment Analysis to realworld technology management situations.  This chapter revisits some of those cases. We will provide a snapshot of the cases and the interested reader is referred to Thore's book for more details.
+
+Before we begin, let's install some small helper functions.  These are described in more detail in an Appendix.
 
 ```{r loadhelperfiles }
 source('Helperfiles.R')
@@ -32,12 +39,6 @@ source('Helperfiles.R')
 #<<DrawIOdiagramfunction>>   
 ```
 
-# Technology Commercialization 
-
-## Introduction
-
-In 2002, Sten Thore edited a book, *Technology Commercialization:  DEA and Related Analytical Methods for Evaluating the Use and Implementation of Technological Innovation.*  This book complied a series of cases applying Data Envelopment Analysis related to technology management.  This chapter revisits some of those cases. We will provide a snapshot of the cases and the interested reader is referred to Thore's book for more details.
-
 ## Prioritizing R&D Activities
 
 ### Directional Drilling R&D Projects
@@ -46,7 +47,7 @@ Chapter 2 of Thore, by Thore and Rich, covers a series of small cases covers aro
 
 Thore and Rich use a one-input, four-output variable returns to scale DEA model.  The input was expected cost in millions of dollars.  The outputs are estimated market size in millions of dollars (Y1), strategic compatability with existing products (Y2), projected market demand in millions of dollars (Y3), and competitive intensity (Y4).  
 
-Let's start by defining the data from page 63.  
+Let's start by defining the data from page 63 of Thore and Rich.    
 
 ```{r BHCorp}
 NX <- 1
@@ -62,13 +63,15 @@ ND <- 14
   SYnames<- lapply(list(rep("sy",NY)),paste0,1:NY) # Output slack names: sy1, ...
   Lambdanames<- lapply(list(rep("L_",ND)),paste0,LETTERS[1:ND])
 
-XBH <- matrix(c(1.07, 1.06, 0.325, 1.60, 0.55, 0.2, 0.35, 0.53, 0.21, 0.16, 0.07, 1.95, 5.59, 3.10),
+XBH <- matrix(c(1.07, 1.06, 0.325, 1.60, 0.55, 0.2, 0.35, 0.53, 0.21, 0.16, 0.07, 
+                1.95, 5.59, 3.10),
                 ncol=NX,dimnames=c(DMUnames,Xnames))
 
-YBH <- matrix(c(32, 50, 40, 30 ,25, 8, 2, 12, 10, 0.8, 3, 300, 60, 240,
-                8.2, 7.6, 7.6, 7.1, 7.0, 6.0, 5.9, 5.8, 5.8, 5.4, 5.3, 6.8, 6.2, 6.2,
-                7.5, 7.2, 7.1, 7.2, 7.0, 6.1, 6.2, 5.8, 5.8, 5.6, 5.4, 6.1, 6.9, 6.6,
-                8.0, 6.4, 5.3, 5.5, 5.1, 6.9, 6.6, 5.4, 4.7, 6.1, 6.5, 6.4, 6.8, 7.1),
+YBH <- matrix(c(
+  32, 50, 40, 30 ,25, 8, 2, 12, 10, 0.8, 3, 300, 60, 240,
+ 8.2, 7.6, 7.6, 7.1, 7.0, 6.0, 5.9, 5.8, 5.8, 5.4, 5.3, 6.8, 6.2, 6.2,
+ 7.5, 7.2, 7.1, 7.2, 7.0, 6.1, 6.2, 5.8, 5.8, 5.6, 5.4, 6.1, 6.9, 6.6,
+ 8.0, 6.4, 5.3, 5.5, 5.1, 6.9, 6.6, 5.4, 4.7, 6.1, 6.5, 6.4, 6.8, 7.1),
                 ncol=NY,dimnames=c(DMUnames,Ynames))
 
 XFigNames <- "X1 ($M)"
@@ -87,7 +90,8 @@ tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),
 
 ```{r}
 
-pander(cbind(XBH,YBH), caption="Data for Baker Hughes Corporation case.")  # Displays table of inputs and outputs
+pander(cbind(XBH,YBH), caption="Data for Baker Hughes Corporation case.")  
+       # Displays table of inputs and outputs
 ```
 
 
@@ -132,10 +136,11 @@ XNASA <- matrix(c(15.5, 23.0, 39.5, 80.0, 14.5, 13.5, 30.0, 220.0, 180.0, 980.0,
                                          "B1", "B2", "B3", "B4", "C1", "C2", "C3",
                                          "D1", "E1", "E2", "E3", "E4"),c("x1")))
 
-YNASA <- matrix(c(1.8, 2.7, 2.7, 9.0, 1.35, 2.25, 9.6, 16.0, 6.8, 25.2, 20.7, 4.5, 19.8, 0.75, 0, 0, 0, 0,
-                7.0,7.0,7.0,7.0,7.0,7.0,8.0,10.0,10.0,9.0,6.0,6.0,6.0,10.0,8.0,8.0,8.0,8.0,
-                18.0, 45.0, 7.2, 108.0, 6.3, 40.5, 240.0, 160, 64.0, 560.0, 1170.0, 18.0,
-                544.5, 1.0, 0, 0, 0, 0),
+YNASA <- matrix(c(
+  1.8, 2.7, 2.7, 9.0, 1.35, 2.25, 9.6, 16.0, 6.8, 25.2, 20.7, 4.5, 19.8, 0.75,
+   0, 0, 0, 0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 8.0, 10.0, 10.0, 9.0, 6.0, 6.0, 6.0, 10.0,
+   8.0, 8.0, 8.0, 8.0,18.0, 45.0, 7.2, 108.0, 6.3, 40.5, 240.0, 160, 64.0, 560.0, 
+  1170.0, 18.0, 544.5, 1.0, 0, 0, 0, 0),
                   ncol=3,dimnames=list(c("A1", "A2", "A3", "A4", "A5", "A6",
                                          "B1", "B2", "B3", "B4", "C1", "C2", "C3",
                                          "D1", "E1", "E2", "E3", "E4"),c("y1", "y2", "y3")))
@@ -165,12 +170,11 @@ pander(poscol(cbind(resNASA$Efficiency,resNASA$Lambda)),
 ```
 
 ## Possible to-Do Items for this Chapter
-* More data sets and cases
-* Perhaps fix naming of outputs in first  case 1 to be P1, P2,... rather than A, B, C,... to match Thore
+* More data sets and cases=
+* Perhaps fix naming of outputs in first case to be P1, P2,... rather than A, B, C,... to match Thore
 * Perhaps generalize naming of projects for NASA case to match Thore
 * Create helper function for names to pass numbers of DMUs, inputs, outputs, and output naming objects
 * Define # of digits for pander tables
-* Helper function for printing "skinny" lambda tables by omitting columns of zeros
 
 ## To-Do Items for Packages (some for later)
 * Add data sets to package(s)

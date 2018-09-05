@@ -1,9 +1,9 @@
 ---
 output:
-  word_document: default
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
+  word_document: default
 ---
 # Baseball Benchmarking Applications
 
@@ -591,9 +591,8 @@ dea.plot.frontier (MLB1991AL$payroll, MLB1991AL$W, RTS="vrs",
 
 Now, let's rerun it for multiple years.  
 
-```{r}
+```{r BCC-Team-Salary-Efficiency}
 teampayroll2 <- as.data.frame(t(c(rep_len("",17))))
-
 
 class(teamPayroll$yearID)<-"numeric"
 
@@ -696,12 +695,12 @@ moneyballplot2
 ```{r}
 moneyballplot2 <- ggplot (data=teampayroll2) +
         geom_point(data=teampayroll2[teampayroll2$teamID %in% c("NYA"),],
-             aes(x=yearID, y=Efficiency, color="Red")) + 
+             aes(x=yearID, y=Efficiency, shape="b")) + 
         geom_point(data=teampayroll2[teampayroll2$teamID %in% c("OAK"),],
-             aes(x=yearID, y=Efficiency, color="Blue")) + 
+             aes(x=yearID, y=Efficiency, shape="a")) + 
         xlab("Year") + ylab("Team Efficiency") +
         ggtitle("Team Efficiency Oakland and New York Yankees (1991-2016)") +
-        scale_colour_discrete(name="Team",
+        scale_shape_discrete(name="Team",
                          breaks=c("NYA", "OAK"),
                          labels=c("Yankees", "Athletics"))
 
@@ -735,16 +734,128 @@ mean(subset(teampayroll2, teamID=="OAK" & yearID<2003 )[["Efficiency"]])
 mean(subset(teampayroll2, teamID=="OAK" & yearID>2003 )[["Efficiency"]])
 ```
 
-Future research could consider the following:
+### Allocative Efficiency of Team Budgets
+
+Now, let's demonstrate the use of allocative efficiency in DEA by testing to see whether teams are using their budget efficiently between different categories of players.  
+
+Getting the budget separated by position takes some work.  
+
+```{r}
+appearances = as.data.table(Appearances)  # Create data table of appearances
+appearances = appearances[, .(yearID, 
+                          lgID = as.character(lgID), 
+                          teamID = as.character(teamID), 
+                          playerID, 
+                          G_all, 
+                          G_batting, G_defense, G_p, G_c, 
+                          G_1b, G_2b, G_3b, G_ss, G_of)]
+          # Simplify data table
+
+appearances = appearances[, c("P", "B", "C", "B1", "B2", "B3", "SS", "OF") := 
+                      list(G_p / G_all, 
+                           ifelse(G_p > 0, 0.0, G_batting / G_all), 
+                           ifelse(G_p > 0, 0.0, G_c / G_defense),
+                           ifelse(G_p > 0, 0.0, G_1b / G_defense),
+                           ifelse(G_p > 0, 0.0, G_2b / G_defense),
+                           ifelse(G_p > 0, 0.0, G_3b / G_defense),
+                           ifelse(G_p > 0, 0.0, G_ss / G_defense),
+                           ifelse(G_p > 0, 0.0, G_of / G_defense))]
+            # Separate by position
+
+positionSalaries = merge(salaries, appearances)
+            # Combine with salaries and appearances
+
+positionSalaries = positionSalaries[, .(yearID, teamID, lgID, playerID, salary1M,
+                                        pitcher = salary1M * P,
+                                        batter = salary1M * B,
+                                        catcher = salary1M * C,
+                                        firstBase = salary1M * B1,
+                                        secondBase = salary1M * B2,
+                                        thirdBase = salary1M * B3,
+                                        shortstop = salary1M * SS,
+                                        outfielder = salary1M * OF)]
+             # Find salary by position
+
+payrollByPositions = positionSalaries[, 
+                                      .(pitcher = sum(pitcher),
+                                        batter = sum(batter),
+                                        catcher = sum(catcher),
+                                        firstBase = sum(firstBase),
+                                        secondBase = sum(secondBase),
+                                        thirdBase = sum(thirdBase),
+                                        shortstop = sum(shortstop),
+                                        outfielder = sum(outfielder)), 
+                                      by=.(teamID, yearID)]
+
+teamPayrollByPositions = merge(teams, payrollByPositions,
+                               by=c("teamID","yearID"))
+             # Aggregate by team
+```
+
+There are likely to be more elegant and efficient ways of doing these calculations. 
+
+
+```{r Allocative-Team-Salary-Efficiency}
+teampayroll3 <- as.data.frame(t(c(rep_len("",24))))
+
+class(teamPayrollByPositions$yearID)<-"numeric"
+
+colnames(teampayroll3)<-c(colnames(teamPayrollByPositions),"V2")
+                    # Above feels like a kludge to aggregate reesults
+                    #   Feel free to come up with cleaner alternatives
+
+#class(teampayroll3$payroll)<-"numeric"
+class(teampayroll3$W)<-"numeric"
+class(teampayroll3$yearID)<-"numeric"
+class(teampayroll3$V2)<-"numeric"
+
+lastyear <- 2016  
+    # Note that as of April 2018, the Lahman package only includes data through 2016
+
+for (year in 1991:lastyear) {
+  MLBteamAL3 <- subset (teamPayrollByPositions, yearID==year & lgID=="AL")
+
+  resMLB  <-DEA(cbind(MLBteamAL3$pitcher, MLBteamAL3$batter), MLBteamAL3$W, rts="vrs")
+  rownames(resMLB$eff)    <- MLBteamAL3$teamID
+#  colnames(resMLB$lambda) <- t(MLBteamAL3$teamID)
+  teampayroll3 <- rbind(teampayroll3, cbind (
+    subset (teamPayrollByPositions, yearID==year & lgID=="AL"),resMLB$eff))
+  }
+
+#colnames(teampayroll2[,17])   <- "Efficiency"
+colnames(teampayroll3)[colnames(teampayroll3)=="V2"] <- "Efficiency"
+class(teampayroll3$pitcher)    <- "numeric"
+class(teampayroll3$W)          <- "numeric"
+class(teampayroll3$Efficiency) <- "numeric"
+
+teampayroll3 <- teampayroll3[-1,]
+#pander(poscol(cbind(resMLB$eff,resMLB$lambda)), 
+#      caption="BCC Efficiency and Lambda Values of AL Teams")
+
+pander(head(teampayroll3))
+pander(head(cbind(teampayroll2$Efficiency,teampayroll3$Efficiency)),
+       caption="Sample of BCC-Efficiency vs. Allocative Efficiency")
+
+
+
+```
+
+
+### Future Research Opportunities on Team Management
 
 * The above hypotheses were considered based on means. It could be extended for statistical significance.  
 * The spread of best practices from the Oakland A's through baseball could be modeled from the perspective of the diffusion of innovation.
 * The book _Moneyball_ helped to popularize and legitimize analytics in sports management.  Other industries could be explored to see if they have similar pre- and post-_Moneyball_ effects.
 * General managers spend salary between pitchers and position players.  Extending the model by separating salaries between the two players could be used to reveal patterns of allocative inefficiency between teams. 
 * Salary efficiency could be used to explore and test the impact of organizational practices and structures.
+* One of the open questions in baseball analysis is measuring the impact of being a _good_ teammate.  It has been argued that some players have most of their value come by way of being a positive influence in the team clubhouse but unlike for batting, pitching, and more recently, fielding, no accepted measure of this team influence has been done.  Lessons from sports might then be applicable to areas of greater significance such as new product teams, project management, boards of directors, and other areas.
+
+## Malmquist Productivity Indices
+
 
 ## To-Do Items for this Chapter
 
+* Examine allocative efficiency by way of spending on different positions
 * Validate results with previous papers
 * Malmquist Productivity Index application in baseball
 * Salary and team information benchmarking
