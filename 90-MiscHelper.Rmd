@@ -172,7 +172,7 @@ I find visual models sometimes clarify the model.  Let's draw an input-output di
 
 Let's start by hard coding a one-input, four-output CCR input-oriented model.  We will retain the Xnames and Ynames list of input and output names respectively from the previous section.
 
-```{r TryingIODiagram1}
+```{r TryingIODiagram1, warning = FALSE, message = FALSE}
 library(DiagrammeR)
 library(DiagrammeRsvg)
 library(rsvg)
@@ -290,7 +290,8 @@ generalIO <- grViz(
   )
 )
 
-tmp<-capture.output(rsvg_png(charToRaw(export_svg(generalIO)),'generalIO.png', height = 1440))
+tmp<-capture.output(rsvg_png(charToRaw(export_svg(generalIO)),
+                             'generalIO.png', height = 1440))
 
 ```
 

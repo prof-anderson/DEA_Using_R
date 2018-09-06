@@ -673,11 +673,11 @@ Again, the solver status indicates that there is a special case warranting atten
 
 ## Generalizing the Production Planning Model
 
-We have explicitly created two variable model and a three variable model by naming each variable independently.  This process doesn't scale well for companies with dozens, hundreds, or thousands of different products.  Simply writing out the full linear program gets very tedious, hard to read, and even maintain.  An application for a company with a thousand products and a thousand resources would have a million terms.  Assume that variables are on average seven letters long, each resource consumed is a single digit whole number and a plus symbol is used to add terms together and no spaces.  This means that there will be (7+1)*1000+999=8999 characters in each line before the inequality.  Just say each constraint corresponds to 9000.  If a line has 60 characters, this would be mean 150 lines or around two pages for each resource (constraint.)  The 1000 resources then would correspond to about 2000 pages along with an objective function and non-negativity constraints.  All in all, this one model would make for some rather dry reading.
+We have explicitly created two variable model and a three variable model by naming each variable independently.  This process doesn't scale well for companies with dozens, hundreds, or thousands of different products.  Simply writing out the full linear program gets very tedious, hard to read, and even maintain.  An application for a company with a thousand products and a thousand resources would have a million terms.  Assume that variables are on average seven letters long, each resource consumed is a single digit whole number and a plus symbol is used to add terms together and no spaces.  This means that there will be (7+1)*1000+999=8999 characters in each line before the inequality.  Just say each constraint corresponds to 9000.  If a line has 60 characters, this would mean 150 lines or around two pages for each resource (constraint.)  The 1000 resources would correspond to about 2000 pages, along with an objective function, and non-negativity constraints.  All in all, this single model would make for some rather dry reading.
 
 In practice, people don't write out the full LP for large models.  This includes journals, no journal's page limit would be able to accommodate the above explicit linear program even if readers had the patience to wade through the model.  
 
-Rather than writing out models explicitly, instead we should express them algebraically.  The products are numbered instead of given names:  Chairs, Desks, and Tables become products 1, 2, and 3.  
+Rather than writing out models explicitly, instead we should express them algebraically.  The products are numbered instead of given names:  Chairs, Desks, and Tables become products 1, 2, and 3 respectively.
 
 We could view the naming conventions of the variables as going from least to most generalized:
 
@@ -694,7 +694,7 @@ Similarly, the resources:  Fabrication, Assembly, Machining, and Wood resources 
 
 ### Blending Problems
 
-Specific blend limitations are common situtations such as Chairs can make up no more than 10% of the overall product plan.  In our original case, this would be expressed as   
+Specific blend limitations arise in many situtations.  In our example, we might say that Chairs can make up no more than 10% of the overall product plan.  In our original case, this would be expressed as   
 
 Blending constraints can appear as nonlinear constraints but can be readily linearized.  
 
