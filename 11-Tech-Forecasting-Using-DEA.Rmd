@@ -1,0 +1,63 @@
+---
+title: "11-TFDEA"
+author: "Tim Anderson"
+date: "February 22, 2019"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(pander)
+panderOptions('round',5) # Set option for rounding in pander data tables
+library(DiagrammeRsvg)
+library(rsvg)
+library(htmltools)
+```
+
+
+# Measuring Changing Performance of Products over Time
+
+## Introduction  
+
+In the previous chapter, we examined how organizations or decision making units change in performance over time.  In this chapter we will change gears and consider how we can use DEA and Malmquist Productivity Index like techniques to consider how the performance of products change over time.  
+
+We are looking at how new generations of products are developed over time in order to achieve better performance and/or lower cost. We are assuming that the product itself, once released, does not change in performance. It may have updates or degradation from being used but the initial specifications are considered unchanged.  
+
+## History  
+
+In 2001, a National Science Foundation workshop on engineering applications of DEA invited DEA experts to work with engineering faculty from Union College to explore novel opportunities for collaboration. Breakout sessions were organized by engineering discipline.  While industrial engineering was well represented, I was one of the few electrical engineers using DEA at the time and joined that group.  These discussions included Dr. Shawna Grosskopf, one of the co-inventors of the Malmquist Productivity Index, MPI.  Discussions prompted me to think about would there be a way to apply the inherently multidensional nature of DEA to technlology forecasting?  
+
+Over the following weeks, these thoughts percolated, including a day long visit with two of the top experts in MPI, Dr. Rolf Fare and Dr. Shawna Grosskopf, and a lot of time at a whiteboard. In the end, we decided that the mathematics and restrictions of product forecasting were different enough that MPI was not the right approach.  Over the ensuing months, with a PhD student, Oliver (Lane) Inman, the approach took shape and we started calling it Technology Forecasting Using DEA or TFDEA.  
+
+The first application was revisiting microprocessor benchmarking in line with Moore's Law.  
+
+Dr. Inman's thesis formalized and significantly extended the approach of TFDEA.  An interesting case study included enterprise database system and their changing performance over time by identifying a key disruptive innovation has rippled through industry after industry including most phones used around the world.  Another important linkage was examining hard disk drives and providing additional insights to the classic case by Clayton Christensen made famous in the book, _The Innovator's Dilemma_.
+
+Later, we revisited a classic techology forecasting application of US fighter jets from 1944 to 1992 to examine how TFDEA performed relative to other techniques, whether it could be applied to large systems outside of the high technology industry, and the usage over a long time horizon.
+
+```{r loadhelperfiles }
+source('Helperfiles.R')
+#knitr::read_chunk('Helperfiles.R')
+#<<poscolfunct>>   
+   # This reads in a chunk that defines the poscol function
+   # This function will filter out columns that are zero
+   # More precisely, it factors out column with
+   # column sums that are zero.  This is helpful
+   # for tables of lambda values in DEA.
+source('Helperfiles.R')
+#knitr::read_chunk('Helperfiles.R')
+#<<DrawIOdiagramfunction>>   
+```
+
+## How TFDEA Works
+
+## A Two-Dimensional Example of TFDEA
+
+## Using TFDEA in a Complex Product
+
+## A Shiny Application for doing TFDEA
+
+## Future Work
+

@@ -1,0 +1,53 @@
+---
+title: "12-Software"
+author: "Tim Anderson"
+date: "February 22, 2019"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(pander)
+panderOptions('round',5) # Set option for rounding in pander data tables
+library(DiagrammeRsvg)
+library(rsvg)
+library(htmltools)
+```
+
+
+# Benchmarking the Benchmarkers
+
+## Introduction  
+
+
+## History  
+
+> The Portland State University Extreme Technology Analytics group migrated from a reliance on propreitary analytics tools to R in about 2012.  At that time there were few DEA packages in R but there were robust linear programming packages. We chose to begin implementing our own packages to accommodate variants of DEA, including TFDEA.  The Benchmarking package was one of the earliest and most full-featured packages available. It continues to be the most downloaded R package for doing DEA to this day.  
+
+
+```{r loadhelperfiles }
+source('Helperfiles.R')
+#knitr::read_chunk('Helperfiles.R')
+#<<poscolfunct>>   
+   # This reads in a chunk that defines the poscol function
+   # This function will filter out columns that are zero
+   # More precisely, it factors out column with
+   # column sums that are zero.  This is helpful
+   # for tables of lambda values in DEA.
+source('Helperfiles.R')
+#knitr::read_chunk('Helperfiles.R')
+#<<DrawIOdiagramfunction>>   
+```
+
+## How TFDEA Works
+
+## A Two-Dimensional Example of TFDEA
+
+## Using TFDEA in a Complex Product
+
+## A Shiny Application for doing TFDEA
+
+## Future Work
+

@@ -1,0 +1,58 @@
+---
+title: "10-Malmquist-Index"
+author: "Tim Anderson"
+date: "February 22, 2019"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(pander)
+panderOptions('round',5) # Set option for rounding in pander data tables
+library(DiagrammeRsvg)
+library(rsvg)
+library(htmltools)
+```
+
+
+# Measuring Changing Performance over Time
+
+## Introduction
+
+Often it is important to assess the changing performance over time rather than just at a single snapshot.  We did some explorations of the changing distribution of scores in the chapter on baseball but we didn't really explore how these scores change on a year by year basis. A unit's changing performance might be due to a number of reasons:
+
+* General operating conditions have changed
+* Changing size of operations resulting
+* Incorporated best practices by single unit
+
+In the case of a store being benchmarked against similar stores in the same chain, changes due to general operating conditions might be due to inflation raising wages (or materials, end products, etc.), changing laws or regulations, etc.  In this case, a change in the general operating conditions is like "...a rising tide raising all boats."  It is good to identify and quantify these impacts but it isn't something that an individual store manager would be either blamed for performance loss due to this or praised for changes helping.  (A similar example could be found for stock traders, making a 20% return when the market is also up 20% is not particularly impressive and getting a 15% return might be considered poor.)
+
+Performance may be improved by simply getting bigger and achieving economies of scale.  Perhaps a store expansion allowed for both increased sales without needing more checkout personnel or space.  In this case, there might be gains from just simply getting bigger that other, larger stores are also achieving.  Other returns to scale effects such as getting too big and decreasing returns to scale or shrinking in size may also occur.  Again, finding ways to separate and assess these impacts can be very important.  
+
+A third, key way of changing performance might be accommodating new best practices.  A store manager might glean a new innovation such as a better way to staff employees, run checkout operations, or managing inventory. This innovation would be a change that affects only this particular store and we would like to identify and rewards such an innovation. Identifying a new best practice early could help us spread this best practice more widely and quickly.  
+
+Simply looking at efficiency scores on their own in a single year do not always give us sufficient richness for separating out these situations.  The Malmquist Productivity Index was developed for decomposing this changing performance over time.
+
+```{r loadhelperfiles }
+source('Helperfiles.R')
+#knitr::read_chunk('Helperfiles.R')
+#<<poscolfunct>>   
+   # This reads in a chunk that defines the poscol function
+   # This function will filter out columns that are zero
+   # More precisely, it factors out column with
+   # column sums that are zero.  This is helpful
+   # for tables of lambda values in DEA.
+source('Helperfiles.R')
+#knitr::read_chunk('Helperfiles.R')
+#<<DrawIOdiagramfunction>>   
+```
+
+## How the Malmquist Productivity Index Works
+
+## A Two-Dimensional Example of the Malquist Productivity Index
+
+## Using MPI to Assess the Maturation of an Industry
+
+
