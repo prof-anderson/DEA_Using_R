@@ -3,8 +3,8 @@ title: "12-Software"
 author: "Tim Anderson"
 date: "February 22, 2019"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -21,10 +21,46 @@ library(htmltools)
 
 ## Introduction  
 
+Over the years, a variety of software packages have been developed for doing Data Envelopment Analysis.  The Benchmarking package was one of the earliest and most full-featured packages available. It continues to be the most downloaded R package for doing DEA to this day.
+
+Let's review data on current frequency of download for DEA packages.  
+
+```{r package_download_stats, echo=FALSE}
+library("ggplot2")
+library("dlstats")
+
+dea_packages <- c("Benchmarking", "nonparaeff", "DJL", "rDEA", "deaR", "MultiplierDEA" )
+
+pkg_dl_data <- cran_stats(packages = dea_packages)
+
+```
+
+```{r}
+
+ggplot(pkg_dl_data, aes(end, downloads, group=package, color=package)) +
+    geom_line() + geom_point(aes(shape=package)) + 
+    labs(title = "Monthly Downloads of DEA Packages",
+       subtitle = "Wide choice of DEA packages",
+       caption = "Source: CRAN", 
+       x = "Month", y = "Downloads") 
+
+```
+
+The chapter "Computational Aspects of DEA" by Iqbal Ali in Data Envelopment Analysis_, edited by Charnes, Cooper, Lewin, and Seiford does an interesting job with exploring computational issues in early DEA implementations.  Among the key insights is that a finite approximation for $\epsilon $ should not be used to minimize slacks. Iqbal Ali tests $\epsilon=10^{-5} $ to $\epsilon=10^{-8} $ demonstrating how DEA implementations can return incorrect values or even unbounded solutions.  
+
+Any reliable DEA package should be tested to ensure that they do not rely on finite values for $\epsilon $ and instead implement a two-phase approach as discussed earlier.  
+
+Other issues considered by Iqbal Ali include:
+
+* Which DEA models are implemented?
+* Is an anticycling technique employed?
+* Testing for ill-conditioned data
+
+Most R packages for doing DEA rely on a standard linear programming solver.  
 
 ## History  
 
-> The Portland State University Extreme Technology Analytics group migrated from a reliance on propreitary analytics tools to R in about 2012.  At that time there were few DEA packages in R but there were robust linear programming packages. We chose to begin implementing our own packages to accommodate variants of DEA, including TFDEA.  The Benchmarking package was one of the earliest and most full-featured packages available. It continues to be the most downloaded R package for doing DEA to this day.  
+> The Portland State University Extreme Technology Analytics group migrated from a reliance on propreitary analytics tools to R in about 2012.  At that time there were few DEA packages in R but there were robust linear programming packages. We chose to begin implementing our own packages to accommodate variants of DEA, including TFDEA.    
 
 
 ```{r loadhelperfiles }
@@ -41,13 +77,165 @@ source('Helperfiles.R')
 #<<DrawIOdiagramfunction>>   
 ```
 
-## How TFDEA Works
+## Demonstrate Each Package
 
-## A Two-Dimensional Example of TFDEA
+Create a common dataset, perhaps the ill-conditioned dataset from Iqbal Ali's paper to test $\epsilon $ and computational values.
 
-## Using TFDEA in a Complex Product
+## Testing with Ill-Conditioned Data
 
-## A Shiny Application for doing TFDEA
+Data scaled with wide ranges may highlight problems in the DEA implementation of a package or a weakness in the underlying solver's numerical methods.  In the late 1990s I received a phone call from an Economics professor that had done her PhD doing DEA but was at a complete loss as to why her simple DEA input-oriented efficiency scores were as large as 47 when they should have ranged from just zero to 1.0.  She was was using SAS-OR. I asked her the magnitudes of the inputs and outputs and found that they were in units of dollars but ranged to the millions or billions. I suggested simply rescaling and that immediately solved the problem. Another random call from a student team of Michigan State students had the same problem while using the Excel Solver. I expect that the current linear programming solvers used by R DEA packages are robust enough to avoid scaling problems but is another item that should be checked.
+
+As discussed earlier, a common problem in some earlier DEA implementations was the use of finite values of $\epsilon $ causing computational issues and solvers that were susceptible to poorly scaled data.  
+
+Testing of large scale DEA problems dates back to the work of Dr. Dick Barr and Dr. Matt Durchholz at Southern Methodist University in the late 1980s and early 1990s. Since then Jose Dula and others have continued this work. Since DEA requires a series of simple linear programs, in general they don't represent a major computational burden. Any modern DEA package should be able to handle 1000 DMU problems with ease. Problems with tens of thousands to millions or more could be considered but careful consideration should be given to the impact of using an outlier based approach such as DEA in such a large dataset.  A six-sigma type of extreme value for positive performance of a particular DMU could cause a tremendous distortion of the efficiency frontier rendering the scores for many of the other DMUs inappropriate.
+
+```{r create_bad_data}
+
+library(pander, quietly=TRUE)
+x <- matrix(c(483.01, 1397736, 616961,
+              371.95,  355509, 385453,
+              268.23,  685584, 341941,
+              202.02,  452713, 117424,
+              197.93,  471650, 112634,
+              178.96,  423124, 189743,
+              148.04,  367012,  97004), ncol=3, byrow=TRUE,
+           dimnames=list(LETTERS[1:7],c("Labor", "WF", "INV")))
+
+y <- matrix(c(6785798, 1594957, 1088699, 
+              2505984,  545140,  835745,
+              2292025,  406947,  473600,
+              1158016,  135939,  336165,
+              1244124,  204909,  317709,
+              1187130,  190178,  605037,
+               658910,   86514,  239760), ncol=3, byrow=TRUE,
+            dimnames=list(LETTERS[1:7],c("GIOF", "PT", "RS")))
+
+pander(cbind(y,x), caption="Complex Data from Charnes, Cooper, and Li (1990)")
+```
+
+```{r}
+library (Benchmarking)
+library (nonparaeff)
+library (MultiplierDEA)
+library (DJL)
+library (rDEA)
+library (deaR)
+
+```
+
+```{r run_benchmarking}
+
+library (Benchmarking)
+
+res_benchmarking <- Benchmarking::dea (X=x, Y=y, RTS="crs", 
+                                       ORIENTATION="in", 
+                                       SLACK=TRUE, DUAL=FALSE)
+
+#res_deaR <- deaR::model_basic(orientation="io", rts="crs", 
+#                              maxslack=TRUE, 
+# Note:  Data format is complicated...
+
+# "nonparaeff", "DJL", "rDEA", "deaR"
+
+pander(res_benchmarking$eff, caption="Results from Benchmarking")
+pander(res_benchmarking$lambda, caption="Results from Benchmarking")
+
+```
+
+The results from Benchmarking are simple and straightforward.  
+
+* Rownames are not carried over to the output results.  
+
+
+```{r run_nonparaeff}
+
+library ("nonparaeff")
+
+#res_deaR <- deaR::model_basic(orientation="io", rts="crs", 
+#                              maxslack=TRUE, 
+# Note:  Data format is complicated...
+
+# "nonparaeff", "DJL", "rDEA", "deaR"
+
+nonparaeff_data <- data.frame(y,x)  # Format for data entry
+res_nonparaeff <- nonparaeff::dea(base = nonparaeff_data,
+                                  noutput = 3,        # count from left
+                                  orientation = 1,    # 1 = IO
+                                  rts = 1,            # 1 = CRS
+                                  onlytheta = FALSE)
+
+pander(res_nonparaeff$eff, caption="Results from nonparaeff")
+
+pander(t(rbind(res_nonparaeff$lambda1,
+             res_nonparaeff$lambda2,
+             res_nonparaeff$lambda3,
+             res_nonparaeff$lambda4,
+             res_nonparaeff$lambda5,
+             res_nonparaeff$lambda6,
+             res_nonparaeff$lambda7)), caption="Envelopment Variable Results from nonparaeff")
+
+    
+```
+
+Some items to note about nonparaeff.  
+
+* The input and outputs are passed together with outputs first, then inputs and the number of outputs specified.
+* The $ \lambda$ variables are returned separately for each DMU.
+* Returned objects lose the row and column names.
+
+```{r combined_results}
+
+combined_eff <- cbind (res_benchmarking$eff, res_nonparaeff$eff)
+colnames (combined_eff) <- c("Benchmarking", "nonparaeff")
+pander(combined_eff, caption = "Comparison of results")                          
+```
+
+## DEA Package Dependencies
+
+Let's explore another view of DEA packages by examining the packages that they depend upon.  A key aspect is what optimization engine each package uses.
+
+```{r DEA_package_dependencies}
+
+library("miniCRAN")
+
+dea_packages_cran <- c("Benchmarking", "nonparaeff", "DJL", "rDEA") 
+# tags <- c("ggplot2", "data.table", "plyr", "knitr", "shiny", "xts", "lattice")
+pkgDep(dea_packages_cran , suggests = FALSE, 
+       enhances = FALSE)
+        #, availPkgs = cranJuly2014
+
+dg <- makeDepGraph(dea_packages_cran, enhances = FALSE)
+set.seed(1)
+plot(dg, legendPosition = c(-1, -1), vertex.size = 10, cex = 0.7)
+```
+
+This graph seems to indicate that Benchmarking is relatively indpendent of other packages despite being a powerful and well accepted tool.  Other packages appear to rely on a complex web of packages unrelated to DEA.  Interestingly, it appears that `lpsolveAPI` is only used by `DJL` and `Benchmarking` while the other packages depend on other solvers.  
+
+It would be more interesting to filter this to only include solver engines such as `lpsolveAPI`, `lpsolve`, `glpk`, and `symphony` along with the DEA packages.
+
+## Summary of Package Features
+
+Table of results
+Columns are used for each package
+
+Rows are:
+
+* Package Name
+* Package Author(s)
+* Version and date
+* Main LP package used? (ex. LPSolve API, GLPK, etc.)
+* All Traditional Models (IO/OO, CRS/VRS/DRS/IRS)?
+* Both Envelopment & Multiplier?
+* Slack Maximization?
+* Malmquist?
+* Weight Restrictions?
+* Bad outputs/Good Inputs?
+* Nondiscretionary Inputs/Outputs?
+* Directional Distance Functions?
+* Window Analysis?
+* Cross-Efficiency?
+* Special Features?
+
 
 ## Future Work
 

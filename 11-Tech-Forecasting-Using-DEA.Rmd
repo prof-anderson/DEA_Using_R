@@ -53,11 +53,21 @@ source('Helperfiles.R')
 
 ## How TFDEA Works
 
+To Be Added
+
 ## A Two-Dimensional Example of TFDEA
+
+To Be Added
 
 ## Using TFDEA in a Complex Product
 
+To Be Added
+
 ## A Shiny Application for doing TFDEA
 
+To Be Added
+
 ## Future Work
+
+To Be Added
 
