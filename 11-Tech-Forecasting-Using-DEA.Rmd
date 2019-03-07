@@ -116,18 +116,18 @@ fj_data <- dplyr::select(fighter_jet,
                          MaximumMachNumber, 
                          RangeOfBVRMissiles)
 
-pander(head(fj_data))
-
 colnames(fj_data)<- c("Name",
                          "FirstFlight",
-                         "MTBF",
-                         "Payload",
-                         "Mach", 
-                         "BVRM")
+                         "MTBF (Y1)",
+                         "Payload (Y2)",
+                         "Mach (Y3)", 
+                         "BVRM (Y4)")
 
-pander(head(fj_data))
+pander(head(fj_data), caption = "Data for Regression and TFDEA Study")
 
 ```
+
+Note that for TFDEA, there is no input specified for this application.  We will use a constant value of one as the input for each aircraft.
 
 ```{r prepare_data_for_dea}
 fj_x <-  matrix (rep(1.0,nrow(fj_data)), 
@@ -137,8 +137,9 @@ fj_y <-  dplyr::select(fj_data,
                          MTBF, Payload, Mach, BVRM)
 
 # rownames(as.matrix(fj_y)) <- c(list(fj_data[,1]))
-pander(head(fj_x))
-pander(head(cbind(fj_x, fj_y)))
+
+pander(head(cbind(fj_x, fj_y)), 
+       caption="Sample of Input (X) and Output (Y) Data for DEA Application")
 
 ```
 
@@ -157,7 +158,7 @@ Next, we can look at the envelopment variables that describe which aircraft(s) t
 pander(poscol(cbind(res1$eff, res1$lambda)))
 ```
 
-We can then go on to calculate the _peer year_ of each fighter jet. This is the average year of the fighter jets that each fighter jet is compared against along with the original year of first flight.
+We can then go on to calculate the _peer year_ of each fighter jet. This is the average year of the fighter jets that each fighter jet is compared against along with the original year of first flight.  We refer to the use of the _peer year_ as a dynamic frontier year model since the year of the efficiency frontier will vary depending on the mix of aircraft at each point.
 
 ```{r combined_results_from_dea}
 combined_res1 <- cbind (res1$eff,
@@ -172,7 +173,6 @@ pander(combined_res1,
 ```
 
 Next, we will use the different between these values to impute a rate of change.  
-
 
 ```{r calculate_rate_of_change}
 
@@ -250,5 +250,14 @@ To Be Added
 
 ## Future Work
 
-To Be Added
+Much work is needed.  
+
+* Instructions on installing TFDEA package
+* Better references
+* Show the mathematics of TFDEA
+* Graphical interpretations of results
+* 2 dimensional example of TFDEA
+* Examine Dong-Joon's code as an alternative
+
+
 
