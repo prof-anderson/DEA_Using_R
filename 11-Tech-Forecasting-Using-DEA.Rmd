@@ -67,14 +67,38 @@ To Be Added
 
 Let's explore an application from a previously published paper about an intensely competitive industry - United States fighter jet aircrafts. The time period studied was from the late stages of World War II to just before stealth technology had a big impact.  The fighter jets were drawn from 1944 to 1982.  
 
-First, let's start with a background.  Colonel Joseph Martino of the US Air Force examined trends for US fighter jets from 1944 to 1992.  He compared an expert scoring model and a regression model. This application was revisited using TFDEA.  The full data set is included in the TFDEA package.  For more detailed informationon the application, the interested reader is referred to the PICMET paper or the later journal paper.  
+First, let's start with a background.  Colonel Joseph Martino of the US Air Force examined trends for US fighter jets from 1944 to 1992. He compared an expert scoring model and a regression model. This application was revisited using TFDEA.  The full data set is included in the TFDEA package.  For more detailed informationon the application, the interested reader is referred to the PICMET paper or the later journal paper.  
 
 Let's start by examining the full dataset.  Note that the names of the variables are rather long making their display quite awkward. 
 
 ```{r display_full_fighter_jet_data}
 data(fighter_jet)
-pander (fighter_jet, 
-        caption="Full Dataset for Fighter Jet Study")
+
+fj_full_data_ex1 <- data.frame(t(colnames(fighter_jet)))
+fj_full_data_ex2 <- data.frame(t(c("Aircraft",
+                           "Year of First Flight",
+                           "Not used in regression/TFDEA",
+                           "Not used in regression/TFDEA",
+                           "Not used in regression/TFDEA",
+                           "Not used in regression/TFDEA",
+                           "Not used in regression/TFDEA",
+                           "Used as an output, Y1",
+                           "Not used in regression/TFDEA",
+                           "Used as an output, Y2",
+                           "Used as an output, Y3",
+                           "Not used in regression/TFDEA",
+                           "Not used in regression/TFDEA",
+                           "Not used in regression/TFDEA",
+                           "Not used in regression/TFDEA",
+                           "Not used in regression/TFDEA",
+                           "Not used in regression/TFDEA",
+                           "Used as an output, Y4",
+                           "Not used in regression/TFDEA")))
+
+fj_full_data_ex <- cbind(t(fj_full_data_ex1), t(fj_full_data_ex2))
+
+pander (fj_full_data_ex,
+        caption="Columns of Fighter Jet Data")
 
 ```
 
