@@ -134,7 +134,8 @@ fj_x <-  matrix (rep(1.0,nrow(fj_data)),
                  nrow = nrow(fj_data), ncol=1,
                  dimnames=c(list(fj_data[,1]),c("x")))
 fj_y <-  dplyr::select(fj_data,
-                         MTBF, Payload, Mach, BVRM)
+                       "MTBF (Y1)", "Payload (Y2)", 
+                       "Mach (Y3)", "BVRM (Y4)")
 
 # rownames(as.matrix(fj_y)) <- c(list(fj_data[,1]))
 
@@ -258,6 +259,3 @@ Much work is needed.
 * Graphical interpretations of results
 * 2 dimensional example of TFDEA
 * Examine Dong-Joon's code as an alternative
-
-
-
