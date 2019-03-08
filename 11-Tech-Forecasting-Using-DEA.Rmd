@@ -23,13 +23,13 @@ suppressPackageStartupMessages(library(TFDEA))
 
 ## Introduction  
 
-In the previous chapter, we examined how organizations or decision making units change in performance over time.  In this chapter we will change gears and consider how we can use DEA and Malmquist Productivity Index like techniques to consider how the performance of products change over time.  
+In the previous chapter, we examined how organizations or decision making units change in performance over time.  In this chapter, we will change gears and consider how we can use DEA and Malmquist Productivity Index like techniques to consider how the performance of products change over time.  
 
 We are looking at how new generations of products are developed over time in order to achieve better performance and/or lower cost. We are assuming that the product itself, once released, does not change in performance. It may have updates or degradation from being used but the initial specifications are considered unchanged.  
 
 ## History  
 
-In 2001, a National Science Foundation workshop on engineering applications of DEA invited DEA experts to work with engineering faculty from Union College to explore novel opportunities for collaboration. Breakout sessions were organized by engineering discipline.  While industrial engineering was well represented, I was one of the few electrical engineers using DEA at the time and joined that group.  These discussions included Dr. Shawna Grosskopf, one of the co-inventors of the Malmquist Productivity Index, MPI.  Discussions prompted me to think about would there be a way to apply the inherently multidensional nature of DEA to technlology forecasting?  
+In 2001, a National Science Foundation workshop on engineering applications of DEA invited DEA experts to work with engineering faculty from Union College to explore novel opportunities for collaboration. Breakout sessions were organized by engineering discipline.  While industrial engineering was well represented, I was one of the few electrical engineers using DEA at the time and joined that group.  These discussions included Dr. Shawna Grosskopf, one of the co-inventors of the Malmquist Productivity Index, MPI.  Discussions prompted me to think about would there be a way to apply the inherently multidensional nature of DEA to technology forecasting?  
 
 Over the following weeks, these thoughts percolated, including a day long visit with two of the top experts in MPI, Dr. Rolf Fare and Dr. Shawna Grosskopf, and a lot of time at a whiteboard. In the end, we decided that the mathematics and restrictions of product forecasting were different enough that MPI was not the right approach.  Over the ensuing months, with a PhD student, Oliver (Lane) Inman, the approach took shape and we started calling it Technology Forecasting Using DEA or TFDEA.  
 
