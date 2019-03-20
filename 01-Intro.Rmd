@@ -42,25 +42,19 @@ This book is currently in a very rough draft state.  As such, the writing needs 
 
 Topics to consider in the future:
 
-* Output-oriented model (Half done in Chapter 4)
-* Beautifying display of information
-* Extracting weights from the dual results
-* Multiplier model (Partially done in Chapter 5)
-* Cross-efficiency (Begun now in Chapter 6)
-* Technology Forecasting using DEA
-* Malmquist Productivity Indices
+Areas to extend add:
+* Malmquist Productivity Indices (started in chapter 10)
 * Network approaches
 * Shiny Application
 * Other DEA packages in R
     + Use of other packages
     + Comparison of results
 * Adding more references
+* Adding more datasets
 
 Some issues to consider about the book are the following:
 
 * Should data frames be used instead of matrices?
-* Potential publication outlet(s)
-* Git/GitHub
 * Convert some chunks to functions where appropriate
 
 Comments are welcome.
@@ -87,10 +81,16 @@ I would also like to thank earlier doctoral graduates for rich mutual interactio
 * Dr. Scott Leavengood
 
 Various colleagues have helped over the years including:
+
 * Dr. John Ruggiero
 * Dr. Shawna Grosskopf
 * Dr. Rolf Fare
 * Dr. Andy Johnson
 * Dr. Ole Olesen
+* Dr. K. Louis Luangkesorn
 
 In particular, the frequent discussions of DEA at INFORMS have been very helpful.
+
+Also, this work makes extensive use of the `ompr` package authored by Dirk Schumacher.  The rich algebraic modeling capabilities of `ompr` have made this book significantly more accessible.  
+
+

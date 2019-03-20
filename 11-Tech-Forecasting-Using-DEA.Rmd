@@ -33,13 +33,13 @@ In 2001, a National Science Foundation workshop on engineering applications of D
 
 Over the following weeks, these thoughts percolated, including a day long visit with two of the top experts in MPI, Dr. Rolf Fare and Dr. Shawna Grosskopf, and a lot of time at a whiteboard. In the end, we decided that the mathematics and restrictions of product forecasting were different enough that MPI was not the right approach.  Over the ensuing months, with a PhD student, Oliver (Lane) Inman, the approach took shape and we started calling it Technology Forecasting Using DEA or TFDEA.  
 
-The first application was revisiting microprocessor benchmarking in line with Moore's Law.  
+The first application was revisiting microprocessor benchmarking in line with Moore's Law [@AndersonFurtherexaminationMoore2002].  Later work examined fighter jets [@InmanImprovingtimemarket2005; @InmanPredictingjetfighter2006] and other products.  
 
 Dr. Inman's thesis formalized and significantly extended the approach of TFDEA.  An interesting case study included enterprise database system and their changing performance over time by identifying a key disruptive innovation has rippled through industry after industry including most phones used around the world.  Another important linkage was examining hard disk drives and providing additional insights to the classic case by Clayton Christensen made famous in the book, _The Innovator's Dilemma_.
 
 Later, we revisited a classic techology forecasting application of US fighter jets from 1944 to 1992 to examine how TFDEA performed relative to other techniques, whether it could be applied to large systems outside of the high technology industry, and the usage over a long time horizon.
 
-```{r loadhelperfiles }
+```{r loadhelperfiles, echo=FALSE }
 source('Helperfiles.R')
 #knitr::read_chunk('Helperfiles.R')
 #<<poscolfunct>>   
