@@ -65,7 +65,7 @@ Can you tell which units represent the best tradeoff between inputs and outputs?
 Graphical Analysis
 -----------------------------
 
-Let's start by doing a simple plot of the data.  For now, I'm going to make use of a function in Peter Bogetoft and Lars Otto's Benchmarking package which provides a very handy two-dimensional  plot in the format often used for showing production. 
+Let's start by doing a simple plot of the data.  For now, I'm going to make use of a function in Peter Bogetoft and Lars Otto's `Benchmarking` package which provides a very handy two-dimensional  plot in the format often used for showing production.  For more information on how to use the `Benchmarking` package along with a more economics-oriented treatement of DEA, please refer to [@BogetoftBenchmarkingDEASFA2011].  
 
 ```{r}
 library(Benchmarking, quietly=TRUE)
