@@ -7,11 +7,12 @@ output:
 
 Introduction
 -----------------------------
+
 Every linear program has a related alter ego referred to as the dual.  By duality, the two models have the same optimal objective function values.  In DEA, the multiplier models are simply the dual of the envelopment models.  In terms of the matrix representations of DEA given in chapter 3, the A matrix is transposed, rows give way to columns and columns become rows.  The right hand side values appear in the objective function while the previous objective function coefficients become right hand side values.  More could be said about this but this will be deferred for people interested in duality or more algorithmic aspects of linear programming.  
 
 Let's turn our attention instead to intuitively developing the DEA multiplier model through a few steps. 
 
-##The Two Output, No Input Model
+## The Two Output, No Input Model
 
 Assume that you, Alfred, are one of six restaurant managers of various franchisees of the popular TexMex chain, Chiposter.  Each restaurant branch is operating under different conditions and are operated by your colleagues:  Barb, Chris, Don, Ed, and Fran.  Each restaurant manager is achieving outcomes (outputs.) At the end of the year, you want to make a case for having done well.
 
@@ -31,6 +32,7 @@ pander(YRest1, caption="Restaurant Data")
 ```
 
 You can select any way of weighting the two outputs with just two conditions:
+
 * No weight can be negative
 * No one can received a weighted score above 100%
 
@@ -39,7 +41,6 @@ Given these two limitations, your goal is to make your "Alfred score" as high as
 While it is possible to experiment with different weights, this can also be framed as an optimization model.  The goal or objective is to find the best Alfred score, using weights ($u_1$, and $u_2$) subject to the constraints that no one's scores is above 100%.  
 
 Let's take the restaurant data and formulate the model.
-
 
 $$
 \begin{split}
@@ -57,7 +58,7 @@ $$
 (\#eq:NLP-HardCode)
 $$
 
-Next let's implement this in ompr.  This will serve as a review for ompr.  
+Next let's implement this in `ompr` which may serve as a convenient refresher as well.  
 
 ```{r}
 library(dplyr, quietly=TRUE)            # For data structure manipulation
@@ -146,26 +147,26 @@ $$
 \begin{split}
 \begin{aligned}
     \text {max } \sum_{r=1}^{2} u_r y_{r,1}\\
-    \text{subject to } &  \sum_{r=1}^{2} u_r y_{r,1} \leq 1.0 [Alfred]\\
-     &  \sum_{r=1}^{2} u_r y_{r,2} \leq 1.0 [Barb]\\
-     &  \sum_{r=1}^{2} u_r y_{r,3} \leq 1.0 [Chris]\\
-     &  \sum_{r=1}^{2} u_r y_{r,4} \leq 1.0 [Don]\\
-     &  \sum_{r=1}^{2} u_r y_{r,5} \leq 1.0 [Ed]\\
-     &  \sum_{r=1}^{2} u_r y_{r,6} \leq 1.0 [Fran]\\
+    \text{subject to } &  \sum_{r=1}^{2} u_r y_{r,1} \leq 1.0 \quad [Alfred]\\
+     &  \sum_{r=1}^{2} u_r y_{r,2} \leq 1.0  \quad [Barb]\\
+     &  \sum_{r=1}^{2} u_r y_{r,3} \leq 1.0  \quad [Chris]\\
+     &  \sum_{r=1}^{2} u_r y_{r,4} \leq 1.0  \quad [Don]\\
+     &  \sum_{r=1}^{2} u_r y_{r,5} \leq 1.0  \quad [Ed]\\
+     &  \sum_{r=1}^{2} u_r y_{r,6} \leq 1.0  \quad [Fran]\\
      &                  u_1, u_2\geq 0  
   \end{aligned}
 \end{split}
 (\#eq:NLP6PeopleHArdCode)
 $$
 
-Now we will extend this further to reflect that the constraint of being less than or equal to 1.0 is the same for every manager.  A key notation to learn is the $\forall$ which means to repeat for all possible values of the index.  
+Now we will extend this further to reflect that the constraint of being less than or equal to 1.0 is the same for every manager.  A key notation to learn is the $\forall$ symbol which means to repeat for all possible values of the index.  
 
 $$
 \begin{split}
 \begin{aligned}
     \text {max } \sum_{r=1}^{2} u_r y_{r,1}\\
     \text{subject to } &  \sum_{r=1}^{2} u_r y_{r,j} 
-                          \leq 1.0 \forall \; j\\
+                          \leq 1.0  \; \forall \; j\\
      &                  u_r \geq 0  \; \forall \; r
   \end{aligned}
 \end{split}
@@ -181,7 +182,7 @@ $$
 \begin{aligned}
     \text {max } \sum_{r=1}^{N^Y} u_r y_{r,k}\\
     \text{subject to } &  \sum_{r=1}^{N^Y} u_r y_{r,j} 
-                          \leq 1.0 \forall \; j\\
+                          \leq 1.0 \; \forall \; j\\
      &                  u_r \geq 0  \; \forall \; r
   \end{aligned}
 \end{split}
@@ -190,19 +191,20 @@ $$
 
 This formulation is now a linear programming model that will find an optimal score for manager _k_ regardless of the number of outputs and the number of other managers being considered.
 
-##The Ratio Model
+## The Ratio Model
 
 Now, let's further extend this model in incorporate inputs. Not only are the restaurant managers producing different outcomes, they are also using different resources, say capital and labor. Let's denote capital investment as $x_1$ and labor in full-time-equivalents as $x_2$.  
 
 We can frame the question of doing a two-input, two-output study in the same way as we did for the two output example earlier. Instead of a simple score, the manager can have a ratio of weighted outputs over weighted inputs.  
 
-For the two-input, two-output case, the formulation is given below.  h
+For the two-input, two-output case, the formulation is given below. 
+
 $$
 \begin{split}
 \begin{aligned}
     \text {max } \frac{\sum_{r=1}^{2} u_r y_{r,k}} {\sum_{i=1}^{2} v_i x_{i,k} } \\
     \text{subject to } & \frac{\sum_{r=1}^{2} u_r y_{r,k}} {\sum_{i=1}^{2} v_i x_{i,k} }
-                          \leq 1 \forall \; j\\
+                          \leq 1 \; \forall \; j\\
                        u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
 \end{split}
@@ -217,7 +219,7 @@ $$
 \begin{aligned}
     \text {max } \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
     \text{subject to } & \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} }
-                          \leq 1 \forall \; j\\
+                          \leq 1 \; \forall \; j\\
                        u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
 \end{split}
@@ -231,7 +233,7 @@ $$
  \begin{aligned}
     \text {max } \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
     \text{subject to } & \sum_{r=1}^{N^Y} u_r y_{r,k} - \sum_{i=1}^{N^X} v_i x_{i,k} 
-                          \leq 0 \forall \; j\\
+                          \leq 0 \; \forall \; j\\
                        u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
    \end{split}
@@ -249,7 +251,7 @@ $$
     \text {max } \sum_{r=1}^{N^Y} u_r y_{r,k} \\
     \text{subject to } & \sum_{i=1}^{N^X} v_i x_{i,k} = 1 \\
     & \sum_{r=1}^{N^Y} u_r y_{r,k} - \sum_{i=1}^{N^X} v_i x_{i,k} 
-                          \leq 0 \forall \; j\\
+                          \leq 0 \; \forall \; j\\
                        u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
    \end{split}

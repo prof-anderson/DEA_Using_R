@@ -72,6 +72,7 @@ This book has benefitted from the interactions of many people over the years.  I
 * Aurobindh Kalathil Puthanpura
 * Tom Shott
 * Kevin van Blommestein
+* Ambica Sogal
 
 I would also like to thank earlier doctoral graduates for rich mutual interactions:
 
