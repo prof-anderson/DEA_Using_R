@@ -135,7 +135,7 @@ pander (cbind(results.efficiency, results.lambda),round=6, caption="Results from
 
 ```
 
-In this case, the two input-two output, output-oriented CCR model gives us four efficient nurshing homes, A, B, C, and D.    
+In this case, the two input-two output, output-oriented CCR model gives us four efficient nursing homes, A, B, C, and D.    
 
 ## Future Work
 
