@@ -60,6 +60,42 @@ Our exploration will also serve as a review of data manipulation in R. There are
 As usual, we want to see get familiar with the data. Let's look at the first few rows of the batting data. We are going to want to make a model of baseball batting. A good model is that a batter uses plate appearances to produce singles, doubles, triple, home runs, and walks.  Baseball fans might think of other outcomes such as sacrifice flies but these are generally less common, less desireable, and often not even intentional. These five outcomes constitute a model that fits well enough. The following figure shows what we will want to construct for a model.
 
 ```{r}
+library(DiagrammeR)
+
+grViz("
+digraph boxes_and_text {
+
+  # a 'graph' statement
+  graph [overlap = true,rankdir = LR, fontsize = 10]
+
+  # several 'node' statements
+  node [shape = box,width = 2, height= 1, style=filled, color=green,
+        fontname = Helvetica]
+  A[label = '@@1']
+
+  node [shape = plaintext, style=non,
+        fixedsize = true,
+        width = 2.5, height= 0.3] // sets as circles
+  1[label = '@@2']; 2[label = '@@3']; 3[label = '@@4'];
+  4[label = '@@5']; 5[label = '@@6']; 6[label = '@@7']
+
+  # several 'edge' statements
+  1->A 
+  A->2 A->3 A->4 A->5 A->6
+}
+
+[1]: 'Batter'
+[2]: 'PA (Plate Appearances)'
+[3]: 'BB (Base on Balls or Walks)'
+[4]: '1B (Singles)'
+[5]: '2B (Doubles)'
+[6]: '3B (Triples)'
+[7]: 'HR (Home Runs)'
+")
+```
+
+
+```{r}
 
 XFigNames <- "PA (Plate Appearances)"
 YFigNames <- c("BB (Base on Balls or Walks)", 
