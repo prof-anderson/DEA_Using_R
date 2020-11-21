@@ -7,13 +7,22 @@ output:
   pdf_document: default
 ---
 
-```{r setup, include=FALSE}
+```{r Ch_10_setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(pander)
-panderOptions('round',5) # Set option for rounding in pander data tables
+panderOptions('round',5) # Rounding in pander data tables
 library(DiagrammeRsvg)
 library(rsvg)
 library(htmltools)
+library(TRA)  # Not on CRAN, install from github if needed
+   # devtools::install_github("prof-anderson/TRA")
+library(DJL)
+library ("Lahman", quietly=TRUE)
+library ("dplyr", quietly=TRUE)
+library("pander", quietly=TRUE)
+library(DiagrammeRsvg, quietly=TRUE)
+library(rsvg, quietly=TRUE)
+library(htmltools, quietly=TRUE)
 ```
 
 
@@ -35,20 +44,6 @@ A third, key way of changing performance might be accommodating new best practic
 
 Simply looking at efficiency scores on their own in a single year do not always give us sufficient richness for separating out these situations.  The Malmquist Productivity Index was developed for decomposing this changing performance over time.
 
-```{r loadhelperfiles }
-source('Helperfiles.R')
-#knitr::read_chunk('Helperfiles.R')
-#<<poscolfunct>>   
-   # This reads in a chunk that defines the poscol function
-   # This function will filter out columns that are zero
-   # More precisely, it factors out column with
-   # column sums that are zero.  This is helpful
-   # for tables of lambda values in DEA.
-source('Helperfiles.R')
-#knitr::read_chunk('Helperfiles.R')
-#<<DrawIOdiagramfunction>>   
-```
-
 ## How the Malmquist Productivity Index Works
 
 To Be Added
@@ -59,4 +54,72 @@ To Be Added
 
 ## Using MPI to Assess the Maturation of an Industry
 
-To Be Added
+Let's revisit our baseball example from earlier.  
+
+```{r ch10_draw_bb_io_diagram}
+
+XFigNames <- "PA (Plate Appearances)"
+YFigNames <- c("BB (Base on Balls or Walks)", 
+               "1B (Singles)", 
+               "2B (Doubles)", 
+               "3B (Triples)",
+               "HR (Home Runs)")
+Figure<-DrawIOdiagram(XFigNames,YFigNames, '"\n\nBatter\n\n "')  
+
+tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),'BaseballBatting.png'))
+```
+
+```{r ch10_preparing_bb_data_with_dplyr}
+
+batting<-Lahman::Batting
+
+MinPA <- 400  # Minimum number of plate appearances to include in dataset
+              # Might cause issues for shortened seasons
+
+#batting <- dplyr::filter(batting,PA>MinPA)
+
+batting <- batting %>% 
+  select(playerID,yearID,teamID,lgID,AB,H,X2B,X3B,HR,BB) %>%
+  mutate(PA=as.numeric(AB+BB)) %>%
+  mutate(X1B=as.numeric(H-HR-X3B-X2B)) %>%
+  transform(BB=as.numeric(BB)) %>%
+  transform(X2B=as.numeric(X2B)) %>%
+  transform(X3B=as.numeric(X3B)) %>%
+  transform(HR=as.numeric(HR)) %>%
+  
+  filter(yearID>1900, PA>MinPA) %>%
+  select(playerID,yearID,teamID,lgID,PA,BB,X1B,X2B,X3B,HR)
+
+pander (head(batting), caption="Results of Preparing Data using dplyr")
+```
+
+
+```{r preparing_BB_IO_data}
+
+inputs <- c("PA")
+outputs <- c("BB", "X1B", "X2B", "X3B", "HR")
+batting1920AL <- batting %>% filter(yearID==1920, lgID=="AL")
+
+x <- batting1920AL %>% select( PA)
+row.names(x)<-batting1920AL[,1]
+
+y <- batting1920AL %>% select(BB, X1B, X2B, X3B, HR)
+row.names(y)<-batting1920AL[,1]
+
+pander (head (cbind(x,y)), caption="Data for the 1920AL")
+
+#Data for DJL's Malmquist function
+batting1919_20AL <- batting %>% filter((yearID>1918) & (yearID<1921), lgID=="AL")
+
+```
+
+```{r ch10_doing_DEA}
+
+res1920AL<-dm.dea(x,y, rts="crs", orientation="i", sg="ssm")
+
+#phi <- res1920AL$eff
+#theta <- 1/phi
+
+#pander (cbind(head(phi),head(theta)), caption="CCR-OO Scores for 1920AL (Phi and Theta)")
+```
+
