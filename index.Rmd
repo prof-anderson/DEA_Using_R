@@ -10,10 +10,25 @@ link-citations: yes
 github-repo: seankross/bookdown-start
 url: 'http\://seankross.com/bookdown-start/'
 description: "Everything you need (and nothing more) to start a bookdown book."
-
+output:
+  bookdown::tufte_html_book:
+    toc: yes
+  bookdown::tufte_book2:
+    toc: yes
+  tufte_book2: default     
 ---
 
+```{r setup1, include=FALSE}
+library(tufte)
+# invalidate cache when the tufte version changes
+knitr::opts_chunk$set(tidy = FALSE, cache.extra = 
+packageVersion('tufte'))
+options(htmltools.dir.version = FALSE)
+```
+
 # Preface {-}
+
+TESTING...
 
 This is an attempt to use R, rmarkdown, and bookdown to create a living book for the field of Data Envelopment Analysis.  There are many other books out there on DEA.  This book attempts to explain issues in building your own toolset for DEA in R.  It will also cover some of the challenges to watch out for along the way.
 
