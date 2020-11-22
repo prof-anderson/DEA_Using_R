@@ -59,7 +59,7 @@ Our exploration will also serve as a review of data manipulation in R. There are
 
 As usual, we want to see get familiar with the data. Let's look at the first few rows of the batting data. We are going to want to make a model of baseball batting. A good model is that a batter uses plate appearances to produce singles, doubles, triple, home runs, and walks.  Baseball fans might think of other outcomes such as sacrifice flies but these are generally less common, less desireable, and often not even intentional. These five outcomes constitute a model that fits well enough. The following figure shows what we will want to construct for a model.
 
-```{r}
+```{r ch8_draw_bb_io_diagram}
 
 XFigNames <- "PA (Plate Appearances)"
 YFigNames <- c("BB (Base on Balls or Walks)", 
@@ -126,13 +126,14 @@ pander(head(batting), caption="Batting Statistics Converted into Inputs and Outp
 
 ```
 
-Now we will trim out player to only include those that have over '$MinPA$' plate appearances to limit the impact of part-time players or  platooning players.
 
 ```{r selecting_fulltime_players}
 MinPA <- 400
 batting <- dplyr::filter(batting,PA>MinPA)
 pander(head(batting), caption="Limit to Full-time Players")
 ```
+
+Now we will trim out player to only include those that have over '$MinPA$' plate appearances to limit the impact of part-time players or  platooning players.
 
 Part of the beauty of dplyr is the ability to consolidate all of this into a single function.
 
@@ -162,8 +163,6 @@ Now that we have data prepared along with the tools for further manipulation, we
 Our basic input-output model for baseball batting consists of plate appearances as the sole input and the five most common results of types of hits along with walks. 
 
 In 1920, the American League featured a batter so dominant that he transformed the "industry" of baseball. Let's focus on this year for now. The core model for analysis is described in the following figure. We are going to use an output-oriented, constant returns to scale model. The following figures illustrates the DEA model that we will be using.  
-
-t we will want to construct for a model.
 
 ```{r}
 

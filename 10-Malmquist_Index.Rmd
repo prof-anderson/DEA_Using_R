@@ -11,9 +11,6 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 library(pander)
 panderOptions('round',5) # Rounding in pander data tables
-library(DiagrammeRsvg)
-library(rsvg)
-library(htmltools)
 library(TRA)  # Not on CRAN, install from github if needed
    # devtools::install_github("prof-anderson/TRA")
 library(DJL)
