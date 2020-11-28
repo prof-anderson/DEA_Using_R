@@ -192,7 +192,7 @@ This value of gamma gives us then the annualized rate of change that compounds t
 
 The approach of TFDEA has been both formalized extended in later works but this provides quick perspective on the overall approach.
 
-### Reproducing Fighter Jet Technology Forecasting
+## Reproducing Fighter Jet Technology Forecasting
 
 Now, let's use the `TFDEA` to reexamine the fighter jet research and enhance the situation.  Consider yourself to be a military analyst in 1960.  You know the past fighter jets that the US has put into service and you know the specifications of the upcoming fighter jets being developed by Boeing, Lockheed, and others. Alas, you don't know when these _future_ fighter jets will actually be put into service by having their first flights. After all, fighter jets and other large, complex projects are notorious for running late. Your mission is to try to predict, based upon trends up to 1960, when the post 1960 fighter jets will be released.  
 

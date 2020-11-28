@@ -137,7 +137,7 @@ A few things to take note of:
 * Functions are called from specific packages using the `::` such as `Benchmarking::dea` to call the  `dea` from the  `Benchmarking` package.
 * Parameters are passed by name into the DEA function to avoid ambiguity and to clarify the different naming conventions used in each package.
 
-### The Benchmarking Package
+## The Benchmarking Package
 
 ```{r run_benchmarking}
 
@@ -147,10 +147,8 @@ res_benchmarking <- Benchmarking::dea (X=x, Y=y, RTS="crs",
                                        ORIENTATION="in", 
                                        SLACK=TRUE, DUAL=FALSE)
 
-pander(res_benchmarking$eff, caption="Efficiency Scores from Benchmarking")
-
-pander(res_benchmarking$lambda, caption="Lambda Variable Results from Benchmarking")
-
+pander (cbind(res_benchmarking$eff,poscol(res_benchmarking$lambda)),
+        caption="Results from the Benchmarking package")
 ```
 
 The results from Benchmarking are simple and straightforward.  
@@ -170,7 +168,7 @@ res_nonparaeff <- nonparaeff::dea(base = nonparaeff_data,
 
 pander(res_nonparaeff$eff, caption="Efficiency Scores from nonparaeff")
 
-pander(t(rbind(res_nonparaeff$lambda1,
+res_lambda_nonparaeff<- (t(rbind(res_nonparaeff$lambda1,
              res_nonparaeff$lambda2,
              res_nonparaeff$lambda3,
              res_nonparaeff$lambda4,
@@ -181,8 +179,10 @@ pander(t(rbind(res_nonparaeff$lambda1,
              res_nonparaeff$lambda9,
              res_nonparaeff$lambda10,
              res_nonparaeff$lambda11,
-             res_nonparaeff$lambda12)), 
-       caption="Lambda Variable Results from nonparaeff")
+             res_nonparaeff$lambda12)))
+
+pander (cbind(res_nonparaeff$eff,poscol(res_lambda_nonparaeff)),
+        caption="Results from the Benchmarking package")
 
 ```
 
@@ -192,7 +192,7 @@ Some items to note about nonparaeff.
 * The $\lambda$ variables are returned separately for each DMU.
 * Returned objects lose the row and column names.
 
-### The rDEA Package
+## The rDEA Package
 
 ```{r run_rDEA}
 
@@ -213,7 +213,7 @@ Some notable characteristics of using the rDEA package are the following.
 * The model parameter combines both orientation and model decisions.
 * Explitily allows for separating the production technology (XREF and YREF) from the units to be estimated.  
 
-### The DJL Package
+## The DJL Package
 
 The DJL package comes from the name "Distance Measure Based Judgement and Learning" but is coincidentally also the initials of the primary author, Dr. Dong-Joon Lim.  The emphasis in this package is on a variety efficiency models from the perspective of distance metrics.  With this it provides a models for accommodating super-efficiency related issues - particularly infeasibility under certain situations.  
 
@@ -232,7 +232,7 @@ pander(res_DJL$lambda,
 
 ```
 
-### The multiplierDEA Package
+## The multiplierDEA Package
 
 ```{r run_MultiplierDEA}
 
@@ -249,7 +249,7 @@ pander(res_MultiplierDEA$Lambda,
 
 ```
 
-### The deaR Package
+## The deaR Package
 
 The deaR package has a rich collection of data sets included in the package.  It also includes a broader collection of DEA variants than most of the other packages including:
 
