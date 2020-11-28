@@ -7,7 +7,7 @@ _bookdown_files
 .Rapp.history
 bookdown-start.Rproj
 bookdown-start.log
-docs/*.*
+/docs/*
 DEA_Using_R.Rproj
 *.md
 BaseballBatting.png
