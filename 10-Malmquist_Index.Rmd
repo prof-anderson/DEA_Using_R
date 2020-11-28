@@ -9,6 +9,7 @@ output:
 
 ```{r Ch_10_setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+<<<<<<< HEAD
 library (pander)
 panderOptions ('round',5) # Rounding in pander data tables
 library (knitr)
@@ -16,6 +17,11 @@ library (DiagrammeRsvg)
 library (rsvg)
 library (htmltools)
 library (TRA)  # Not on CRAN, install from github if needed
+=======
+library(pander)
+panderOptions('round',5) # Rounding in pander data tables
+library(TRA)  # Not on CRAN, install from github if needed
+>>>>>>> 43db56ddffe05e1f7e35de6aa628c9f0c74ffda1
    # devtools::install_github("prof-anderson/TRA")
 library ("Lahman", quietly=TRUE)
 library ("dplyr", quietly=TRUE)

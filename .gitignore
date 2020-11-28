@@ -9,3 +9,6 @@ bookdown-start.Rproj
 bookdown-start.log
 docs/*.*
 DEA_Using_R.Rproj
+*.md
+BaseballBatting.png
+BaseballCCRIO.png
