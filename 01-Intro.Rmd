@@ -63,10 +63,8 @@ Comments are welcome.
 
 This book has benefitted from the interactions of many people over the years.  In particular, I would like to thank the following students and graduates from over the recent years that have made direct or indirect contributions this effort.  
 
-* Dr. Dong-Joon Lim
 * Tim Calderwood
 * Nina Chaichi
-* Maoloud Dabab
 * William "Ike" Eisenhauer
 * Jiali Ju
 * Aurobindh Kalathil Puthanpura
@@ -80,6 +78,8 @@ I would also like to thank earlier doctoral graduates for rich mutual interactio
 * Dr. Gerald Williams
 * Dr. Lane Inman
 * Dr. Scott Leavengood
+* Dr. Dong-Joon Lim
+* Dr. Maoloud Dabab
 
 Various colleagues have helped over the years including:
 
@@ -93,5 +93,4 @@ Various colleagues have helped over the years including:
 In particular, the frequent discussions of DEA at INFORMS have been very helpful.
 
 Also, this work makes extensive use of the `ompr` package authored by Dirk Schumacher.  The rich algebraic modeling capabilities of `ompr` have made this book significantly more accessible.  
-
 
