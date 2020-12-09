@@ -1,11 +1,3 @@
----
-title: "11-TFDEA"
-author: "Tim Anderson"
-date: "February 22, 2019"
-output:
-  html_document: default
-  pdf_document: default
----
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -18,8 +10,7 @@ library(dplyr)
 suppressPackageStartupMessages(library(TFDEA))
 ```
 
-
-# Measuring Changing Performance of Products over Time
+# Advancing Products over Time
 
 ## Introduction  
 

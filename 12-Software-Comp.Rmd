@@ -1,11 +1,4 @@
----
-title: "12-Software"
-author: "Tim Anderson"
-date: "February 22, 2019"
-output:
-  pdf_document: default
-  html_document: default
----
+# Benchmarking the Benchmarkers
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -15,9 +8,6 @@ library(DiagrammeRsvg)
 library(rsvg)
 library(htmltools)
 ```
-
-
-# Benchmarking the Benchmarkers
 
 ## Introduction  
 

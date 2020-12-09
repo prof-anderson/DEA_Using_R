@@ -1,12 +1,3 @@
----
-title: "10-Malmquist-Index"
-author: "Tim Anderson"
-date: "February 22, 2019"
-output:
-  pdf_document: default
-  html_document: default
----
-
 ```{r Ch_10_setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library (pander)
@@ -30,8 +21,7 @@ library (DJL)
 library (deaR)
 ```
 
-
-# Measuring Changing Performance over Time
+# Changing Performance over Time
 
 ## Introduction^[This chapter benefited from significant contributions by 
 Aurobindh Kalathil Puthanpura, Nina Chaichi, Dr. Dong-Joon Lim, and Kevin van Blommestein but responsibility for all errors resides with Dr. Tim Anderson]

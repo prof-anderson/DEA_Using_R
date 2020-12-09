@@ -1,16 +1,3 @@
----
-output:
-  html_document: default
-  ioslides_presentation:
-    smaller: yes
-    widescreen: yes
-  slidy_presentation: default
-  pdf_document: default
-  beamer_presentation:
-    colortheme: dolphin
-    fonttheme: structurebold
-    theme: AnnArbor
----
 # Input-Oriented Envelopment Model
 
 Introduction
