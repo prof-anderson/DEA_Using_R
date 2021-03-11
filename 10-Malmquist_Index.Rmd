@@ -35,11 +35,12 @@ Often it is important to assess the changing performance over time rather than j
 
 In the case of a store being benchmarked against similar stores in the same chain, changes due to general operating conditions might be due to inflation raising wages (or materials, end products, etc.), changing laws or regulations, etc.  In this case, a change in the general operating conditions is like "...a rising tide raising all boats."  It is good to identify and quantify these impacts but it isn't something that an individual store manager would be either blamed for performance loss due to this or praised for changes helping.  (A similar example could be found for stock traders, making a 20% return when the market is also up 20% is not particularly impressive and getting a 15% return might be considered poor.)
 
-Performance may be improved by simply getting bigger and achieving economies of scale.  Perhaps a store expansion allowed for both increased sales without needing more checkout personnel or space.  In this case, there might be gains from just simply getting bigger that other, larger stores are also achieving.  Other returns to scale effects such as getting too big and decreasing returns to scale or shrinking in size may also occur.  Again, finding ways to separate and assess these impacts can be very important.  
 
-A third, key way of changing performance might be accommodating new best practices.  A store manager might glean a new innovation such as a better way to staff employees, run checkout operations, or managing inventory. This innovation would be a change that affects only this particular store and we would like to identify and rewards such an innovation. Identifying a new best practice early could help us spread this best practice more widely and quickly.  
+Performance may be improved by simply getting bigger and achieving economies of scale.  Perhaps a store expansion allowed for better space utilization with a 10% increase in space and staff generating a 20% increase in sales.  In this case, there might be gains from just simply getting bigger.  Other returns to scale effects such as getting too big and decreasing returns to scale or impacts of shrinking in size may also occur.  Again, finding ways to separate and assess these impacts can be very useful.  
 
-Simply looking at efficiency scores on their own in a single year do not always give us sufficient richness for separating out these situations.  The Malmquist Productivity Index was developed for decomposing this changing performance over time.
+A third, key way of changing performance might be by adopting new best practices.  A store manager might glean a new innovation such as a better way to staff employees, run checkout operations, or manage inventory. This innovation would be a change that affects only this particular store and we would like to identify and reward such innovation. Identifying a new best practice early could help us spread this best practice more widely and quickly.  
+
+Simply looking at efficiency scores on their own in a single year does not always give us sufficient richness for separating out these situations.  The Malmquist Productivity Index was developed for decomposing this changing performance over time.
 
 ## A Two-Dimensional Example of MPI
 
@@ -51,7 +52,7 @@ We will then follow this calculations using various packages.
 knitr::include_graphics("images/ch10_malm1.PNG")
 ```
 
-The lower (orange) line corresponds to the efficiency frontier at a particular time period _t_.  The higher (red) line is the efficiency frontier at the next time period, _t+1_.  The blue circle with a _F_ is a particular unit of interest's performance at time period _t_.  Similarly, in time period _t+1_, its performance has changed to the higher blue circle (_B_).  
+The lower (orange) line corresponds to the efficiency frontier at a particular time period _t_.  The higher (red) line is the efficiency frontier at the next time period, _t+1_.  The blue circle with a _F_ is a particular unit, _k_ of interest at time period _t_, perhaps denoted as $k^t$.  Similarly, in time period _t+1_, its performance has changed to the higher blue circle (_B_) or $k^{t+1}$.  
 
 Clearly the unit's performance has changed significantly.  Our goal with the Malmquist Productivity Index is to determine how much of the performance change can be attributed to improved operational performance (perhaps better managerial practices?) and how much can be attributed to an improved operating environment (the rising tide raising all boats.)  
 
@@ -150,16 +151,23 @@ pander(malm_gr_data, caption="Data for graphical example of the Malmquist Produc
 
 ```
 
+This table is a pretty simple and compact format but MPI requires more organization.  Specifically, even a simple dataset requires us to specify inputs and outputs just like in other DEA applications but it also needs time periods and a way to match each DMU from period to period. The `deaR` package has a function to convert a dataset into the appropriate format.  
 
 ```{r}
 #Process data into the format required by deaR
-malm_gr_data_pro <- read_malmquist(malm_gr_data,
-                               percol = 1,
-                               dmus = 2,
-                               inputs = 3,
-                               outputs = 4,
-                               arrangement = "vertical")
+malm_gr_data_pro <- 
+  read_malmquist(malm_gr_data,
+                 percol = 1,   # Use Col1 for period (year)
+                 dmus = 2,     # Col2 has DMU identifier
+                 inputs = 3,   # Col3 has the input
+                 outputs = 4,  # Col4 has the output
+                 arrangement = "vertical")
 
+```
+
+Let's look at the data structure that the `deaR` package is using.  
+
+```{r}
 result_gr <- malmquist_index(malm_gr_data_pro,
                                orientation = "oo",
                                rts = "crs",
@@ -175,7 +183,8 @@ colnames(res_mi_gr) <- c("MPI", "PEch",  "TC")
 pander(res_mi_gr)
 
 ```
-Results don't match what I expect for this example.  I need to do a little more digging.  I expect that it is a combination of the following factors:
+
+The results don't match what I expect for this example.  I need to do a little more digging.  I expect that it is a combination of the following factors:
 
 * characterizing efficiency as 0 to 1 vs, 1 and higher
 * implementation of VRS vs. CRS
