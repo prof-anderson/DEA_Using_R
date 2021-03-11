@@ -3,6 +3,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library (pander)
 panderOptions ('round',5) # Rounding in pander data tables
 library (knitr)
+library (DiagrammeR)
 library (DiagrammeRsvg)
 library (rsvg)
 library (htmltools)
@@ -19,12 +20,12 @@ library (htmltools, quietly=TRUE)
 library (Benchmarking)
 library (DJL)
 library (deaR)
+#library(bookdown); library(rmarkdown); rmarkdown::render("10-Malmquist_Index.Rmd", "pdf_book")
 ```
 
 # Changing Performance over Time
 
-## Introduction^[This chapter benefited from significant contributions by 
-Aurobindh Kalathil Puthanpura, Nina Chaichi, Dr. Dong-Joon Lim, and Kevin van Blommestein but responsibility for all errors resides with Dr. Tim Anderson]
+## Introduction^[This chapter benefited from significant contributions by Aurobindh Kalathil Puthanpura, Nina Chaichi, Dr. Dong-Joon Lim, and Kevin van Blommestein but responsibility for all errors resides with Dr. Tim Anderson]
 
 Often it is important to assess the changing performance over time rather than just at a single snapshot.  We did some explorations of the changing distribution of scores in the chapter on baseball but we didn't really explore how these scores change on a year by year basis. A unit's changing performance might be due to a number of reasons:
 
