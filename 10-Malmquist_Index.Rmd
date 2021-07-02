@@ -135,7 +135,7 @@ $$
 knitr::include_graphics("images/ch10_malm4.PNG")
 ```
 
-Let's now take a look at implementing this using the `deaR` package.
+Let's now take a look at implementing this using the `deaR` package.There's a 
 
 First, we'll create a dataset.
 
@@ -184,14 +184,14 @@ pander(res_mi_gr)
 
 ```
 
-The results don't match what I expect for this example.  I need to do a little more digging.  I expect that it is a combination of the following factors:
+The results don't match what I expect for this example.  I need to do a little more digging.  I expect that it is due to one or more of the following factors:
 
 * characterizing efficiency as 0 to 1 vs, 1 and higher
-* implementation of VRS vs. CRS
-* particular variation of Malmquist and decomposition
-* labeling of terms (TC for technological change vs. pure technical change)
+* Returns to scale (VRS vs. CRS)
+* Particular variation of Malmquist and decomposition
+* Labeling of terms (TC for technological change vs. pure technical change)
 
-
+## MPI for Griffell and Lovell 1999
 
 Let's revisit an example from the literature using the `deaR` package.
 
