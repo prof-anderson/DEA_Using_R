@@ -1,4 +1,4 @@
---- 
+---
 title: "Data Envelopment Analysis Using R"
 author: "Timothy R. Anderson"
 date: "`r Sys.Date()`"
@@ -26,16 +26,16 @@ packageVersion('tufte'))
 options(htmltools.dir.version = FALSE)
 ```
 
-# Preface {-}
+# Preface {.unnumbered}
 
-This books uses R, rmarkdown, and bookdown to create a living book for the field of Data Envelopment Analysis.  There are many other books out there on DEA.  This book attempts to explain issues in building your own toolset for DEA in R.  It will also cover some of the challenges to watch out for along the way.  The majority of the book emphasizes how to implement a variety of DEA models in R.  This is generally done with a focus on readability rather than computational efficiency.  Pedagogically, this enables the reader to appreciate how tools work and not simply treat a program for doing DEA as a black box.  Later chapters demonstrate the use of a variety of DEA R packages and richer applications.  
+This book uses R, rmarkdown, and bookdown to create a living book for the field of Data Envelopment Analysis. There are many other books out there on DEA. This book explains issues in building your own toolset for DEA in R. It will also cover some of the challenges to watch out for along the way. The majority of the book emphasizes how to implement a variety of DEA models in R. This is generally done with a focus on readability rather than computational efficiency. Pedagogically, this enables the reader to appreciate how tools work and not simply treat a program for doing DEA as a black box. Later chapters demonstrate the use of a variety of DEA R packages and richer applications.
 
 Along the way, readers may learn some optimization and gain fluency with R.
 
-There are multiple target audiences for this book.  The first audience would be people wanting to use DEA that are familiar with R.  These readers will see how to do linear programming and DEA.  The emphasis on building R models will enable the development of new DEA models in R.
+There are multiple target audiences for this book. The first audience would be people wanting to use DEA that are familiar with R. These readers will see how to do linear programming and DEA. The emphasis on building R models will enable the development of new DEA models in R.
 
 Readers unfamiliar with R but knowledgeable about DEA may use this book as an opportunity to learn about R.
 
-This book can be used as a supplement for a graduate course on productivity analysis with papers drawn from the literature.  
+This book can be used as a supplement for a graduate course on productivity analysis with papers drawn from the literature.
 
 All of the code for the book is available in a github repository.

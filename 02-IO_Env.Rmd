@@ -8,14 +8,14 @@ While tools exist for conducting the evaluations, it is important to understand 
 
 This chapter walks through how DEA works and then shows how to implement the model in R using two very different approaches.  Over the years, I have built DEA models in many languages and platforms:  Pascal, LINDO, LINGO, Excel Macros, Excel VBA, GAMS, AMPL, XPress-MOSEL, and GLPK among others. 
 
-Recently, my research group at PSU adopted the R platfom based on the following strengths:
+Recently, my research group at PSU adopted the R platform based on the following strengths:
 
 * Open-source so that people can dive as deep as they need and no risk of future vendor lock-in
 * Freely available so it does not strain research budgets
-* Extensive collection of numerical add-in packages (over 10000 at CRAN) to build upon
+* Extensive collection of numerical add-in packages (over 10,000 at CRAN) to build upon
 * Robust distribution of add-in packages could help improve distribution of our own contributions
 * Multiple linear programming packages to choose from among
-* Widespread usage and acceptace in the research and analytics communities
+* Widespread usage and acceptance in the research and analytics communities
 * No arbitrary capacity limits
 * One platform that combines optimization and statistical analysis
 
