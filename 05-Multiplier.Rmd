@@ -88,7 +88,7 @@ pander(cbind(alfred_score, u1_result, u2_result),
        caption="Alfred's Score and Results")
 ```
 
-We could repeat the process for each person, simply changing the objective function.  
+We could repeat the process for each person, by simply changing the objective function.  
 
 ```{r}
 result <- MIPModel () %>%

@@ -37,9 +37,13 @@ Comments are welcome.
 
 ## Conventions Used
 
+Mathematical terms are italicized.
+
 In-line code and package names are formatted using a mono-spaced font. For example, `dplyr`.
 
 Coding in this book is written with a focus on demonstration and documentation rather than computational efficiency. DEA on large problems is usually quite straightforward given modern computing capabilities. If computational speed is desired, a variety of approaches can be used such as matrix formulation, vectorized implementations, parallel processing, selecting best of class linear programming packages, and algorithmic tweaks.
+
+Linear programming variables have a `v` prefix to differentiate them from other R objects. For example, a mathematical variable $\lambda$ may be implemented in the linear programming routine as `vlambda.`
 
 ## Acknowledgements
 
