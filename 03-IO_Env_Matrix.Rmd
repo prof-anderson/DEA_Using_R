@@ -187,7 +187,7 @@ pander (t(res3_1.solution),
 
 Let's demonstrate the use of LaTeX in table captions. There are several things to bear in mind when using LaTeX rendered in column labels.
 
--   The LaTeX must be wrapped in $\$\$ symbols.
+-   The LaTeX must be wrapped in \$\$\$ symbols.
 
 -   A double backslash is needed to show symbols
 
