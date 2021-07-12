@@ -446,7 +446,8 @@ RTS<-"VRS"
 for (k in 1:ND) {
   
   mod2_4 <- MIPModel() %>%
-    add_variable(vlambda[j], j = 1:ND, type = "continuous", lb = 0) %>%
+    add_variable(vlambda[j], j = 1:ND, type = "continuous", 
+                 lb = 0) %>%
     add_variable(vtheta, type = "continuous") %>%
     set_objective(vtheta, "min") %>%
     add_constraint(sum_expr(vlambda[j] * xdata[j,i], j = 1:ND) 
@@ -461,8 +462,9 @@ for (k in 1:ND) {
 
 res2_4 <-   solve_model(mod2_4, with_ROI(solver = "glpk")) 
     
-#  print(c("DMU=",k,solver_status(result)))  # Useful for diagnostics
-#  print(get_solution(result, vlambda[1:(ND)]) )
+# Useful for diagnostics 
+#  print(c("DMU=",k,solver_status(res2_4)))  
+#  print(get_solution(res2_4, vlambda[1:(ND)]) )
     res2_4.efficiency[k] <-  get_solution(res2_4, vtheta)       
     res2_4.lambda[k,] <- t(as.matrix(as.numeric(
               get_solution(res2_4, vlambda[j])[,3] )))
@@ -495,13 +497,14 @@ Now, we will generalize this by allowing a parameter to set the returns to scale
 ```{r Adding_RTS}
 
 res2_5.efficiency <- matrix(rep(-1.0, 1), nrow=ND, ncol=1)
-res2_5.lambda     <- matrix(rep(-1.0, ND), nrow=ND,ncol=ND)
+res2_5.lambda     <- matrix(rep(-1.0, ND), nrow=ND, ncol=ND)
 
 RTS<-"VRS"
 for (k in 1:ND) {
   
   mod2_5 <- MIPModel() %>%
-    add_variable(vlambda[j], j = 1:ND, type = "continuous", lb = 0) %>%
+    add_variable(vlambda[j], j = 1:ND, type = "continuous", 
+                 lb = 0) %>%
     add_variable(vtheta, type = "continuous") %>%
     set_objective(vtheta, "min") %>%
     add_constraint(sum_expr(vlambda[j] * xdata[j,i], j = 1:ND) 
@@ -510,11 +513,14 @@ for (k in 1:ND) {
                    >= ydata[k,r], r = 1:NY)
 
     if (RTS=="VRS") {mod2_5 <-
-      add_constraint(mod2_5, sum_expr(vlambda[j], j = 1:ND) == 1) }  
+      add_constraint(mod2_5, sum_expr(vlambda[j], 
+                                      j = 1:ND) == 1) }  
     if (RTS=="IRS") {mod2_5 <-
-      add_constraint(mod2_5, sum_expr(vlambda[j], j = 1:ND) >= 1) }  
+      add_constraint(mod2_5, sum_expr(vlambda[j], 
+                                      j = 1:ND) >= 1) }  
     if (RTS=="DRS") {mod2_5 <-
-      add_constraint(mod2_5, sum_expr(vlambda[j], j = 1:ND) <= 1) }  
+      add_constraint(mod2_5, sum_expr(vlambda[j], 
+                                      j = 1:ND) <= 1) }  
 
   res2_5 <-   solve_model(mod2_5, with_ROI(solver = "glpk")) 
     

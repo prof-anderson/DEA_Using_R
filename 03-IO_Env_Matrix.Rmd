@@ -1,16 +1,15 @@
-
 # Matrix Implementations of DEA
 
 ```{r Install_support_libraries, echo= FALSE}
 library (pander)
 ```
 
-In the previous chapter we created the DEA linear program algebraically using the new _ompr_ package.  Before _ompr_  was available, we needed to use another approach for our DEA package, _TFDEA_, which consisted of using matrices. This approach  requires more "bookkeeping". Both approaches work but I think the algebraic approach is likely to be easier to write, debug, and extend in the future.  For solving, we will use the widely adopted _lpsolveapi_ package but this same matrix-based approach holds other LP solver engines such as C-Plex, Gurobi, and CBC.   
+In the previous chapter we created the DEA linear program algebraically using the `ompr`package. Before `ompr`was available, we needed to use another approach for our DEA package, `TFDEA`, which consisted of using matrices. This approach requires more "bookkeeping". Both approaches work but I think the algebraic approach is likely to be easier to write, debug, and extend in the future. For solving, we will use the widely adopted `lpsolveapi`package but this same matrix-based approach holds other LP solver engines such as C-Plex, Gurobi, and CBC.
 
-People interested in working on the TFDEA package should read this chapter carefully.  We will be returning to these topics algebraically as well later since it is conceptually similar to the structure of the package.  For people that want to stick to the algebraic implementation and using _ompr_, you can skip this chapter.  
+People interested in working on the `TFDEA`package should read this chapter carefully. We will be returning to these topics algebraically as well later since it is conceptually similar to the structure of the package. For people that want to stick to the algebraic implementation and using `ompr`, you can skip this chapter.
 
-To get it ready for matrix formulating, we need to  put it in the standard form of linear programs which means that only numbers can be on the right hand side of the inequalities.  
-The standard form of linear programming can be described as the following.  
+To get it ready for matrix formulating, we need to put it in the standard form of linear programs which means that only numbers can be on the right hand side of the inequalities.\
+The standard form of linear programming can be described as the following.
 
 $$
 \begin{split}
@@ -23,9 +22,9 @@ $$
   (\#eq:LPCCRIOE-Matrix-Simple)
 $$
 
-Note that in this form, _X_ is a vector of variables.  This is a little confusing for people doing DEA since in DEA _x_ represents inputs.  The vector _X_ has length equal to the number of units examined plus one more for theta and the number of inputs and the number of outputs.  _C_ is a vector of data with the same number of elements as the _X_ vector.  _A_ is a matrix of data and _B_ is a vector describing the contstraint right hand sides.  
+Note that in this form, *X* is a vector of variables. This is a little confusing for people doing DEA since in DEA *x* represents inputs. The vector *X* has length equal to the number of units examined plus one more for theta and the number of inputs and the number of outputs. *C* is a vector of data with the same number of elements as the *X* vector. *A* is a matrix of data and *B* is a vector describing the contstraint right hand sides.
 
-Recall that in the previous chapter we had presented the standard LP model of the input-oriented envelopment model.  
+Recall that in the previous chapter we had presented the standard LP model of the input-oriented envelopment model.
 
 $$
 \begin{split}
@@ -39,7 +38,7 @@ $$
   (\#eq:LPCCRIOE-NoSlack)
 $$
 
-The first step is to simply move the expression with a variable from the right hand side of the input inequality to the right handside.  
+The first step is to simply move the expression with a variable from the right hand side of the input inequality to the right handside.
 
 $$
 \begin{split}
@@ -53,14 +52,14 @@ $$
   (\#eq:LPCCRIOE-Rearranged-NoSlack)
 $$
 
-Now we will convert the model's input and output constraints from inequalities into equalities by explicitly defining slack variables.  This isn't necessary just yet but will be used later in the chapter.  
+Now we will convert the model's input and output constraints from inequalities into equalities by explicitly defining slack variables. This isn't necessary just yet but will be used later in the chapter. Note that when we do so, we will be adding more variable to the *X* vector.
 
 $$
 \begin{split}
  \begin{aligned}
     \text{minimize  }   & \theta \\
-    \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \forall \; i\\
-                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \forall \; r\\
+    \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \;\forall \; i\\
+                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; i,r,j
   \end{aligned}
    \end{split}
@@ -69,7 +68,7 @@ $$
 
 Now, let's populate the information for our example from the beginning of chapter 2.
 
-```{r  Defining_Problem_Data, echo=FALSE } 
+```{r  Defining_Problem_Data, echo=FALSE }
   x <- matrix(c(10,20,30,50),ncol=1,dimnames=list(LETTERS[1:4],"x"))
 
   y <- matrix(c(75,100,300,400),ncol=1,dimnames=list(LETTERS[1:4],"y"))
@@ -79,8 +78,7 @@ Now, let's populate the information for our example from the beginning of chapte
   pander(cbind(x,y),caption="Input-Output Data")
 ```
 
-The next step is to incorporate the data into the model.  Since there is only one input and one output, there are only two constraints and two slack variables.  To keep a close connection to the application, we will refer to the specific envelopment variables by DMU name rather than number.  For example, this lists $\lambda_A$ rather than $\lambda_1$.  
-
+The next step is to incorporate the data into the model. Since there is only one input and one output, there are only two constraints and two slack variables. To keep a close connection to the application, we will refer to the specific envelopment variables by DMU name rather than number. For example, this lists $\lambda_A$ rather than $\lambda_1$.
 
 $$
 \begin{split}
@@ -97,8 +95,7 @@ $$
   (\#eq:LPCCRIOE-Data)
 $$
 
-Notice that this formulation now includes seven decision variables.  The linear programming convention is to define the vector of all variables to be _X_.  In this case, $X=[\lambda_A, \lambda_B, \lambda_C, \lambda_D, \theta, s^x_1, s^y_1 ]^\tau$.  Notice that _X_ is a column vector transposed to be shown as a horizontal row vector.  Using the _X_ vector for decision variables allows us to separate the data from the variables into 
-
+Notice that this formulation now includes seven decision variables. The linear programming convention is to define the vector of all variables to be *X*. In this case, $X=[\lambda_A, \lambda_B, \lambda_C, \lambda_D, \theta, s^x_1, s^y_1 ]^\tau$. The $^\tau$ is a transpose operator that changes a vector from a column vector to a row vector or row to column. In this case, the *X* is a column vector but the elements are shown as a horizontal row vector to save space and then flipped using the transpose operator. Using the *X* vector for decision variables allows us to separate the data from the variables into the following.
 
 $$
 \begin{split}
@@ -121,7 +118,7 @@ $$
 (\#eq:LPCCRIOE-Matrix-Example)
 $$
 
-Now, let's show the data elements.  The _C_ vector contains the coefficients of the objective function.
+Now, let's show the data elements. The *C* vector contains the coefficients of the objective function.
 
 $$
 \begin{split}
@@ -132,7 +129,7 @@ $$
 (\#eq:Data-CElement)
 $$
 
-The _A_ matrix contains the variable's coefficients from the constraints.
+The *A* matrix contains the variable's coefficients from the constraints.
 
 $$
 \begin{split}
@@ -144,7 +141,7 @@ $$
 (\#eq:Data-CElement)
 $$
 
-Lastly, the _B_ vector constains the right hand sides of the constraints.
+Lastly, the *B* vector contains the right hand sides of the constraints.
 
 $$
 \begin{split}
@@ -154,30 +151,77 @@ $$
 \end{bmatrix} 
 \end{split}
 (\#eq:Data-BElement)
-$$
-The bulk of the LP is then defined by passing along the numerical A matrix and the vectors of B and C.  
+$$ The bulk of the LP is then defined by passing along the numerical A matrix and the vectors of B and C.
 
-If you stare at that too long, you may go "bug-eyed."  The matrix representation is not a very friendly format for people.  Personally I really like the algebraic representations.  This matrix format though works really well for the computer.  The lpSolveAPI package in R is capable of taking an LP model in this form and solving it. Now we just need to structure the data in R to put it in the same format.  
-
-##Creating the LP
-
-Now we are ready to start implementing our linear program for DEA in R.
-
-Now we need to make sure that lpsolveAPI is loaded.  If this does not work, you will need to install the package.
+As models get larger, the full numerical representation becomes difficult for humans to read even if it is a very good format for computers. If you stare at that too long, you may go "bug-eyed." Personally I really like the algebraic representations. The `lpSolve`package in R is capable of taking an LP model in this form and solving it. Now we just need to structure the data in R to put it in the same format.
 
 ```{r}
-## DEA function
-library(lpSolveAPI)
+library(lpSolve)
+Amatrix <- rbind(c(10, 20, 30, 50, -20, 1, 0),
+                 c(75, 100, 300, 400, 0, 0, -1))
+Bvector <- c(0, 100)
+Cvector <- c(0, 0, 0, 0, 1, 0, 0)
+constraintdir <- c("=", "=")
 
+res3_1 <- lp ("min", Cvector, Amatrix, constraintdir, Bvector)
+
+res3_1
 ```
 
-Now it it gets more involved.  We are defining a function for calculating DEA with options for returns to scale, orientation, and two different options for super-efficiency.
+Now let's look at the optimal values of the decision variables.
 
-For this walk through, we will focus on running the LP for calculating DEA for only one unit.  We typically would do a loop for every unit but the entire for loop would need to be inside a single R chunk of this document. Instead, we will walk through how the data structure works.  If you understand this, extending it to other units with a for loop is straightforward.
+```{r}
+res3_1$solution
+```
 
-First, let's declare each of the needed basic data structures.  First, determine the number of DMUs, number of inputs, and number of outputs.
+The solver in this case knew nothing of our model's structure so the results in terms of decision variable values would need be organized based on how we structured the model to pass into `lpSolve`.
 
-```{r Defining_Problem_Size} 
+```{r}
+library (pander)
+res3_1.solution <- as.matrix(res3_1$solution)
+rownames (res3_1.solution) <- c("L_A", "L_B", "L_C", "L_D", "theta", 
+                                 "s_x", "s_y")
+pander (t(res3_1.solution), 
+        caption="Optimal solution values for DMU A (CCR-IO")
+```
+
+Let's demonstrate the use of LaTeX in table captions. There are several things to bear in mind when using LaTeX rendered in column labels.
+
+-   The LaTeX must be wrapped in $\$\$ symbols.
+
+-   A double backslash is needed to show symbols
+
+-   When the plain text version is displayed such as by running a code chunk, the plain text version will display the LaTeX commands making for a harder to read table.
+
+-   Using the proper mathematical notation in the table gives a nice and rigorous display.
+
+```{r}
+res3_1.solution <- as.matrix(res3_1$solution)
+rownames (res3_1.solution) <- c("$\\lambda_A$", "$\\lambda_B$", 
+                                "$\\lambda_C$", "$\\lambda_D$", 
+                                "$\\theta$", 
+                                "$s^x_1$", "$s^y_1$")
+pander (t(res3_1.solution), 
+        caption="Optimal solution values for DMU A with LaTeX column labels")
+```
+
+When rendered in PDF format using `pander`, the table's space usage becomes less efficient. While every column label in the LaTeX table is shorter than it's corresponding column label with plain text (ex. $\lambda_A$ vs. L_A or $\theta$ vs. theta) , `pander`gives each column more width causing it to wrap the table and thereby take more page space. The result is that we will tend to stick with using the plain text labels as the default.
+
+## Creating the LP Incrementally
+
+Another approach is to incrementally build up the model. Let's use the `lpSolveAPI`package to demonstrate this way of doing the analysis.
+
+```{r}
+library(lpSolveAPI)
+```
+
+Now it it gets more involved. We are defining a function for calculating DEA with options for returns to scale, orientation, and two different options for super-efficiency.
+
+For this walk through, we will focus on running the LP for calculating DEA for only one unit. We typically would do a loop for every unit but the entire for loop would need to be inside a single R chunk of this document. Instead, we will walk through how the data structure works. If you understand this, extending it to other units with a for loop is straightforward.
+
+First, let's declare each of the needed basic data structures. First, determine the number of DMUs, number of inputs, and number of outputs.
+
+```{r Defining_Problem_Size}
   x <- matrix(c(10,20,30,50),ncol=1,dimnames=list(LETTERS[1:4],"x"))
 
   y <- matrix(c(75,100,300,400),ncol=1,dimnames=list(LETTERS[1:4],"y"))
@@ -187,7 +231,7 @@ First, let's declare each of the needed basic data structures.  First, determine
   pander(cbind(x,y),caption="Input-Output Data")
 ```
 
-Now we will declare the data structures for inputs and outputs that will contain the data that we use.  It is a little redundant to create new objects for the x and y data but there are advanced cases when it is helpful.
+Now we will declare the data structures for inputs and outputs that will contain the data that we use. It is a little redundant to create new objects for the x and y data but there are advanced cases when it is helpful.
 
 ```{r Creating_Alternative_Data}
 xdata<-x[1:ND,] 
@@ -209,55 +253,57 @@ This is overkill since it has space for results of every unit instead of just th
   results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
 ```
 
-Now it is time for more model options.  
+Now it is time for more model options.
 
-This is where we start creating the populating the linear programming model.  This model declaration creates a problem with the needed number of columns (variables) for standard DEA envelopment models.  
+This is where we start creating the populating the linear programming model. This model declaration creates a problem with the needed number of columns (variables) for standard DEA envelopment models.
 
 ```{r Create_lp_opject}
 # This creates an empty LP object that we will populate as appropriate.
     lpe <- make.lp(0,(ND+1+NX+NY))   
 ```
 
-The name `lpe` is meant to indicate a linear programming object for the envelopment model.  There are two basic DEA models: the envelopment model and the multiplier model.  They generate the same results but are structured very differently.  We'll return to the multiplier model at a later time.
+The name `lpe` is meant to indicate a linear programming object for the envelopment model. There are two basic DEA models: the envelopment model and the multiplier model. They generate the same results but are structured very differently. We'll return to the multiplier model at a later time.
 
-We easily display what our empty `lpe` object looks like.  We are initializing it without any constraints but columns for each variable that we expect to use: 
+We easily display what our empty `lpe` object looks like. We are initializing it without any constraints but columns for each variable that we expect to use:
 
-* Columns for each lambda, _i.e._ $\lambda_1$, $\lambda_2$, ..., $lambda_{N^D}$  
-* A column for the efficiency, $\theta$
-* Columns for each input slack and each output slack
+-   Columns for each lambda, *i.e.* $\lambda_1$, $\lambda_2$, ..., $lambda_{N^D}$\
+-   A column for the efficiency, $\theta$
+-   Columns for each input slack and each output slack
 
 ```{r Display_lp_Empty}
-   lpe 
+lpe 
 ```
 
 The empty LP isn't very interesting but building it up step by step shows what we are doing and why.
 
-This is an important step where we say that we are picking a particular unit to examine.  Since our earlier graphical analysis pointed to unit _B_, we will also look at unit 2.  Changing to a different unit is as simple as changing the number 2.  Of course, even easier is to use a 'for' loop to run through doing it for every unit but that simple change is something that we will also leave for later.  The current format lets me continue to explain how DEA works one chunk of R code at a time.
+This is an important step where we say that we are picking a particular unit to examine. Since our earlier graphical analysis pointed to unit *B*, we will also look at unit 2. Changing to a different unit is as simple as changing the number 2. Of course, even easier is to use a 'for' loop to run through doing it for every unit but that simple change is something that we will also leave for later. The current format lets me continue to explain how DEA works one chunk of R code at a time.
 
 ```{r Which_Unit}
-    k <- 2   # Declare a particular unit instead of 
-             # using a for loop such    for (k in 1:ND)     
+k <- 2   # Declare a particular unit instead of 
+         # using a for loop such    for (k in 1:ND)     
 ```
 
-The next thing that we will do is to create the objective function.  
+The next thing that we will do is to create the objective function.
 
-In this case, the "1" corresponds to the column for the $\theta$ variable of the input-oriented model. The input-oriented model is a min.  The output-oriented model is a max.  Let's make sure to set the model up accordingly.
+In this case, the "1" corresponds to the column for the $\theta$ variable of the input-oriented model. The input-oriented model is a min. The output-oriented model is a max. Let's make sure to set the model up accordingly.
 
 ```{r}
-      lpcontrol <- lp.control(lpe, sense="min") # Set to a minimize function
+lpcontrol <- lp.control(lpe, sense="min") 
+              # Set to a minimize function
 
-      set.objfn(lpe, c(rep(0, ND),1,rep(0,NX+NY)))  # Minimize the theta variable.
+set.objfn(lpe, c(rep(0, ND),1,rep(0,NX+NY)))  
+              # Minimize the theta variable.
 ```
 
-The above commands have two important functions.  The first merely sets it to be a _minimize_ objective function.  The second puts the relevant 0's and 1's in the objective function.  
+The above commands have two important functions. The first merely sets it to be a *minimize* objective function. The second puts the relevant 0's and 1's in the objective function.
 
-The lp.control function returns a long list of options being used for the linear programming solver.  The defaults are fine for now and it can take a full page to list all the settings so I just store it into an object, lpcontrol so it doesn't display it for now.
+The lp.control function returns a long list of options being used for the linear programming solver. The defaults are fine for now and it can take a full page to list all the settings so I just store it into an object, lpcontrol so it doesn't display it for now.
 
 ```{r Display_lp_with_Obj}
    lpe 
 ```
 
-Now we will prepare for adding names to elements of our data matrix.  This is a little tricky so don't worry if these commands are initially confusing.  Also, if you are fluent in R, you can probably come up with more elegant ways of doing this.
+Now we will prepare for adding names to elements of our data matrix. This is a little tricky so don't worry if these commands are initially confusing. Also, if you are fluent in R, you can probably come up with more elegant ways of doing this.
 
 ```{r Add_names_to_LP}
 
@@ -278,7 +324,7 @@ Now we will prepare for adding names to elements of our data matrix.  This is a 
  
 ```
 
-The following step is more complicated but the core idea is to populate a data matrix to describe the constraints for a DEA model.  The first _for_ loop create the row(s) corresponding to input constraints.  
+The following step is more complicated but the core idea is to populate a data matrix to describe the constraints for a DEA model. The first *for* loop create the row(s) corresponding to input constraints.
 
 ```{r Build_lp_x_constraints}
       for (i in 1:NX) {
@@ -291,7 +337,7 @@ The following step is more complicated but the core idea is to populate a data m
    lpe 
 ```
 
-Now the rows/contstraints are created for the outputs.      
+Now the rows/contstraints are created for the outputs.
 
 ```{r Build_lp_y_constraints}
 
@@ -312,7 +358,7 @@ Set the lower limits for all variables to be 0.0
       set.bounds (lpe, lower = rep(0.0, ND+1+NX+NY))  
 ```
 
-All the variables should be non-negative.  (Technically the radial efficiency scores, $\theta$ is usually declared to be un-restricted in sign but this should not hurt the solution.)
+All the variables should be non-negative. (Technically the radial efficiency scores, $\theta$ is usually declared to be un-restricted in sign but this should not hurt the solution.)
 
 ```{r Display_lp_Non-Negativity_constraints }
    lpe 
@@ -326,48 +372,47 @@ Finally, solve the LP to calculate the efficiency score.
      solve.lpExtPtr (lpe)
 ```
 
-Simply solving doesn't tell us anything very useful.  It just gives an error code of 0 (or at least we hope to get that-anything else is worth digging into!) An error code of 0 means that it solved the problem.  When it does so, it adds results to the _lpe_ opbject.  Now we need to extract the results from the solution in a form that we can use.
+Simply solving doesn't tell us anything very useful. It just gives an error code of 0 (or at least we hope to get that-anything else is worth digging into!) An error code of 0 means that it solved the problem. When it does so, it adds results to the *lpe* opbject. Now we need to extract the results from the solution in a form that we can use.
 
-We have four separate steps.  In the input-oriented model, we read out the objective function value and place it in the _k_'th place of _results.efficiency_.  
+We have four separate steps. In the input-oriented model, we read out the objective function value and place it in the *k*'th place of *results.efficiency*.
 
-The following step sets _Phase1_ equal to the same efficiency score.  We will use this value in a second LP that we creatively refer to as _Phase2_ in order to make sure that we have an optimal target.  This is consistent with the two-phase approach discussed in Chapter 2.
+The following step sets *Phase1* equal to the same efficiency score. We will use this value in a second LP that we creatively refer to as *Phase2* in order to make sure that we have an optimal target. This is consistent with the two-phase approach discussed in Chapter 2.
 
-Next we get input dual weights and place them in _results.vweight_.  These are useful because the dual weights are essentially the solution the DEA multiplier model.  We can also thing of them roughly as the "prices" or "values" placed on inputs and outputs that make the unit appear as good as possible.  (It is tricky that all rows are offset from how you might count them because row 1 is considered to be the objective function.)
+Next we get input dual weights and place them in *results.vweight*. These are useful because the dual weights are essentially the solution the DEA multiplier model. We can also thing of them roughly as the "prices" or "values" placed on inputs and outputs that make the unit appear as good as possible. (It is tricky that all rows are offset from how you might count them because row 1 is considered to be the objective function.)
 
-The fourth item gets the dual weight from the returns to scale constraint.  Notice that this is extracted from row 2 of the dual solution.
+The fourth item gets the dual weight from the returns to scale constraint. Notice that this is extracted from row 2 of the dual solution.
 
-The same steps are repeated for the output-oriented model but sign corrections may need to be made by multiplying these items by _-1_, you can check for yourself if this needs to be done.
+The same steps are repeated for the output-oriented model but sign corrections may need to be made by multiplying these items by *-1*, you can check for yourself if this needs to be done.
 
-The last step of extracting output weights is common for both orientations since it does not require a sign correction.  
+The last step of extracting output weights is common for both orientations since it does not require a sign correction.
 
 ```{r Collect_Phase1_Results}
         results.efficiency[k] <-  get.objective(lpe)      
         Phase1 <- get.objective(lpe)
-        results.lambda[k,] <- get.variables(lpe)[1:(ND)] # Put lambda values in matrix            
+        results.lambda[k,] <- get.variables(lpe)[1:(ND)] 
+                                    # Put lambda values in matrix            
         results.vweight[k,] <- -1 * get.dual.solution(lpe)[2:(1+NX)] 
                                     # Get input weights, v
       
       results.uweight[k,] <- get.dual.solution(lpe)[(2+NX):(1+NX+NY)]
                                     # Get output weights, u
         DMUnames <- list(c(LETTERS[1:ND]))
-
-  
 ```
 
-Let's look at our results!  
+Let's look at our results!
 
 ```{r Display_Phase1_Results  }
-  Xnames<- lapply(list(rep("X",NX)),paste0,1:NX)
-  Ynames<- lapply(list(rep("Y",NY)),paste0,1:NY)
-  Vnames<- lapply(list(rep("v",NX)),paste0,1:NX)
-  Unames<- lapply(list(rep("u",NY)),paste0,1:NY)
-  SXnames<- lapply(list(rep("sx",NX)),paste0,1:NX)
-  SYnames<- lapply(list(rep("sy",NY)),paste0,1:NY)
-  dimnames(results.lambda)<-c(DMUnames,DMUnames)
-  dimnames(results.xslack)<-c(DMUnames,SXnames)
-  dimnames(results.yslack)<-c(DMUnames,SYnames)
-  dimnames(results.vweight)<-c(DMUnames,Vnames)
-  dimnames(results.uweight)<-c(DMUnames,Unames)
+  Xnames <- lapply(list(rep("X",NX)),paste0,1:NX)
+  Ynames <- lapply(list(rep("Y",NY)),paste0,1:NY)
+  Vnames <- lapply(list(rep("v",NX)),paste0,1:NX)
+  Unames <- lapply(list(rep("u",NY)),paste0,1:NY)
+  SXnames <- lapply(list(rep("sx",NX)),paste0,1:NX)
+  SYnames <- lapply(list(rep("sy",NY)),paste0,1:NY)
+  dimnames (results.lambda) <- c(DMUnames,DMUnames)
+  dimnames (results.xslack) <- c(DMUnames,SXnames)
+  dimnames (results.yslack) <- c(DMUnames,SYnames)
+  dimnames (results.vweight) <- c(DMUnames,Vnames)
+  dimnames (results.uweight) <- c(DMUnames,Unames)
 
 results.efficiency [k]  # Display efficiency score for unit k
 results.lambda  [k,]    # Display lambda variables
@@ -382,13 +427,13 @@ pander(cbind(results.vweight [k,],results.uweight [k,]),
 
 ## Slack Maximization
 
-This is a little more advanced.  In analyses where our only purpose is to find the efficiency score, we could stop here.  In cases where we want to find the _best_ target for an inefficent unit, we need to go one step further and say that we want to also maximize the slack given that same level of efficiency.  The simple one input, one output case with constant returns to scale won't demonstrate a problem so it is only shown here at this time for completeness and the particularly adventurous reader. 
+This is a little more advanced. In analyses where our only purpose is to find the efficiency score, we could stop here. In cases where we want to find the *best* target for an inefficent unit, we need to go one step further and say that we want to also maximize the slack given that same level of efficiency. The simple one input, one output case with constant returns to scale won't demonstrate a problem so it is only shown here at this time for completeness and the particularly adventurous reader.
 
-As long as you are still reading, let's explain a little bit of slack maximization.  Phase 1 gives simple radial efficiency scores but does not necessarily give a best target for efficiency.  The purpose here is to ensure that the $\lambda$ values actually point to the best possible target of performance.
+As long as you are still reading, let's explain a little bit of slack maximization. Phase 1 gives simple radial efficiency scores but does not necessarily give a best target for efficiency. The purpose here is to ensure that the $\lambda$ values actually point to the best possible target of performance.
 
-Now we need to do a step that is called slack maximization.  We will need to add constraint that the efficiency variable ($\theta$) is held constant at the value found in Phase 1.  
+Now we need to do a step that is called slack maximization. We will need to add constraint that the efficiency variable ($\theta$) is held constant at the value found in Phase 1.
 
-The linear program is modified in the following manner.  We now want to maximize the sum of both input slack(s) and ouptput slack(s).  
+The linear program is modified in the following manner. We now want to maximize the sum of both input slack(s) and ouptput slack(s).
 
 $$
 \begin{split}
@@ -414,7 +459,7 @@ The following are the changes to the LP object.
     set.objfn (lpe,c(rep(0,ND+1),rep(1,NX+NY))) # Maximize sum of slacks
 ```
 
-We are now ready to solve phase 2.  We can then extract the values of the $\lambda$ variables and the slack variables.
+We are now ready to solve phase 2. We can then extract the values of the $\lambda$ variables and the slack variables.
 
 ```{r}
     solve.lpExtPtr (lpe)                                        
@@ -423,7 +468,7 @@ We are now ready to solve phase 2.  We can then extract the values of the $\lamb
     results.yslack[k,] <- get.variables(lpe)[(ND+2+NX):(ND+1+NX+NY)]    
 ```
 
-Again, let's look over the results.  
+Again, let's look over the results.
 
 ```{r}
   Xnames<- lapply(list(rep("X",NX)),paste0,1:NX)
@@ -447,25 +492,24 @@ Again, let's look over the results.
 
 Now, let's put it all together to summarize the results.
 
-What does this mean?  We are saying that unit `r k` (B) has an efficiency of `r results.efficiency[k]`.  This is obtained by using a vector $\lambda$=`r results.lambda[k,]`.  Also, the weights on input(s) that correspond to this score was `r results.vweight[k,]` and for outputs `r results.uweight[k,]`.  
+What does this mean? We are saying that unit `r k` (B) has an efficiency of `r results.efficiency[k]`. This is obtained by using a vector $\lambda$=`r results.lambda[k,]`. Also, the weights on input(s) that correspond to this score was `r results.vweight[k,]` and for outputs `r results.uweight[k,]`.
 
 ## Exercises
 
-If you have followed along this far - you deserve a medal!  If you work your way through by cutting and pasting code fragments, you should be able to reproduce my exact results.  At this point you are ready for a few challenges:
+If you have followed along this far - you deserve a medal! If you work your way through by cutting and pasting code fragments, you should be able to reproduce my exact results. At this point you are ready for a few challenges:
 
-1. Graphically determine the efficiency score and lambdas for the other units.  _Difficulty: Decaf cup of coffee_
-2. Interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom.  _Difficulty: Cup of coffee_
-3. Add a fifth unit, E, that produces 400 units output using 30 units of input.  Graphically evaluate all five units for their efficiency scores and lambda values.
-4. Interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom.  _Difficulty: Cup of coffee_
-5. Examine another unit using the R code (hint:  change where k is set.)  _Difficulty: Decaf cup of coffee_
-6. Interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom.  _Difficulty: Cup of coffee_
-7. Wrap a for loop around the model to examine every unit.  _Difficulty: Cup of coffee_
-8. Use a bigger data set (more inputs, outputs, and units.)  _Difficulty: Cup of coffee_
-9. Validate results against other DEA packages (ex. Benchmarking, nonparaeff) _Difficulty: Pot of coffee_
-10. Construct an example where Phase 2 increases positive slacks from Phase 1.  _Difficulty: Pot of coffee_
-11. Create "cool" graphs or plots of results.  _Difficulty: It depends..._
+1.  Graphically determine the efficiency score and lambdas for the other units. *Difficulty: Decaf cup of coffee*
+2.  Interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom. *Difficulty: Cup of coffee*
+3.  Add a fifth unit, E, that produces 400 units output using 30 units of input. Graphically evaluate all five units for their efficiency scores and lambda values.
+4.  Interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom. *Difficulty: Cup of coffee*
+5.  Examine another unit using the R code (hint: change where k is set.) *Difficulty: Decaf cup of coffee*
+6.  Interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom. *Difficulty: Cup of coffee*
+7.  Wrap a for loop around the model to examine every unit. *Difficulty: Cup of coffee*
+8.  Use a bigger data set (more inputs, outputs, and units.) *Difficulty: Cup of coffee*
+9.  Validate results against other DEA packages (ex. `Benchmarking`, `nonparaeff`) *Difficulty: Pot of coffee*
+10. Construct an example where Phase 2 increases positive slacks from Phase 1. *Difficulty: Pot of coffee*
+11. Create "cool" graphs or plots of results. *Difficulty: It depends...*
 
-To pass the challenges, work on extending my RMarkdown file or using a similar script.  Some people prefer to use compile all of my code into large chunks in RMarkdown. Others might prefer to create a well documented R script instead of using RMarkdown.  Others might even prefer using LaTeX. If you use RMarkdown or LaTeX, please use section headings to indicate each challenge solved.  
+To pass the challenges, work on extending my RMarkdown file or using a similar script. Some people prefer to use compile all of my code into large chunks in RMarkdown. Others might prefer to create a well documented R script instead of using RMarkdown. Others might even prefer using LaTeX. If you use RMarkdown or LaTeX, please use section headings to indicate each challenge solved.
 
-You can use other packages for graphics or data manipulation but don't use a DEA package.  (Don't worry, we'll get there later.)
-
+You can use other packages for graphics or data manipulation but don't use a DEA package. (Don't worry, we'll get there later.)
