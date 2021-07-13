@@ -1,4 +1,3 @@
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(pander)
@@ -8,14 +7,13 @@ library(rsvg)
 library(htmltools)
 ```
 
-
-# Revisiting _Technology Commercialization_
+# Revisiting *Technology Commercialization*
 
 ## Introduction
 
-In 2002, Sten Thore edited a book, *Technology Commercialization:  DEA and Related Analytical Methods for Evaluating the Use and Implementation of Technological Innovation.*  This book compiled a series of cases applying Data Envelopment Analysis to realworld technology management situations.  This chapter revisits some of those cases. We will provide a snapshot of the cases and the interested reader is referred to Thore's book for more details.
+In 2002, Sten Thore edited a book, *Technology Commercialization: DEA and Related Analytical Methods for Evaluating the Use and Implementation of Technological Innovation* This book compiled a series of cases applying Data Envelopment Analysis to realworld technology management situations. This chapter revisits some of those cases. We will provide a snapshot of the cases and the interested reader is referred to Thore's book for more details.
 
-Before we begin, let's install some small helper functions.  These are described in more detail in an Appendix.
+Before we begin, let's install some small helper functions. These are described in more detail in an Appendix.
 
 ```{r loadhelperfiles }
 source('Helperfiles.R')
@@ -35,11 +33,11 @@ source('Helperfiles.R')
 
 ### Directional Drilling R&D Projects
 
-Chapter 2 of Thore, by Thore and Rich, covers a series of small cases covers around R&D projects.  The first case begins on page 62 with an application from Baker Hughes Corporation.  They were considering 14 cases related "directional drilling", which as a technology, combined with hydraulic facturing, years later resulted in the natural gas boom.  
+Chapter 2 of Thore, by Thore and Rich, covers a series of small cases covers around R&D projects. The first case begins on page 62 with an application from Baker Hughes Corporation. They were considering 14 cases related "directional drilling", which as a technology, combined with hydraulic fracturing, years later resulted in the natural gas boom.
 
-Thore and Rich use a one-input, four-output variable returns to scale DEA model.  The input was expected cost in millions of dollars.  The outputs are estimated market size in millions of dollars (Y1), strategic compatability with existing products (Y2), projected market demand in millions of dollars (Y3), and competitive intensity (Y4).  
+Thore and Rich use a one-input, four-output variable returns to scale DEA model. The input was expected cost in millions of dollars. The outputs are estimated market size in millions of dollars (Y1), strategic compatability with existing products (Y2), projected market demand in millions of dollars (Y3), and competitive intensity (Y4).
 
-Let's start by defining the data from page 63 of Thore and Rich.    
+Let's start by defining the data from page 63 of Thore and Rich.
 
 ```{r BHCorp}
 NX <- 1
@@ -78,7 +76,7 @@ tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),
 
 ```
 
-![Baker Hughes Input-Output Model](IO-BakerHughes.png){#fig:IO-BakerHughes width=50% }
+![Baker Hughes Input-Output Model](IO-BakerHughes.png){#fig:IO-BakerHughes width="50%"}
 
 ```{r}
 
@@ -86,8 +84,7 @@ pander(cbind(XBH,YBH), caption="Data for Baker Hughes Corporation case.")
        # Displays table of inputs and outputs
 ```
 
-
-Now, let's run DEA.  Feel free to pick a package.  We explored some packages in chapter 8.  For now, let's try the MultiplierDEA package.  Let's look over the results.
+Now, let's run DEA. Feel free to pick a package. We explored some packages in chapter 8. For now, let's try the MultiplierDEA package. Let's look over the results.
 
 ```{r results='asis'}
 library(MultiplierDEA)
@@ -104,21 +101,20 @@ pander(poscol(cbind(resBH$Efficiency,resBH$Lambda)),
 
 ```
 
-The results are consistent with those reported in Sten and Thore.  Note that projects (DMU's) A, C, and F are efficient and all other projects use those three projects in setting their own targets of performance as denoted by non-zero values of lambda.  
+The results are consistent with those reported in Sten and Thore. Note that projects (DMU's) A, C, and F are efficient and all other projects use those three projects in setting their own targets of performance as denoted by non-zero values of lambda.
 
-Now, let's look at the other side of the analysis - the multiplier model. 
+Now, let's look at the other side of the analysis - the multiplier model.
 
 ```{r}
 pander(cbind(resBH$Efficiency,resBH$vx,resBH$uy), 
        caption="Weights for Baker Hughes Corporation analysis.")
 ```
 
-The envelopment and multiplier results are intricately related by duality.  In this case, we can see that certain outputs are "ignored" by certain projects by placing a zero weight on that output.  This is perfectly permissable in a DEA study when we don't know the relative value outputs and is why we refer to DEA scores as technical efficiency or relative efficiency. On the other hand, if we had more information on relative values of outputs that could or should be incorporated, this can be done.  The impact is that it would generally decrease the scores of some (but not necessarily all) projects (DMUs) whose original results violate these restrictions.
-The efficiency scores match those reported by Thore and Rich but they didn't examine the output weights.  A lot of discussion could be had about relative weights.  We will leave that to the interested reader to pontificate upon.
+The envelopment and multiplier results are intricately related by duality. In this case, we can see that certain outputs are "ignored" by certain projects by placing a zero weight on that output. This is perfectly permissable in a DEA study when we don't know the relative value outputs and is why we refer to DEA scores as technical efficiency or relative efficiency. On the other hand, if we had more information on relative values of outputs that could or should be incorporated, this can be done. The impact is that it would generally decrease the scores of some (but not necessarily all) projects (DMUs) whose original results violate these restrictions. The efficiency scores match those reported by Thore and Rich but they didn't examine the output weights. A lot of discussion could be had about relative weights. We will leave that to the interested reader to pontificate upon.
 
-## NASA Aeronautical Projects 
+## NASA Aeronautical Projects
 
-The next case in the book was comparing NASA aeronautics projects.  
+The next case in the book was comparing NASA aeronautics projects.
 
 ```{r, echo=FALSE}
 
@@ -139,7 +135,7 @@ YNASA <- matrix(c(
 
 ```
 
-Now that we have entered the data, let's run an input-oriented, variable returns-to-scale (BCC-IO) analysis.  
+Now that we have entered the data, let's run an input-oriented, variable returns-to-scale (BCC-IO) analysis.
 
 ```{r}
 
@@ -149,7 +145,7 @@ pander(cbind(XNASA,YNASA,resNASA$Efficiency))
 
 ```
 
-Again, the results match those of Thore and Rich.  Their discussion of results emphasized the comparison of projects to each other by looking at the lambda values to see how the targets of comparison were made.
+Again, the results match those of Thore and Rich. Their discussion of results emphasized the comparison of projects to each other by looking at the lambda values to see how the targets of comparison were made.
 
 ```{r}
 
@@ -162,12 +158,14 @@ pander(poscol(cbind(resNASA$Efficiency,resNASA$Lambda)),
 ```
 
 ## Possible to-Do Items for this Chapter
-* More data sets and cases=
-* Perhaps fix naming of outputs in first case to be P1, P2,... rather than A, B, C,... to match Thore
-* Perhaps generalize naming of projects for NASA case to match Thore
-* Create helper function for names to pass numbers of DMUs, inputs, outputs, and output naming objects
-* Define # of digits for pander tables
+
+-   More data sets and cases=
+-   Perhaps fix naming of outputs in first case to be P1, P2,... rather than A, B, C,... to match Thore
+-   Perhaps generalize naming of projects for NASA case to match Thore
+-   Create helper function for names to pass numbers of DMUs, inputs, outputs, and output naming objects
+-   Define \# of digits for pander tables
 
 ## To-Do Items for Packages (some for later)
-* Add data sets to package(s)
-* Naming of results to reflect lambdas, etc.
+
+-   Add data sets to package(s)
+-   Naming of results to reflect lambdas, etc.
