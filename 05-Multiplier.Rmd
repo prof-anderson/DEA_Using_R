@@ -61,11 +61,11 @@ $$
 Next let's implement this in `ompr` which may serve as a convenient refresher as well.  
 
 ```{r}
-library(dplyr, quietly=TRUE)            # For data structure manipulation
-library(ROI, quietly=TRUE)              # R Optimization Interface package
-library(ROI.plugin.glpk, quietly=TRUE)  # Connection to glpk as solver
-library(ompr, quietly=TRUE)             # Optimization Modeling using R
-library(ompr.roi, quietly=TRUE)         # Connective tissue
+library(dplyr, warn.conflicts=FALSE)    
+library(ROI, quietly=TRUE)              
+library(ROI.plugin.glpk, quietly=TRUE)  
+library(ompr, quietly=TRUE)             
+library(ompr.roi, quietly=TRUE)         
 
 result <- MIPModel () %>%
   add_variable (u1, type="continuous", lb=0) %>%
@@ -147,12 +147,12 @@ $$
 \begin{split}
 \begin{aligned}
     \text {max } \sum_{r=1}^{2} u_r y_{r,1}\\
-    \text{subject to } &  \sum_{r=1}^{2} u_r y_{r,1} \leq 1.0 \quad [Alfred]\\
-     &  \sum_{r=1}^{2} u_r y_{r,2} \leq 1.0  \quad [Barb]\\
-     &  \sum_{r=1}^{2} u_r y_{r,3} \leq 1.0  \quad [Chris]\\
-     &  \sum_{r=1}^{2} u_r y_{r,4} \leq 1.0  \quad [Don]\\
-     &  \sum_{r=1}^{2} u_r y_{r,5} \leq 1.0  \quad [Ed]\\
-     &  \sum_{r=1}^{2} u_r y_{r,6} \leq 1.0  \quad [Fran]\\
+    \text{subject to } &  \sum_{r=1}^{2} u_r y_{r,1} \leq 1.0 \quad \text{[Alfred]}\\
+     &  \sum_{r=1}^{2} u_r y_{r,2} \leq 1.0  \quad \text{[Barb]}\\
+     &  \sum_{r=1}^{2} u_r y_{r,3} \leq 1.0  \quad \text{[Chris]}\\
+     &  \sum_{r=1}^{2} u_r y_{r,4} \leq 1.0  \quad \text{[Don]}\\
+     &  \sum_{r=1}^{2} u_r y_{r,5} \leq 1.0  \quad \text{[Ed]}\\
+     &  \sum_{r=1}^{2} u_r y_{r,6} \leq 1.0  \quad \text{[Fran]}\\
      &                  u_1, u_2\geq 0  
   \end{aligned}
 \end{split}
@@ -173,7 +173,7 @@ $$
 (\#eq:NLP6People)
 $$
 
-The $\forall$ is also used in the non-negativity constraint to indicate that for every output _r_, the weight, $u_r$, must be non-negative.  
+The $\forall\;j$ in the constraints indicates that the constraint should be repeated for all possible values of j.  In our case it would have a constraint for $j=1$, (Alfred), then another constraint with $j=2$ (Barb), etc. The $\forall\;r$ in variable lower bounds is used to repeat the non-negativity of each weighting variable (in this case, $u_1$ and $u_2$).
 
 The above formulation is nearly generalized. Let's replace the last hardcoded items remaining.  The first is that the formulation only calculates the score for first manager.  To generalize this, let's replace the _1_ in the objective function with _k_. This would allow us to calculate the optimal score for any manager, _k_. Secondly, the summations each assume that there are only two outputs. Let's replace this with$N^Y$ to serve as a count of the number of outputs.    
 
@@ -189,7 +189,7 @@ $$
 (\#eq:NLPScoringk)
 $$
 
-This formulation is now a linear programming model that will find an optimal score for manager _k_ regardless of the number of outputs and the number of other managers being considered.
+This formulation is now a linear programming model that will find an optimal score for manager _k_ regardless of the number of outputs and the number of other managers being considered.  This approach could be used in a variety of peer evaluation or self-evaluation applications where each unit is given the opportunity to evaluate themselves relative to their peers.  This model will always give a person their highest possible score.  Note that this model does not incorporate the resources used to achieve these outcomes.  For that, we can the model using a traditional ratio idea of output over input. 
 
 ## The Ratio Model
 
@@ -226,7 +226,7 @@ $$
 (\#eq:NLPCCRIOM-Ratio)
 $$
 
-This isn't a linear program because we are dividing functions of variables by functions of variables.  We need to make a few transformations.  First, we clear the denominator of each of the consraints resulting in the following formulation.
+This isn't a linear program because we are dividing functions of variables by functions of variables.  We need to make a few transformations.  First, we clear the denominator of each of the consraints and collect the terms on resulting in the following formulation.
 
 $$
 \begin{split}
@@ -240,10 +240,7 @@ $$
   (\#eq:LPCCRIOM-Ratio2)
 $$
 
-Now we will convert the problem input and output constraints from inequalities into equalities by explicitly defining slack variables.  
-
-There are an infinite number of possible combinations of numerators and denominators that can give the same ratio.  The next step is to select normalizing value for the objective function.  Let's set the denominator equal to one.  In this case, we simply add a constraint, $\sum_{i=1}^{N^X} v_i x_{i,k}$, to the linear program.  
-
+Alas, it is still a nonlinear objective function.  Fortunately, we can take advantage of the structure of the problem.  There are an infinite number of possible combinations of numerators and denominators that can give the same ratio. For example, if a unit were to receive a 90% efficiency score, this could be with a numerator of nine and a denominator of 10 or a numerator of 90 and a denominator of 100.  Each of these pairs satisfies the constraints and is therefore equally valid. One clever trick solves the nonlinearity by setting the denominator to be a constant.  The next step is to select normalizing value for the objective function.  Let's set the denominator equal to one.  In this case, we simply add a constraint, $\sum_{i=1}^{N^X} v_i x_{i,k}$, to the linear program and replace the denominator in the objective function to one means that we can rewrite the objective function using only the numerator.
 
 $$
 \begin{split}
@@ -262,7 +259,7 @@ This linear program can then be implemented in an linear programming system.
 
 ## Creating the LP - The Algebraic Approach
 
-We will implement this using the ompr package again, as we did in chapters 2 and 4.  
+We will implement this using the `ompr` package again, as we did in chapters 2 and 4.  
 
 We're going to use our data from earlier.  For this example, we will use the dataset from Kenneth Baker's third edition of _Optimization Modeling with Spreadsheets_, pages 175-178, Example 5.3 titled "Hope Valley Health Care Association." In this case, a health care organization wants to benchmark six nursing homes against each other.
 

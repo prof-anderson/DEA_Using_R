@@ -1,14 +1,12 @@
 # Output-Oriented Envelopment Model
 
-Introduction
------------------------------
-In chapter 2 and 3 we focused on the input-oriented envelopment model. This chapter will focus on the output-oriented model.  People can sometimes be confused over when to use an input-oriented or an output-oriented model. Think of input-oriented as _input-reducing_ and output-oriented as _output increasing_. In an input-oriented model, the primary goal is to reduce the input while not sacrificing any output. In contrast, the primary goal for an output-oriented model is to increase the output while not increasing the usage of any input.
+## Introduction
 
-Think of selecting the model orientation by looking at a simple model of say, a set of restaurants where the input the input is labor and the output is customers served. The question than is what do the managers have more control over. If managers of restaurants have the opportunity to serve more customers, perhaps an output-oriented model is best. On the other hand, they have may have weak influence over the number of customers served, perhaps due to advertising being done at a regional level.  In this case, perhaps cost control is the primary goal which means that an input-oriented model should be applied to emphasize reducing labor.
+In chapters 2 and 3 we focused on the input-oriented envelopment model. This chapter will focus on the output-oriented model. People can sometimes be confused over when to use an input-oriented or an output-oriented model. Think of input-oriented as *input-reducing* and output-oriented as *output increasing*. In an input-oriented model, the primary goal is to reduce the input while not sacrificing any output. In contrast, the primary goal for an output-oriented model is to increase the output while not increasing the usage of any input.
 
-In the case of constant returns to scale, the results will be consistent. Under other returns to scale assumptions, the orientation can have a significant impact on efficiency.  
+Think of selecting the model orientation by looking at a simple model of say, a set of restaurants where the input the input is labor and the output is customers served. The question than is what do the managers have more control over. If managers of restaurants have the opportunity to serve more customers, perhaps an output-oriented model is best. On the other hand, they have may have weak influence over the number of customers served, perhaps due to advertising being done at a regional level. In this case, perhaps cost control is the primary goal which means that an input-oriented model should be applied to emphasize reducing labor.
 
-The linear program for the output-oriented model is very similar to that of the input-oriented model.  The major change now is that rather finding the minimum level of input capable of producing the desired output, now the goal is to find the maximum output without reducing the input.  This expansion of output is denoted as $\phi$ and the resulting constant returns to scale model is given below.
+The linear program for the output-oriented model is very similar to that of the input-oriented model. The major change now is that rather finding the minimum level of input capable of producing the desired output, the goal is to find the maximum output without reducing the input. This expansion of output is denoted as $\phi$ and the resulting constant returns to scale model is given below.
 
 $$
  \begin{aligned}
@@ -18,6 +16,8 @@ $$
                        & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
 $$
+
+The value $\phi$ is a radial expansion that unit k is expected to make on every output whereas in the input-oriented model, $\theta$ was a radial reduction for every input. A very inefficient unit that received an input-oriented, constant returns to scale efficiency score of $\theta=0.5$ indicates that it should be able to achieve the same output it is currently producing using no more than half of any input. If the same analysis were done using an output-orientation, the unit would get a score $\phi=2.0$ indicating that using the current input, the unit should at least double each output. In the case of constant returns to scale, the efficiency scores will be consistent ($\theta$=$\frac{1}{\phi}$) but targets will be different. Under other returns to scale assumptions, the orientation can have a significant impact on efficiency scores.
 
 Just as we did in chapter 2 for the input-oriented model, we will transform it to standard form by moving all terms with variables to the left-hand side.
 
@@ -34,7 +34,7 @@ Now we will convert the problem input and output constraints from inequalities i
 
 $$
  \begin{aligned}
-    \text{minimize  }   & \phi \\
+    \text{maximize  }   & \phi \\
     \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j  + s^x_i =  x_{i,k} \forall \; i\\
                        & \sum_{j=1}^{n} y_{r,j}\lambda_j - \phi y_{r,k} - s^y_r = 0 \forall \; r\\
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; i,r,j
@@ -56,7 +56,6 @@ library(ompr)             # Optimization Modeling using R
 library(ompr.roi)         # Connective tissue
 
 ```
-
 
 ```{r Creating_data_structures}
 
@@ -101,7 +100,7 @@ Let's refresh our memory with the input-output data for the example.
 pander (cbind(XBaker1, YBaker1),round=6, caption="Baker's Nursing Home Data")
 ```
 
-Now the formulation is similar to the input-oriented model that we created in chapter 2.  The three changes are that we will be using $\phi$ rather than $\theta$, a _max_ rather than _min_ objective function, and modifying the output-constraint(s) rather than the input-constraint(s).
+Now the formulation is similar to the input-oriented model that we created in chapter 2. The three changes are that we will be using $\phi$ rather than $\theta$, a *max* rather than *min* objective function, and modifying the output-constraint(s) rather than the input-constraint(s).
 
 ```{r Baker_example}
 
@@ -130,11 +129,10 @@ pander (cbind(results.efficiency, results.lambda),round=6, caption="Results from
 
 ```
 
-In this case, the two input-two output, output-oriented CCR model gives us four efficient nursing homes, A, B, C, and D.    
+In this case, the two input-two output, output-oriented CCR model gives us four efficient nursing homes, A, B, C, and D.
 
 ## Future Work
 
-* Extend slack maximization model.
-* Extract the dual weights for the inputs and outputs.  Requires new or undocumented features in the _ompr_ package.
-* Add other RTS options.  Contrast efficiency scores and targets under varying RTS and orientations.
-
+-   Extend slack maximization model.
+-   Extract the dual weights for the inputs and outputs. Requires new or undocumented features in the *ompr* package.
+-   Add other RTS options. Contrast efficiency scores and targets under varying RTS and orientations.

@@ -3,7 +3,7 @@
 Introduction
 -----------------------------
 
-##The Ratio Model
+## The Ratio Model
 
 Put yourself as a competitor trying to argue that you are the best in converting inputs into outputs among a set of other units.  You have data on what the competitors' inputs and outputs.  You can 
 
