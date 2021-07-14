@@ -35,7 +35,7 @@ source('Helperfiles.R')
 
 Chapter 2 of Thore, by Thore and Rich, covers a series of small cases covers around R&D projects. The first case begins on page 62 with an application from Baker Hughes Corporation. They were considering 14 cases related "directional drilling", which as a technology, combined with hydraulic fracturing, years later resulted in the natural gas boom.
 
-Thore and Rich use a one-input, four-output variable returns to scale DEA model. The input was expected cost in millions of dollars. The outputs are estimated market size in millions of dollars (Y1), strategic compatability with existing products (Y2), projected market demand in millions of dollars (Y3), and competitive intensity (Y4).
+Thore and Rich use a one-input, four-output variable returns to scale DEA model. The input was expected cost in millions of dollars. The outputs are estimated market size in millions of dollars (Y1), strategic compatibility with existing products (Y2), projected market demand in millions of dollars (Y3), and competitive intensity (Y4).
 
 Let's start by defining the data from page 63 of Thore and Rich.
 
