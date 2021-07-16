@@ -74,21 +74,25 @@ We're going to use our data from earlier.  For this example, we will use the dat
 
 ```{r multiplier_model }
 
-library(pander, quietly=TRUE)           # For better tables
-library(dplyr, quietly=TRUE)            # For data structure manipulation
-library(ROI, quietly=TRUE)              # R Optimization Interface 
-library(ROI.plugin.glpk, quietly=TRUE)  # Connection to glpk as solver
-library(ompr, quietly=TRUE)             # Optimization Modeling using R
-library(ompr.roi, quietly=TRUE)         # Connective tissue
+library(pander, quietly=TRUE)           
+library(dplyr, quietly=TRUE)            
+library(ROI, quietly=TRUE)              
+library(ROI.plugin.glpk, quietly=TRUE)  
+library(ompr, quietly=TRUE)             
+library(ompr.roi, quietly=TRUE)         
 
-  XBaker1 <- matrix(c(150, 400, 320, 520, 350, 320, .2, 0.7, 1.2, 2.0, 1.2, 0.7),
-                  ncol=2,dimnames=list(LETTERS[1:6],c("x1", "x2")))
+XBaker1 <- matrix(c(150, 400, 320, 520, 350, 320, 
+                      0.2, 0.7, 1.2, 2.0, 1.2, 0.7),
+                  ncol=2,dimnames=list(LETTERS[1:6],
+                                       c("x1", "x2")))
 
-  YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 3500, 21000, 10500, 
-                    42000, 25000, 15000),
-                  ncol=2,dimnames=list(LETTERS[1:6],c("y1", "y2")))
+YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 
+                      3500, 21000, 10500, 42000, 25000, 15000),
+                  ncol=2,dimnames=list(LETTERS[1:6],
+                                       c("y1", "y2")))
 
-ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1); # Define data size
+ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1); 
+# Define data size
 
 xdata      <-XBaker1 [1:ND,]  # Call it xdata
 dim(xdata) <-c(ND,NX)  # structure data correctly
@@ -100,11 +104,13 @@ dim(ydata) <-c(ND,NY)
 Remember the inputs are hard coded as "x1" and"x2" to represent the _staff hours per day_ and the _supplies per day_ respectively.  The two outputs of _reimbursed patient-days_ and _privately paid patient-days_ are named "y1" and "y2".  
 
 ```{r}
-YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 3500, 21000, 10500, 
-                    42000, 25000, 15000),
-                  ncol=2,dimnames=list(LETTERS[1:6],c("y1", "y2")))
+YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 
+                    3500, 21000, 10500, 42000, 25000, 15000),
+                  ncol=2,dimnames=list(LETTERS[1:6],
+                                       c("y1", "y2")))
 
-ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1); # Define data size
+ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1); 
+# Define data size
 
 ```
 
@@ -126,14 +132,17 @@ We are now ready to do the analysis.  In Baker, the analysis was done using the 
 ```{r}
 library (MultiplierDEA)
 
-# Example from Kenneth R. Baker: Optimization Modeling with Spreadsheets, 
+# Example from Kenneth R. Baker,
+#      Optimization Modeling with Spreadsheets, 
 #    Third Edition, p. 176, John Wiley & Sons, Inc.
 dmu <- c("A", "B", "C", "D", "E", "F")
-x <- data.frame(c(150,400,320,520,350,320),c(0.2,0.7,1.2,2.0,1.2,0.7))
+x <- data.frame(c(150,400,320,520,350,320),
+                c(0.2,0.7,1.2,2.0,1.2,0.7))
 rownames(x) <- dmu
 colnames(x)[1] <- c("StartHours")
 colnames(x)[2] <- c("Supplies")
-y <- data.frame(c(14,14,42,28,19,14),c(3.5,21,10.5,42,25,15))
+y <- data.frame(c(14,14,42,28,19,14),
+                c(3.5,21,10.5,42,25,15))
 rownames(y) <- dmu
 colnames(y)[1] <- c("Reimbursed")
 colnames(y)[2] <- c("Private")
@@ -151,11 +160,13 @@ The package also includes a cross-efficiency calculation function so as to find 
 # Example from Kenneth R. Baker: Optimization Modeling with Spreadsheets, 
 #    Third Edition, p. 176, John Wiley & Sons, Inc.
 dmu <- c("A", "B", "C", "D", "E", "F")
-x <- data.frame(c(150,400,320,520,350,320),c(0.2,0.7,1.2,2.0,1.2,0.7))
+x <- data.frame(c(150,400,320,520,350,320),
+                c(0.2,0.7,1.2,2.0,1.2,0.7))
 rownames(x) <- dmu
 colnames(x)[1] <- c("StartHours")
 colnames(x)[2] <- c("Supplies")
-y <- data.frame(c(14,14,42,28,19,14),c(3.5,21,10.5,42,25,15))
+y <- data.frame(c(14,14,42,28,19,14),
+                c(3.5,21,10.5,42,25,15))
 rownames(y) <- dmu
 colnames(y)[1] <- c("Reimbursed")
 colnames(y)[2] <- c("Private")
@@ -218,8 +229,10 @@ multiplierIO <- function (x,y)
 
 resfunc <- multiplierIO(x,y)
 DMUnames <- list(c(LETTERS[1:ND]))
-Vnames<- lapply(list(rep("v",NX)),paste0,1:NX)   # Input weight names: v1, ...
-Unames<- lapply(list(rep("u",NY)),paste0,1:NY)   # Output weight names: u1, ...
+Vnames<- lapply(list(rep("v",NX)),paste0,1:NX)   
+# Input weight names: v1, ...
+Unames<- lapply(list(rep("u",NY)),paste0,1:NY)   
+# Output weight names: u1, ...
 
 dimnames(resfunc$efficiency) <- c(DMUnames,"CCR-IO")
 dimnames(resfunc$vweight)    <- c(DMUnames,Vnames)
@@ -360,29 +373,39 @@ multiplierIOSec <- function (x, y)
     for (k in 1:ND) {
 
       result <- MIPModel() %>%
-      add_variable(vweight[i], i = 1:NX, type = "continuous", lb = 0) %>%
-      add_variable(uweight[r], r = 1:NY, type = "continuous", lb = 0) %>%
-      set_objective(sum_expr(uweight[r] * y[k,r], r = 1:NY), "max") %>%
-      add_constraint(sum_expr(vweight[i] * x[k,i], i = 1:NX) == 1) %>%
+      add_variable(vweight[i], i = 1:NX, 
+                   type = "continuous", lb = 0) %>%
+      add_variable(uweight[r], r = 1:NY, 
+                   type = "continuous", lb = 0) %>%
+      set_objective(sum_expr(uweight[r] * y[k,r], 
+                             r = 1:NY), "max") %>%
+      add_constraint(sum_expr(vweight[i] * x[k,i], 
+                              i = 1:NX) == 1) %>%
       add_constraint((sum_expr(uweight[r] * y[j,r], r = 1:NY)-
                     sum_expr(vweight[i] * x[j,i], i = 1:NX)) 
                   <= 0, j = 1:ND)
       result
 
       result2 <- MIPModel() %>%
-      add_variable(vweight[i], i = 1:NX, type = "continuous", lb = 0) %>%
-      add_variable(uweight[r], r = 1:NY, type = "continuous", lb = 0) %>%
-      set_objective(sum_expr(uweight[r] * sum(y[,r]), r = 1:NY), "max") %>%
+      add_variable(vweight[i], i = 1:NX, 
+                   type = "continuous", lb = 0) %>%
+      add_variable(uweight[r], r = 1:NY, 
+                   type = "continuous", lb = 0) %>%
+      set_objective(sum_expr(uweight[r] * sum(y[,r]), 
+                             r = 1:NY), "max") %>%
           # Modified objective function for 
-      add_constraint(sum_expr(vweight[i] * sum(x[,i]), i = 1:NX) == 1) %>%
-      add_constraint(result, sum_expr(uweight[r] * sum(y[,r]), r = 1:NY)-
+      add_constraint(sum_expr(vweight[i] * sum(x[,i]), 
+                              i = 1:NX) == 1) %>%
+      add_constraint(result, sum_expr(uweight[r] * sum(y[,r]), 
+                                      r = 1:NY)-
                     sum_expr(vweight[i] * sum(x[,i]), i = 1:NX)  
                   <= 0)
       add_constraint((sum_expr(uweight[r] * y[j,r], r = 1:NY)-
                     sum_expr(vweight[i] * x[j,i], i = 1:NX)) 
                   <= 0, j = 1:ND)
 
-    result <- solve_model(result, with_ROI(solver = "glpk", verbose = FALSE))
+    result <- solve_model(result, with_ROI(solver = "glpk", 
+                                           verbose = FALSE))
     results.efficiency[k] <- objective_value (result2) 
 
     # Get the weights - Output weights
@@ -396,7 +419,8 @@ multiplierIOSec <- function (x, y)
   } # End of for k loop
   
   resultlist <- list(efficiency=results.efficiency, 
-                     vweight=results.vweight, uweight=results.uweight)
+                     vweight=results.vweight, 
+                     uweight=results.uweight)
  
   return(resultlist)  
 
@@ -412,9 +436,12 @@ pander(cbind(x,y),caption="Data Passed to function")
 
 #resfunc <- multiplierIOSec (x=xdata, y=ydata)
 
-resfunc    <- CrossEfficiency (x, y, rts="crs", orientation="input")
-resfuncmal <- Mal_Ben (x, y, rts="crs", orientation="input", phase="mal")
-resfuncben <- Mal_Ben (x, y, rts="crs", orientation="input", phase="ben")
+resfunc    <- CrossEfficiency (x, y, rts="crs", 
+                               orientation="input")
+resfuncmal <- Mal_Ben (x, y, rts="crs", 
+                       orientation="input", phase="mal")
+resfuncben <- Mal_Ben (x, y, rts="crs", 
+                       orientation="input", phase="ben")
 
 rownames(resfunc$ce_ave)<-"Single-Phase Cross-Efficiency"
 rownames(resfuncmal$ce_ave)<-"Malevolent Cross-Efficiency"
@@ -428,12 +455,17 @@ Next, let's review the implementation of multiple optima in Auro's multiplier mo
 
 ```{r}
 
-XTT03 <- matrix(c(1,1,1,1,1,1,1),ncol=1,dimnames=list(LETTERS[1:7],"x"))
+XTT03 <- matrix(c(1,1,1,1,1,1,1),ncol=1,
+                dimnames=list(LETTERS[1:7],"x"))
 
-YTT03 <- matrix(c(5,7,8,4,9,10,4,10,10,7,8,4,2,7,3,3,5,3,4,10,7),
-                ncol=3, dimnames=list(LETTERS[1:7], c("C1","C2","C3")))
+YTT03 <- matrix(c(5,7,8,4,9,10,4,
+                  10,10,7,8,4,2,7,
+                  3,3,5,3,4,10,7),
+                ncol=3, dimnames=list(LETTERS[1:7], 
+                                      c("C1","C2","C3")))
 
-pander (cbind(XTT03, YTT03), caption = "Input-Output Data for Takamura and Tone, 2003")
+pander (cbind(XTT03, YTT03), 
+        caption = "Input-Output Data for Takamura and Tone, 2003")
 ```
 
 Comments about cross-efficiency functions from DEAmultiplier package.

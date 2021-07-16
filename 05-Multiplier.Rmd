@@ -22,7 +22,8 @@ library(pander)           # For making nice tables
 
  YRest1 <- matrix(c(25, 14, 42, 18, 19, 14, 3500, 2100, 1050, 
                     4200, 2500, 1500), ncol=2,
-                  dimnames=list(c("Alfred", "Barb","Chris", "Don", "Ed","Fran"),
+                  dimnames=list(c("Alfred", "Barb","Chris", 
+                                  "Don", "Ed","Fran"),
                                 c("y1", "y2")))
 
 ND <- nrow(YRest1); NY <- ncol(YRest1); # Define data size
@@ -265,14 +266,16 @@ We're going to use our data from earlier.  For this example, we will use the dat
 
 ```{r multiplier_model }
 
-  XBaker1 <- matrix(c(150, 400, 320, 520, 350, 320, .2, 0.7, 1.2, 2.0, 1.2, 0.7),
+XBaker1 <- matrix(c(150, 400, 320, 520, 350, 320, 
+                    0.2, 0.7, 1.2, 2.0, 1.2, 0.7),
                   ncol=2,dimnames=list(LETTERS[1:6],c("x1", "x2")))
 
-  YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 3500, 21000, 10500, 
-                    42000, 25000, 15000),
+YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 
+                    3500, 21000, 10500, 42000, 25000, 15000),
                   ncol=2,dimnames=list(LETTERS[1:6],c("y1", "y2")))
 
-ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1); # Define data size
+ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1); 
+# Define data size
 
 xdata      <-XBaker1 [1:ND,]  # Call it xdata
 dim(xdata) <-c(ND,NX)  # structure data correctly
@@ -284,11 +287,12 @@ dim(ydata) <-c(ND,NY)
 Remember the inputs are named as "x1" and"x2" to represent the _staff hours per day_ and the _supplies per day_ respectively.  The two outputs of _reimbursed patient-days_ and _privately paid patient-days_ are named "y1" and "y2".  
 
 ```{r}
-YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 3500, 21000, 10500, 
-                    42000, 25000, 15000),
+YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 
+                    3500, 21000, 10500, 42000, 25000, 15000),
                   ncol=2,dimnames=list(LETTERS[1:6],c("y1", "y2")))
 
-ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1); # Define data size
+ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1); 
+# Define data size
 
 ```
 
@@ -296,21 +300,21 @@ Note that I'm naming the data sets based on their origin and then loading them i
 
 ```{r Structure_Results}
 
-results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
-results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
-results.vweight    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
-results.uweight    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
-results.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
-results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
+results.efficiency <- matrix(rep(-1.0, ND), nrow=ND)
+results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND)
+results.vweight    <- matrix(rep(-1.0, ND*NX), nrow=ND) 
+results.uweight    <- matrix(rep(-1.0, ND*NY), nrow=ND) 
+results.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND) 
+results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND) 
 
 DMUnames <- list(c(LETTERS[1:ND]))
-Xnames<- lapply(list(rep("X",NX)),paste0,1:NX)
-Ynames<- lapply(list(rep("Y",NY)),paste0,1:NY)
-Vnames<- lapply(list(rep("v",NX)),paste0,1:NX)
-Unames<- lapply(list(rep("u",NY)),paste0,1:NY)
-SXnames<- lapply(list(rep("sx",NX)),paste0,1:NX)
-SYnames<- lapply(list(rep("sy",NY)),paste0,1:NY)
-Lambdanames <- lapply(list(rep("L_",ND)),paste0,LETTERS[1:ND])
+Xnames<- lapply(list(rep("X",NX)), paste0,1:NX)
+Ynames<- lapply(list(rep("Y",NY)), paste0,1:NY)
+Vnames<- lapply(list(rep("v",NX)), paste0,1:NX)
+Unames<- lapply(list(rep("u",NY)), paste0,1:NY)
+SXnames<- lapply(list(rep("sx",NX)), paste0,1:NX)
+SYnames<- lapply(list(rep("sy",NY)), paste0,1:NY)
+Lambdanames <- lapply(list(rep("L_",ND)), paste0, LETTERS[1:ND])
   
 dimnames(xdata)<-c(DMUnames,Xnames)
 dimnames(ydata)<-c(DMUnames,Ynames)
@@ -330,16 +334,21 @@ We are now ready to do the analysis.  In Baker, the analysis is done using the m
 for (k in 1:ND) {
 
   result <- MIPModel() %>%
-  add_variable(vweight[i], i = 1:NX, type = "continuous", lb = 0) %>%
-  add_variable(uweight[r], r = 1:NY, type = "continuous", lb = 0) %>%
-  set_objective(sum_expr(uweight[r] * ydata[k,r], r = 1:NY), "max") %>%
-  add_constraint(sum_expr(vweight[i] * xdata[k,i], i = 1:NX) == 1) %>%
+  add_variable(vweight[i], i = 1:NX, type = "continuous", 
+               lb = 0) %>%
+  add_variable(uweight[r], r = 1:NY, type = "continuous", 
+               lb = 0) %>%
+  set_objective(sum_expr(uweight[r] * ydata[k,r], r = 1:NY), 
+                "max") %>%
+  add_constraint(sum_expr(vweight[i] * xdata[k,i], 
+                          i = 1:NX) == 1) %>%
   add_constraint((sum_expr(uweight[r] * ydata[j,r], r = 1:NY)-
                     sum_expr(vweight[i] * xdata[j,i], i = 1:NX)) 
                  <= 0, j = 1:ND)
   result
 
-  result <- solve_model(result, with_ROI(solver = "glpk", verbose = FALSE))
+  result <- solve_model(result, with_ROI(solver = "glpk", 
+                                         verbose = FALSE))
   results.efficiency[k] <- objective_value (result) 
 
   # Get the weights - Output weights
