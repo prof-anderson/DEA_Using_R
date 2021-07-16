@@ -63,8 +63,8 @@ library(Benchmarking, quietly=TRUE)
 
 dea.plot(x, y, RTS="crs", ORIENTATION="in-out", 
          txt=LETTERS[1:length(x)], 
-         add=FALSE, wx=NULL, wy=NULL, TRANSPOSE=FALSE, fex=1, 
-         GRID=TRUE, RANGE=FALSE, param=NULL)
+         add=FALSE, wx=NULL, wy=NULL, TRANSPOSE=FALSE, 
+         fex=1, GRID=TRUE, RANGE=FALSE, param=NULL)
 ```
 
 This chart clearly shows that unit *C* has the best ratio of output (y) to input (x). The diagonal line represents an efficiency frontier of best practices that could be achieved by scaling up or down unit *C*. As the input is scaled up or down, it is assumed that the output of unit *C* would be scaled up or down by the same value. We will revisit this assumption in a later section but for now, think of this as saying that unit *C* cannot enjoy economies of scale by getting larger or suffer from diseconomies of scale by getting smaller so it is referred to as constant returns to scale or CRS.
@@ -108,7 +108,7 @@ In this chapter, we will focus on satisfying the second constraint while trying 
 
 Let's define the proportion of the studied unit's input needed by the target as $\theta$. A value of $\theta=1$ then means no input reduction can be found in order to produce that unit's level of output. Similarly, $x_j$ is the amount of input used by unit *j* and $y_j$ is the amount of output produced by unit *j*.
 
-In fact, we will go one step further and say that we want to find the maximum input possible reduction in k's input or conversely, the minimum amount of the input that could be used by the target while still producing the same or more output. We do this by adding a new variable, $\theta$, which is the radial reduction in the amount of DMU k's input. We want to find how low we can drive this by *minimizing* $\theta$. This gives us the following linear program, often abbreviated as LP.[^io_env-2]
+In fact, we will go one step further and say that we want to find the maximum input possible reduction in k's input or conversely, the minimum amount of the input that could be used by the target while still producing the same or more output. We do this by adding a new variable, $\theta$, which is the radial reduction in the amount of DMU *k*'s input. We want to find how low we can drive this by *minimizing* $\theta$. This gives us the following linear program, often abbreviated as LP.[^io_env-2]
 
 [^io_env-2]: The mathematics in this book is was written using LaTeX embedded within the rmarkdown document. Another benefit of using rmarkdown is that it is possible embed LaTeX without requiring using a full LaTeX document.
 
@@ -168,18 +168,19 @@ Let's define some data structures for holding our data and results.
            # Input slack names: sx1, ...
   SYnames <- lapply(list(rep("sy",NY)),paste0,1:NY) 
            # Output slack names: sy1, ...
-  Lambdanames <- lapply(list(rep("L_",ND)),paste0,LETTERS[1:ND])
+  Lambdanames <- lapply(list(rep("L_",ND)),paste0, 
+                        LETTERS[1:ND])
 
-  results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
+  results.efficiency <- matrix(rep(-1.0, ND), nrow=ND)
   dimnames(results.efficiency)<-c(DMUnames,"CCR-IO")  
   
-  results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
+  results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,)
   dimnames(results.lambda)<-c(DMUnames,Lambdanames)
 
-  results.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
+  results.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND) 
   dimnames(results.xslack)<-c(DMUnames,SXnames)
 
-  results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
+  results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND) 
   dimnames(results.yslack)<-c(DMUnames,SYnames)
 
 ```
@@ -245,7 +246,8 @@ Now we do the same thing with our output constraint.
 
 ```{r}
 mod2_1 <- add_constraint(mod2_1, 
-                         sum_expr(vlambda[j] * ydata[j,1], j = 1:ND) 
+                         sum_expr(vlambda[j] * ydata[j,1], 
+                                  j = 1:ND) 
                          >= ydata[k,1])
 ```
 
@@ -340,10 +342,12 @@ Let's now extend it to handle multiple inputs, NX, and outputs, NY. Of course th
 
 ```{r ompr_mult_IO, message=FALSE}
 
-k<-1    # DMU to analyze.  Let's change it to the first unit, DMU A.
+k<-1    
+# DMU to analyze.  Let's change it to the first unit, DMU A.
 
 res2_2 <- MIPModel() %>%
-  add_variable(vlambda[j], j = 1:ND, type = "continuous", lb = 0) %>%
+  add_variable(vlambda[j], j = 1:ND, type = "continuous", 
+               lb = 0) %>%
   add_variable(vtheta, type = "continuous") %>%
   set_objective(vtheta, "min") %>%
   add_constraint(sum_expr(vlambda[j] * xdata[j,i], j = 1:ND) 
@@ -358,8 +362,8 @@ res2_2lambda <-  get_solution(res2_2, vlambda[j])
 res2_2.efficiency <- t(res2_2theta)
 colnames(res2_2.efficiency) <- c("CCR-IO")
 res2_2.lambda <- t(res2_2lambda[3])
-      # Takes the third column from the results and transposes results
-      #    to be structured correctly for later viewing
+ # Takes the third column from the results and transposes 
+  #    results to be structured better for later viewing
 colnames(res2_2.lambda) <- c("L_A", "L_B", "L_C", "L_D")
 
 pander(cbind(res2_2.efficiency, res2_2.lambda), 
@@ -377,7 +381,8 @@ res2_3.lambda     <- matrix(rep(-1.0, ND), nrow=ND,ncol=ND)
 for (k in 1:ND) {
 
   res2_3 <- MIPModel() %>%
-    add_variable(vlambda[j], j = 1:ND, type = "continuous", lb = 0) %>%
+    add_variable(vlambda[j], j = 1:ND, type = "continuous", 
+                 lb = 0) %>%
     add_variable(vtheta, type = "continuous") %>%
     set_objective(vtheta, "min") %>%
     add_constraint(sum_expr(vlambda[j] * xdata[j,i], j = 1:ND) 
@@ -391,14 +396,14 @@ for (k in 1:ND) {
     res2_3.efficiency[k] <-  get_solution(res2_3, vtheta)       
     res2_3.lambda[k,] <- t(as.matrix(as.numeric(
               get_solution(res2_3, vlambda[j])[,3] )))
-       # Put resulting from solution in lambda matrix
-       # Comes out of ompr as a dataframe, use as.matrix 
-       #    to convert from data frame to matrix
-       #    grabs 3rd column to put into results matrix.  
-       # First two columns of dataframe are for other info as.numeric 
-       #    forces the numbers to treated as numbers rather than text.
-       # I'm sure there are better ways of handling this 
-       #    but I'll leave that for future work.
+# Put resulting from solution in lambda matrix
+# Comes out of ompr as a dataframe, use as.matrix 
+#    to convert from data frame to matrix
+#    grabs 3rd column to put into results matrix.  
+# First two columns of dataframe are for other info as.numeric 
+#    forces the numbers to treated as numbers rather than text.
+# I'm sure there are better ways of handling this 
+#    but I'll leave that for future work.
 }
 ```
 
@@ -545,22 +550,25 @@ Using DEA for two-dimensional examples such as the one-input, one-output model i
 
 Let's create a richer dataset. For this example, we will use the dataset from Kenneth Baker's third edition of *Optimization Modeling with Spreadsheets*, pages 175-178, Example 5.3 titled "Hope Valley Health Care Association." In this example, a health care organization wants to benchmark six nursing homes against each other.
 
-This data is a little more complicated so let's make sure that we understand the definitions. Look at the line for the inputs which we will call XBaker1. The list of 12 data values has the structure defined as two columns for two separate inputs by use of 'ncol=2'. This then means that there are 6 rows or DMUs in this dataset. The six units are given capital letters for names starting with A. The names of the inputs are hard coded as "x1" and"x2" to represent the *staff hours per day* and the *supplies per day* respectively.
+This data is a little more complicated so let's make sure that we understand the definitions. Look at the line for the inputs which we will call `XBaker1`. The list of 12 data values has the structure defined as two columns for two separate inputs by use of `ncol=2`. This then means that there are 6 rows or DMUs in this dataset. The six units are given capital letters for names starting with A. The names of the inputs are hard coded as `x1`and `x2` to represent the *staff hours per day* and the *supplies per day* respectively.
 
 ```{r Multiple_inputs_outputs}
-  XBaker1 <- matrix(c(150, 400, 320, 520, 350, 320, .2, 0.7, 1.2, 2.0, 1.2, 0.7),
-                  ncol=2,dimnames=list(LETTERS[1:6],c("x1", "x2")))
-  
+XBaker1 <- matrix(c(150, 400, 320, 520, 350, 320, 
+                    0.2, 0.7, 1.2, 2.0, 1.2, 0.7),
+                  ncol=2, dimnames=list(LETTERS[1:6],
+                                        c("x1", "x2")))
 ```
 
 The two outputs of *reimbursed patient-days* and *privately paid patient-days* are named "y1" and "y2" but otherwise have the same structure as the inputs.
 
 ```{r}
-YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 3500, 21000, 10500, 
-                    42000, 25000, 15000),
-                  ncol=2,dimnames=list(LETTERS[1:6],c("y1", "y2")))
+YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 
+                    3500, 21000, 10500, 42000, 25000, 15000),
+                  ncol=2,dimnames=list(LETTERS[1:6],
+                                       c("y1", "y2")))
 
-ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1); # Define data size
+ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1); 
+# Define data size
 
 pander(cbind(XBaker1,YBaker1))
 ```
@@ -610,7 +618,8 @@ RTS<-"CRS"
 for (k in 1:ND) {
   
   result <- MIPModel() %>%
-    add_variable(vlambda[j], j = 1:ND, type = "continuous", lb = 0) %>%
+    add_variable(vlambda[j], j = 1:ND, type = "continuous", 
+                 lb = 0) %>%
     add_variable(vtheta, type = "continuous") %>%
     set_objective(vtheta, "min") %>%
     add_constraint(sum_expr(vlambda[j] * xdata[j,i], j = 1:ND) 
@@ -619,7 +628,8 @@ for (k in 1:ND) {
                    >= ydata[k,r], r = 1:NY) 
 
     if (RTS=="VRS") {result <- add_constraint(result, 
-                 sum_expr(vlambda[j],j = 1:ND) == 1) }  #Returns to Scale
+                 sum_expr(vlambda[j],j = 1:ND) == 1) }  
+  # Returns to Scale
 
 results <-   solve_model(result, with_ROI(solver = "glpk")) 
     
@@ -639,7 +649,8 @@ In contrast, the second and third column warrant a more careful look. Both of th
 
 ```{r rounded-table}
 pander (cbind(results.efficiency, results.lambda), 
-        caption="Results from Baker's Example (CRS) with Rounded Values")
+        caption=
+          "Results from Baker's Example (CRS) with Rounded Values")
 ```
 
 The small, nearly zero, values that may appear in DEA calculations can cause some computational difficulty. For example, testing for zero lambda values could miss cases where the value is approximately but not exactly zero.
@@ -664,7 +675,8 @@ Recently, Dirk Schumacher has added the option of extraction dual results from g
 rduals <- as.matrix(get_row_duals(results))
 
 results.vweight[k,] <- -1*rduals[1:NX]
-   # Extract first NX row duals assuming first set of constraints for inputs
+   # Extract first NX row duals assuming 
+   #   first set of constraints for inputs
    # Multiply input weights by -1 to adjust for inequality direction
 
 results.uweight[k,] <- rduals[(NX+1):(NX+NY)]
@@ -684,7 +696,8 @@ RTS<-"CRS"
 for (k in 1:ND) {
   
   result <- MIPModel() %>%
-    add_variable(vlambda[j], j = 1:ND, type = "continuous", lb = 0) %>%
+    add_variable(vlambda[j], j = 1:ND, type = "continuous", 
+                 lb = 0) %>%
     add_variable(vtheta, type = "continuous") %>%
     set_objective(vtheta, "min") %>%
     add_constraint(sum_expr(vlambda[j] * xdata[j,i], j = 1:ND) 
@@ -693,7 +706,8 @@ for (k in 1:ND) {
                    >= ydata[k,r], r = 1:NY) 
 
     if (RTS=="VRS") {result <- add_constraint(result, 
-                 sum_expr(vlambda[j],j = 1:ND) == 1) }  #Returns to Scale
+                 sum_expr(vlambda[j],j = 1:ND) == 1) }  
+  # Returns to Scale
 
 result <-   solve_model(result, with_ROI(solver = "glpk")) 
     
@@ -703,12 +717,9 @@ result <-   solve_model(result, with_ROI(solver = "glpk"))
     rduals  <- as.matrix(get_row_duals(result))
 
     results.vweight[k,] <- -1*rduals[1:NX]
-      # Extract first NX row duals assuming first set of constraints for inputs
-      # Multiply input weights by -1 to adjust for inequality direction
 
     results.uweight[k,] <- rduals[(NX+1):(NX+NY)]
-      # Extract next NY row duals assuming output constraints follow inputs 
-
+ 
     }
 pander (cbind(results.efficiency, results.lambda, results.vweight, 
               results.uweight),round=6, 
@@ -782,21 +793,28 @@ RTS<-"CRS"
 for (k in 1:ND) {
   
   LPSlack <- MIPModel() %>%
-    add_variable(vlambda[j], j = 1:ND, type = "continuous", lb = 0) %>%
+    add_variable(vlambda[j], j = 1:ND, type = "continuous", 
+                 lb = 0) %>%
     add_variable(vtheta, type = "continuous") %>%
-    add_variable(xslack[i], i = 1:NX, type = "continuous", lb=0) %>%
-    add_variable(yslack[r], r = 1:NY, type = "continuous", lb=0) %>%
+    add_variable(xslack[i], i = 1:NX, type = "continuous", 
+                 lb=0) %>%
+    add_variable(yslack[r], r = 1:NY, type = "continuous", 
+                 lb=0) %>%
     
     set_objective(vtheta, "min") %>%
     
-    add_constraint(sum_expr(vlambda[j] * xdata[j,i]+xslack[i], j = 1:ND) 
+    add_constraint(sum_expr(vlambda[j] * xdata[j,i]+xslack[i], 
+                            j = 1:ND) 
                    - vtheta * xdata[k,i]==0, i = 1:NX) %>%
     
-    add_constraint(sum_expr(vlambda[j] * ydata[j,r]-yslack[r], j = 1:ND) 
+    add_constraint(sum_expr(vlambda[j] * ydata[j,r]-yslack[r], 
+                            j = 1:ND) 
                     ==ydata[k,r], r = 1:NY) 
 
-    if (RTS=="VRS") {LPSlack<-add_constraint(LPSlack, sum_expr(vlambda[j],
-                                j = 1:ND) == 1) }  #Returns to Scale
+    if (RTS=="VRS") {LPSlack<-add_constraint(LPSlack, 
+                                             sum_expr(vlambda[j],
+                                j = 1:ND) == 1) }  
+  
 
     result <-   solve_model(LPSlack, with_ROI(solver = "glpk")) 
 
@@ -812,12 +830,14 @@ for (k in 1:ND) {
   
     results.efficiency[k] <-  get_solution(result, vtheta)       
     results.lambda[k,] <- t(as.matrix(
-                 as.numeric(get_solution(result, vlambda[j])[,3] )))
+                 as.numeric(get_solution(result, 
+                                         vlambda[j])[,3] )))
 }
 
 rownames(results.efficiency)<-c("A", "B", "C", "D", "E", "F")
 #print (results.efficiency)
-pander(cbind(results.efficiency,xdata,ydata,results.lambda), round=5,
+pander(cbind(results.efficiency,xdata,ydata,results.lambda), 
+       round=5,
        caption="Input-oriented Efficiency Results")
 
 ```

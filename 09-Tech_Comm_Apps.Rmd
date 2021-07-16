@@ -44,27 +44,39 @@ NX <- 1
 NY <- 4
 ND <- 14
 
-  DMUnames <- list(c(LETTERS[1:ND]))               # DMU names: A, B, ...
-  Xnames<- lapply(list(rep("X",NX)),paste0,1:NX)   # Input names: x1, ...
-  Ynames<- lapply(list(rep("Y",NY)),paste0,1:NY)   # Output names: y1, ...
-  Vnames<- lapply(list(rep("v",NX)),paste0,1:NX)   # Input weight names: v1, ...
-  Unames<- lapply(list(rep("u",NY)),paste0,1:NY)   # Output weight names: u1, ...
-  SXnames<- lapply(list(rep("sx",NX)),paste0,1:NX) # Input slack names: sx1, ...
-  SYnames<- lapply(list(rep("sy",NY)),paste0,1:NY) # Output slack names: sy1, ...
-  Lambdanames<- lapply(list(rep("L_",ND)),paste0,LETTERS[1:ND])
+DMUnames <- list(c(LETTERS[1:ND]))               
+  # DMU names: A, B, ...
+Xnames<- lapply(list(rep("X",NX)),paste0,1:NX)   
+  # Input names: x1, ...
+Ynames<- lapply(list(rep("Y",NY)),paste0,1:NY)   
+  # Output names: y1, ...
+Vnames<- lapply(list(rep("v",NX)),paste0,1:NX)   
+  # Input weight names: v1, ...
+Unames<- lapply(list(rep("u",NY)),paste0,1:NY)   
+  # Output weight names: u1, ...
+SXnames<- lapply(list(rep("sx",NX)),paste0,1:NX) 
+  # Input slack names: sx1, ...
+SYnames<- lapply(list(rep("sy",NY)),paste0,1:NY) 
+  # Output slack names: sy1, ...
+Lambdanames<- lapply(list(rep("L_",ND)),paste0,LETTERS[1:ND])
 
-XBH <- matrix(c(1.07, 1.06, 0.325, 1.60, 0.55, 0.2, 0.35, 0.53, 0.21, 0.16, 0.07, 
+XBH <- matrix(c(1.07, 1.06, 0.325, 1.60, 
+                0.55, 0.2, 0.35, 0.53, 
+                0.21, 0.16, 0.07, 
                 1.95, 5.59, 3.10),
                 ncol=NX,dimnames=c(DMUnames,Xnames))
 
 YBH <- matrix(c(
-  32, 50, 40, 30 ,25, 8, 2, 12, 10, 0.8, 3, 300, 60, 240,
- 8.2, 7.6, 7.6, 7.1, 7.0, 6.0, 5.9, 5.8, 5.8, 5.4, 5.3, 6.8, 6.2, 6.2,
- 7.5, 7.2, 7.1, 7.2, 7.0, 6.1, 6.2, 5.8, 5.8, 5.6, 5.4, 6.1, 6.9, 6.6,
- 8.0, 6.4, 5.3, 5.5, 5.1, 6.9, 6.6, 5.4, 4.7, 6.1, 6.5, 6.4, 6.8, 7.1),
-                ncol=NY,dimnames=c(DMUnames,Ynames))
+  32, 50, 40, 30 , 25, 8, 2, 12, 
+  10, 0.8, 3, 300, 60, 240, 8.2, 7.6, 
+  7.6, 7.1, 7.0, 6.0, 5.9, 5.8, 5.8, 5.4, 
+  5.3, 6.8, 6.2, 6.2, 7.5, 7.2, 7.1, 7.2, 
+  7.0, 6.1, 6.2, 5.8, 5.8, 5.6, 5.4, 6.1, 
+  6.9, 6.6, 8.0, 6.4, 5.3, 5.5, 5.1, 6.9, 
+  6.6, 5.4, 4.7, 6.1, 6.5, 6.4, 6.8, 7.1),
+  ncol=NY,dimnames=c(DMUnames,Ynames))
 
-XFigNames <- "X1 ($M)"
+XFigNames <- "X1 - Expected Cost ($M)"
 YFigNames <- c("Y1 - Market Size ($M)", 
                "Y2 - Strategic Compat. (1-10)", 
                "Y3 - Market Demand ($M)", 

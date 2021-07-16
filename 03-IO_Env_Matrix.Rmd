@@ -202,7 +202,8 @@ rownames (res3_1.solution) <- c("$\\lambda_A$", "$\\lambda_B$",
                                 "$\\theta$", 
                                 "$s^x_1$", "$s^y_1$")
 pander (t(res3_1.solution), 
-        caption="Optimal solution values for DMU A with LaTeX column labels")
+        caption=
+          "Optimal solution values for DMU A with LaTeX column labels")
 ```
 
 When rendered in PDF format using `pander`, the table's space usage becomes less efficient. While every column label in the LaTeX table is shorter than it's corresponding column label with plain text (ex. $\lambda_A$ vs. L_A or $\theta$ vs. theta) , `pander`gives each column more width causing it to wrap the table and thereby take more page space. The result is that we will tend to stick with using the plain text labels as the default.
@@ -222,13 +223,15 @@ For this walk through, we will focus on running the LP for calculating DEA for o
 First, let's declare each of the needed basic data structures. First, determine the number of DMUs, number of inputs, and number of outputs.
 
 ```{r Defining_Problem_Size}
-  x <- matrix(c(10,20,30,50),ncol=1,dimnames=list(LETTERS[1:4],"x"))
+  x <- matrix(c(10,20,30,50), ncol=1,
+              dimnames=list(LETTERS[1:4],"x"))
 
-  y <- matrix(c(75,100,300,400),ncol=1,dimnames=list(LETTERS[1:4],"y"))
+  y <- matrix(c(75,100,300,400), ncol=1,
+              dimnames=list(LETTERS[1:4],"y"))
   
   ND <- nrow(x); NX <- ncol(x); NY <- ncol(y); 
   
-  pander(cbind(x,y),caption="Input-Output Data")
+  pander(cbind(x,y), caption="Input-Output Data")
 ```
 
 Now we will declare the data structures for inputs and outputs that will contain the data that we use. It is a little redundant to create new objects for the x and y data but there are advanced cases when it is helpful.
@@ -472,26 +475,26 @@ set.objfn (lpe,c(rep(0,ND+1),rep(1,NX+NY)))
 We are now ready to solve phase 2. We can then extract the values of the $\lambda$ variables and the slack variables.
 
 ```{r}
-    solve.lpExtPtr (lpe)                                        
-    results.lambda[k,] <- get.variables(lpe)[1:(ND)]            
-    results.xslack[k,] <- get.variables(lpe)[(ND+2):(ND+1+NX)]  
-    results.yslack[k,] <- get.variables(lpe)[(ND+2+NX):(ND+1+NX+NY)]    
+solve.lpExtPtr (lpe)                                        
+results.lambda[k,] <- get.variables(lpe)[1:(ND)]            
+results.xslack[k,] <- get.variables(lpe)[(ND+2):(ND+1+NX)]  
+results.yslack[k,] <- get.variables(lpe)[(ND+2+NX):(ND+1+NX+NY)]    
 ```
 
 Again, let's look over the results.
 
 ```{r}
-  Xnames<- lapply(list(rep("X",NX)),paste0,1:NX)
-  Ynames<- lapply(list(rep("Y",NY)),paste0,1:NY)
-  Vnames<- lapply(list(rep("v",NX)),paste0,1:NX)
-  Unames<- lapply(list(rep("u",NY)),paste0,1:NY)
-  SXnames<- lapply(list(rep("sx",NX)),paste0,1:NX)
-  SYnames<- lapply(list(rep("sy",NY)),paste0,1:NY)
-  dimnames(results.lambda)<-c(DMUnames,DMUnames)
-  dimnames(results.uweight)<-c(DMUnames,Unames)
-  dimnames(results.vweight)<-c(DMUnames,Vnames)
-  dimnames(results.xslack)<-c(DMUnames,SXnames)
-  dimnames(results.yslack)<-c(DMUnames,SYnames)
+Xnames<- lapply(list(rep("X",NX)),paste0,1:NX)
+Ynames<- lapply(list(rep("Y",NY)),paste0,1:NY)
+Vnames<- lapply(list(rep("v",NX)),paste0,1:NX)
+Unames<- lapply(list(rep("u",NY)),paste0,1:NY)
+SXnames<- lapply(list(rep("sx",NX)),paste0,1:NX)
+SYnames<- lapply(list(rep("sy",NY)),paste0,1:NY)
+dimnames(results.lambda)<-c(DMUnames,DMUnames)
+dimnames(results.uweight)<-c(DMUnames,Unames)
+dimnames(results.vweight)<-c(DMUnames,Vnames)
+dimnames(results.xslack)<-c(DMUnames,SXnames)
+dimnames(results.yslack)<-c(DMUnames,SYnames)
 
 #    results.lambda[k,]         
 #    results.xslack[k,]

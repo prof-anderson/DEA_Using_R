@@ -8,7 +8,7 @@ Sports has a long history in operations research and management science, well be
 
 -   Accurate and well curated historical data
 -   Easy to understand models
--   Opportuntities to validate results
+-   Opportunities to validate results
 -   Clear, quantifiable, and objective metrics
 -   Input-output models can be agreed upon
 
@@ -153,7 +153,8 @@ batting <- batting %>%
   filter(yearID>1900, PA>MinPA) %>%
   select(playerID,yearID,teamID,lgID,PA,BB,X1B,X2B,X3B,HR)
 
-pander (head(batting), caption="Results of Preparing Data using dplyr")
+pander (head(batting), 
+        caption="Results of Preparing Data using dplyr")
 ```
 
 Now that we have data prepared along with the tools for further manipulation, we are ready to proceed onto the analysis.
@@ -175,7 +176,8 @@ YFigNames <- c("BB (Base on Balls or Walks)",
 ModelName <- '"\n\nCCR\nIO\n\n "'
 Figure<-DrawIOdiagram(XFigNames,YFigNames, ModelName)  
 
-tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),'BaseballCCRIO.png'))
+tmp<-capture.output(rsvg_png(
+  charToRaw(export_svg(Figure)),'BaseballCCRIO.png'))
 ```
 
 ![Basic DEA Model of Baseball Batting](BaseballCCRIO.png){#fig:BaseballCCRIO}
@@ -184,7 +186,8 @@ tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),'BaseballCCRIO.png'))
 
 inputs <- c("PA")
 outputs <- c("BB", "X1B", "X2B", "X3B", "HR")
-batting1920AL <- batting %>% filter(yearID==1920, lgID=="AL")
+batting1920AL <- batting %>% 
+  filter(yearID==1920, lgID=="AL")
 
 x <- batting1920AL %>% select( PA)
 row.names(x)<-batting1920AL[,1]
@@ -199,12 +202,14 @@ pander (head (y), caption="Outputs for the 1920AL")
 ```{r doing_DEA}
 library(TFDEA, quietly=TRUE)
 
-res1920AL<-DEA(x,y, rts="CRS", orientation="output", slack=TRUE, dual=TRUE)
+res1920AL<-DEA(x,y, rts="CRS", orientation="output", 
+               slack=TRUE, dual=TRUE)
 
 phi <- res1920AL$eff
 theta <- 1/phi
 
-pander (cbind(head(phi),head(theta)), caption="CCR-OO Scores for 1920AL (Phi and Theta)")
+pander (cbind(head(phi),head(theta)), 
+        caption="CCR-OO Scores for 1920AL (Phi and Theta)")
 ```
 
 Success. We have now run DEA using the TFDEA package, principally developed by Tom Shott with important contributions from Dong-Joon Lim, Kevin van Blommestein, and others. Notice that this is an output-oriented model so the values greater than 1.0 indicate that decreasing radial efficiency (increasing inefficiency), and describe the amount of additional outputs that should be acheived at the same level of input usage. In other words, how much more walks, singles, doubles, triples, and home runs the player should be producing in the same number of plate appearances if he was batting *efficiently*. As discussed in the chapter on the output-oriented model, under constant returns to scale, the input and output-oriented models are reciprocals of each other ($\theta=\frac{1}{\phi}$)
@@ -224,9 +229,11 @@ Another approach is to analyze the data set using the multiplier model and direc
 ```{r}
 library(MultiplierDEA)
 
-res1920ALmult<-DeaMultiplierModel(x,y,rts = "crs", orientation="output")
+res1920ALmult<-DeaMultiplierModel(x, y, rts = "crs", 
+                                  orientation="output")
 
-pander(head (res1920ALmult$Efficiency), caption="DEA Output Weights")
+pander(head (res1920ALmult$Efficiency), 
+       caption="DEA Output Weights")
 
 ```
 
@@ -254,7 +261,7 @@ pander(head(res1920ALmult$uy), round=6, caption="Output Weights from Multiplier 
 pander(head (res1920AL$uy), round=6, caption="Output Weights from Envelopment Model")
 ```
 
-Again, we see that the results are similar to what was observed earlier. Note that the results for Eddie Collins (collied01) are different. Eddie Collins was efficient and it is common that efficient players have multiple weighting schemes that still result in being efficient. The MultiplierDEA package puts weight on triples (X3B) while the TFDEA package's solution puts a zero weight on triples and distributes weight among other outputs.
+Again, we see that the results are similar to what was observed earlier. Note that the results for Eddie Collins (`collied01`) are different. Eddie Collins was efficient and it is common that efficient players have multiple weighting schemes that still result in being efficient. The `MultiplierDEA`package puts weight on triples (`X3B`) while the TFDEA package's solution puts a zero weight on triples and distributes weight among other outputs.
 
 In any case, the output weights do not meet the requirements of a realistic baseball application. Let's apply weight restrictions.
 
@@ -295,10 +302,12 @@ BattingWR<-data.frame(lower = c(1.0,1.0,1.0,1.0),
                       denominator = c("BB", "X1B", "X2B","X3B"), 
                       upper = c(NaN, NaN, NaN, NaN))
 
-pander(BattingWR, caption="Data Structure for Batting Weight Restrictions")
+pander(BattingWR, caption=
+         "Data Structure for Batting Weight Restrictions")
 
-res1920ALmultWR<-DeaMultiplierModel(x,y,rts = "crs", orientation="output", 
-                                  weightRestriction = BattingWR)
+res1920ALmultWR<-DeaMultiplierModel(x,y,rts = "crs", 
+                                    orientation="output",
+                                    weightRestriction = BattingWR)
 
 ```
 
@@ -332,9 +341,11 @@ The weight restrictions have dropped the number of efficient players from seven 
 Now, let's turn our attention to a variation of DEA called cross-efficiency. Cross-efficiency was discussed in an earlier chapter. Proponents of Cross-efficiency contend that it can differentiate between players DMUs that are DEA efficient. Simple CCR DEA finds nine out of 54 players to be efficient. We will focus on the ten players with the top CCR efficiency scores.
 
 ```{r}
-res1920ALcross<-CrossEfficiency(x,y,rts = "crs", orientation="output")
-res1920ALCEWR<-CrossEfficiency(x,y,rts = "crs", orientation="output", 
-                                   weightRestriction = BattingWR)
+res1920ALcross<-CrossEfficiency(x, y, rts = "crs", 
+                                orientation="output")
+res1920ALCEWR<-CrossEfficiency(x, y, rts = "crs", 
+                               orientation="output", 
+                               weightRestriction = BattingWR)
 
 pander(head (t(res1920ALcross$ce_ave)), round=4,
        caption="Cross-efficiency scores for 1920AL")
@@ -362,13 +373,13 @@ pander(head(collectedeff1
 
 Baseball fans may recognize some of the names:
 
--   "Shoeless" Joe Jackson (jacksjo01) was a Hall of Fame caliber player but his career was cut short in 1920 after having one of his best seasons after being embroiled in a World Series scandal.
--   Tris Speaker (speaktr01) and Eddie Collins (collied01) were not just Hall of Famers but often considered among the very best players of all time. Despite this, neither of them are well known by baseball fans a century after they started playing - their biggest problem was that there were a few colleagues whose stars shown even brighter.
--   George Sisler (sislege01), was a Hall of Famer but not generally considered to be at the level of Speaker and Collins except for a brief peak of 1920 and 1922.\
--   Harry Hooper (hoopeha01) and Sam Rice (ricesa01) were star players and made the Hall of Fame but was a big step below Speaker and Collins.
--   George Herman "Babe" Ruth (ruthba01) has already been discussed at length.
+-   "Shoeless" Joe Jackson (`jacksjo01`) was a Hall of Fame caliber player but his career was cut short in 1920 after having one of his best seasons after being embroiled in a World Series scandal.
+-   Tris Speaker (`speaktr01`) and Eddie Collins (`collied01`) were not just Hall of Famers but often considered among the very best players of all time. Despite this, neither of them are well known by baseball fans a century after they started playing - their biggest problem was that there were a few colleagues whose stars shown even brighter.
+-   George Sisler (`sislege01`), was a Hall of Famer but not generally considered to be at the level of Speaker and Collins except for a brief peak of 1920 and 1922.\
+-   Harry Hooper (`hoopeha01`) and Sam Rice (`ricesa01`) were star players and made the Hall of Fame but was a big step below Speaker and Collins.
+-   George Herman "Babe" Ruth (`ruthba01`) has already been discussed at length.
 -   Eddie Collins, like Tris Speaker, was among the very best players of all time.
--   Bob Meusel (meusebo01), Joe Judge (judgejo01), and Joe Dugan (duganjo01) had good careers but are never thought of as all-time greats.
+-   Bob Meusel (`meusebo01`), Joe Judge (`judgejo01`), and Joe Dugan (`duganjo01`) had good careers but are never thought of as all-time greats.
 
 ```{r}
 
@@ -466,7 +477,8 @@ xbabe  <- x["ruthba01", ]
 vxbabe <- as.data.frame(t(res1920ALcross$vx["ruthba01",]))
 rownames(uybabe) <- "output weights"
 pander (rbind(ybabe, uybabe),
-        caption = "Ruth's Outputs and Ruth's Cross-Efficiency Output Weights")
+        caption = 
+          "Ruth's Outputs and Ruth's Cross-Efficiency Output Weights")
 
 ```
 
@@ -480,7 +492,8 @@ uysisl <- as.data.frame(t(res1920ALcross$uy["sislege01",]))
 vxsisl <- as.data.frame(t(res1920ALcross$vx["sislege01",]))
 rownames(uysisl) <- "output weights"
 pander (rbind(ybabe, uysisl),
-        caption = "Ruth's Outputs and Sisler's Cross-Efficiency Output Weights")
+        caption = 
+          "Ruth's Outputs and Sisler's Cross-Efficiency Output Weights")
 
 ```
 
@@ -520,12 +533,13 @@ vxmean <- 1
 
 rownames(uymean) <- "output weights"
 pander (rbind(ybabe, uymean),
-        caption = "Ruth's Outputs and Mean Cross-Efficiency Output Weights")
+        caption = 
+          "Ruth's Outputs and Mean Cross-Efficiency Output Weights")
 ```
 
 Once again we multiply each output by the corresponding output weight and then add these products together. The result is `r as.matrix(ybabe) %*% t(as.matrix(uymean))`. The mean input weight was `r vxmean` while his input (Plate Appearances) was `r xbabe`. Simply multiplying them together gives us `r as.matrix(xbabe) %*% t(as.matrix(vxmean))`. The final result is taking the weighted output divided by the weighted output which gives us `r as.matrix(ybabe) %*% t(as.matrix(uymean))/as.matrix(xbabe) %*% t(as.matrix(vxmean))`. Babe Ruth's cross-evaluation score based on the league-wide mean weights results in a higher score score than what Sisler gave him but far below his own efficiency score.
 
-Note, this calculated value matches the original cross-efficiency score for Babe Ruth of \`r res1920ALcross\$ce_ave["ruthba01",] calculated as simply the column average of the cross-evaluation matrix.
+Note, this calculated value matches the original cross-efficiency score for Babe Ruth of \`r `res1920ALcross$ce_ave["ruthba01",]` calculated as simply the column average of the cross-evaluation matrix.
 
 The same mean cross-efficiency weights can be used for calculating the cross-efficiency score for each of the other players. This is not a matter of some (or most) players occasionally violating the relationship in some way but a systematic error. What this means is that *every* player is now being assessed against the same fixed and in this case, implausible weighting scheme. If you look carefully at the mean output weights, the mean weight for Home Runs is just half that of the next lowest output weight (base on balls). Singles, doubles, and triples are all given four or fives times as much weight as home runs.
 
@@ -547,22 +561,22 @@ teams = teams[, .(yearID,
                   franchID = as.character(franchID),
                   Rank, G, W, L, R, ERA, SO, 
                   PostW = 4*(LgWin=="Y")+4*(WSWin=="Y"),
-                        # Construct Post Season wins based on games to win a series
-                        # Would prefer to get actual postseason games won
+    # Construct Post Season wins based on games to win a series
+    # Would prefer to get actual postseason games won
                   WinPercent = W/(W+L),
                   name, attendance
                   )]
   
-salaries = as.data.table(Salaries)
-salaries = salaries[, c("lgID", "teamID", "salary1M") := 
-                      list(as.character(lgID), as.character(teamID), salary / 1e6L)]
-payroll = salaries[, .(payroll = sum(salary1M)), by=.(teamID, yearID)]
+MLBSalaries = as.data.table(Lahman::Salaries)
+MLBSalaries = MLBSalaries[, c("lgID", "teamID", "salary1M") := 
+                      list(as.character(lgID), 
+                           as.character(teamID), salary / 1e6L)]
+payroll = MLBSalaries[, .(payroll = sum(salary1M)), 
+                   by=.(teamID, yearID)]
 
 teamPayroll = merge(teams, payroll, by=c("teamID","yearID"))
 
 MLB1991AL <- subset (teamPayroll, yearID==1991 & lgID=="AL")
-
-#pander (teamPayroll, caption="1991 Major League Baseball Team Data")
 
 ```
 
@@ -571,10 +585,11 @@ res1991MLB<-DEA(MLB1991AL$payroll, MLB1991AL$W, rts="vrs")
 rownames(res1991MLB$eff)<-MLB1991AL$teamID
 colnames(res1991MLB$lambda)<-t(MLB1991AL$teamID)
 pander(poscol(cbind(res1991MLB$eff,res1991MLB$lambda)), 
-       caption="BCC Efficiency and Lambda Values of 1991 AL Teams")
+       caption=
+         "BCC Efficiency and Lambda Values of 1991 AL Teams")
 ```
 
-These results show that only four teams were efficient: Chicago White Sox (CHA), Minnesota Twins (MIN), Seattle Mariners (SEA), and Toronto Blue Jays (TOR). All other teams were compared to a combination of these these teams. Since this is a simple, one-input, one-outuput model, it is easy to show graphically. The *Benchmarking* package from Bogetoft and Otto does a great job of drawing 2 dimensional DEA plots so we will again use this package.
+These results show that only four teams were efficient: Chicago White Sox (CHA), Minnesota Twins (MIN), Seattle Mariners (SEA), and Toronto Blue Jays (TOR). All other teams were compared to a combination of these these teams. Since this is a simple, one-input, one-output model, it is easy to show graphically. The *Benchmarking* package from Bogetoft and Otto does a great job of drawing 2 dimensional DEA plots so we will again use this package.
 
 ```{r}
 library (Benchmarking)
@@ -593,8 +608,8 @@ teampayroll2 <- as.data.frame(t(c(rep_len("",17))))
 class(teamPayroll$yearID)<-"numeric"
 
 colnames(teampayroll2)<-c(colnames(teamPayroll),"V2")
-                    # Above feels like a kludge to aggregate reesults
-                    #   Feel free to come up with cleaner alternatives
+# Above feels like a kludge to aggregate reesults
+#   Feel free to come up with cleaner alternatives
 
 class(teampayroll2$payroll)<-"numeric"
 class(teampayroll2$W)<-"numeric"
@@ -602,7 +617,8 @@ class(teampayroll2$yearID)<-"numeric"
 class(teampayroll2$V2)<-"numeric"
 
 lastyear <- 2016  
-    # Note that as of April 2018, the Lahman package only includes data through 2016
+# Note that as of April 2018, the Lahman package only 
+# includes data through 2016
 
 for (year in 1991:lastyear) {
   MLBteamAL <- subset (teamPayroll, yearID==year & lgID=="AL")
@@ -611,7 +627,8 @@ for (year in 1991:lastyear) {
   rownames(resMLB$eff)    <-MLBteamAL$teamID
   colnames(resMLB$lambda) <-t(MLBteamAL$teamID)
   teampayroll2 <- rbind(teampayroll2, cbind (
-    subset (teamPayroll, yearID==year & lgID=="AL"),resMLB$eff))
+    subset (teamPayroll, yearID==year & lgID=="AL"),
+    resMLB$eff))
   }
 
 #colnames(teampayroll2[,17])<-"Efficiency"
@@ -637,7 +654,9 @@ ggplot (subset (teampayroll2,  lgID=="AL"),
         xlab("Payroll ($Millions") + ylab("Regular Season Wins") +
         ggtitle("Salary and Wins: American League (1991-2016)")  
 
-# teampayroll2 <- rbind(cbind (subset (teamPayroll, yearID==year & lgID=="AL"),resMLB$eff))
+# teampayroll2 <- rbind(cbind (subset (teamPayroll, 
+#                              yearID==year & lgID=="AL"),
+#                              resMLB$eff))
 
 pander(head(subset (teampayroll2, yearID==1991 & lgID=="AL")))
 ```
@@ -658,52 +677,46 @@ This chart shows that salaries have been going up over time with the colors on t
 Now, let's look at changes for two specific teams over time that are featured in Michael Lewis' *Moneyball*: the New York Yankees and the Oakland Athletics [@lewis2004]. They Yankees are generally among the biggest highest spending of teams while the Oakland Athletics are among the lowest.
 
 ```{r}
-moneyballplot <- ggplot (subset (teampayroll2,  
-                                 lgID=="AL"  & 
-                                   (teamID=="NYA" | teamID=="OAK")),
-        aes (x=payroll, y=W, color=yearID)) + geom_point() +
+moneyballplot2 <- ggplot (
+  data=teampayroll2) +
+  geom_point(data=teampayroll2[teampayroll2$teamID %in% 
+                                 c("NYA"),],
+             aes(x=payroll, y=W, group=teamID, color=yearID, 
+                 shape="b")) +
+  geom_point(data=teampayroll2[teampayroll2$teamID %in% 
+                                 c("OAK"),],
+             aes(x=payroll, y=W, group=teamID, color=yearID, 
+                 shape="a")) + 
         scale_color_gradient(low="blue", high="red") +
         xlab("Payroll ($Millions") + ylab("Regular Season Wins") +
-        ggtitle("Salary and Wins: Oakland and New York Yankees (1991-2016)")  
+        ggtitle(
+          "Salary and Wins: Oakland and New York Yankees (1991-2016)")  
 
-
-#Moneyballplot <- Moneyballplot + 
-moneyballplot
-```
-
-```{r}
-moneyballplot2 <- ggplot (data=teampayroll2) +
-        geom_point(data=teampayroll2[teampayroll2$teamID %in% c("NYA"),],
-             aes(x=payroll, y=W, group=teamID, color=yearID, shape="b")) + 
-        geom_point(data=teampayroll2[teampayroll2$teamID %in% c("OAK"),],
-             aes(x=payroll, y=W, group=teamID, color=yearID, shape="a")) + 
-        scale_color_gradient(low="blue", high="red") +
-        xlab("Payroll ($Millions") + ylab("Regular Season Wins") +
-        ggtitle("Salary and Wins: Oakland and New York Yankees (1991-2016)")  
-
-
-#Moneyballplot <- Moneyballplot + 
+# Moneyballplot <- Moneyballplot + 
 moneyballplot2
 ```
 
 ```{r}
-moneyballplot2 <- ggplot (data=teampayroll2) +
-        geom_point(data=teampayroll2[teampayroll2$teamID %in% c("NYA"),],
+moneyballplot2 <- ggplot (
+  data=teampayroll2) +
+  geom_point(data=teampayroll2[teampayroll2$teamID %in% 
+                                 c("NYA"),],
              aes(x=yearID, y=Efficiency, shape="b")) + 
-        geom_point(data=teampayroll2[teampayroll2$teamID %in% c("OAK"),],
-             aes(x=yearID, y=Efficiency, shape="a")) + 
-        xlab("Year") + ylab("Team Efficiency") +
-        ggtitle("Team Efficiency Oakland and New York Yankees (1991-2016)") +
-        scale_shape_discrete(name="Team",
-                         breaks=c("NYA", "OAK"),
-                         labels=c("Yankees", "Athletics"))
+  geom_point(data=teampayroll2[teampayroll2$teamID %in% 
+                                 c("OAK"),],
+             aes(x=yearID, y=Efficiency, shape="a")) +
+  xlab("Year") + ylab("Team Efficiency") +
+  ggtitle("Team Efficiency Oakland and New York Yankees (1991-2016)") +
+  scale_shape_discrete(name="Team",
+                       breaks=c("NYA", "OAK"),
+                       labels=c("Yankees", "Athletics"))
 
 
 #Moneyballplot <- Moneyballplot + 
 moneyballplot2
 ```
 
-The book, *Moneyball* was published in 2003 and tells the story of Billy Beane as the Oakland A's General Manager. He took over as General Manager at the end of the 1997 season. The central thesis is that the Oakland A's outcompleted the New York Yankees despite having a much lower salary for players by recognizing a skill that was overlooked by industry conventional wisdom. We can then divide our salary data and analysis into three periods: Before Billy Beane's General Manager role (1991-1997), Billy Beane before *Moneyball* (1998-2002), and the after *Moneyball* era (2004-2010). This leads to a few potential hypotheses.
+The book, *Moneyball* was published in 2003 and tells the story of Billy Beane as the Oakland A's General Manager. He took over as General Manager at the end of the 1997 season. The central thesis is that the Oakland A's outcompeted the New York Yankees despite having a much lower salary for players by recognizing a skill that was overlooked by industry conventional wisdom. We can then divide our salary data and analysis into three periods: Before Billy Beane's General Manager role (1991-1997), Billy Beane before *Moneyball* (1998-2002), and the after *Moneyball* era (2004-2010). This leads to a few potential hypotheses.
 
 Oakland's salary efficiency should have improved with the hiring of Billy Beane. $\theta ^{1991-1997}_{OAK}$=`r mean(subset(teampayroll2, teamID=="OAK" & yearID>1990 & yearID<1998)[["Efficiency"]],round=4)`\<$\theta ^{1998-2002}_{OAK}$=`r mean(subset(teampayroll2, teamID=="OAK" & yearID>1997 & yearID<2003)[["Efficiency"]],round=4)`: *H1 Supported*
 
@@ -713,14 +726,18 @@ After the book was published, Oakland's strategy was widely known. The *efficien
 
 ```{r}
 #library(dplyr)
-#pander(ddply(teampayroll2, c("teamID"), summarise, mean(Efficiency)), 
+#pander(ddply(teampayroll2, c("teamID"), summarise, 
+#       mean(Efficiency)), 
 #       caption="Average Team Efficiency", round=4)
 
 #subset(teampayroll2, teamID=="HOU") 
 
-#subset(teampayroll2, teamID=="NYA", select=c(teamID, yearID, Efficiency))
-#mean(subset(teampayroll2, teamID=="NYA", select=c(teamID, Efficiency))[["Efficiency"]])
+#subset(teampayroll2, teamID=="NYA", 
+#       select=c(teamID, yearID, Efficiency))
+#mean(subset(teampayroll2, teamID=="NYA", 
+#     select=c(teamID, Efficiency))[["Efficiency"]])
 #mean(subset(teampayroll2, teamID=="HOU" & yearID>2003 )[["Efficiency"]])
+
 mean(subset(teampayroll2, teamID=="NYA" & yearID<2003 )[["Efficiency"]])
 mean(subset(teampayroll2, teamID=="NYA" & yearID>2003 )[["Efficiency"]])
 
@@ -735,7 +752,8 @@ Now, let's demonstrate the use of allocative efficiency in DEA by testing to see
 Getting the budget separated by position takes some work.
 
 ```{r}
-appearances = as.data.table(Appearances)  # Create data table of appearances
+appearances = as.data.table(Appearances)  
+# Create data table of appearances
 appearances = appearances[, .(yearID, 
                           lgID = as.character(lgID), 
                           teamID = as.character(teamID), 
@@ -745,41 +763,44 @@ appearances = appearances[, .(yearID,
                           G_1b, G_2b, G_3b, G_ss, G_of)]
           # Simplify data table
 
-appearances = appearances[, c("P", "B", "C", "B1", "B2", "B3", "SS", "OF") := 
-                      list(G_p / G_all, 
-                           ifelse(G_p > 0, 0.0, G_batting / G_all), 
-                           ifelse(G_p > 0, 0.0, G_c / G_defense),
-                           ifelse(G_p > 0, 0.0, G_1b / G_defense),
-                           ifelse(G_p > 0, 0.0, G_2b / G_defense),
-                           ifelse(G_p > 0, 0.0, G_3b / G_defense),
-                           ifelse(G_p > 0, 0.0, G_ss / G_defense),
-                           ifelse(G_p > 0, 0.0, G_of / G_defense))]
+appearances = 
+  appearances[, c("P", "B", "C", "B1", "B2", "B3", "SS", "OF") := 
+                list(G_p / G_all,
+                     ifelse(G_p > 0, 0.0, G_batting / G_all), 
+                     ifelse(G_p > 0, 0.0, G_c / G_defense),
+                     ifelse(G_p > 0, 0.0, G_1b / G_defense),
+                     ifelse(G_p > 0, 0.0, G_2b / G_defense),
+                     ifelse(G_p > 0, 0.0, G_3b / G_defense),
+                     ifelse(G_p > 0, 0.0, G_ss / G_defense),
+                     ifelse(G_p > 0, 0.0, G_of / G_defense))]
             # Separate by position
 
-positionSalaries = merge(salaries, appearances)
+positionSalaries = as.data.table(
+  merge (MLBSalaries, appearances))
             # Combine with salaries and appearances
 
-positionSalaries = positionSalaries[, .(yearID, teamID, lgID, playerID, salary1M,
-                                        pitcher = salary1M * P,
-                                        batter = salary1M * B,
-                                        catcher = salary1M * C,
-                                        firstBase = salary1M * B1,
-                                        secondBase = salary1M * B2,
-                                        thirdBase = salary1M * B3,
-                                        shortstop = salary1M * SS,
-                                        outfielder = salary1M * OF)]
+positionSalaries = 
+  positionSalaries[, .(yearID, teamID, lgID, playerID, salary1M,
+                       pitcher = salary1M * P,
+                       batter = salary1M * B,
+                       catcher = salary1M * C,
+                       firstBase = salary1M * B1,
+                       secondBase = salary1M * B2,
+                       thirdBase = salary1M * B3,
+                       shortstop = salary1M * SS,
+                       outfielder = salary1M * OF)]
              # Find salary by position
 
-payrollByPositions = positionSalaries[, 
-                                      .(pitcher = sum(pitcher),
-                                        batter = sum(batter),
-                                        catcher = sum(catcher),
-                                        firstBase = sum(firstBase),
-                                        secondBase = sum(secondBase),
-                                        thirdBase = sum(thirdBase),
-                                        shortstop = sum(shortstop),
-                                        outfielder = sum(outfielder)), 
-                                      by=.(teamID, yearID)]
+payrollByPositions = 
+  positionSalaries[, .(pitcher = sum(pitcher),
+                       batter = sum(batter),
+                       catcher = sum(catcher),
+                       firstBase = sum(firstBase),
+                       secondBase = sum(secondBase),
+                       thirdBase = sum(thirdBase),
+                       shortstop = sum(shortstop),
+                       outfielder = sum(outfielder)),
+                   by=.(teamID, yearID)]
 
 teamPayrollByPositions = merge(teams, payrollByPositions,
                                by=c("teamID","yearID"))
@@ -793,9 +814,10 @@ teampayroll3 <- as.data.frame(t(c(rep_len("",24))))
 
 class(teamPayrollByPositions$yearID)<-"numeric"
 
-colnames(teampayroll3)<-c(colnames(teamPayrollByPositions),"V2")
-                    # Above feels like a kludge to aggregate reesults
-                    #   Feel free to come up with cleaner alternatives
+colnames(teampayroll3)<-c(colnames(
+  teamPayrollByPositions),"V2")
+# Above feels like a kludge to aggregate reesults
+#   Feel free to come up with cleaner alternatives
 
 #class(teampayroll3$payroll)<-"numeric"
 class(teampayroll3$W)<-"numeric"
@@ -803,20 +825,23 @@ class(teampayroll3$yearID)<-"numeric"
 class(teampayroll3$V2)<-"numeric"
 
 lastyear <- 2016  
-    # Note that as of April 2018, the Lahman package only includes data through 2016
 
 for (year in 1991:lastyear) {
-  MLBteamAL3 <- subset (teamPayrollByPositions, yearID==year & lgID=="AL")
+  MLBteamAL3 <- subset (teamPayrollByPositions, 
+                        yearID==year & lgID=="AL")
 
-  resMLB  <-DEA(cbind(MLBteamAL3$pitcher, MLBteamAL3$batter), MLBteamAL3$W, rts="vrs")
+  resMLB  <-DEA(cbind(MLBteamAL3$pitcher, MLBteamAL3$batter), 
+                MLBteamAL3$W, rts="vrs")
   rownames(resMLB$eff)    <- MLBteamAL3$teamID
 #  colnames(resMLB$lambda) <- t(MLBteamAL3$teamID)
   teampayroll3 <- rbind(teampayroll3, cbind (
-    subset (teamPayrollByPositions, yearID==year & lgID=="AL"),resMLB$eff))
+    subset (teamPayrollByPositions, 
+            yearID==year & lgID=="AL"),resMLB$eff))
   }
 
 #colnames(teampayroll2[,17])   <- "Efficiency"
-colnames(teampayroll3)[colnames(teampayroll3)=="V2"] <- "Efficiency"
+colnames(teampayroll3)[colnames(teampayroll3)=="V2"] <- 
+  "Efficiency"
 class(teampayroll3$pitcher)    <- "numeric"
 class(teampayroll3$W)          <- "numeric"
 class(teampayroll3$Efficiency) <- "numeric"
@@ -826,8 +851,10 @@ teampayroll3 <- teampayroll3[-1,]
 #      caption="BCC Efficiency and Lambda Values of AL Teams")
 
 pander(head(teampayroll3))
-pander(head(cbind(teampayroll2$Efficiency,teampayroll3$Efficiency)),
-       caption="Sample of BCC-Efficiency vs. Allocative Efficiency")
+pander(head(cbind(teampayroll2$Efficiency, 
+                  teampayroll3$Efficiency)),
+       caption=
+         "Sample of BCC-Efficiency vs. Allocative Efficiency")
 
 
 
