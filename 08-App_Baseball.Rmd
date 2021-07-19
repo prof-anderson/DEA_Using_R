@@ -78,17 +78,17 @@ pander(head(Lahman::Batting),
        caption="Sample of Lahman Baseball Data")
 ```
 
-What does this all mean? The first column, playerID, is a uniquely coded ID for each player consisting of the first six letters of the last name, first two letters of the first name, and which instance of that eight letter combination the player is. For example, row 5 is ansonca01, which corresponds to the Hall of Famer, Cap Anson. Each row gives the statistics for a year that he had with a particular team. If the player plays for multiple teams in a year, they will have multiple rows. Also, if their career lasts more than one year, they will have more than one row.
+What does this all mean? The first column, `playerID`, is a uniquely coded ID for each player consisting of the first six letters of the last name, first two letters of the first name, and which instance of that eight letter combination the player is. For example, row 5 is `ansonca01,` which corresponds to the Hall of Famer, Cap Anson. Each row gives the statistics for a year that he had with a particular team. If the player plays for multiple teams in a year, they will have multiple rows. Also, if their career lasts more than one year, they will have more than one row.
 
 In this case, in 1871 Cap Anson played in 25 Games, had 120 at-bats, scored 29 runs, had 39 hits, and 11 doubles, 3 triples, and no home runs. He also had 16 runs-batted-in, 6 stolen bases while being caught stealing twice. He had 2 walks (base on balls) while striking out once. Other values of intentional base on balls, hit by pitches, sacrifice hits, sacrifice flies, and grounded into double plays are not available.
 
 This is pretty impressive to have such detailed and specific data going back almost 150 years!
 
-Using the Summary command will provide all kinds of interesting information such as that over half of the player seasons occurred after 1970, the maximum number of stints with different teams was 5 and the most player seasons were for the National League's Chicago Cubs (teamID=CHN). I'll leave this for your exploration.
+Using the Summary command will provide all kinds of interesting information such as that over half of the player seasons occurred after 1970, the maximum number of stints with different teams was 5 and the most player seasons were for the National League's Chicago Cubs (t`eamID=CHN`). I'll leave this for your exploration.
 
 Alas, most of the columns are not needed and some of those that are listed need some transformations. Hadley Wickham has written an excellent package for wrestling with data called dplyr which we will use for preparing the dataset.
 
-Let's start by subbsetting the data in terms of including only the columns that we will be using.
+Let's start by subsetting the data in terms of including only the columns that we will be using.
 
 ```{r subsetting_data}
 batting<-Lahman::Batting
@@ -212,7 +212,7 @@ pander (cbind(head(phi),head(theta)),
         caption="CCR-OO Scores for 1920AL (Phi and Theta)")
 ```
 
-Success. We have now run DEA using the TFDEA package, principally developed by Tom Shott with important contributions from Dong-Joon Lim, Kevin van Blommestein, and others. Notice that this is an output-oriented model so the values greater than 1.0 indicate that decreasing radial efficiency (increasing inefficiency), and describe the amount of additional outputs that should be acheived at the same level of input usage. In other words, how much more walks, singles, doubles, triples, and home runs the player should be producing in the same number of plate appearances if he was batting *efficiently*. As discussed in the chapter on the output-oriented model, under constant returns to scale, the input and output-oriented models are reciprocals of each other ($\theta=\frac{1}{\phi}$)
+Success. We have now run DEA using the `TFDEA`package, principally developed by Tom Shott with important contributions from Dong-Joon Lim, Kevin van Blommestein, and others. Notice that this is an output-oriented model so the values greater than 1.0 indicate that decreasing radial efficiency (increasing inefficiency), and describe the amount of additional outputs that should be acheived at the same level of input usage. In other words, how much more walks, singles, doubles, triples, and home runs the player should be producing in the same number of plate appearances if he was batting *efficiently*. As discussed in the chapter on the output-oriented model, under constant returns to scale, the input and output-oriented models are reciprocals of each other ($\theta=\frac{1}{\phi}$)
 
 Let's dig a little deeper now. Let's start by reviewing the output weights for the first few players. We'll display the table in two ways.
 
