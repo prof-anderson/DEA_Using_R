@@ -92,7 +92,7 @@ pander(poscol(cbind(resBH$Efficiency,resBH$Lambda)),
 
 Note that this function has some drawbacks:
 
-* Since the tests is that all column values add up to exactly zero, it may be confused by a very small $\lambda$ value such as 10^-10 that is functionally equivalent to zero from the LP solver. 
+* Since the tests is that all column values add up to exactly zero, it may be confused by a very small $\lambda$ value such as $10^{-10}$ that is functionally equivalent to zero from the LP solver. 
 * Negative values may problems of a column to be falsely included or excluded but this is unlikely given that all values of lambda are constrained to be non-negative.
 * Columns without numerical values such as text labels could cause difficulty.
 
