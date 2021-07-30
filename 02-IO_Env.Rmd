@@ -56,7 +56,7 @@ Can you tell which units represent the best tradeoff between inputs and outputs?
 
 ## Graphical Analysis
 
-Let's start by doing a simple plot of the data. For now, I'm going to make use of a function in Peter Bogetoft and Lars Otto's `Benchmarking` package which provides a very handy two-dimensional plot in the format often used for showing production. The first line loads the `Benchmarking`package and uses an optional parameter of quietly in order to not display comments that might be generated. The `dea.plot`function takes the data and then a variety of custom options, many of them specific to DEA types of plots. `RTS`represents returns to scale and will be dealt with in more detail later in this chapter as will orientation. The `txt`parameter is used for passing data point labels. In this case, we check the length of the vector `x`, see that it has four letters, and then set `txt` to a list of the first four capital letters, A, B, C, and D. If we had used the `letters`function instead of `LETTERS` and 2:5, it would have given the letters b, c, d, and e. Since the `dea.plot` function is built upon standard R plot routines, the authors wisely allow for parameters to also be be passed. For example, `fex`sets a scaling for the text data labels. For more information on how to use the `Benchmarking` package along with a more economics-oriented treatment of DEA, please refer to the package's help file or [@BogetoftBenchmarkingDEASFA2011].
+Let's start by doing a simple plot of the data. For now, I'm going to make use of a function in Peter Bogetoft and Lars Otto's `Benchmarking` package which provides a very handy two-dimensional plot in the format often used for showing production. The first line loads the `Benchmarking`package and uses an optional parameter of quietly in order to not display comments that might be generated. The `dea.plot`function takes the data and then a variety of custom options, many of them specific to DEA types of plots. `RTS`represents returns to scale and will be dealt with in more detail later in this chapter as will orientation. The `txt`parameter is used for passing data point labels. In this case, we check the length of the vector `x`, see that it has four letters, and then set `txt` to a list of the first four capital letters, A, B, C, and D. If we had used the `letters` function instead of `LETTERS` and 2:5, it would have given the letters b, c, d, and e. Since the `dea.plot` function is built upon standard R plot routines, the authors wisely allow for parameters to also be be passed. For example, `fex`sets a scaling for the text data labels. For more information on how to use the `Benchmarking` package along with a more economics-oriented treatment of DEA, please refer to the package's help file or [@BogetoftBenchmarkingDEASFA2011].
 
 ```{r  fig.cap="Plot of First Data Set"}
 library(Benchmarking, quietly=TRUE)
@@ -71,9 +71,9 @@ This chart clearly shows that unit *C* has the best ratio of output (y) to input
 
 Furthermore, we can graphically examine the technical efficiency of each of the other units. I'm going to start with unit B since it is a little easier to visualize. For now, let's think of the question, how much more or less input would *C* require to produce as much output as *B*.
 
-To determine this efficiency score, simply draw a horizontal line from *B* to the efficiency frontier on the left. This point can be thought of a target for *B* to be efficient. This point has the same output as *B* but uses only half as much input. The efficiency score can be calculated as the ratio of the distance from the vertical axis to the target divided by the distance from the vertical axis to *B*. This distance is simply 10/20 or 50%.
+To determine this efficiency score, simply draw a horizontal line from *B* to the efficiency frontier on the left. This point can be thought of as a target for *B* to be efficient. This point has the same output as *B* but uses only half as much input. The efficiency score can be calculated as the ratio of the distance from the vertical axis to the target divided by the distance from the vertical axis to *B*. This distance is simply 10/20 or 50%.
 
-Another question is how to construct the target for *B*'s evaluation. The target is simply made by scaling down *C* to a third of its original size. This results in a target that is composed of about 0.333 of *C* and none of *A*, *B*, or *D*.
+Another result of the analysis is how to construct the target for *B*'s evaluation. The target is simply made by scaling down *C* to a third of its original size. This results in a target that is composed of about 0.333 of *C* and none of *A*, *B*, or *D*.
 
 The same steps can be followed for analyzing units *A*, *C*, and *D* resulting in efficiencies of 75%, 100%, and 80% respectively.
 
@@ -141,7 +141,7 @@ $$
 
 There are two fundamentally different approaches to setting up linear programs for solving. The first approach is to define data structures to pass vectors for the objective function coefficients and constraint right hand sides along with a matrix of data describing the constraints. This requires careful setting up of the linear programs and is a bigger cognitive step away from the mathematical representation. Another approach is to use algebraic modeling languages. Standalone algebraic optimization modeling languages include LINGO, AMPL, GAMS, GMPL, and others.
 
-Until recently, R did not have the ability to do algebraic modeling optimization but recently a few efforts have provided support for this. A new package, `ompr`, provides an algebraic perspective that closely matches the summation representation of a linear program shown earlier. Don't worry, if you want to see the data structure format approach, that is covered in the next chapter.
+Until recently, R did not have the ability to do algebraic modeling optimization but recently a few efforts have provided support for this. The `ompr` package provides an algebraic perspective that closely matches the summation representation of a linear program shown earlier. If you want to see the data structure format approach, that is covered in the next chapter.
 
 Let's define some data structures for holding our data and results.
 
@@ -195,7 +195,7 @@ library(ompr, quietly=TRUE)
 library(ompr.roi, quietly=TRUE)        
 ```
 
-The `dplyr` package is useful for a broad range of data analysis. The `ROI`package is the R Optimization Interface and provides a standardized interface layer to different optimization routines. The specific routines are provided through a plugin, in this case,`ROI.plugin.glpk` for the glpk optimization system. A variety of other optimization systems can be used as well by using the corresponding plugin. The `ompr` package provides the algebraic modeling functions for building the model to then pass to `ROI` by way of the `ompr.roi` package. While this layered structure may sound complicated, it has several important benefits. First, it allows for concise algebraic representation of the linear program by way of `ompr`. Second, the use of the `ROI` layer allows the analyst to change optimization system used (such as from `glpk`to `symphony`) without affecting the model built.
+The `dplyr` package is useful for a broad range of data analysis. The `ROI` package is the R Optimization Interface and provides a standardized interface layer to different optimization routines. The specific routines are provided through a plugin, in this case, `ROI.plugin.glpk` for the glpk optimization system. A variety of other optimization systems can be used as well by using the corresponding plugin. The `ompr` package provides the algebraic modeling functions for building the model to then pass to `ROI` by way of the `ompr.roi` package. While this layered structure may sound complicated, it has several important benefits. First, it allows for concise algebraic representation of the linear program by way of `ompr`. Second, the use of the `ROI` layer allows the analyst to change the optimization system used (such as from `glpk` to `symphony`) without affecting the model built.
 
 We are going to start by building a model for just one DMU, in this case, the second DMU (B) by setting `k`to be 2.
 
@@ -209,14 +209,14 @@ Let's demonstrate this one step at a time.
 mod2_1 <- MIPModel() 
 ```
 
-We start by using the `ompr`model initialization command, `MIPModel`and creating an empty model named `mod2_1`, to represent the first model of chapter 2.
+We start by using the `ompr` model initialization command, `MIPModel` and creating an empty model named `mod2_1`, to represent the first model of chapter 2.
 
 ```{r}
 mod2_1 <- add_variable(mod2_1,
              vlambda[j], j = 1:ND, type = "continuous", lb = 0) 
 ```
 
-Let's start with our $\lambda$ variables. In this statement, we add variables named `vlambda`to the model, mod2_1 and assign the more complete object back to the same object, mod2_1. We set `vlambda` to have separate variables, indexed from `1` to `ND`, each of which are of a continuous type and have a lower bound (`lb`) of zero. Since we have 4 units that can have elements mixed, ND=4, and therefore we have four non-negative continuous variables. Note that I follow a convention of prefixing all linear programming variables with a v to differentiate from a variable inside of an `ompr`model and other R objects in my working environment. Conflicts between `R` and `ompr` variables seem to arise often among `ompr` users.
+Let's start with our $\lambda$ variables. In this statement, we add variables named `vlambda` to the model, mod2_1 and assign the more complete object back to the same object, mod2_1. We set `vlambda` to have separate variables, indexed from `1` to `ND`, each of which are of a continuous type and have a lower bound (`lb`) of zero. Since we have 4 units that can have elements mixed, ND=4, and therefore we have four non-negative continuous variables. Note that I follow a convention of prefixing all linear programming variables with a v to differentiate from a variable inside of an `ompr` model and other R objects in my working environment. Conflicts between `R` and `ompr` variables seem to arise often among `ompr` users.
 
 Next, let's add the $\theta$ variable.
 
@@ -271,7 +271,7 @@ Again, we can get a summary of this results object by simply typing in the objec
 res2_1
 ```
 
-This tells us that the model was solved to optimality and that the optimal solution ($\theta$ in our case), was 0.50. Building the model up step by step can be helpful but a more concise form of model building connect each command to the previous one using a piping operator, `%>%`. One way to think of piping is that if you have two functions, A and B and want to use the result of function A in B, you can do this A() %\>% B() or "Take A's result and pass it into the start of B."
+This tells us that the model was solved to optimality and that the optimal solution ($\theta$ in our case), was 0.50. Building the model up step by step can be helpful but a more concise form of model building connect each command to the previous one using a piping operator, `%>%`. One way to think of piping is that if you have two functions, A and B and want to use the result of function A in B, you can do this `A() %>% B()` or "Take A's result and pass it into the start of B."
 
 ```{r first_ompr_piped_model}
 
@@ -334,11 +334,11 @@ pander(cbind(res2_1.efficiency, res2_1.lambda),
        DMU B (CCR-IO)")
 ```
 
-The above table follows a few convenient conventions. First, rather than using $\theta$, we label the efficiency score by the model used for the model, in this case the constant returns to scale is labeled as CCR after Charnes, Cooper, and Rhodes . Later we will cover other models including the variable returns to scale model, labeled BCC after Banker, Charnes, and Cooper. Another convention is to use "L" in place of the Greek symbol $\lambda$ due to complications with using Greek symbols in R matrix row or column names.
+The above table follows a few convenient conventions. First, rather than using $\theta$, we label the efficiency score by the model used for the model, in this case the constant returns to scale is labeled as CCR after Charnes, Cooper, and Rhodes [@CharnesDataEnvelopmentAnalysis1978]. Later we will cover other models including the variable returns to scale model, labeled BCC after Banker, Charnes, and Cooper [@Bankermodelsestimatingtechnical1984]. Another convention is to use "L" in place of the Greek symbol $\lambda$ due to complications with using Greek symbols in R matrix row or column names.
 
 The results in the table indicate that DMU *B* has an efficiency score of 50%. The target of performance is made of DMU *C* scaled down by a factor of 0.33. These results match the graphical results from earlier.
 
-Let's now extend it to handle multiple inputs, NX, and outputs, NY. Of course this doesn't have any impact on our results just yet since we are still only using a single input and output but we now have the structure to accommodate the more general case. To provide a little variety, we'll change it to the first DMU, A, to give a little more variety.
+Let's now extend it to handle multiple inputs, `NX`, and outputs, `NY`. Of course this doesn't have any impact on our results just yet since we are still only using a single input and output but we now have the structure to accommodate the more general case. To provide a little variety, we'll change it to the first DMU, A, to give a little more variety.
 
 ```{r ompr_mult_IO, message=FALSE}
 
@@ -367,7 +367,7 @@ res2_2.lambda <- t(res2_2lambda[3])
 colnames(res2_2.lambda) <- c("L_A", "L_B", "L_C", "L_D")
 
 pander(cbind(res2_2.efficiency, res2_2.lambda), 
-       caption="Results Allowing for Multiple Inputs and Outputs")
+       caption="Input-Oriented Envelopment Analysis for DMU A")
 
 ```
 
@@ -392,7 +392,6 @@ for (k in 1:ND) {
     solve_model(with_ROI(solver = "glpk")) 
   
   print(c("DMU=",k,solver_status(res2_3)))
-#  print(get_solution(result, vlambda[1:(ND)]) )
     res2_3.efficiency[k] <-  get_solution(res2_3, vtheta)       
     res2_3.lambda[k,] <- t(as.matrix(as.numeric(
               get_solution(res2_3, vlambda[j])[,3] )))
@@ -402,12 +401,10 @@ for (k in 1:ND) {
 #    grabs 3rd column to put into results matrix.  
 # First two columns of dataframe are for other info as.numeric 
 #    forces the numbers to treated as numbers rather than text.
-# I'm sure there are better ways of handling this 
-#    but I'll leave that for future work.
 }
 ```
 
-Success! This indicates each of the four linear programs was solved to optimality. By itself, it doesn't help much though. We need to now display each column of results. Lambda, $\lambda$, reflects the way that a best target is made for that unit.
+Success! This indicates each of the four linear programs was solved to optimality. By itself, it doesn't help much though. We need to now display each column of results.
 
 ```{r}
 Lambdanames <- list("L_A", "L_B", "L_C", "L_D")
@@ -440,7 +437,9 @@ $$
   (\#eq:LPBCCIOE) 
 $$
 
-To incorporate this, we can add another constraint to our previous model and solve it. Let's define a parameter, "RTS" to describe which returns to scale assumption we are using and only add the VRS constraint when RTS="VRS".
+To incorporate this, we can add another constraint to our previous model and solve it. Let's define a parameter, "RTS" to describe which returns to scale assumption we are using and only add the VRS constraint when `RTS="VRS"`.[^io_env-3]
+
+[^io_env-3]: In R, as in many languages, the distinction between assignment and testing for equivalency is important. Two symbols are used for assignment, `=` or `<-` while `==` is used to test for whether two items are equivalent.
 
 ```{r Adding_VRS}
 

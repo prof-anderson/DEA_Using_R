@@ -14,15 +14,15 @@ Sports has a long history in operations research and management science, well be
 
 The range of applications can cover benchmarking individual players, managers, general managers, and teams. Analyzing individual players is the most common type of baseball application and will be the bulk of this chapter. Each baseball player typically plays a role as a batter, a fielder, and/or a pitcher. We will focus on batting for this first section.
 
+For those readers not interested in baseball, this can be viewed as a set of case studies examining individual performance and organizational performance from a variety of perspectives. It also provides a rich example of data preparation for doing a benchmarking study.
+
 ## Baseball Data, R, and dplyr
 
 For the sake of readers unfamiliar with baseball, we will provide a brief introduction. If you want to think of a baseball batter as a simple factory that uses Plate Appearances as a resource to produce five different kinds of products. The following discussion gives more context for baseball fans.
 
 Batting is in many ways the simplest to examine. In the abstract, a batter uses their at-bats or plate appearances as opportunities to create events that help create runs for their team. In each game, a batter typically has four to six at-bats. These at-bats may be framed as a contest between a pitcher trying to make the batter create an out and the batter trying to get a hit. Hits include singles, doubles, triples, and home runs, in increasing order of value. A fifth common outcome is a walk or "base-on-balls" which occurs when the pitcher throws four balls that gives the batter a free pass to first base. There is a common expression that "a walk is as good as a hit" but a walk may not give as much advancement to other runners as a single so it may be considered as slightly less valuable than a single.
 
-In the past, batters weren't given much "recognition" for walks and a batter's receiving a walk did not count as an at-bat. Plate appearances count the opportunities for creating a hit or a walk and is sum of at-bats and walks.
-
-There are a variety of less frequent outcomes of a plate appearance such as a sacrifice fly, an error, or hit by pitch. These are all less common and often an accidental outcome from the batters perspective.
+In the past, batters weren't given much "recognition" for walks and a batter's receiving a walk did not count as an at-bat. Plate appearances count the opportunities for creating a hit or a walk and is sum of at-bats and walks. There are a variety of less frequent outcomes of a plate appearance such as a sacrifice fly, an error, or hit by pitch. These are all less common and often an accidental outcome from the batter's perspective.
 
 Over the course of the current 162 game season, most full-time players will have over 500 plate appearances.
 
@@ -50,7 +50,7 @@ source('Helperfiles.R')
 
 Our exploration will also serve as a review of data preparation in R. There are many ways of doing this. Feel free to explore further.
 
-As usual, we want to see get familiar with the data. Let's look at the first few rows of the batting data. We are going to want to make a model of baseball batting. A good model is that a batter uses plate appearances to produce singles, doubles, triple, home runs, and walks. Baseball fans might think of other outcomes such as sacrifice flies but these are generally less common, less desireable, and often not even intentional. These five outcomes constitute a model that fits well enough. The following figure shows what we will want to construct for a model.
+As usual, we want to see get familiar with the data. Let's look at the first few rows of the batting data. We are going to want to make a model of baseball batting. A good model is that a batter uses plate appearances to produce singles, doubles, triple, home runs, and walks. Baseball fans might think of other outcomes such as sacrifice flies but these are generally less common, less desirable, and often not even intentional. These five outcomes constitute a model that fits well enough. The following figure shows what we will want to construct for a model.
 
 ```{r ch8_draw_bb_io_diagram}
 
@@ -420,7 +420,7 @@ ggplot (collectedeff1, aes(x=CCRIO, y=CCRIOWR)) +
 
 ```
 
-This chart of efficiency vs. efficiency with weight restrictions clearly shows that no one has their efficiency improved by the imposition of weight restrictions. In fact, only two players have the same score in both models: `sislege01`(George Sisler) and `ruthba01`(Babe Ruth). Both Sisler and Ruth are efficient in both models.
+This chart of efficiency vs. efficiency with weight restrictions clearly shows that no one has their efficiency improved by the imposition of weight restrictions. In fact, only two players have the same score in both models: `sislege01` (George Sisler) and `ruthba01` (Babe Ruth). Both Sisler and Ruth are efficient in both models.
 
 ```{r}
 
@@ -617,8 +617,8 @@ class(teampayroll2$yearID)<-"numeric"
 class(teampayroll2$V2)<-"numeric"
 
 lastyear <- 2016  
-# Note that as of April 2018, the Lahman package only 
-# includes data through 2016
+# Note that as of July 2021, the Lahman package (9.0) only 
+# includes teampayroll data through 2016.
 
 for (year in 1991:lastyear) {
   MLBteamAL <- subset (teamPayroll, yearID==year & lgID=="AL")

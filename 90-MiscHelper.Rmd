@@ -19,7 +19,7 @@ This can be incorporated as a single line of code but is tricky enough, we will 
 
 Let's revisit the Baker Hughes Corporation Directional Drilling example from Chapter 9.
 
-Let's start by looking at the full envelopment results of the Baker Hughes example from earlier in the book.  This table shows both the efficiency score and every value of the matrix of $/lambda$ values.
+Let's start by looking at the full envelopment results of the Baker Hughes example from earlier in the book.  This table shows both the efficiency score and every value of the matrix of $\lambda$ values.
 
 ```{r BHCorp, echo=FALSE, warning=FALSE}
 NX <- 1
@@ -65,7 +65,8 @@ Notice that the data table is messy.  In particular, an inefficient unit such as
 
 df <- cbind(resBH$Efficiency,resBH$Lambda)
 pander(tempdf <- df[, colSums(df) != 0],
-       caption = "Envelopment results displaying only columns containing positive values.")
+       caption = "Envelopment results displaying only columns containing 
+       positive values.")
 
 ```
 
@@ -91,7 +92,7 @@ pander(poscol(cbind(resBH$Efficiency,resBH$Lambda)),
 
 Note that this function has some drawbacks:
 
-* Since the tests is that all column values add up to exactly zero, it may be confused by a very small $/lambda$ value such as 10^-10 that is functionally equivalent to zero from the LP solver. 
+* Since the tests is that all column values add up to exactly zero, it may be confused by a very small $\lambda$ value such as 10^-10 that is functionally equivalent to zero from the LP solver. 
 * Negative values may problems of a column to be falsely included or excluded but this is unlikely given that all values of lambda are constrained to be non-negative.
 * Columns without numerical values such as text labels could cause difficulty.
 
