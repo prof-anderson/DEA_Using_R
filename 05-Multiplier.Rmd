@@ -3,18 +3,18 @@ output:
   html_document: default
   pdf_document: default
 ---
+
 # Multiplier Models
 
-Introduction
------------------------------
+## Introduction
 
-Every linear program has a related alter ego referred to as the dual.  By duality, the two models have the same optimal objective function values.  In DEA, the multiplier models are simply the dual of the envelopment models.  In terms of the matrix representations of DEA given in chapter 3, the A matrix is transposed, rows give way to columns and columns become rows.  The right hand side values appear in the objective function while the previous objective function coefficients become right hand side values.  More could be said about this but this will be deferred for people interested in duality or more algorithmic aspects of linear programming.  
+Every linear program has a related alter ego referred to as the dual. By duality, the two models have the same optimal objective function values. In DEA, the multiplier models are simply the dual of the envelopment models. In terms of the matrix representations of DEA given in chapter 3, the A matrix is transposed, rows give way to columns and columns become rows. The right hand side values appear in the objective function while the previous objective function coefficients become right hand side values. More could be said about this but this will be deferred for people interested in duality or more algorithmic aspects of linear programming.
 
-Let's turn our attention instead to intuitively developing the DEA multiplier model through a few steps. 
+Let's turn our attention instead to intuitively developing the DEA multiplier model through a few steps.
 
 ## The Two Output, No Input Model
 
-Assume that you, Alfred, are one of six restaurant managers of various franchisees of the popular TexMex chain, Chiposter.  Each restaurant branch is operating under different conditions and are operated by your colleagues:  Barb, Chris, Don, Ed, and Fran.  Each restaurant manager is achieving outcomes (outputs.) At the end of the year, you want to make a case for having done well.
+Assume that you, Alfred, are one of six restaurant managers of various franchisees of the popular TexMex chain, Chiposter. Each restaurant branch is operating under different conditions and are operated by your colleagues: Barb, Chris, Don, Ed, and Fran. Each restaurant manager is achieving outcomes (outputs.) At the end of the year, you want to make a case for having done well.
 
 ```{r multiplier_rest_Y_data }
 
@@ -34,12 +34,12 @@ pander(YRest1, caption="Restaurant Data")
 
 You can select any way of weighting the two outputs with just two conditions:
 
-* No weight can be negative
-* No one can received a weighted score above 100%
+-   No weight can be negative
+-   No one can received a weighted score above 100%
 
 Given these two limitations, your goal is to make your "Alfred score" as high as possible.
 
-While it is possible to experiment with different weights, this can also be framed as an optimization model.  The goal or objective is to find the best Alfred score, using weights ($u_1$, and $u_2$) subject to the constraints that no one's scores is above 100%.  
+While it is possible to experiment with different weights, this can also be framed as an optimization model. The goal or objective is to find the best Alfred score, using weights ($u_1$, and $u_2$) subject to the constraints that no one's scores is above 100%.
 
 Let's take the restaurant data and formulate the model.
 
@@ -59,7 +59,7 @@ $$
 (\#eq:NLP-HardCode)
 $$
 
-Next let's implement this in `ompr` which may serve as a convenient refresher as well.  
+Next let's implement this in `ompr` which may serve as a convenient refresher as well.
 
 ```{r}
 library(dplyr, warn.conflicts=FALSE)    
@@ -89,7 +89,7 @@ pander(cbind(alfred_score, u1_result, u2_result),
        caption="Alfred's Score and Results")
 ```
 
-We could repeat the process for each person, by simply changing the objective function.  
+We could repeat the process for each person, by simply changing the objective function.
 
 ```{r}
 result <- MIPModel () %>%
@@ -139,10 +139,9 @@ pander(cbind(chris_score, u1_result, u2_result),
 
 This process of building the model for each person individually and hard coding the data into the model makes it difficult to maintain, generalize, and apply to other cases.
 
-Let's now generalize this by building the model algebraically.  Let's define the data, $y_{r,j}$ to be the value of output _r_ for manager _j_.  Therefore, in this application, $y_{1,1}=25$ and $y_{2,1}=3500$ reflects Alfred (_j=1_) has outputs _1_ and _2_ of 25 and 3500 respectively.
+Let's now generalize this by building the model algebraically. Let's define the data, $y_{r,j}$ to be the value of output *r* for manager *j*. Therefore, in this application, $y_{1,1}=25$ and $y_{2,1}=3500$ reflects Alfred (*j=1*) has outputs *1* and *2* of 25 and 3500 respectively.
 
-We can then rewrite the formulation to the following.  The summation is over the two outputs.
-
+We can then rewrite the formulation to the following. The summation is over the two outputs.
 
 $$
 \begin{split}
@@ -160,7 +159,7 @@ $$
 (\#eq:NLP6PeopleHArdCode)
 $$
 
-Now we will extend this further to reflect that the constraint of being less than or equal to 1.0 is the same for every manager.  A key notation to learn is the $\forall$ symbol which means to repeat for all possible values of the index.  
+Now we will extend this further to reflect that the constraint of being less than or equal to 1.0 is the same for every manager. A key notation to learn is the $\forall$ symbol which means to repeat for all possible values of the index.
 
 $$
 \begin{split}
@@ -174,9 +173,9 @@ $$
 (\#eq:NLP6People)
 $$
 
-The $\forall\;j$ in the constraints indicates that the constraint should be repeated for all possible values of j.  In our case it would have a constraint for $j=1$, (Alfred), then another constraint with $j=2$ (Barb), etc. The $\forall\;r$ in variable lower bounds is used to repeat the non-negativity of each weighting variable (in this case, $u_1$ and $u_2$).
+The $\forall\;j$ in the constraints indicates that the constraint should be repeated for all possible values of j. In our case it would have a constraint for $j=1$, (Alfred), then another constraint with $j=2$ (Barb), etc. The $\forall\;r$ in variable lower bounds is used to repeat the non-negativity of each weighting variable (in this case, $u_1$ and $u_2$).
 
-The above formulation is nearly generalized. Let's replace the last hardcoded items remaining.  The first is that the formulation only calculates the score for first manager.  To generalize this, let's replace the _1_ in the objective function with _k_. This would allow us to calculate the optimal score for any manager, _k_. Secondly, the summations each assume that there are only two outputs. Let's replace this with$N^Y$ to serve as a count of the number of outputs.    
+The above formulation is nearly generalized. Let's replace the last hardcoded items remaining. The first is that the formulation only calculates the score for first manager. To generalize this, let's replace the *1* in the objective function with *k*. This would allow us to calculate the optimal score for any manager, *k*. Secondly, the summations each assume that there are only two outputs. Let's replace this with$N^Y$ to serve as a count of the number of outputs.
 
 $$
 \begin{split}
@@ -190,15 +189,15 @@ $$
 (\#eq:NLPScoringk)
 $$
 
-This formulation is now a linear programming model that will find an optimal score for manager _k_ regardless of the number of outputs and the number of other managers being considered.  This approach could be used in a variety of peer evaluation or self-evaluation applications where each unit is given the opportunity to evaluate themselves relative to their peers.  This model will always give a person their highest possible score.  Note that this model does not incorporate the resources used to achieve these outcomes.  For that, we can the model using a traditional ratio idea of output over input. 
+This formulation is now a linear programming model that will find an optimal score for manager *k* regardless of the number of outputs and the number of other managers being considered. This approach could be used in a variety of peer evaluation or self-evaluation applications where each unit is given the opportunity to evaluate themselves relative to their peers. This model will always give a person their highest possible score. Note that this model does not incorporate the resources used to achieve these outcomes. For that, we can the model using a traditional ratio idea of output over input.
 
 ## The Ratio Model
 
-Now, let's further extend this model in incorporate inputs. Not only are the restaurant managers producing different outcomes, they are also using different resources, say capital and labor. Let's denote capital investment as $x_1$ and labor in full-time-equivalents as $x_2$.  
+Now, let's further extend this model in incorporate inputs. Not only are the restaurant managers producing different outcomes, they are also using different resources, say capital and labor. Let's denote capital investment as $x_1$ and labor in full-time-equivalents as $x_2$.
 
-We can frame the question of doing a two-input, two-output study in the same way as we did for the two output example earlier. Instead of a simple score, the manager can have a ratio of weighted outputs over weighted inputs.  
+We can frame the question of doing a two-input, two-output study in the same way as we did for the two output example earlier. Instead of a simple score, the manager can have a ratio of weighted outputs over weighted inputs.
 
-For the two-input, two-output case, the formulation is given below. 
+For the two-input, two-output case, the formulation is given below.
 
 $$
 \begin{split}
@@ -210,10 +209,9 @@ $$
   \end{aligned}
 \end{split}
 (\#eq:NLPCCRIOM-Ratio)
-$$
-We have two important sets of variables now.  The first is $u_r$ which is the weight on the r'th output.  The second is $v_i$ which is the weight on the _i'th_ input.  
+$$ We have two important sets of variables now. The first is $u_r$ which is the weight on the *r*'th output. The second is $v_i$ which is the weight on the *i*'th input.
 
-For clarification, we make a small variation from traditional DEA notation.  Normally the number of inputs is _m_ and the number of outputs is _s_.  To make the code more readable, I will use a convention of _NX_ instead of _m_ to refer to the number of inputs (x's) and _NY_ to be the number of ouputs (y's) instead of _s_. Also, _n_ is used to denote the number of Decision Making Units (DMUs) and therefore I'll use _ND_ to indicate that in the R code.  In the mathematical formulations, superscripts are used to differentiate the the different N's resulting in $N^X$,  $N^Y$, and  $N^D$ for _NX_, _NY_, and _ND_ or _m_, _s_, and _n_ respectively. 
+For clarification, we make a small variation from traditional DEA notation. Normally the number of inputs is *m* and the number of outputs is *s*. To make the code more readable, I will use a convention of *NX* instead of *m* to refer to the number of inputs (x's) and *NY* to be the number of ouputs (y's) instead of *s*. Also, *n* is used to denote the number of Decision Making Units (DMUs) and therefore I'll use *ND* to indicate that in the R code. In the mathematical formulations, superscripts are used to differentiate the the different N's resulting in $N^X$, $N^Y$, and $N^D$ for `NX`, `NY`, and `ND`or *m*, *s*, and *n* respectively.
 
 $$
 \begin{split}
@@ -227,7 +225,7 @@ $$
 (\#eq:NLPCCRIOM-Ratio)
 $$
 
-This isn't a linear program because we are dividing functions of variables by functions of variables.  We need to make a few transformations.  First, we clear the denominator of each of the consraints and collect the terms on resulting in the following formulation.
+This isn't a linear program because we are dividing functions of variables by functions of variables. We need to make a few transformations. First, we clear the denominator of each of the consraints and collect the terms on resulting in the following formulation.
 
 $$
 \begin{split}
@@ -241,7 +239,7 @@ $$
   (\#eq:LPCCRIOM-Ratio2)
 $$
 
-Alas, it is still a nonlinear objective function.  Fortunately, we can take advantage of the structure of the problem.  There are an infinite number of possible combinations of numerators and denominators that can give the same ratio. For example, if a unit were to receive a 90% efficiency score, this could be with a numerator of nine and a denominator of 10 or a numerator of 90 and a denominator of 100.  Each of these pairs satisfies the constraints and is therefore equally valid. One clever trick solves the nonlinearity by setting the denominator to be a constant.  The next step is to select normalizing value for the objective function.  Let's set the denominator equal to one.  In this case, we simply add a constraint, $\sum_{i=1}^{N^X} v_i x_{i,k}$, to the linear program and replace the denominator in the objective function to one means that we can rewrite the objective function using only the numerator.
+Alas, it is still a nonlinear objective function. Fortunately, we can take advantage of the structure of the problem. There are an infinite number of possible combinations of numerators and denominators that can give the same ratio. For example, if a unit were to receive a 90% efficiency score, this could be with a numerator of nine and a denominator of 10 or a numerator of 90 and a denominator of 100. Each of these pairs satisfies the constraints and is therefore equally valid. One clever trick solves the nonlinearity by setting the denominator to be a constant. The next step is to select normalizing value for the objective function. Let's set the denominator equal to one. In this case, we simply add a constraint, $\sum_{i=1}^{N^X} v_i x_{i,k}$, to the linear program and replace the denominator in the objective function to one means that we can rewrite the objective function using only the numerator.
 
 $$
 \begin{split}
@@ -256,13 +254,13 @@ $$
   (\#eq:LPCCRIOM)
 $$
 
-This linear program can then be implemented in an linear programming system.  
+This linear program can then be implemented in an linear programming system.
 
 ## Creating the LP - The Algebraic Approach
 
-We will implement this using the `ompr` package again, as we did in chapters 2 and 4.  
+We will implement this using the `ompr` package again, as we did in chapters 2 and 4.
 
-We're going to use our data from earlier.  For this example, we will use the dataset from Kenneth Baker's third edition of _Optimization Modeling with Spreadsheets_, pages 175-178, Example 5.3 titled "Hope Valley Health Care Association." In this case, a health care organization wants to benchmark six nursing homes against each other.
+We're going to use our data from earlier. For this example, we will use the dataset from Kenneth Baker's third edition of *Optimization Modeling with Spreadsheets*, pages 175-178, Example 5.3 titled "Hope Valley Health Care Association." In this case, a health care organization wants to benchmark six nursing homes against each other.
 
 ```{r multiplier_model }
 
@@ -284,7 +282,7 @@ dim(ydata) <-c(ND,NY)
   
 ```
 
-Remember the inputs are named as "x1" and"x2" to represent the _staff hours per day_ and the _supplies per day_ respectively.  The two outputs of _reimbursed patient-days_ and _privately paid patient-days_ are named "y1" and "y2".  
+Remember the inputs are named as "x1" and"x2" to represent the *staff hours per day* and the *supplies per day* respectively. The two outputs of *reimbursed patient-days* and *privately paid patient-days* are named "y1" and "y2".
 
 ```{r}
 YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 
@@ -327,7 +325,7 @@ dimnames(results.vweight)<-c(DMUnames,Vnames)
 
 ```
 
-We are now ready to do the analysis.  In Baker, the analysis is done using the multiplier model.  In chapter 2 we used the envelopment model to examine this case.  Now we will use the multiplier model.
+We are now ready to do the analysis. In Baker, the analysis is done using the multiplier model. In chapter 2 we used the envelopment model to examine this case. Now we will use the multiplier model.
 
 ```{r Baker_example, eval=TRUE}
 
@@ -366,15 +364,14 @@ pander(cbind (results.efficiency, results.vweight, results.uweight),
 
 ```
 
-The weights from the multiplier model often have multiple alternative solutions-in other words, different values for decision variables that give the same objective function value.  In optimization, this situation is called multiple optima.  In DEA this means that the weights may be different depending upon the particular settings used for solving the linear program.  The result is that you should be careful in over interpreting the weights as well as in how you interpret results when trying to reproduce analyses.
+The weights from the multiplier model often have multiple alternative solutions-in other words, different values for decision variables that give the same objective function value. In optimization, this situation is called multiple optima. In DEA this means that the weights may be different depending upon the particular settings used for solving the linear program. The result is that you should be careful in over interpreting the weights as well as in how you interpret results when trying to reproduce analyses.
 
 ## Future Issues
 
 Issues to consider in the future for this chapter or other chapters.
 
-* Weak vs. strong efficiency
-* Non-Archimedean Infinitesimal
-* Returns to Scale
-* Adding output-oriented multiplier model
-* Adding returns to scale to multiplier model
-
+-   Weak vs. strong efficiency
+-   Non-Archimedean Infinitesimal
+-   Returns to Scale
+-   Adding output-oriented multiplier model
+-   Adding returns to scale to multiplier model
