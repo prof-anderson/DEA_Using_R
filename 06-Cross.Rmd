@@ -30,7 +30,7 @@ $$
 (\#eq:LPCCRIOM-Ratio-1a)
 $$
 
-This isn't a linear program because we are dividing functions of variables by functions of variables. We need to make a few transformations. First, we clear the denominator of each of the consraints resulting in the following formulation.
+This isn't a linear program because we are dividing functions of variables by functions of variables. We need to make a few transformations. First, we clear the denominator of each of the constraints resulting in the following formulation.
 
 $$
 \begin{split}
@@ -193,16 +193,21 @@ multiplierIO <- function (x,y)
     for (k in 1:ND) {
 
     result <- MIPModel() %>%
-    add_variable(vweight[i], i = 1:NX, type = "continuous", lb = 0) %>%
-    add_variable(uweight[r], r = 1:NY, type = "continuous", lb = 0) %>%
-    set_objective(sum_expr(uweight[r] * y[k,r], r = 1:NY), "max") %>%
-    add_constraint(sum_expr(vweight[i] * x[k,i], i = 1:NX) == 1) %>%
+    add_variable(vweight[i], i = 1:NX, type = "continuous", 
+                 lb = 0) %>%
+    add_variable(uweight[r], r = 1:NY, type = "continuous", 
+                 lb = 0) %>%
+    set_objective(sum_expr(uweight[r] * y[k,r], r = 1:NY), 
+                  "max") %>%
+    add_constraint(sum_expr(vweight[i] * x[k,i], i = 1:NX) 
+                   == 1) %>%
     add_constraint((sum_expr(uweight[r] * y[j,r], r = 1:NY)-
                     sum_expr(vweight[i] * x[j,i], i = 1:NX)) 
                   <= 0, j = 1:ND)
     result
 
-    result <- solve_model(result, with_ROI(solver = "glpk", verbose = FALSE))
+    result <- solve_model(result, with_ROI(solver = "glpk", 
+                                           verbose = FALSE))
     results.efficiency[k] <- objective_value (result) 
 
     # Get the weights - Output weights
@@ -216,7 +221,8 @@ multiplierIO <- function (x,y)
   } # End of for k loop
   
   resultlist <- list(efficiency=results.efficiency, 
-                     vweight=results.vweight, uweight=results.uweight)
+                     vweight=results.vweight, 
+                     uweight=results.uweight)
  
   return(resultlist)  
 
@@ -237,15 +243,15 @@ pander (cbind(resfunc$efficiency,resfunc$vweight,resfunc$uweight),
         caption="Efficiency Scores and Weights")
 ```
 
-You can think of the cross-efficiency by going back to revisit the original ratio model of the multiplier model. Let's extend the definition of the input and output weights to reflect for which unit the weights were determined. For example, $u_{r,k}$ is then the weight on output r when analyzed from the perspetive of DMU k and a similar interpretation applies to input weight.
+You can think of the cross-efficiency by going back to revisit the original ratio model of the multiplier model. Let's extend the definition of the input and output weights to reflect for which unit the weights were determined. For example, $u_{r,k}$ is then the weight on output *r* when analyzed from the perspective of DMU *k* and a similar interpretation applies to input weight.
 
 $$
 \begin{split}
 \begin{aligned}
-    \text {max } \frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,k}} {\sum_{i=1}^{N^X} v_i,k x_{i,k} } \\
-    \text{subject to } & \theta_{j,k}=\frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,k}} {\sum_{i=1}^{N^X} v_{i,k} x_{i,k} }
-                          \leq 1 \forall \; j\\
-                       u_r, v_i\geq 0  \; \forall \; r,i
+    \text {max } \; \theta_{k,k}=\frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,k}} {\sum_{i=1}^{N^X} v_i,k x_{i,k} } \\
+    \text{subject to } & \theta_{j,k}=\frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,j}} {\sum_{i=1}^{N^X} v_{i,k} x_{i,j} }
+                          \leq 1 \; \forall \; j\\
+                       u_{r,k}, v_{i,k}\geq 0  \; \forall \; r,i
   \end{aligned}
 \end{split}
 (\#eq:LPCCRIO-Cross1)
@@ -253,20 +259,7 @@ $$
 
 Now the cross-efficiency for a unit j can be calculated as the following. I refer to the value $\theta_{k,j}$ as the cross-evaluation score for unit *j* from the perspective of the evaluation of unit *k*.
 
-$$
-\begin{split}
- \begin{aligned}
-    \frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,k}} {\sum_{i=1}^{N^X} v_i,k x_{i,k} } \\
-    \text{subject to } & \theta_{k,j} = \frac{\sum_{r=1}^
-                 {N^Y} u_{r,k} y_{r,k}} {\sum_{i=1}^{N^X} v_{i,k} x_{i,k} }
-                          \leq 1 \forall \; j\\
-                       u_r, v_i\geq 0  \; \forall \; r,i
-  \end{aligned}
-   \end{split}
-  (\#eq:Cross-Calc-Peer)
-$$
-
-Now, the cross-efficiency score for unit *j* is simply the average of all of the cross-evaluation scores given to *j* by the other units when they do their analysis.
+The cross-efficiency score for unit *j* is simply the average of all of the cross-evaluation scores given to *j* by the other units when they do their analysis.
 
 $$
 \begin{split}
@@ -286,7 +279,8 @@ results.crosseval  <- matrix(rep(-1.0, ND*ND), nrow=ND,ncol=ND)
 results.crosseff   <- matrix(rep(-1.0, ND)) 
 
 for (k in 1:ND) {
-   for (j in 1:ND) {results.crosseval[k,j]<-sum(resfunc$uweight[k,]*y[j,])/sum(resfunc$vweight[k,]*x[j,])
+   for (j in 1:ND) {results.crosseval[k,j] <- 
+     sum(resfunc$uweight[k,]*y[j,])/sum(resfunc$vweight[k,]*x[j,])
                    }
 }
 for (k in 1:ND) {
@@ -321,7 +315,8 @@ calccrosseff <- function (x,y,vmatrix,umatrix) {
                        dimnames=list(DMUnames, "Cross-Eff") )
 
   for (k in 1:ND) {
-     for (j in 1:ND) {crosseval[k,j]<-sum(umatrix[k,]*y[j,])/sum(vmatrix[k,]*x[j,])
+     for (j in 1:ND) {crosseval[k,j]<-
+       sum(umatrix[k,]*y[j,]) / sum(vmatrix[k,]*x[j,])
                    }
    }
   
@@ -421,7 +416,7 @@ multiplierIOSec <- function (x, y)
 
 ```
 
-Let's explore the impact of the secondary objective function. The MultiplierDEA package has a cross-efficiency function but the Mal_Ben is a specialized version of the cross-efficiency function that implements the secondary goal of either malevolently trying to minimize other people's scores or benevelolently trying to maximize other people's scores. Let's compare these to this to the arbitrary cross-efficiency function which does neither.
+Let's explore the impact of the secondary objective function. The `MultiplierDEA`package has a cross-efficiency function but the`Mal_Ben` is a specialized version of the cross-efficiency function that implements the secondary goal of either malevolently trying to minimize other people's scores or benevolently trying to maximize other people's scores. Let's compare these to this to the arbitrary cross-efficiency function which does neither.
 
 ```{r}
 
@@ -464,10 +459,10 @@ pander (cbind(XTT03, YTT03),
 Comments about cross-efficiency functions from DEAmultiplier package.
 
 -   Mal_and_Ben is not defined as a function.
--   CrossEfficiency function should allow secondary objective function choice of "Malevelent" or "Benevelent"
+-   CrossEfficiency function should allow secondary objective function choice of "Malevolent" or "Benevolent"
 -   Results from CrossEfficiency do not Takamura and Tone.\
 -   Naming convention from results of analysis. Would be good if column names follow convention like my "helper file"-For example lambdas could use L\_ as a prefix.
--   data validation. Ex. allow "Ben", "ben" "benevelent", "Benevelent". Also, RTS could do "CRS" or "crs"
+-   data validation. Ex. allow "Ben", "ben" "benevolent", "Benevolent". Also, RTS could do "CRS" or "crs"
 
 Let's try the Spring case
 

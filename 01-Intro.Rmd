@@ -6,11 +6,11 @@ R is a powerful analytical environment and Data Envelopment Analysis or DEA is a
 
 This book is intended to help use other people's DEA packages for R, how to write R code for doing DEA, and conducting DEA applications. Using existing packages is relatively straightforward and this is demonstrated multiple times and results are periodically compared. Writing R code allows one to dig deeper into how things work and means that a researcher could then implement appropriate variations or extensions to DEA rather than only relying on the functions written by others. Lastly, a variety of applications are provided based on both published and unpublished work that show how to wrestle with data, interpret results, and dig deeper into where models breakdown.
 
-This book does not try to be a full introduction to R or a comprehensive mathematical coverage of DEA. In fact, one book by Bogetoft and Otto [@BogetoftBenchmarkingDEASFA2011] already serves as a good companion to their package, `Benchmarking`, and provides a relatively thorough coverage of many aspects of DEA.
+This book does not try to be a full introduction to R or a comprehensive mathematical coverage of DEA. In fact, one book by Bogetoft and Otto [@BogetoftBenchmarkingDEASFA2011] already serves as a good companion to their DEA package, `Benchmarking`, and provides a relatively thorough coverage of many aspects of DEA.
 
 People familiar with optimization or taking an operations research course should be able to digest the material as long as they were willing to roll up their sleeves and get their hands dirty. Everything presented here should run with a current version of R and appropriate packages. Feel free to copy and paste code into your R instance and run it alongside me. Note that I strongly recommend using RStudio as an integrated development environment, IDE, in order to simplify the workflow. This book was written using RStudio, rmarkdown, and bookdown.
 
-This book is intended to be a living resource and updated. It is a very rough draft and currently only intended for members of the Extreme Technology Analytics Research Group at Portland State. For more information on this research group, visit www.tfdea.com or contact me at [tim.anderson\@pdx.edu](mailto:tim.anderson@pdx.edu){.email}.
+This book is intended to be a living resource and updated. It is a rough draft and currently only intended for members of the Extreme Technology Analytics Research Group at Portland State. For more information on this research group, visit www.tfdea.com or contact me at [tim.anderson\@pdx.edu](mailto:tim.anderson@pdx.edu){.email}.
 
 ## Resources
 
@@ -23,17 +23,6 @@ Peter Bogetoft and Lars Otto have written a very thorough book on DEA and other 
 *The Art of R Programming* takes a different perspective on R by emphasizing it as a programming environment. People with experience in software development in some other language may find this eases the transition to using R as a rich computational environment. It was [published](http://shop.oreilly.com/product/9781593273842.do) in 2011 so it is getting a little dated but still a nice resource along with Grolemund's *Hands-On Programming with R: Write Your Own Functions and Simulations*[@grolemund2014].
 
 In addition to R, be sure to download RStudio. There are a lot of other ways to work with R including emacs, Eclipse, etc. but RStudio provides a very rich toolset for live markdown documents incorporating text and R code as well support for organizational tools such as github. It can even be accessed from a browser so that nothing needs to be installed locally.
-
-## Status
-
-This book is currently in a very rough draft state. As such, the writing needs more polish as well. Some items are coded in a less efficient manner for a variety of reasons, sometimes for simplicity of the reader. If you have suggestions on how to improve this book, please let me know. The current book is rapidly evolving.
-
-Some issues to consider about the book are the following:
-
--   Should data frames be used instead of matrices?
--   Convert some chunks to functions where appropriate
-
-Comments are welcome.
 
 ## Conventions Used
 
