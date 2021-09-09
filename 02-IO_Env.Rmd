@@ -437,7 +437,7 @@ $$
   (\#eq:LPBCCIOE) 
 $$
 
-To incorporate this, we can add another constraint to our previous model and solve it. Let's define a parameter, "RTS" to describe which returns to scale assumption we are using and only add the VRS constraint when `RTS="VRS"`.[^io_env-3]
+To incorporate this, we can add another constraint to our previous model and solve it. Let's define a parameter, `RTS,` to describe which returns to scale assumption we are using and only add the VRS constraint when `RTS` is set to `"VRS"`.[^io_env-3]
 
 [^io_env-3]: In R, as in many languages, the distinction between assignment and testing for equivalency is important. Two symbols are used for assignment, `=` or `<-` while `==` is used to test for whether two items are equivalent.
 
