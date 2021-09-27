@@ -31,6 +31,7 @@ library ("Lahman", quietly=TRUE)
 library ("dplyr", quietly=TRUE)
 library("pander", quietly=TRUE)
 library(DiagrammeRsvg, quietly=TRUE)
+library(DiagrammeR, quietly=TRUE)
 library(rsvg, quietly=TRUE)
 library(htmltools, quietly=TRUE)
 library(TRA)
@@ -529,7 +530,7 @@ pander (rbind(ybabe, uymean),
 
 Once again we multiply each output by the corresponding output weight and then add these products together. The result is `r as.matrix(ybabe) %*% t(as.matrix(uymean))`. The mean input weight was `r vxmean` while his input (Plate Appearances) was `r xbabe`. Simply multiplying them together gives us `r as.matrix(xbabe) %*% t(as.matrix(vxmean))`. The final result is taking the weighted output divided by the weighted output which gives us `r as.matrix(ybabe) %*% t(as.matrix(uymean))/as.matrix(xbabe) %*% t(as.matrix(vxmean))`. Babe Ruth's cross-evaluation score based on the league-wide mean weights results in a higher score score than what Sisler gave him but far below his own efficiency score.
 
-Note, this calculated value matches the original cross-efficiency score for Babe Ruth of `r res1920ALcross$ce_ave["ruthba01",]` calculated as simply the column average of the cross-evaluation matrix.
+Note, this calculated value matches the original cross-efficiency score for Babe Ruth of `r round(res1920ALcross$ce_ave[1, "ruthba01"],6)` calculated as simply the column average of the cross-evaluation matrix.
 
 The same mean cross-efficiency weights can be used for calculating the cross-efficiency score for each of the other players. This is not a matter of some (or most) players occasionally violating the relationship in some way but a systematic error. What this means is that *every* player is now being assessed against the same fixed and in this case, implausible weighting scheme. If you look carefully at the mean output weights, the mean weight for Home Runs is just half that of the next lowest output weight (base on balls). Singles, doubles, and triples are all given four or fives times as much weight as home runs.
 
