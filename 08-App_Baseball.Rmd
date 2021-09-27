@@ -26,6 +26,8 @@ In the past, batters weren't given much "recognition" for walks and a batter's r
 
 Over the course of the current 162 game season, most full-time players will have over 500 plate appearances.
 
+library(DiagrammeR, quietly=TRUE)
+
 ```{r load_ch8_packages, echo = TRUE, message = FALSE}
 library ("Lahman", quietly=TRUE)
 library ("dplyr", quietly=TRUE)
