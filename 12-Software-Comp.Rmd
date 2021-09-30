@@ -4,9 +4,11 @@
 knitr::opts_chunk$set(echo = TRUE)
 library(pander)
 panderOptions('round',5) # Set option for rounding in pander data tables
-library(DiagrammeRsvg)
-library(rsvg)
-library(htmltools)
+library(DiagrammeRsvg, quietly=TRUE)
+library(DiagrammeR, quietly=TRUE)
+library(rsvg, quietly=TRUE)
+library(htmltools, quietly=TRUE)
+library(TRA)
 ```
 
 ## Introduction  
@@ -116,6 +118,19 @@ y <- matrix(c(6785798, 1594957, 1088699,
 
 pander(cbind(y,x), caption="Complex Data from Charnes, Cooper, and Li (1990)")
 ```
+
+```{r CCL_1990_IO_Model}
+
+XFigNames <- c("Labor", "WF", "INV")
+YFigNames <- c("GIOF", "PT", "RS")
+Figure <- DrawIOdiagram (XFigNames,YFigNames, '"\nCCR\nIO\n "')  
+
+tmp <- capture.output(rsvg_png(charToRaw (export_svg(Figure)),
+                               'CCL_1990_IO_diagram.png'))
+
+```
+
+![Input-Output Model from Charnes, Cooper, Li, (1990)](CCL_1990_IO_diagram.png){#fig:CCL1990}
 
 For each package, we will examine an input-oriented, constant returns to scale model. We will select slack maximization whenever it is available. Results are given for each analysis demonstrate the structure of the the lambda (envelopment variable) values returned as well as the efficiency scores.  
 

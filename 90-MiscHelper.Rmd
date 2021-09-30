@@ -26,22 +26,27 @@ NX <- 1
 NY <- 4
 ND <- 14
 
-  DMUnames <- list(c(LETTERS[1:ND]))               # DMU names: A, B, ...
-  Xnames<- lapply(list(rep("X",NX)),paste0,1:NX)   # Input names: x1, ...
-  Ynames<- lapply(list(rep("Y",NY)),paste0,1:NY)   # Output names: y1, ...
-  Vnames<- lapply(list(rep("v",NX)),paste0,1:NX)   # Input weight names: v1, ...
-  Unames<- lapply(list(rep("u",NY)),paste0,1:NY)   # Output weight names: u1, ...
-  SXnames<- lapply(list(rep("sx",NX)),paste0,1:NX) # Input slack names: sx1, ...
-  SYnames<- lapply(list(rep("sy",NY)),paste0,1:NY) # Output slack names: sy1, ...
+  DMUnames <- list(c(LETTERS[1:ND]))               # DMU names: A, B ...
+  Xnames<- lapply(list(rep("X",NX)),paste0,1:NX)   # Input names: x1 ...
+  Ynames<- lapply(list(rep("Y",NY)),paste0,1:NY)   # Output names: y1 ...
+  Vnames<- lapply(list(rep("v",NX)),paste0,1:NX)   # Input weight names: v1 ...
+  Unames<- lapply(list(rep("u",NY)),paste0,1:NY)   # Output weight names: u1 ...
+  SXnames<- lapply(list(rep("sx",NX)),paste0,1:NX) # Input slack names: sx1 ...
+  SYnames<- lapply(list(rep("sy",NY)),paste0,1:NY) # Output slack names: sy1 ...
   Lambdanames<- lapply(list(rep("L_",ND)),paste0,LETTERS[1:ND])
 
-XBH <- matrix(c(1.07, 1.06, 0.325, 1.60, 0.55, 0.2, 0.35, 0.53, 0.21, 0.16, 0.07, 1.95, 5.59, 3.10),
+XBH <- matrix(c(1.07, 1.06, 0.325, 1.60, 0.55, 0.2, 0.35, 
+                0.53, 0.21, 0.16, 0.07, 1.95, 5.59, 3.10),
                 ncol=NX,dimnames=c(DMUnames,Xnames))
 
-YBH <- matrix(c(32, 50, 40, 30 ,25, 8, 2, 12, 10, 0.8, 3, 300, 60, 240,
-                8.2, 7.6, 7.6, 7.1, 7.0, 6.0, 5.9, 5.8, 5.8, 5.4, 5.3, 6.8, 6.2, 6.2,
-                7.5, 7.2, 7.1, 7.2, 7.0, 6.1, 6.2, 5.8, 5.8, 5.6, 5.4, 6.1, 6.9, 6.6,
-                8.0, 6.4, 5.3, 5.5, 5.1, 6.9, 6.6, 5.4, 4.7, 6.1, 6.5, 6.4, 6.8, 7.1),
+YBH <- matrix(c( 32,  50,  40,  30,  25,   8,   2, 
+                 12,  10, 0.8,   3, 300,  60, 240,
+                8.2, 7.6, 7.6, 7.1, 7.0, 6.0, 5.9, 
+                5.8, 5.8, 5.4, 5.3, 6.8, 6.2, 6.2,
+                7.5, 7.2, 7.1, 7.2, 7.0, 6.1, 6.2, 
+                5.8, 5.8, 5.6, 5.4, 6.1, 6.9, 6.6,
+                8.0, 6.4, 5.3, 5.5, 5.1, 6.9, 6.6, 
+                5.4, 4.7, 6.1, 6.5, 6.4, 6.8, 7.1),
                 ncol=NY,dimnames=c(DMUnames,Ynames))
 
 library(MultiplierDEA)
@@ -107,13 +112,14 @@ This function simply needs the number of DMUs, inputs, and outputs.
 ```{r DEAnamesfunction}
 DEAnames<-function(NX, NY, ND) {
 
-  DMUnames <- list(c(LETTERS[1:ND]))               # DMU names: A, B, ...
-  Xnames<- lapply(list(rep("X",NX)),paste0,1:NX)   # Input names: x1, ...
-  Ynames<- lapply(list(rep("Y",NY)),paste0,1:NY)   # Output names: y1, ...
-  Vnames<- lapply(list(rep("v",NX)),paste0,1:NX)   # Input weight names: v1, ...
-  Unames<- lapply(list(rep("u",NY)),paste0,1:NY)   # Output weight names: u1, ...
-  SXnames<- lapply(list(rep("sx",NX)),paste0,1:NX) # Input slack names: sx1, ...
-  SYnames<- lapply(list(rep("sy",NY)),paste0,1:NY) # Output slack names: sy1, ...
+  DMUnames <- list(c(LETTERS[1:ND]))               
+
+  Xnames<- lapply(list(rep("X",NX)),paste0,1:NX)
+  Ynames<- lapply(list(rep("Y",NY)),paste0,1:NY)
+  Vnames<- lapply(list(rep("v",NX)),paste0,1:NX)   
+  Unames<- lapply(list(rep("u",NY)),paste0,1:NY)   
+  SXnames<- lapply(list(rep("sx",NX)),paste0,1:NX) 
+  SYnames<- lapply(list(rep("sy",NY)),paste0,1:NY) 
   Lambdanames<- lapply(list(rep("L_",ND)),paste0,LETTERS[1:ND])
 
   allnames<-list(DMUnames=DMUnames,
@@ -172,13 +178,14 @@ library(DiagrammeRsvg)
 library(rsvg)
 library(htmltools)
 a <- "'"  
-Xlabels <- c(mapply(paste0, a, Xnames, a))  # Wraps names with a ' 
+Xlabels <- c(mapply(paste0, a, Xnames, a)) 
+              # Wraps names with ' (backtick)
 
 Ylabels <- c(mapply(paste0, a, Ynames, a))
 
 Modellabel <- c(mapply(paste0, a, "\n\nCCRIO\n\n ", a)) 
-                        # Pads model name with two carriage returns
-                        #    to make it a taller rectangle and look better
+              # Pads model name with two carriage returns
+              #    to make it a taller rectangle and look better
 
 #  Define labels for the inputs and outputs
 nodelabels <- paste(c(Xlabels,Ylabels), collapse="; ")
@@ -231,32 +238,32 @@ a <- "'"
 NX <- lengths(Xnames)     # Number of inputs
 NY <- lengths(Ynames)     # Number of outputs
 
-Xlabels <- c(mapply(paste0, a, Xnames, a)) # Surround text with '
+Xlabels <- c(mapply(paste0, a, Xnames, a))
 
 Ylabels <- c(mapply(paste0, a, Ynames, a))
 
-nboxpad <- max(floor(1+NX/2), floor(1+NY/2)) # Pad height of model box
+nboxpad <- max(floor(1+NX/2), floor(1+NY/2)) 
 
 boxpadding <- paste(rep("\n",nboxpad),collapse='')  
                     # Build line returns 
 
 modellabel <- paste(boxpadding, "CCRIO", boxpadding,
                      collapse="")
-       # Want to vertically pad returns, \n's top and bottom to 
-       #    balance the height of the boxspace figure
+  # Want to vertically pad returns, \n's top and bottom
+  #    to balance the height of the boxspace figure
 
 # Define the nodes for the inputs and outputs
 nodelabels <- paste(c(Xlabels,Ylabels), collapse="; ")
 
 # Define the edges (arrows) for inputs and outputs
-Xedges <- paste(c(mapply(paste0, Xlabels,"->", Modellabel [1], " " )),collapse="")
-Yedges <- paste(c(mapply(paste, Modellabel [1], "->", Ylabels," "  )),collapse="")
-     # Note:  I'm sure the above two lines are pretty inefficient but they work!
+Xedges <- paste(c(mapply(paste0, Xlabels,"->", 
+                         Modellabel [1], " " )), collapse="")
+Yedges <- paste(c(mapply(paste, Modellabel [1], "->", 
+                         Ylabels," "  )),collapse="")
 
 # Combine edges for inputs and outputs
-edges <- paste0( 
-    Xedges, Yedges    # All edges or arrows are for inputs or outputs
-)
+edges <- paste0( Xedges, Yedges)
+    # All edges or arrows are for inputs or outputs
 
 ##  Plot graph:
 generalIO <- grViz(
