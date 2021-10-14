@@ -2,6 +2,7 @@
 
 ```{r Install_support_libraries, echo= FALSE}
 library (pander)
+#library(bookdown); library(rmarkdown); rmarkdown::render("03-IO_Env_Matrix.Rmd", "pdf_book")
 ```
 
 In the previous chapter we created the DEA linear program algebraically using the `ompr`package. Before `ompr`was available, we needed to use another approach for our DEA package, `TFDEA`, which consisted of using matrices. This approach requires more "bookkeeping". Both approaches work but I think the algebraic approach is likely to be easier to write, debug, and extend in the future. For solving, we will use the widely adopted `lpsolveapi`package but this same matrix-based approach holds other LP solver engines such as C-Plex, Gurobi, and CBC.
@@ -382,7 +383,7 @@ Finally, solve the LP to calculate the efficiency score.
      solve.lpExtPtr (lpe)
 ```
 
-Simply solving doesn't tell us anything very useful. It just gives an error code of 0 (or at least we hope to get that-anything else is worth digging into!) An error code of 0 means that it solved the problem. When it does so, it adds results to the `lpe` opbject. Now we need to extract the results from the solution in a form that we can use.
+Simply solving doesn't tell us anything very useful. It just gives an error code of 0 (or at least we hope to get that-anything else is worth digging into!) An error code of 0 means that it solved the problem. When it does so, it adds results to the `lpe` object. Now we need to extract the results from the solution in a form that we can use.
 
 We have four separate steps. In the input-oriented model, we read out the objective function value and place it in the *k*'th place of `results.efficiency`.
 
@@ -444,9 +445,9 @@ As long as you are still reading, let's explain a little bit of slack maximizati
 
 Now we need to do a step that is called slack maximization. We will need to add constraint that the efficiency variable ($\theta$) is held constant at the value found in Phase 1.
 
-The linear program is modified in the following manner. We now want to maximize the sum of both input slack(s) and ouptput slack(s).
+The linear program is modified in the following manner. We now want to maximize the sum of both input slack(s) and output slack(s).
 
-$$
+t$$
 \begin{split}
  \begin{aligned}
     \text{maximize  }  & \sum_{i}s^x_i + \sum_{r}s^y_r\\

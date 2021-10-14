@@ -1,3 +1,13 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r, echo=FALSE, eval=FALSE}
+library(bookdown); library(rmarkdown); rmarkdown::render("06-Cross.Rmd", "pdf_book")
+```
+
 # Cross-Efficiency-DRAFT
 
 ## Introduction
@@ -481,3 +491,100 @@ Issues to consider in the future for this chapter or other chapters:
 -   Multiple Optima
 -   Secondary Objective Functions
 -   Fixed Weighting nature of certain model dimensions
+
+## Slack Based Models
+
+We have focused on radial efficiency scores up to this point. The primary emphasis is on proportionally decreasing the inputs (input-orientation) or increasing the outputs (output-orientation). The decision of input versus output-orientation is then very important. Also, radial models generally use a second phase of slack maximization to form targets of best practices.
+
+$$
+\frac {\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}}  {\sum_{r=1}^{N^Y} \frac{s^y_r}{y_{r,k}}}
+$$
+
+Another approach is called the slack-based model.
+
+
+$$
+\begin{split}
+ \begin{aligned}
+    \text{minimize}   & \rho_k= \frac {1-\frac{1}{N^X}\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}}  {1+\frac{1}{N^Y}\sum_{r=1}^{N^Y} \frac{s^y_r}{y_{r,k}}}\\
+    \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j + s^x_i = x_{i,k}  \; \forall \; i\\
+                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
+                       & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
+  \end{aligned}
+   \end{split}
+  (\#eq:SBM_v01)
+$$
+
+We again create a normalizing constraint to linearize the objective function.
+
+$$
+\begin{split}
+ \begin{aligned}
+    \text{minimize  }  & \rho_k= 1-\frac{1}{N^X}\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}  \\
+    \text{subject to } & 1+\frac{1}{N^Y}\sum_{r=1}^{N^Y} \frac{s^y_r}{y_{r,k}} =1 \\
+                       & \sum_{j=1}^{N^D} x_{i,j}\lambda_j + s^x_i = x_{i,k}  \; \forall \; i\\
+                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
+                       & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
+  \end{aligned}
+   \end{split}
+  (\#eq:SBM_v02)
+$$
+
+Now, let's move on to examining an implementation in R.
+
+```{r, eval=FALSE}
+RTS<-"CRS"
+for (k in 1:ND) {
+  
+  LPSlack <- MIPModel() %>%
+    add_variable(vlambda[j], j = 1:ND, type = "continuous", 
+                 lb = 0) %>%
+    add_variable(xslack[i], i = 1:NX, type = "continuous", 
+                 lb=0) %>%
+    add_variable(yslack[r], r = 1:NY, type = "continuous", 
+                 lb=0) %>%
+    
+    set_objective(sum_expr(xslack[i]/xdata[k,i], 
+                            i = 1:NX), "max") %>%
+    
+    add_constraint(sum_expr(vlambda[j] * xdata[j,i]+xslack[i], 
+                            j = 1:ND) 
+                   - vtheta * xdata[k,i]==0, i = 1:NX) %>%
+    
+    add_constraint(sum_expr(vlambda[j] * ydata[j,r]-yslack[r], 
+                            j = 1:ND) 
+                    ==ydata[k,r], r = 1:NY) 
+
+    if (RTS=="VRS") {LPSlack<-add_constraint(LPSlack, 
+                                             sum_expr(vlambda[j],
+                                j = 1:ND) == 1) }  
+  
+
+    result <-   solve_model(LPSlack, with_ROI(solver = "glpk")) 
+
+    # The following are the key steps to slack maximization 
+    phase1obj <-  get_solution(result, vtheta)  # Get Phase 1 objective value
+
+    add_constraint(LPSlack, vtheta==phase1obj)   
+                     # Passing result from phase 1 to phase 2
+    set_objective(LPSlack, sum_expr(
+              xslack[i], i=1:NX)+sum_expr(yslack[r], r=1:NY), "max")
+              # Modify the objective function for phase 2
+    result <-   solve_model(LPSlack, with_ROI(solver = "glpk")) 
+  
+    results.efficiency[k] <-  get_solution(result, vtheta)       
+    results.lambda[k,] <- t(as.matrix(
+                 as.numeric(get_solution(result, 
+                                         vlambda[j])[,3] )))
+}
+
+rownames(results.efficiency)<-c("A", "B", "C", "D", "E", "F")
+#print (results.efficiency)
+pander(cbind(results.efficiency,xdata,ydata,results.lambda), 
+       round=5,
+       caption="Input-oriented Efficiency Results")
+
+```
+
+
+
