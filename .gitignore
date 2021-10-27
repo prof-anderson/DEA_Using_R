@@ -8,9 +8,11 @@ _bookdown_files
 bookdown-start.Rproj
 bookdown-start.log
 docs/*
+docs/*.*
 DEA_Using_R.Rproj
 *.md
 BaseballBatting.png
 BaseballCCRIO.png
 *.log
 *.pdf
+*.tex
