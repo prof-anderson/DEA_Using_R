@@ -12,3 +12,5 @@ DEA_Using_R.Rproj
 *.md
 BaseballBatting.png
 BaseballCCRIO.png
+*.log
+*.pdf
