@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # Benchmarking the Benchmarkers
 
 ```{r setup, include=FALSE}
@@ -11,6 +16,9 @@ library(htmltools, quietly=TRUE)
 library(TRA)
 ```
 
+```{r, echo=FALSE, eval=FALSE}
+library(bookdown); library(rmarkdown); rmarkdown::render("12-Software-Comp.Rmd", "pdf_book")
+```
 ## Introduction  
 
 Over the years, a variety of software packages have been developed for doing Data Envelopment Analysis.  The Benchmarking package was one of the earliest and most full-featured packages available. It continues to be the most downloaded R package for doing DEA to this day.
@@ -324,6 +332,41 @@ panderOptions('round',12)
 pander(combined_eff, caption = "Comparison of Efficiency Scores")      
 
 ```
+
+
+```{r combined_results_using_kable}
+library(kableExtra)
+
+combined_eff2 <- cbind (res_nonparaeff$eff-res_benchmarking$eff,
+                       res_rDEA$thetaOpt-res_benchmarking$eff, 
+                       res_DJL$eff-res_benchmarking$eff, 
+                       res_MultiplierDEA$Efficiency-res_benchmarking$eff)
+
+colnames (combined_eff2) <- c("nonparaeff", "rDEA", 
+                             "DJL", "MultiplierDEA")
+
+#panderOptions('digits',9)
+#panderOptions('round',18)
+#pander(combined_eff2, caption = "Difference from Benchmarking")      
+
+kable(combined_eff2, digits=16,
+      format="latex", booktabs=TRUE)%>%
+  kable_styling(latex_options="scale_down")
+```
+
+The result is that the largest magnitude differences between Benchmarking's results and that of the other packages tested was a positive `r max(combined_eff2)` and the most negative (smaller than Benchmarking's efficiency scores) was `r min(combined_eff2)`.  These values are quite well behaved and more precise than most data used for analyses.  
+
+```{r}
+comparative_deviations <- rbind (colMeans(combined_eff2),
+                      colMeans(abs(combined_eff2)))
+
+rownames(comparative_deviations) <- c("Mean Difference", "Mean Absolute Deviation")
+
+kable(comparative_deviations, digits=16,
+      format="latex", booktabs=TRUE)%>%
+  kable_styling(latex_options="scale_down")
+```
+
 
 Computational performance could be further compared in many ways such as the following.
 
