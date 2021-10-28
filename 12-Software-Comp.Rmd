@@ -406,9 +406,9 @@ It would be more interesting to filter this to only include solver engines such 
 
 ## Summary of Package Features
 
-Table of results
-Columns are used for each package
 
+Comparative features
+Columns are used for each package
 Rows are:
 
 * Package Name
