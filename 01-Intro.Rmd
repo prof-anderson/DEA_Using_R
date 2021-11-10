@@ -70,3 +70,7 @@ Various colleagues have helped over the years including:
 In particular, the frequent discussions of DEA at INFORMS have been very helpful.
 
 Also, this work makes extensive use of the `ompr` package authored by Dirk Schumacher. The rich algebraic modeling capabilities of `ompr` have made this book significantly more accessible.
+
+Also, Dr. Gunter Sharp and Dr. Ronald Bohlander for their support during my time at Georgia Tech.
+
+Lastly, I would like to thank my family, Carrie, Trent, and Paige.

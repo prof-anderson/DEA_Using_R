@@ -350,8 +350,9 @@ colnames (combined_eff2) <- c("nonparaeff", "rDEA",
 #pander(combined_eff2, caption = "Difference from Benchmarking")      
 
 kable(combined_eff2, digits=16,
-      format="latex", booktabs=TRUE)%>%
-  kable_styling(latex_options="scale_down")
+      format="latex", booktabs=TRUE)
+# %>%
+#  kable_styling(latex_options="scale_down")
 ```
 
 The result is that the largest magnitude differences between Benchmarking's results and that of the other packages tested was a positive `r max(combined_eff2)` and the most negative (smaller than Benchmarking's efficiency scores) was `r min(combined_eff2)`.  These values are quite well behaved and more precise than most data used for analyses.  
@@ -363,8 +364,9 @@ comparative_deviations <- rbind (colMeans(combined_eff2),
 rownames(comparative_deviations) <- c("Mean Difference", "Mean Absolute Deviation")
 
 kable(comparative_deviations, digits=16,
-      format="latex", booktabs=TRUE)%>%
-  kable_styling(latex_options="scale_down")
+      format="latex", booktabs=TRUE)
+# %>%
+#  kable_styling(latex_options="scale_down")
 ```
 
 
