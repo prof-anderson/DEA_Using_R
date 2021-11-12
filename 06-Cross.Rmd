@@ -506,7 +506,7 @@ Another approach is called the slack-based model.
 $$
 \begin{split}
  \begin{aligned}
-    \text{minimize}   & \rho_k= \frac {1-\frac{1}{N^X}\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}}  {1+\frac{1}{N^Y}\sum_{r=1}^{N^Y} \frac{s^y_r}{y_{r,k}}}\\
+    \text{minimize  }   & \rho_k= \frac {1-\frac{1}{N^X}\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}}  {1+\frac{1}{N^Y}\sum_{r=1}^{N^Y} \frac{s^y_r}{y_{r,k}}}\\
     \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j + s^x_i = x_{i,k}  \; \forall \; i\\
                        & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r

@@ -210,7 +210,7 @@ pander(head(res1920AL$uy), round=6,
 
 A few things stand out. First, only one of the first six players puts any weight on home runs. There should be a hierarchy that singles are at least as good as walks, doubles are at least as good singles, triples are at least as good as doubles, and home runs are at least as good triples. Every player violates at least one of these relationships. Any plausible analysis of baseball batting needs to reflect these relationships. While very different, common metrics such as batting average and slugging average satisfy these relationships but our first DEA model does not.
 
-In Anderson and Sharpe's 1997 paper, ordinal weight restrictions were incorporated into the envelopment model for examining baseball batters by accumulating hits [@anderson1997]. This created new outputs of Singles or better (BB+X1B), doubles or better (BB+X1B+X2B), *etc.* This ordinal approach to weight restrictions can be done as a simple preprocessing step.
+In Anderson and Sharp's 1997 paper, ordinal weight restrictions were incorporated into the envelopment model for examining baseball batters by accumulating hits [@anderson1997]. This created new outputs of Singles or better (BB+X1B), doubles or better (BB+X1B+X2B), *etc.* This ordinal approach to weight restrictions can be done as a simple preprocessing step.
 
 Another approach is to analyze the data set using the multiplier model and directly incorporating weight restrictions. For this, we will make use of the `DEAMultiplier`package written by Aurobindh Kalathil Puthanpura.
 
