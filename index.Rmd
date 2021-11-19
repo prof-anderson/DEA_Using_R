@@ -2,20 +2,18 @@
 title: "Data Envelopment Analysis Using R"
 author: "Timothy R. Anderson"
 date: "`r Sys.Date()`"
-site: bookdown::bookdown_site
-documentclass: book
+documentclass: krantz
 bibliography: ["book.bib"]
 biblio-style: apalike
 link-citations: yes
-github-repo: prof-anderson/OR_Using_R
-url: 'https://github.com/prof-anderson/OR_Using_R'
+colorlinks: yes
+lot: yes
+lof: yes
+site: bookdown::bookdown_site
 description: "An introduction to data envelopment analysis using R."
-output:
-  bookdown::tufte_html_book:
-    toc: yes
-  bookdown::tufte_book2:
-    toc: yes
-  tufte_book2: default     
+github-repo: prof-anderson/OR_Using_R
+graphics: yes
+#cover-image: images/cover.jpg
 ---
 
 ```{r setup1, include=FALSE}
