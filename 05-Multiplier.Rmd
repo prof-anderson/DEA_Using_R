@@ -189,7 +189,7 @@ $$
 (\#eq:NLPScoringk)
 $$
 
-This formulation is now a linear programming model that will find an optimal score for manager *k* regardless of the number of outputs and the number of other managers being considered. This approach could be used in a variety of peer evaluation or self-evaluation applications where each unit is given the opportunity to evaluate themselves relative to their peers. This model will always give a person their highest possible score. Note that this model does not incorporate the resources used to achieve these outcomes. For that, we can the model using a traditional ratio idea of output over input.
+This formulation is now a linear programming model that will find an optimal score for manager *k* regardless of the number of outputs and the number of other managers being considered. This approach could be used in a variety of peer evaluation or self-evaluation applications where each unit is given the opportunity to evaluate themselves relative to their peers. This model will always give a person their highest possible score. Note that this model does not incorporate the resources used to achieve these outcomes. For that, we can use a traditional ratio idea of output over input.
 
 ## The Ratio Model
 
@@ -209,9 +209,9 @@ $$
   \end{aligned}
 \end{split}
 (\#eq:NLPCCRIOM-Ratio)
-$$ We have two important sets of variables now. The first is $u_r$ which is the weight on the *r*'th output. The second is $v_i$ which is the weight on the *i*'th input.
+$$ We have two sets of variables now. The first is $u_r$ which is the weight on the *r*'th output. The second is $v_i$ which is the weight on the *i*'th input.
 
-For clarification, we make a small variation from traditional DEA notation. Normally the number of inputs is *m* and the number of outputs is *s*. To make the code more readable, I will use a convention of *NX* instead of *m* to refer to the number of inputs (x's) and *NY* to be the number of ouputs (y's) instead of *s*. Also, *n* is used to denote the number of Decision Making Units (DMUs) and therefore I'll use *ND* to indicate that in the R code. In the mathematical formulations, superscripts are used to differentiate the the different N's resulting in $N^X$, $N^Y$, and $N^D$ for `NX`, `NY`, and `ND`or *m*, *s*, and *n* respectively.
+For clarification, we make a small variation from traditional DEA notation. Normally the number of inputs is *m* and the number of outputs is *s*. To make the code more readable, I will use a convention of *NX* instead of *m* to refer to the number of inputs (x's) and *NY* to be the number of ouputs (y's) instead of *s*. Also, *n* is used to denote the number of Decision Making Units (DMUs) and therefore I'll use *ND* to indicate that in the R code. In the mathematical formulations, superscripts are used to differentiate the the different N's resulting in $N^X$, $N^Y$, and $N^D$ for `NX`, `NY`, and `ND` or *m*, *s*, and *n* respectively.
 
 $$
 \begin{split}
@@ -349,11 +349,11 @@ for (k in 1:ND) {
                                          verbose = FALSE))
   results.efficiency[k] <- objective_value (result) 
 
-  # Get the weights - Output weights
+  # Get the output weights
   tempvweight <- get_solution(result, vweight[i])
   results.vweight[k,] <- tempvweight[,3]
 
-  # Get the weights- Input weights
+  # Get the input weights
   tempuweight <- get_solution(result, uweight[i])
   results.uweight[k,] <- tempuweight[,3]
 

@@ -1,11 +1,12 @@
 # Matrix Implementations of DEA
 
 ```{r Install_support_libraries, echo= FALSE}
-library (pander)
+library (kableExtra)
 #library(bookdown); library(rmarkdown); rmarkdown::render("03-IO_Env_Matrix.Rmd", "pdf_book")
+library (pander)
 ```
 
-In the previous chapter we created the DEA linear program algebraically using the `ompr`package. Before `ompr`was available, we needed to use another approach for our DEA package, `TFDEA`, which consisted of using matrices. This approach requires more "bookkeeping". Both approaches work but I think the algebraic approach is likely to be easier to write, debug, and extend in the future. For solving, we will use the widely adopted `lpsolveapi`package but this same matrix-based approach holds other LP solver engines such as C-Plex, Gurobi, and CBC.
+In the previous chapter we created the DEA linear program algebraically using the `ompr`package. Before `ompr`was available, we needed to use another approach for most DEA packages such as `TFDEA` and `MultiplierDEA`, which consisted of using matrices. This approach requires more "bookkeeping". Both approaches work but I think the algebraic approach is likely to be easier to write, debug, and extend in the future. For solving, we will use the widely adopted `lpsolveapi`package but this same matrix-based approach holds other LP solver engines such as C-Plex, Gurobi, and CBC.
 
 People interested in working on the `TFDEA`package should read this chapter carefully. We will be returning to these topics algebraically as well later since it is conceptually similar to the structure of the package. For people that want to stick to the algebraic implementation and using `ompr`, you can skip this chapter.
 
@@ -69,14 +70,15 @@ $$
 
 Now, let's populate the information for our example from the beginning of chapter 2.
 
-```{r  Defining_Problem_Data, echo=FALSE }
+```{r  Defining-Problem-Data, echo=FALSE }
   x <- matrix(c(10,20,30,50),ncol=1,dimnames=list(LETTERS[1:4],"x"))
 
   y <- matrix(c(75,100,300,400),ncol=1,dimnames=list(LETTERS[1:4],"y"))
   
   ND <- nrow(x); NX <- ncol(x); NY <- ncol(y); 
   
-  pander(cbind(x,y),caption="Input-Output Data")
+  kbl (cbind(x,y),booktabs=T,
+      caption="Input-Output Data")
 ```
 
 The next step is to incorporate the data into the model. Since there is only one input and one output, there are only two constraints and two slack variables. To keep a close connection to the application, we will refer to the specific envelopment variables by DMU name rather than number. For example, this lists $\lambda_A$ rather than $\lambda_1$.
@@ -178,25 +180,21 @@ res3_1$solution
 The solver in this case knew nothing of our model's structure so the results in terms of decision variable values would need be organized based on how we structured the model to pass into `lpSolve`.
 
 ```{r}
-library (pander)
 res3_1.solution <- as.matrix(res3_1$solution)
 rownames (res3_1.solution) <- c("L_A", "L_B", "L_C", "L_D", "theta", 
                                  "s_x", "s_y")
-pander (t(res3_1.solution), 
+kbl (t(res3_1.solution), booktabs=T, 
         caption="Optimal solution values for DMU A (CCR-IO")
 ```
 
 Let's demonstrate the use of LaTeX in table captions. There are several things to bear in mind when using LaTeX rendered in column labels.
 
 -   The LaTeX must be wrapped in \$\$\$ symbols.
-
 -   A double backslash is needed to show symbols
-
 -   When the plain text version is displayed such as by running a code chunk, the plain text version will display the LaTeX commands making for a harder to read table.
-
 -   Using the proper mathematical notation in the table gives a nice and rigorous display.
 
-```{r}
+```{r, results = 'asis'}
 res3_1.solution <- as.matrix(res3_1$solution)
 rownames (res3_1.solution) <- c("$\\lambda_A$", "$\\lambda_B$", 
                                 "$\\lambda_C$", "$\\lambda_D$", 
@@ -204,7 +202,7 @@ rownames (res3_1.solution) <- c("$\\lambda_A$", "$\\lambda_B$",
                                 "$s^x_1$", "$s^y_1$")
 pander (t(res3_1.solution), 
         caption=
-          "Optimal solution values for DMU A with LaTeX column labels")
+  "Optimal solution values for DMU A with LaTeX column labels")
 ```
 
 When rendered in PDF format using `pander`, the table's space usage becomes less efficient. While every column label in the LaTeX table is shorter than it's corresponding column label with plain text (ex. $\lambda_A$ vs. L_A or $\theta$ vs. theta) , `pander`gives each column more width causing it to wrap the table and thereby take more page space. The result is that we will tend to stick with using the plain text labels as the default.
@@ -223,7 +221,7 @@ For this walk through, we will focus on running the LP for calculating DEA for o
 
 First, let's declare each of the needed basic data structures. First, determine the number of DMUs, number of inputs, and number of outputs.
 
-```{r Defining_Problem_Size}
+```{r Defining-Problem-Size}
   x <- matrix(c(10,20,30,50), ncol=1,
               dimnames=list(LETTERS[1:4],"x"))
 
@@ -232,7 +230,8 @@ First, let's declare each of the needed basic data structures. First, determine 
   
   ND <- nrow(x); NX <- ncol(x); NY <- ncol(y); 
   
-  pander(cbind(x,y), caption="Input-Output Data")
+  kbl(cbind(x,y), booktabs=T,
+      caption="Input-Output Data")
 ```
 
 Now we will declare the data structures for inputs and outputs that will contain the data that we use. It is a little redundant to create new objects for the x and y data but there are advanced cases when it is helpful.
@@ -301,7 +300,7 @@ set.objfn(lpe, c(rep(0, ND),1,rep(0,NX+NY)))
 
 The above commands have two important functions. The first merely sets it to be a *minimize* objective function. The second puts the relevant 0's and 1's in the objective function.
 
-The `lp.control` function returns a long list of options being used for the linear programming solver. The defaults are fine for now and it can take a full page to list all the settings so I just store it into an object, `lpcontrol`so it doesn't display it for now.
+The `lp.control` function returns a long list of options being used for the linear programming solver. The defaults are fine for now and it can take a full page to list all the settings so I just store it into an object, `lpcontrol` so it doesn't display it for now.
 
 ```{r Display_lp_with_Obj}
    lpe 
@@ -413,7 +412,7 @@ DMUnames <- list(c(LETTERS[1:ND]))
 
 Let's look at our results!
 
-```{r Display_Phase1_Results  }
+```{r Display-Phase1-Results  }
 Xnames <- lapply(list(rep("X",NX)),paste0,1:NX)
 Ynames <- lapply(list(rep("Y",NY)),paste0,1:NY)
 Vnames <- lapply(list(rep("v",NX)),paste0,1:NX)
@@ -431,10 +430,10 @@ results.lambda  [k,]    # Display lambda variables
 results.vweight [k,]    # Display input weights
 results.uweight [k,]    # Display output weights
 
-pander(cbind(results.efficiency [k],t(results.lambda  [k,])),
-       caption="DEA Efficiency Scores and Lambdas")
-pander(cbind(results.vweight [k,],results.uweight [k,]),
-       caption="DEA Multiplier Weights" )
+kbl (cbind(results.efficiency [k],t(results.lambda  [k,])),
+     booktabs=T, caption="DEA Efficiency Scores and Lambdas")
+kbl (cbind(results.vweight [k,],results.uweight [k,]),
+     booktabs=T, caption="DEA Multiplier Weights" )
 ```
 
 ## Slack Maximization
@@ -526,6 +525,3 @@ If you have followed along this far - you deserve a medal! If you work your way 
 10. Construct an example where Phase 2 increases positive slacks from Phase 1. *Difficulty: Pot of coffee*
 11. Create "cool" graphs or plots of results. *Difficulty: It depends...*
 
-To pass the challenges, work on extending my RMarkdown file or using a similar script. Some people prefer to use compile all of my code into large chunks in RMarkdown. Others might prefer to create a well documented R script instead of using RMarkdown. Others might even prefer using LaTeX. If you use RMarkdown or LaTeX, please use section headings to indicate each challenge solved.
-
-You can use other packages for graphics or data manipulation but don't use a DEA package. (Don't worry, we'll get there later.)

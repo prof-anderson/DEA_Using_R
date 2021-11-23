@@ -17,10 +17,7 @@ graphics: yes
 ---
 
 ```{r setup1, include=FALSE}
-library(tufte)
-# invalidate cache when the tufte version changes
-knitr::opts_chunk$set(tidy = FALSE, cache.extra = 
-packageVersion('tufte'))
+knitr::opts_chunk$set(tidy = FALSE)
 options(htmltools.dir.version = FALSE)
 ```
 

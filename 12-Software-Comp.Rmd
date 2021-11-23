@@ -58,10 +58,6 @@ Other issues considered by Iqbal Ali include:
 
 Most R packages for doing DEA rely on a standard linear programming solver.  
 
-## History  
-
-> The Portland State University Extreme Technology Analytics group migrated from a reliance on propreitary analytics tools to R in about 2012.  At that time there were few DEA packages in R but there were robust linear programming packages. We chose to begin implementing our own packages to accommodate variants of DEA, including TFDEA.    
-
 
 ```{r loadhelperfiles, echo=FALSE }
 source('Helperfiles.R')
@@ -228,7 +224,7 @@ Some notable characteristics of using the rDEA package are the following.
 
 ## The DJL Package
 
-The DJL package comes from the name "Distance Measure Based Judgement and Learning" but is coincidentally also the initials of the primary author, Dr. Dong-Joon Lim.  The emphasis in this package is on a variety efficiency models from the perspective of distance metrics.  With this it provides a models for accommodating super-efficiency related issues - particularly infeasibility under certain situations.  
+The DJL package comes from the name "Distance Measure Based Judgement and Learning" but is coincidentally also the initials of the primary author, Dr. Dong-Joon Lim.  The emphasis in this package is on a variety efficiency models from the perspective of distance metrics.  With this it provides a variety of models for accommodating super-efficiency related issues - particularly infeasibility under certain situations.  
 
 ```{r run_DJL}
 
@@ -246,6 +242,8 @@ pander(res_DJL$lambda,
 ```
 
 ## The multiplierDEA Package
+
+The multiplierDEA package was developed by Aurobindh Kalathil Puthanpura.  It was developed based on an interest in the multiplier DEA model, applying weight restrictions during in the multiplier model, and revisiting cross-efficiency.
 
 ```{r run_MultiplierDEA}
 

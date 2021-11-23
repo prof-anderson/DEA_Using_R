@@ -2,6 +2,11 @@
 
 ## Introduction
 
+```{r, include=FALSE, eval=FALSE}
+# library(bookdown); library(rmarkdown); rmarkdown::render("02-IO_Env.Rmd", "tufte_book2")
+library(bookdown); library(c); rmarkdown::render("02-IO_Env.Rmd", "pdf_book")
+```
+
 Data envelopment analysis or DEA is a powerful tool for conducting studies of efficiency and has been used in thousands of publications since its inception in the 1970s.
 
 While tools exist for conducting the evaluations, it is important to understand how the tools work. Many DEA studies have been conducted and published by authors with only a superficial understanding of the technique. This is equivalent to having a house built by carpenters that only (barely?) understand how to use a hammer. The purpose of this document is to show how DEA works, what it means, and how to use R for getting started with DEA. In order to keep things simple, this first step only looks at the input-oriented envelopment model with constant returns to scale. We will consider other models soon.
@@ -12,43 +17,93 @@ Recently, my research group at PSU adopted the R platform based on the following
 
 -   Open-source so that people can dive as deep as they need and no risk of future vendor lock-in
 -   Freely available so it does not strain research budgets
--   Extensive collection of numerical add-in packages (over 10,000 at CRAN) to build upon
+-   Extensive collection of numerical add-in packages (over 15,000 at CRAN) to build upon
 -   Robust distribution of add-in packages could help improve distribution of our own contributions
 -   Multiple linear programming packages to choose from among
 -   Widespread usage and acceptance in the research and analytics communities
 -   No arbitrary capacity limits
 -   One platform that combines optimization and statistical analysis
 
-## Creating the Data
+## An Illustrative Example
 
-Let's start by defining data. DEA typically has inputs and outputs. The input(s) are typically resources that are consumed in the production of output(s). Inputs are referred to as "bads" in that higher levels at the same level of output is considered worse. Similarly, holding everything else constant, an increase in any single output is laudable. Examples of inputs might include capital, labor, or number of machines.
+DEA typically has inputs and outputs. The input(s) are typically resources that are consumed in the production of output(s). Inputs are referred to as "bads" in that higher levels at the same level of output is considered worse. Similarly, holding everything else constant, an increase in any single output is laudable. Examples of inputs might include capital, labor, or number of machines.
 
 In contrast, outputs are the "good" items that are being produced by the actions of the producers. Examples of outputs might include automobiles produced, customers served, or graduating students.
 
-Let's start by creating a simple dataset. We'll assume that we have a small group of units, named A, B, C, and D. These use inputs which we will label *x* and produce products or outputs that we will label *y*.
+Let's start by creating a simple application - assume that you are a regional manager of a grocery chain. You have four stores and would like to assess the performance of the store managers using number of employees, *x*, as an input and the weekly sales, *y*, as an output. 
+
+As the manager responsible for the stores in the region, there are many questions that you may want answered:
+
+-   Which of these stores are the best?
+-   Which stores are laggards?
+-   For those that are underperforming, are there objective performance targets they should be able to reach?
+-   Which stores might be employing best practices that could be adopted by other stores?
+-   Among the stores that are lagging in performance, are there particular stores they should focus attention on for learning best practices?
+
+We'll start by drawing a visual representation of the input-output model. The function `DrawIOdiagram` is from the `TRA` package and allows for creating a nicely formatted input-output diagram.  For those that are new to `R`, it is important to load each package before its use using the `library` command. The library command loads it into memory but also package will need to be installed first.  Most packages are available on CRAN and can be installed from CRAN by using install.packages command. RStudio makes it easier by just clicking on the install button in the IDE.  The `TRA` package 
+\vspace{12pt}
+
+```{r DEA_IO_Plot1, out.width="2in"}
+library (TRA) # Note, may need to install directly from github
+              # install.packages("remotes")
+              # library(remotes)
+              # remotes::install_github("prof-anderson/TRA")
+library (rsvg)
+library (DiagrammeR, quietly=TRUE) 
+library (DiagrammeRsvg, quietly=TRUE) 
+library (rsvg, quietly=TRUE) 
+library (htmltools, quietly=TRUE)
+# fig.cap='A Simple DEA Model for Store Management'
+Figure <- DrawIOdiagram (c("Employees\n(FTE)" ), 
+                         c("Sales\n($/week)"), 
+                         '"\nStore\n "')
+tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),
+                             'images/DEA_IO_stores.PNG')) 
+```
+
+![A Simple DEA Model for Store Management](images/DEA_IO_stores.PNG){#fig:DEA_IO_stores}
+
+I find this visual diagram a helpful representation that making a function is helpful. A few things to note about the function as used. First, it creates a graphic image and saves it in a project subdirectory named `images`. If you don't have an images directory, you can create one or modify the statement to remove it. Another nice feature is that the text passed to the function such as `"Sales\\n(\$/week)"` allows for a line return character such as `"\\n"`.  
+
+Now we will create the corresponding data.
+
+```{r}
+
+x <- matrix(c(10,20,30,50),ncol=1, 
+            dimnames=list(LETTERS[1:4],"x"))
+y <- matrix(c(75,100,300,400),ncol=1,
+            dimnames=list(LETTERS[1:4],"y"))
+
+StoreNames<- c("Al\'s Pantry", 
+               "Bob\'s Mill", 
+               "Trader Carrie\'s", 
+               "Dilbertson\'s")
+StoreData<-cbind(StoreNames,x,y)
+colnames(StoreData)<-c("Store Name", "Employees (x)", 
+                  "Sales (y)")
+
+```
+
+Note that the `cbind` function is used to do a column-wise binding of three objects, `StoreNames`, `x` and `y` so that they are side by side.  
+
+```{r}
+library(kableExtra)
+kbl(StoreData, booktabs=T, caption="First Dataset for DEA (Kable)")
+# kbl is a shorthand for kable
+# booktabs is an option for making formal publishing table format
+```
 
 Which of these units are the best? Which are laggards? Simply looking at the data is difficult. Let's get started now with R.
 
-```{r}
-library(pander, quietly=TRUE)
-x <- matrix (c(10,20,30,50), 
-             ncol=1, dimnames=list(LETTERS[1:4],"x"))
+While we aren't giving a formal introduction to R, let's start by explaining the above commands. The first line `library (kableExtra)` loads a package that extends the more basic `kable` package.  `kableExtra` has a number of improvements including resizing tables, a shorthand notation, and much more. [^io_env-1]
 
-y <- matrix (c(75,100,300,400), 
-             ncol=1, dimnames=list(LETTERS[1:4],"y"))
+[^io_env-1]: `kableExtra` is one of many thousands of contributed external packages that can be downloaded to extend R. If it does not work to load it using the library, you likely need to install it onto your computer using the `install` command.
 
-pander(cbind(x,y), caption="First Dataset for DEA")
-```
-
-While we aren't giving a formal introduction to R, let's start by explaining the above commands. The first line `library (pander)` loads a common library that makes for nicely formatted tables. [^io_env-1]
-
-[^io_env-1]: Pander is one of many thousands of contributed external packages that can be downloaded to extend R. If it does not work to load it using the library, you likely need to install it onto your computer using the `install` command.
-
-The following command creates a matrix that hold the data. The data consists of a concatenated or combined list using the `c` command of four numbers. The number of columns for this matrix is set to one (ncol=1) and therefore there are four rows. The matrix has row names based on the first four capital letters and a column name of `x`. The \<- symbol is a key function in R and means to assign what is in the right to the object on the left. By convention, DEA practitioners typically use x to denote input.
+The following command creates a matrix that hold the data. The data consists of a concatenated or combined list using the `c` command of four numbers. The number of columns for this matrix is set to one (ncol=1) and therefore there are four rows. The matrix has row names based on the first four capital letters and a column name of `x`. By convention, DEA practitioners typically use x to denote input. The \<- symbol is a key function in R and it assigns what is on the right to the object on the left. 
 
 The same is done for creating a set of output, y.
 
-The last command uses the pander function display to display the combined data. Note that the `cbind` function is used to do a column-wise binding of the two objects, `x` and `y` so that they are side by side.
+The last command uses the `kbl` function  to display the combined data. 
 
 For benchmarking, we want to know which ones are doing the best job.
 
@@ -90,14 +145,14 @@ Let's connect these ideas together now using these mathematical building blocks.
 This gives us two sets of constraints along with a restriction of non-negativity. These are shown in the following relationships that must all be satisfied simultaneously.
 
 $$
- \begin{split}
+\begin{split}
  \begin{aligned}
     \ & \sum_{j=1}^{N^D} x_{i,j}\lambda_j \leq x_{i,k} \; \forall \; i\\
                        & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \;  \forall \; r\\
                        & \lambda_j \geq 0  \; \forall \; j
-  \end{aligned}
-  \end{split}
+    \end{aligned}
   (\#eq:ConstructingTargets)
+  \end{split}
 $$
 
 This is not yet a linear program because it is missing an objective function. It defines what is an acceptable target of performance that is at least as good as DMU *k* but does not try to find a *best* target.
@@ -120,8 +175,8 @@ $$
                        & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \; \forall \; r\\
                        & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
-  \end{split}
   (\#eq:LPCCRIOE-NoSlack-Simple)
+  \end{split}
 $$
 
 Expressing the target on the left and the actual unit's value with the radial reduction on the right is conceptually straightforward to understand. Standard form is to collect all the variables on the left and putting constants on the right hand side of the inequalities. This is easily done.
@@ -134,8 +189,9 @@ $$
                        & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \;  \forall \; r\\
                        & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
+  (\#eq:LPCCRIOE-NoSlack)
  \end{split}
-  (\#eq:LPCCRIOE-NoSlack)$$
+$$
 
 ## Creating the LP - The Algebraic Approach
 
@@ -315,7 +371,7 @@ res2_1lambda
 
 These results match what we expect but let's clean up the formatting. For example, the $\lambda$ values returned provide a lot of excess information. The following commands do some cleaning up of the results.
 
-```{r}
+```{r, results = 'asis'}
    # Only doing analysis for one unit at a time to start
 
 res2_1.efficiency <- matrix(rep(-1.0, 1), nrow=1, ncol=1)
@@ -328,10 +384,8 @@ res2_1.lambda <- t(res2_1lambda[3])
       #    results to be structured correctly for later viewing
 colnames(res2_1.lambda) <- c("L_A", "L_B", "L_C", "L_D")
 
-pander(cbind(res2_1.efficiency, res2_1.lambda), 
-       caption=
-         "Input-Oriented Envelopment Analysis for 
-       DMU B (CCR-IO)")
+kbl(cbind(res2_1.efficiency, res2_1.lambda), booktabs=T,
+       caption= 'Input-Oriented Envelopment Analysis for DMU B')
 ```
 
 The above table follows a few convenient conventions. First, rather than using $\theta$, we label the efficiency score by the model used for the model, in this case the constant returns to scale is labeled as CCR after Charnes, Cooper, and Rhodes [@CharnesDataEnvelopmentAnalysis1978]. Later we will cover other models including the variable returns to scale model, labeled BCC after Banker, Charnes, and Cooper [@Bankermodelsestimatingtechnical1984]. Another convention is to use "L" in place of the Greek symbol $\lambda$ due to complications with using Greek symbols in R matrix row or column names.
@@ -340,7 +394,7 @@ The results in the table indicate that DMU *B* has an efficiency score of 50%. T
 
 Let's now extend it to handle multiple inputs, `NX`, and outputs, `NY`. Of course this doesn't have any impact on our results just yet since we are still only using a single input and output but we now have the structure to accommodate the more general case. To provide a little variety, we'll change it to the first DMU, A, to give a little more variety.
 
-```{r ompr_mult_IO, message=FALSE}
+```{r ompr-mult-IO, message=FALSE, results='asis'}
 
 k<-1    
 # DMU to analyze.  Let's change it to the first unit, DMU A.
@@ -366,12 +420,13 @@ res2_2.lambda <- t(res2_2lambda[3])
   #    results to be structured better for later viewing
 colnames(res2_2.lambda) <- c("L_A", "L_B", "L_C", "L_D")
 
-pander(cbind(res2_2.efficiency, res2_2.lambda), 
-       caption="Input-Oriented Envelopment Analysis for DMU A")
+kbl (cbind(res2_2.efficiency, res2_2.lambda), booktabs=T,
+     caption='Input-Oriented Envelopment Analysis for DMU A')
+#library (pander);pander (cbind(res2_2.efficiency, res2_2.lambda), caption="Input-Oriented Envelopment Analysis for DMU A")
 
 ```
 
-Again, the results match what would be expected from Figure 1. Now we should extend this to handle all four of the decision making units.
+Again, the results match what would be expected from Figure 1. Now we will extend this to handle all four of the decision making units.
 
 ```{r ompr_mult_DMUs, message=FALSE}
 
@@ -411,8 +466,9 @@ Lambdanames <- list("L_A", "L_B", "L_C", "L_D")
 DMUnames <- list("A", "B", "C", "D")
 dimnames(res2_3.efficiency)<-list(DMUnames,"CCR-IO")
 dimnames(res2_3.lambda)<-list(DMUnames,Lambdanames)
-pander (cbind(res2_3.efficiency, res2_3.lambda),
-        caption="Input-Oriented Efficiency Results")
+kbl (cbind(res2_3.efficiency, res2_3.lambda), booktabs=T,
+        caption="Input-Oriented Efficiency Results")%>%
+kable_styling(protect_latex = TRUE)
 
 ```
 
@@ -433,15 +489,15 @@ $$
                        & \sum_{j=1}^{n} y_{r,j}\lambda_j - s^y =  y_{r,k} \forall \; r\\
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall i, \; r, \; j
   \end{aligned}
- \end{split}
   (\#eq:LPBCCIOE) 
+ \end{split}
 $$
 
 To incorporate this, we can add another constraint to our previous model and solve it. Let's define a parameter, `RTS,` to describe which returns to scale assumption we are using and only add the VRS constraint when `RTS` is set to `"VRS"`.[^io_env-3]
 
 [^io_env-3]: In R, as in many languages, the distinction between assignment and testing for equivalency is important. Two symbols are used for assignment, `=` or `<-` while `==` is used to test for whether two items are equivalent.
 
-```{r Adding_VRS}
+```{r Adding-VRS}
 
 res2_4.efficiency <- matrix(rep(-1.0, 1), nrow=ND, ncol=1)
 res2_4.lambda     <- matrix(rep(-1.0, ND), nrow=ND,ncol=ND)
@@ -478,8 +534,9 @@ Lambdanames <- list("L_A", "L_B", "L_C", "L_D")
 DMUnames <- list("A", "B", "C", "D")
 dimnames(res2_4.efficiency)<-list(DMUnames,"BCC-IO")
 dimnames(res2_4.lambda)<-list(DMUnames,Lambdanames)
-pander (cbind(res2_4.efficiency, res2_4.lambda), 
-        caption="Input-Oriented VRS Envelopment Results (BCC-IO)")
+kbl (cbind(res2_4.efficiency, res2_4.lambda), booktabs=T,
+        caption="Input-Oriented VRS Envelopment Results (BCC-IO)")%>%
+kable_styling(protect_latex = TRUE)
 
 ```
 
@@ -498,7 +555,7 @@ The actual returns to scale models are straightforward to implement.
 
 Now, we will generalize this by allowing a parameter to set the returns to scale.
 
-```{r Adding_RTS}
+```{r Adding-RTS}
 
 res2_5.efficiency <- matrix(rep(-1.0, 1), nrow=ND, ncol=1)
 res2_5.lambda     <- matrix(rep(-1.0, ND), nrow=ND, ncol=ND)
@@ -537,9 +594,10 @@ Lambdanames <- list("L_A", "L_B", "L_C", "L_D")
 DMUnames <- list("A", "B", "C", "D")
 dimnames(res2_5.efficiency)<-list(DMUnames,"BCC-IO")
 dimnames(res2_5.lambda)<-list(DMUnames,Lambdanames)
-pander (cbind(res2_5.efficiency, res2_5.lambda), 
+kbl (cbind(res2_5.efficiency, res2_5.lambda), booktabs=T,
         caption="Input-Oriented BCC Model with Option of 
-        Alternate Returns to Scale")
+        Alternate Returns to Scale")%>%
+kable_styling(protect_latex = TRUE)
 
 ```
 
@@ -569,7 +627,9 @@ YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000,
 ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1); 
 # Define data size
 
-pander(cbind(XBaker1,YBaker1))
+kbl(cbind(XBaker1,YBaker1), booktabs=T,
+       caption="Baker Dataset")%>%
+kable_styling(protect_latex = TRUE)
 ```
 
 Note that I'm naming the data sets based on their origin and then loading them into xdata and ydata for actual operation. This allows the model to be generalized.
@@ -611,7 +671,7 @@ dimnames(results.uweight)    <- c(DMUnames,Unames)
 
 We are now ready to do the analysis. Note that Baker's analysis uses the multiplier model and then from this reads out of the sensitivity report the lambda values. We will discuss the multiplier model in more detail later.
 
-```{r Baker_example1}
+```{r Baker-example1}
 
 RTS<-"CRS"
 for (k in 1:ND) {
@@ -636,18 +696,20 @@ results <-   solve_model(result, with_ROI(solver = "glpk"))
     results.lambda[k,] <- t(as.matrix(as.numeric(
                      get_solution(results, vlambda[j])[,3] )))
 }
-pander (cbind(results.efficiency, results.lambda), 
-        caption="Results from Baker's Example (CRS)")
+kbl (cbind(results.efficiency, results.lambda), booktab=T,
+        caption="Results from Baker's Example (CRS)")%>%
+kable_styling(protect_latex = TRUE)
 
 BakerCCR.Res<-cbind(results.efficiency, results.lambda)
 ```
 
 The efficiency scores match those reported in Baker, page 176, Figure 5.8. The columns to the right of the efficiency score are the lambdas. The lambdas for facility 5, (E), are given on page 177 of Baker and match the fifth row of our results.
 
-In contrast, the second and third column warrant a more careful look. Both of those columns report very small negative numbers. These numbers are due to computational issues in the linear programming solvers and should be interpreted as zero. Rounding the results can make the tables easier for interpretation by the user. The pander packages makes it easy to round numbers to varying levels of precision.
+In contrast, the second and third column warrant a more careful look. Both of those columns report very small negative numbers. These numbers are due to computational issues in the linear programming solvers and should be interpreted as zero. Rounding the results can make the tables easier for interpretation by the user. 
 
 ```{r rounded-table}
-pander (cbind(results.efficiency, results.lambda), 
+kbl (cbind(results.efficiency, results.lambda), 
+     booktabs=T, 
         caption=
           "Results from Baker's Example (CRS) with Rounded Values")
 ```
@@ -657,8 +719,10 @@ The small, nearly zero, values that may appear in DEA calculations can cause som
 Let's compare the results from the constant and variable returns to scale cases.
 
 ```{r}
-pander(cbind(results.efficiency,BakerCCR.Res), round=6,
-       caption="Comparison of CRS vs. VRS Efficiency Scores")
+kbl (cbind(results.efficiency,BakerCCR.Res), 
+     booktabs=T, digits=6,
+     caption="Comparison of CRS vs. VRS Efficiency Scores")%>%
+kable_styling(protect_latex = TRUE)
 ```
 
 A few takeaways from these results:
@@ -669,7 +733,7 @@ A few takeaways from these results:
 
 Recently, Dirk Schumacher has added the option of extraction dual results from glpk-solved linear programs. As of April, 2018, it is in the developmental version of ompr which is installed using devtools.
 
-```{r Multiplier_Weights_from_Env_Model}
+```{r Multiplier-Weights-from-Env-Model}
 
 rduals <- as.matrix(get_row_duals(results))
 
@@ -681,15 +745,17 @@ results.vweight[k,] <- -1*rduals[1:NX]
 results.uweight[k,] <- rduals[(NX+1):(NX+NY)]
    # Extract next NY row duals assuming output constraints follow inputs 
 
-pander(c(results.vweight[k,],results.uweight[k,]),
-       caption="Input and output weights for last DMU")
+kbl(c(results.vweight[k,],results.uweight[k,]),
+    booktabs=T,
+    caption="Input and output weights for last DMU")%>%
+kable_styling(protect_latex = TRUE)
 ```
 
 These results are for just the last unit examined.
 
 Let's now wrap this into the full series of linear programs so as to calculate the multiplier weights for each unit.
 
-```{r Baker_example_w_mult_weight}
+```{r Baker-example-w-mult-weight}
 
 RTS<-"CRS"
 for (k in 1:ND) {
@@ -720,10 +786,11 @@ result <-   solve_model(result, with_ROI(solver = "glpk"))
     results.uweight[k,] <- rduals[(NX+1):(NX+NY)]
  
     }
-pander (cbind(results.efficiency, results.lambda, results.vweight, 
-              results.uweight),round=6, 
-        caption="Results from Baker's Example")
 
+kbl (cbind(results.efficiency, results.lambda, results.vweight, 
+              results.uweight),booktabs=T, digits=6, 
+        caption="Results from Baker's Example")%>%
+kable_styling(protect_latex = TRUE)
 ```
 
 A few things should be noticed with respect the the multiplier weights:
@@ -786,7 +853,7 @@ $$
 
 Implementing this algebraically is quite straightforward.
 
-```{r Slack_max}
+```{r Slack-max}
 
 RTS<-"CRS"
 for (k in 1:ND) {
@@ -818,7 +885,8 @@ for (k in 1:ND) {
     result <-   solve_model(LPSlack, with_ROI(solver = "glpk")) 
 
     # The following are the key steps to slack maximization 
-    phase1obj <-  get_solution(result, vtheta)  # Get Phase 1 objective value
+    phase1obj <-  get_solution(result, vtheta)  
+    # Get Phase 1 objective value
 
     add_constraint(LPSlack, vtheta==phase1obj)   
                      # Passing result from phase 1 to phase 2
@@ -835,10 +903,10 @@ for (k in 1:ND) {
 
 rownames(results.efficiency)<-c("A", "B", "C", "D", "E", "F")
 #print (results.efficiency)
-pander(cbind(results.efficiency,xdata,ydata,results.lambda), 
-       round=5,
-       caption="Input-oriented Efficiency Results")
-
+kbl (cbind(results.efficiency,xdata,ydata,results.lambda), 
+     booktabs=T, digits=5,
+     caption="Input-oriented Efficiency Results")%>%
+kable_styling(protect_latex = TRUE)
 ```
 
 The rightmost columns, denoted by "L\_" are the resulting lambda values.

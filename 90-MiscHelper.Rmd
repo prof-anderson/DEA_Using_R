@@ -164,9 +164,7 @@ Some notes from earlier attempts to embed lambda symbol into R code.
 ```
 
 
-## Future Work
-
-### Function for Drawing Input-Output Diagram
+## Function for Drawing Input-Output Diagram
 
 I find visual models sometimes clarify the model.  Let's draw an input-output diagram DEA models.  This diagram has inputs feeding into a box and outputs coming out.  I used the very rich DiagrammeR package for this function.  For a comprehensive description of options in the package, this site is very useful.  http://rich-iannone.github.io/DiagrammeR/graphviz_and_mermaid.html 
 
@@ -300,14 +298,6 @@ Now let's try loading it from Rmarkdown.
 
 ![General IO Diagram](generalIO.png){#fig:generalIO}
 
-#### Todo List for Drawing Input-Output Diagrams
-
-Here are some of the key functions to add to the input-output diagram drawing function:
-
-* Convert to function
-* Shade table (fillcolor is not working)
-* Test with more inputs and output names
-
 #### Optional Future Features for Drawing Input-Output Diagrams
 
 In the future, these might be nice features to add:
@@ -316,7 +306,3 @@ In the future, these might be nice features to add:
 * Optional: parenthetical information (abbreviation, units, or comments)
 * Optional text to include in the box
 * Long-term optional network diagramming where outputs from one stage serve as inputs to other stage(s)
-
-### Function for Drawing Production Isoquants
-
-Bogetoft and Otto's benchmarking package does some of this and I used it Chapter 2.  Is there anything to add such as projections, two-input, or two-output figures?  Something to look at in the future.

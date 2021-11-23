@@ -235,17 +235,4 @@ pander(filter(data.frame(res2eff), FirstFlight > 1960),
        caption="Forecasted Release Dates")
 ```
 
-## A Shiny Application for doing TFDEA
-
-To Be Added
-
-## Future Work
-
-Much work is needed.
-
--   Instructions on installing TFDEA package
--   Better references
--   Show the mathematics of TFDEA
--   Graphical interpretations of results
--   2 dimensional example of TFDEA
--   Examine Dong-Joon's code as an alternative
+## 
