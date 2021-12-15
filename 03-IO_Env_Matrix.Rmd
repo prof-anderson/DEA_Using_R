@@ -6,7 +6,7 @@ library (kableExtra)
 library (pander)
 ```
 
-In the previous chapter we created the DEA linear program algebraically using the `ompr`package. Before `ompr`was available, we needed to use another approach for most DEA packages such as `TFDEA` and `MultiplierDEA`, which consisted of using matrices. This approach requires more "bookkeeping". Both approaches work but I think the algebraic approach is likely to be easier to write, debug, and extend in the future. For solving, we will use the widely adopted `lpsolveapi`package but this same matrix-based approach holds other LP solver engines such as C-Plex, Gurobi, and CBC.
+In the previous chapter we created the DEA linear program algebraically using the `ompr`package. Before `ompr`was available, we needed to use another approach for most DEA packages such as `TFDEA` and `MultiplierDEA`, which consisted of using matrices. This approach requires more "bookkeeping". Both approaches work but I think the algebraic approach is likely to be easier to write, debug, and extend in the future. For solving, we will use the widely adopted `lpsolveapi` package but this same matrix-based approach holds other LP solver engines such as C-Plex, Gurobi, and CBC.
 
 People interested in working on the `TFDEA`package should read this chapter carefully. We will be returning to these topics algebraically as well later since it is conceptually similar to the structure of the package. For people that want to stick to the algebraic implementation and using `ompr`, you can skip this chapter.
 
@@ -24,7 +24,7 @@ $$
   (\#eq:LPCCRIOE-Matrix-Simple)
 $$
 
-Note that in this form, *X* is a vector of variables. This is a little confusing for people doing DEA since in DEA *x* represents inputs. The vector *X* has length equal to the number of units examined plus one more for theta and the number of inputs and the number of outputs. *C* is a vector of data with the same number of elements as the *X* vector. *A* is a matrix of data and *B* is a vector describing the contstraint right hand sides.
+Note that in this form, *X* is a vector of variables. This is a little confusing for people doing DEA since in DEA *x* represents inputs. The vector *X* has length equal to the number of units examined plus one more for theta and the number of inputs and the number of outputs. *C* is a vector of data with the same number of elements as the *X* vector. *A* is a matrix of data and *B* is a vector describing the constraint right hand sides.
 
 Recall that in the previous chapter we had presented the standard LP model of the input-oriented envelopment model.
 
@@ -524,4 +524,3 @@ If you have followed along this far - you deserve a medal! If you work your way 
 9.  Validate results against other DEA packages (ex. `Benchmarking`, `nonparaeff`) *Difficulty: Pot of coffee*
 10. Construct an example where Phase 2 increases positive slacks from Phase 1. *Difficulty: Pot of coffee*
 11. Create "cool" graphs or plots of results. *Difficulty: It depends...*
-

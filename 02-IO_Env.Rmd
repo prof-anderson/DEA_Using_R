@@ -88,7 +88,7 @@ Note that the `cbind` function is used to do a column-wise binding of three obje
 
 ```{r}
 library(kableExtra)
-kbl(StoreData, booktabs=T, caption="First Dataset for DEA (Kable)")
+kbl(StoreData, booktabs=T, caption="First Dataset for DEA")
 # kbl is a shorthand for kable
 # booktabs is an option for making formal publishing table format
 ```

@@ -21,7 +21,7 @@ library(bookdown); library(rmarkdown); rmarkdown::render("12-Software-Comp.Rmd",
 ```
 ## Introduction  
 
-Over the years, a variety of software packages have been developed for doing Data Envelopment Analysis.  The Benchmarking package was one of the earliest and most full-featured packages available. It continues to be the most downloaded R package for doing DEA to this day.
+Over the years, a variety of software packages have been developed for doing Data Envelopment Analysis.  The Benchmarking package was one of the earliest and most full-featured packages available. It continues to be the most downloaded R package for doing DEA to this day.=
 
 Let's review data on current frequency of download for DEA packages.  
 
