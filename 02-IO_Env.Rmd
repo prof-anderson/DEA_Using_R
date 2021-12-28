@@ -151,7 +151,7 @@ $$
                        & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \;  \forall \; r\\
                        & \lambda_j \geq 0  \; \forall \; j
     \end{aligned}
-  (\#eq:ConstructingTargets)
+  (\#eq:Ch2ConstructingTargets)
   \end{split}
 $$
 
@@ -175,7 +175,7 @@ $$
                        & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \; \forall \; r\\
                        & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
-  (\#eq:LPCCRIOE-NoSlack-Simple)
+  (\#eq:Ch2LPCCRIOE-NoSlack-Simple)
   \end{split}
 $$
 
@@ -189,7 +189,7 @@ $$
                        & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \;  \forall \; r\\
                        & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
-  (\#eq:LPCCRIOE-NoSlack)
+  (\#eq:Ch2LPCCRIOE-NoSlack)
  \end{split}
 $$
 
@@ -489,7 +489,7 @@ $$
                        & \sum_{j=1}^{n} y_{r,j}\lambda_j - s^y =  y_{r,k} \forall \; r\\
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall i, \; r, \; j
   \end{aligned}
-  (\#eq:LPBCCIOE) 
+  (\#eq:Ch2LPBCCIOE) 
  \end{split}
 $$
 
@@ -814,7 +814,7 @@ $$
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
   \end{aligned}
    \end{split}
-  (\#eq:LPCCRIOE-Slacks)
+  (\#eq:Ch2LPCCRIOE-Slacks)
 $$
 
 Simply formulating the model with slacks is insufficient. We want to maximize these slacks after having found the best possible radial contraction (minimum value of $\theta$.) This is done by adding a term summing the slacks to the objective function. Note that this sum of slacks is multiplied by $\epsilon$ which is a non-Archimedean infinitesimal. The value of $\epsilon$ should be considered to be so small as to ensure that minimizing theta takes priority or maximizing the sum of slacks. Note also that maximizing the sum of slacks is denoted by minimizing the negative sum of slacks.
@@ -828,7 +828,7 @@ $$
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
   \end{aligned}
  \end{split}
-  (\#eq:LPCCRIOE-Two-Phase)
+  (\#eq:Ch2LPCCRIOE-Two-Phase)
 $$
 
 A common mistake in implementing DEA is to use a finite approximation for $\epsilon$ such as $10^{-6}$. Any finite value can cause distortions in $\theta$. For example, an application comparing companies using revenue and expenses might have inputs and outputs on the order of millions or billions. In this case, non-radial slacks could also be on the order of $10^{6}$. Multiplying the two results in a value similar in magnitude to the maximum possible efficiency score ($10^{-6}10^{6}=1$) which would then potentially overwhelm the radial efficiency, $\theta$, part of the objective function and lead to distorted results.
@@ -840,15 +840,15 @@ The first phase can take the form of any of our earlier linear programs without 
 $$
 \begin{split}
  \begin{aligned}
-    \text{maximize  }  & \sum_{i}s^x_i + \sum_{r}s^y_r\\
-    \text{subject to } & \sum_{j=1}^{N^D} \lambda_j  = 1\\
-                       & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \; \forall \; i\\
-                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
-                       & \theta = \theta^*\\
-                       & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
+    \text{max   } & \sum_{i}s^x_i + \sum_{r}s^y_r\\
+    \text{s.t.: } & \sum_{j=1}^{N^D} \lambda_j  = 1\\
+                  & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \; \forall \; i\\
+                  & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
+                  & \theta = \theta^*\\
+                  & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
   \end{aligned}
 \end{split}
-(\#eq:LPCCRIOE-Second-Phase)
+(\#eq:Ch2LPCCRIOE-Second-Phase)
 $$
 
 Implementing this algebraically is quite straightforward.

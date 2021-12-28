@@ -11,7 +11,7 @@ lot: yes
 lof: yes
 site: bookdown::bookdown_site
 description: "An introduction to data envelopment analysis using R."
-github-repo: prof-anderson/OR_Using_R
+github-repo: prof-anderson/DEA_Using_R
 graphics: yes
 #cover-image: images/cover.jpg
 ---

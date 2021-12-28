@@ -56,7 +56,7 @@ $$
                        & u_1, u_2\geq 0  \
   \end{aligned}
 \end{split}
-(\#eq:NLP-HardCode)
+(\#eq:Ch5NLP-HardCode)
 $$
 
 Next let's implement this in `ompr` which may serve as a convenient refresher as well.
@@ -156,7 +156,7 @@ $$
      &                  u_1, u_2\geq 0  
   \end{aligned}
 \end{split}
-(\#eq:NLP6PeopleHArdCode)
+(\#eq:Ch5NLP6PeopleHArdCode)
 $$
 
 Now we will extend this further to reflect that the constraint of being less than or equal to 1.0 is the same for every manager. A key notation to learn is the $\forall$ symbol which means to repeat for all possible values of the index.
@@ -170,7 +170,7 @@ $$
      &                  u_r \geq 0  \; \forall \; r
   \end{aligned}
 \end{split}
-(\#eq:NLP6People)
+(\#eq:Ch5NLP6People)
 $$
 
 The $\forall\;j$ in the constraints indicates that the constraint should be repeated for all possible values of j. In our case it would have a constraint for $j=1$, (Alfred), then another constraint with $j=2$ (Barb), etc. The $\forall\;r$ in variable lower bounds is used to repeat the non-negativity of each weighting variable (in this case, $u_1$ and $u_2$).
@@ -186,7 +186,7 @@ $$
      &                  u_r \geq 0  \; \forall \; r
   \end{aligned}
 \end{split}
-(\#eq:NLPScoringk)
+(\#eq:Ch5NLPScoringk)
 $$
 
 This formulation is now a linear programming model that will find an optimal score for manager *k* regardless of the number of outputs and the number of other managers being considered. This approach could be used in a variety of peer evaluation or self-evaluation applications where each unit is given the opportunity to evaluate themselves relative to their peers. This model will always give a person their highest possible score. Note that this model does not incorporate the resources used to achieve these outcomes. For that, we can use a traditional ratio idea of output over input.
@@ -208,7 +208,7 @@ $$
                        u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
 \end{split}
-(\#eq:NLPCCRIOM-Ratio)
+(\#eq:Ch5NLPCCRIOM-Ratio)
 $$ We have two sets of variables now. The first is $u_r$ which is the weight on the *r*'th output. The second is $v_i$ which is the weight on the *i*'th input.
 
 For clarification, we make a small variation from traditional DEA notation. Normally the number of inputs is *m* and the number of outputs is *s*. To make the code more readable, I will use a convention of *NX* instead of *m* to refer to the number of inputs (x's) and *NY* to be the number of ouputs (y's) instead of *s*. Also, *n* is used to denote the number of Decision Making Units (DMUs) and therefore I'll use *ND* to indicate that in the R code. In the mathematical formulations, superscripts are used to differentiate the the different N's resulting in $N^X$, $N^Y$, and $N^D$ for `NX`, `NY`, and `ND` or *m*, *s*, and *n* respectively.
@@ -216,27 +216,27 @@ For clarification, we make a small variation from traditional DEA notation. Norm
 $$
 \begin{split}
 \begin{aligned}
-    \text {max } \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
-    \text{subject to } & \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} }
+    \text {max } & \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
+    \text{s.t.: } & \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} }
                           \leq 1 \; \forall \; j\\
-                       u_r, v_i\geq 0  \; \forall \; r,i
+                  &   u_r, \;v_i\geq 0  \; \forall \; r,i
   \end{aligned}
 \end{split}
-(\#eq:NLPCCRIOM-Ratio)
+(\#eq:Ch5NLPCCRIOM-Ratio-General)
 $$
 
-This isn't a linear program because we are dividing functions of variables by functions of variables. We need to make a few transformations. First, we clear the denominator of each of the consraints and collect the terms on resulting in the following formulation.
+This isn't a linear program because we are dividing functions of variables by functions of variables. We need to make a few transformations. First, we clear the denominator of each of the constraints and collect the terms on resulting in the following formulation.
 
 $$
 \begin{split}
  \begin{aligned}
-    \text {max } \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
-    \text{subject to } & \sum_{r=1}^{N^Y} u_r y_{r,k} - \sum_{i=1}^{N^X} v_i x_{i,k} 
+    \text {max }   & \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
+    \text{s.t.:  } & \sum_{r=1}^{N^Y} u_r y_{r,k} - \sum_{i=1}^{N^X} v_i x_{i,k} 
                           \leq 0 \; \forall \; j\\
-                       u_r, v_i\geq 0  \; \forall \; r,i
+                   & u_r, \; v_i\geq 0  \; \forall \; r,i
   \end{aligned}
    \end{split}
-  (\#eq:LPCCRIOM-Ratio2)
+  (\#eq:Ch5LPCCRIOM-Ratio2)
 $$
 
 Alas, it is still a nonlinear objective function. Fortunately, we can take advantage of the structure of the problem. There are an infinite number of possible combinations of numerators and denominators that can give the same ratio. For example, if a unit were to receive a 90% efficiency score, this could be with a numerator of nine and a denominator of 10 or a numerator of 90 and a denominator of 100. Each of these pairs satisfies the constraints and is therefore equally valid. One clever trick solves the nonlinearity by setting the denominator to be a constant. The next step is to select normalizing value for the objective function. Let's set the denominator equal to one. In this case, we simply add a constraint, $\sum_{i=1}^{N^X} v_i x_{i,k}$, to the linear program and replace the denominator in the objective function to one means that we can rewrite the objective function using only the numerator.
@@ -251,7 +251,7 @@ $$
                        u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
    \end{split}
-  (\#eq:LPCCRIOM)
+  (\#eq:Ch5LPCCRIOM)
 $$
 
 This linear program can then be implemented in an linear programming system.
@@ -262,7 +262,7 @@ We will implement this using the `ompr` package again, as we did in chapters 2 a
 
 We're going to use our data from earlier. For this example, we will use the dataset from Kenneth Baker's third edition of *Optimization Modeling with Spreadsheets*, pages 175-178, Example 5.3 titled "Hope Valley Health Care Association." In this case, a health care organization wants to benchmark six nursing homes against each other.
 
-```{r multiplier_model }
+```{r multiplier-model }
 
 XBaker1 <- matrix(c(150, 400, 320, 520, 350, 320, 
                     0.2, 0.7, 1.2, 2.0, 1.2, 0.7),
@@ -296,7 +296,7 @@ ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1);
 
 Note that I'm naming the data sets based on their origin and then loading them into xdata and ydata for actual operation.
 
-```{r Structure_Results}
+```{r Structure-Results}
 
 results.efficiency <- matrix(rep(-1.0, ND), nrow=ND)
 results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND)
@@ -327,7 +327,7 @@ dimnames(results.vweight)<-c(DMUnames,Vnames)
 
 We are now ready to do the analysis. In Baker, the analysis is done using the multiplier model. In chapter 2 we used the envelopment model to examine this case. Now we will use the multiplier model.
 
-```{r Baker_example, eval=TRUE}
+```{r Baker-example-analysis, eval=TRUE}
 
 for (k in 1:ND) {
 

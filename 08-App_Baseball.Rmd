@@ -266,7 +266,7 @@ $$
     \ & u_{home runs} \geq u_{triples}\\
   \end{aligned}
   \end{split}
-  (\#eq:BasicWeightRestrictions)
+  (\#eq:Ch8BasicWeightRestrictions)
 $$
 
 A more generalized data structure for the weight restrictions looks at these as a series of ratios.
@@ -280,7 +280,7 @@ $$
     \ & 1 \leq \frac{u_{home runs}} {u_{triples}} \leq \infty \\
   \end{aligned}
   \end{split}
-  (\#eq:RatioWeightRestrictions)
+  (\#eq:Ch8RatioWeightRestrictions)
 $$
 
 We can now specify these ratios in a data frame that will be passed to `multiplierDEA`package by defining a lower bound, numerator, denominator, and upper bound for each weight restriction ratio relationship. Note that rather than specifying the upper limit of infinity, we declare it as `NaN`to indicate that it is not a number.
@@ -499,12 +499,12 @@ The cross-efficiency mean output weights can be expressed as the following:
 $$
 \begin{split}
 \begin{aligned}
-    u_r^{CE} = \frac{1} {N^D} \sum_{j=1}^{N^D} \frac {u_{r,j}} {v_{1,j}}  \\
+    u_r^{CE} & = \frac{1} {N^D} \sum_{j=1}^{N^D} \frac {u_{r,j}} {v_{1,j}}  \\
     \\
-    v_1^{CE} = 1 \\
+    v_1^{CE} & = 1 \\
     \end{aligned}
 \end{split}
-(\#eq:CEFixedWeights)
+(\#eq:Ch8CEFixedWeights)
 $$
 
 Let's repeat this exercise one more time based on the mean output and mean input weights for all 54 players in the 1920 American League.

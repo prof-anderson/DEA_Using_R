@@ -37,7 +37,7 @@ $$
                        u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
 \end{split}
-(\#eq:LPCCRIOM-Ratio-1a)
+(\#eq:Ch6LPCCRIOM-Ratio-1a)
 $$
 
 This isn't a linear program because we are dividing functions of variables by functions of variables. We need to make a few transformations. First, we clear the denominator of each of the constraints resulting in the following formulation.
@@ -51,7 +51,7 @@ $$
                        u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
 \end{split}
-(\#eq:LPCCRIOM-Ratio-2a)
+(\#eq:Ch6LPCCRIOM-Ratio-2a)
 $$
 
 Now we will convert the problem input and output constraints from inequalities into equalities by explicitly defining slack variables.
@@ -68,7 +68,7 @@ $$
                        u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
 \end{split}
-(\#eq:LPCCRIOM-NoSlack)  
+(\#eq:Ch6LPCCRIOM-NoSlack)  
 $$
 
 ## Creating the LP - The Algebraic Approach
@@ -264,7 +264,7 @@ $$
                        u_{r,k}, v_{i,k}\geq 0  \; \forall \; r,i
   \end{aligned}
 \end{split}
-(\#eq:LPCCRIO-Cross1)
+(\#eq:Ch6LPCCRIO-Cross1)
 $$
 
 Now the cross-efficiency for a unit j can be calculated as the following. I refer to the value $\theta_{k,j}$ as the cross-evaluation score for unit *j* from the perspective of the evaluation of unit *k*.
@@ -281,7 +281,7 @@ $$
                 {N^D}
   \end{aligned}
 \end{split}
-(\#eq:Calc-Cross)
+(\#eq:Ch6Calc-Cross)
 $$
 
 ```{r}
@@ -512,7 +512,7 @@ $$
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
   \end{aligned}
    \end{split}
-  (\#eq:SBM_v01)
+  (\#eq:Ch6SBM_v01)
 $$
 
 We again create a normalizing constraint to linearize the objective function.
@@ -527,7 +527,7 @@ $$
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
   \end{aligned}
    \end{split}
-  (\#eq:SBM_v02)
+  (\#eq:Ch6SBM_v02)
 $$
 
 Now, let's move on to examining an implementation in R.

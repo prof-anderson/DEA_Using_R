@@ -3,6 +3,7 @@ output:
   pdf_document: default
   html_document: default
 ---
+
 # Benchmarking the Benchmarkers
 
 ```{r setup, include=FALSE}

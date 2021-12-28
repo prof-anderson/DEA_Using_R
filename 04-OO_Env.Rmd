@@ -10,8 +10,8 @@ The linear program for the output-oriented model is very similar to that of the 
 
 $$
  \begin{aligned}
-    \text{maximize  }   & \phi \\
-    \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j \leq  x_{i,k} \forall \; i\\
+    \text{max  }   & \phi \\
+    \text{s.t.:  } & \sum_{j=1}^{n} x_{i,j}\lambda_j \leq  x_{i,k} \forall \; i\\
                        & \sum_{j=1}^{n} y_{r,j}\lambda_j \geq  \phi y_{r,k} \forall \; r\\
                        & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
@@ -23,8 +23,8 @@ Just as we did in chapter 2 for the input-oriented model, we will transform it t
 
 $$
  \begin{aligned}
-    \text{maximize  }   & \phi \\
-    \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j \leq x_{i,k}  \forall \; i\\
+    \text{max  }   & \phi \\
+    \text{s.t.:  } & \sum_{j=1}^{n} x_{i,j}\lambda_j \leq x_{i,k}  \forall \; i\\
                        & \sum_{j=1}^{n} y_{r,j}\lambda_j - \phi y_{r,k} \geq 0 \forall \; r\\
                        & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
@@ -34,8 +34,8 @@ Now we will convert the problem input and output constraints from inequalities i
 
 $$
  \begin{aligned}
-    \text{maximize  }   & \phi \\
-    \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j  + s^x_i =  x_{i,k} \forall \; i\\
+    \text{max  }   & \phi \\
+    \text{s.t.  } & \sum_{j=1}^{n} x_{i,j}\lambda_j  + s^x_i =  x_{i,k} \forall \; i\\
                        & \sum_{j=1}^{n} y_{r,j}\lambda_j - \phi y_{r,k} - s^y_r = 0 \forall \; r\\
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; i,r,j
   \end{aligned}
@@ -96,13 +96,13 @@ library(ompr.roi)         # Connective tissue
 
 Let's refresh our memory with the input-output data for the example.
 
-```{r ch4_baker_data, echo=FALSE}
+```{r ch4-baker-data, echo=FALSE}
 pander (cbind(XBaker1, YBaker1),round=6, caption="Baker's Nursing Home Data")
 ```
 
 Now the formulation is similar to the input-oriented model that we created in chapter 2. The three changes are that we will be using $\phi$ rather than $\theta$, a *max* rather than *min* objective function, and modifying the output-constraint(s) rather than the input-constraint(s).
 
-```{r Baker_example}
+```{r Baker-example}
 
 RTS<-"CRS"
 for (k in 1:ND) {
