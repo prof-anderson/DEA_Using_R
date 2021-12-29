@@ -32,7 +32,7 @@ $$
 \begin{split}
  \begin{aligned}
     \text {max } \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
-    \text{subject to } & \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} }
+    \text{s.t.:  } & \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} }
                           \leq 1 \forall \; j\\
                        u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
@@ -46,7 +46,7 @@ $$
 \begin{split}
  \begin{aligned}
     \text {max } \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
-    \text{subject to } & \sum_{r=1}^{N^Y} u_r y_{r,k} - \sum_{i=1}^{N^X} v_i x_{i,k} 
+    \text{s.t.:  } & \sum_{r=1}^{N^Y} u_r y_{r,k} - \sum_{i=1}^{N^X} v_i x_{i,k} 
                           \leq 0 \forall \; j\\
                        u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
@@ -62,7 +62,7 @@ $$
 \begin{split}
  \begin{aligned}
     \text {max }  \sum_{r=1}^{N^Y} u_r y_{r,k} \\
-    \text{subject to } & \sum_{i=1}^{N^X} v_i x_{i,k} \\
+    \text{s.t.:  } & \sum_{i=1}^{N^X} v_i x_{i,k} \\
     & \sum_{r=1}^{N^Y} u_r y_{r,k} - \sum_{i=1}^{N^X} v_i x_{i,k} 
                           \leq 0 \forall \; j\\
                        u_r, v_i\geq 0  \; \forall \; r,i
@@ -259,7 +259,7 @@ $$
 \begin{split}
 \begin{aligned}
     \text {max } \; \theta_{k,k}=\frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,k}} {\sum_{i=1}^{N^X} v_i,k x_{i,k} } \\
-    \text{subject to } & \theta_{j,k}=\frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,j}} {\sum_{i=1}^{N^X} v_{i,k} x_{i,j} }
+    \text{s.t.:  } & \theta_{j,k}=\frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,j}} {\sum_{i=1}^{N^X} v_{i,k} x_{i,j} }
                           \leq 1 \; \forall \; j\\
                        u_{r,k}, v_{i,k}\geq 0  \; \forall \; r,i
   \end{aligned}
@@ -507,7 +507,7 @@ $$
 \begin{split}
  \begin{aligned}
     \text{minimize  }   & \rho_k= \frac {1-\frac{1}{N^X}\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}}  {1+\frac{1}{N^Y}\sum_{r=1}^{N^Y} \frac{s^y_r}{y_{r,k}}}\\
-    \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j + s^x_i = x_{i,k}  \; \forall \; i\\
+    \text{s.t.:  } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j + s^x_i = x_{i,k}  \; \forall \; i\\
                        & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
   \end{aligned}
@@ -521,7 +521,7 @@ $$
 \begin{split}
  \begin{aligned}
     \text{minimize  }  & \rho_k= 1-\frac{1}{N^X}\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}  \\
-    \text{subject to } & 1+\frac{1}{N^Y}\sum_{r=1}^{N^Y} \frac{s^y_r}{y_{r,k}} =1 \\
+    \text{s.t.:  } & 1+\frac{1}{N^Y}\sum_{r=1}^{N^Y} \frac{s^y_r}{y_{r,k}} =1 \\
                        & \sum_{j=1}^{N^D} x_{i,j}\lambda_j + s^x_i = x_{i,k}  \; \forall \; i\\
                        & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r

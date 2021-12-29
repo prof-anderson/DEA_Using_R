@@ -47,7 +47,7 @@ $$
 \begin{split}
 \begin{aligned}
     \text {max } & 25 u_1 + 3500 u_2 \\
-    \text{subject to } & 25 u_1 + 3500 u_2 \leq 1.0\\
+    \text{s.t.:  } & 25 u_1 + 3500 u_2 \leq 1.0\\
                        & 14 u_1 + 2100 u_2 \leq 1.0\\
                        & 42 u_1 + 1050 u_2 \leq 1.0\\
                        & 18 u_1 + 4200 u_2 \leq 1.0\\
@@ -147,7 +147,7 @@ $$
 \begin{split}
 \begin{aligned}
     \text {max } \sum_{r=1}^{2} u_r y_{r,1}\\
-    \text{subject to } &  \sum_{r=1}^{2} u_r y_{r,1} \leq 1.0 \quad \text{[Alfred]}\\
+    \text{s.t.:  } &  \sum_{r=1}^{2} u_r y_{r,1} \leq 1.0 \quad \text{[Alfred]}\\
      &  \sum_{r=1}^{2} u_r y_{r,2} \leq 1.0  \quad \text{[Barb]}\\
      &  \sum_{r=1}^{2} u_r y_{r,3} \leq 1.0  \quad \text{[Chris]}\\
      &  \sum_{r=1}^{2} u_r y_{r,4} \leq 1.0  \quad \text{[Don]}\\
@@ -165,7 +165,7 @@ $$
 \begin{split}
 \begin{aligned}
     \text {max } \sum_{r=1}^{2} u_r y_{r,1}\\
-    \text{subject to } &  \sum_{r=1}^{2} u_r y_{r,j} 
+    \text{s.t.:   } &  \sum_{r=1}^{2} u_r y_{r,j} 
                           \leq 1.0  \; \forall \; j\\
      &                  u_r \geq 0  \; \forall \; r
   \end{aligned}
@@ -181,7 +181,7 @@ $$
 \begin{split}
 \begin{aligned}
     \text {max } \sum_{r=1}^{N^Y} u_r y_{r,k}\\
-    \text{subject to } &  \sum_{r=1}^{N^Y} u_r y_{r,j} 
+    \text{s.t.:   } &  \sum_{r=1}^{N^Y} u_r y_{r,j} 
                           \leq 1.0 \; \forall \; j\\
      &                  u_r \geq 0  \; \forall \; r
   \end{aligned}
@@ -203,7 +203,7 @@ $$
 \begin{split}
 \begin{aligned}
     \text {max } \frac{\sum_{r=1}^{2} u_r y_{r,k}} {\sum_{i=1}^{2} v_i x_{i,k} } \\
-    \text{subject to } & \frac{\sum_{r=1}^{2} u_r y_{r,k}} {\sum_{i=1}^{2} v_i x_{i,k} }
+    \text{s.t.:   } & \frac{\sum_{r=1}^{2} u_r y_{r,k}} {\sum_{i=1}^{2} v_i x_{i,k} }
                           \leq 1 \; \forall \; j\\
                        u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
@@ -245,7 +245,7 @@ $$
 \begin{split}
  \begin{aligned}
     \text {max } \sum_{r=1}^{N^Y} u_r y_{r,k} \\
-    \text{subject to } & \sum_{i=1}^{N^X} v_i x_{i,k} = 1 \\
+    \text{s.t.:   } & \sum_{i=1}^{N^X} v_i x_{i,k} = 1 \\
     & \sum_{r=1}^{N^Y} u_r y_{r,k} - \sum_{i=1}^{N^X} v_i x_{i,k} 
                           \leq 0 \; \forall \; j\\
                        u_r, v_i\geq 0  \; \forall \; r,i
