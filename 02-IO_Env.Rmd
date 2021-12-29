@@ -1,3 +1,4 @@
+
 # Input-Oriented Envelopment Model
 
 ## Introduction
@@ -327,17 +328,17 @@ Again, we can get a summary of this results object by simply typing in the objec
 res2_1
 ```
 
-This tells us that the model was solved to optimality and that the optimal solution ($\theta$ in our case), was 0.50. Building the model up step by step can be helpful but a more concise form of model building connect each command to the previous one using a piping operator, `%>%`. One way to think of piping is that if you have two functions, A and B and want to use the result of function A in B, you can do this `A() %>% B()` or "Take A's result and pass it into the start of B."
+This tells us that the model was solved to optimality and that the optimal solution ($\theta$ in our case), was 0.50. Building the model up step by step can be helpful but a more concise form of model building connect each command to the previous one using a piping operator, `|>`. One way to think of piping is that if you have two functions, A and B and want to use the result of function A in B, you can do this `A() |> B()` or "Take A's result and pass it into the start of B."
 
 ```{r first_ompr_piped_model}
 
-mod2_1 <- MIPModel() %>%
+mod2_1 <- MIPModel() |>
   add_variable(vlambda[j], j = 1:ND, type = "continuous", 
-               lb = 0) %>%
-  add_variable(vtheta, type = "continuous") %>%
-  set_objective(vtheta, "min") %>%
+               lb = 0) |>
+  add_variable(vtheta, type = "continuous") |>
+  set_objective(vtheta, "min") |>
   add_constraint(sum_expr(vlambda[j] * xdata[j,1], j = 1:ND) 
-                 <= vtheta * xdata[k,1]) %>%
+                 <= vtheta * xdata[k,1]) |>
   add_constraint(sum_expr(vlambda[j] * ydata[j,1], j = 1:ND) 
                  >= ydata[k,1])
 
@@ -353,7 +354,7 @@ The piping command can make it much more concise to not need to keep reassigning
 
 -   Piped `ompr`models may be more concise looking but do not appear to run faster based on my early tests.
 
--   The piping operator, `%>%`, introduced by the `magrittr`package and then adopted by `dplyr`has become so popular that it was added to the core `R` system in version 4.1 (mid 2021).
+-   The piping operator, `|>`, introduced by the `magrittr`package and then adopted by `dplyr`has become so popular that it was added to the core `R` system in version 4.1 (mid 2021).
 
 Now, let's get to looking over the results.
 
@@ -399,15 +400,15 @@ Let's now extend it to handle multiple inputs, `NX`, and outputs, `NY`. Of cours
 k<-1    
 # DMU to analyze.  Let's change it to the first unit, DMU A.
 
-res2_2 <- MIPModel() %>%
+res2_2 <- MIPModel() |>
   add_variable(vlambda[j], j = 1:ND, type = "continuous", 
-               lb = 0) %>%
-  add_variable(vtheta, type = "continuous") %>%
-  set_objective(vtheta, "min") %>%
+               lb = 0) |>
+  add_variable(vtheta, type = "continuous") |>
+  set_objective(vtheta, "min") |>
   add_constraint(sum_expr(vlambda[j] * xdata[j,i], j = 1:ND) 
-                 <= vtheta * xdata[k,i], i = 1:NX) %>%
+                 <= vtheta * xdata[k,i], i = 1:NX) |>
   add_constraint(sum_expr(vlambda[j] * ydata[j,r], j = 1:ND) 
-                 >= ydata[k,r], r = 1:NY) %>%
+                 >= ydata[k,r], r = 1:NY) |>
   solve_model(with_ROI(solver = "glpk")) 
 
 res2_2theta <-  get_solution(res2_2, vtheta) 
@@ -435,15 +436,15 @@ res2_3.lambda     <- matrix(rep(-1.0, ND), nrow=ND,ncol=ND)
 
 for (k in 1:ND) {
 
-  res2_3 <- MIPModel() %>%
+  res2_3 <- MIPModel() |>
     add_variable(vlambda[j], j = 1:ND, type = "continuous", 
-                 lb = 0) %>%
-    add_variable(vtheta, type = "continuous") %>%
-    set_objective(vtheta, "min") %>%
+                 lb = 0) |>
+    add_variable(vtheta, type = "continuous") |>
+    set_objective(vtheta, "min") |>
     add_constraint(sum_expr(vlambda[j] * xdata[j,i], j = 1:ND) 
-                   <= vtheta * xdata[k,i], i = 1:NX) %>%
+                   <= vtheta * xdata[k,i], i = 1:NX) |>
     add_constraint(sum_expr(vlambda[j] * ydata[j,r], j = 1:ND) 
-                   >= ydata[k,r], r = 1:NY) %>%
+                   >= ydata[k,r], r = 1:NY) |>
     solve_model(with_ROI(solver = "glpk")) 
   
   print(c("DMU=",k,solver_status(res2_3)))
@@ -467,7 +468,7 @@ DMUnames <- list("A", "B", "C", "D")
 dimnames(res2_3.efficiency)<-list(DMUnames,"CCR-IO")
 dimnames(res2_3.lambda)<-list(DMUnames,Lambdanames)
 kbl (cbind(res2_3.efficiency, res2_3.lambda), booktabs=T,
-        caption="Input-Oriented Efficiency Results")%>%
+        caption="Input-Oriented Efficiency Results")|>
 kable_styling(protect_latex = TRUE)
 
 ```
@@ -505,13 +506,13 @@ res2_4.lambda     <- matrix(rep(-1.0, ND), nrow=ND,ncol=ND)
 RTS<-"VRS"
 for (k in 1:ND) {
   
-  mod2_4 <- MIPModel() %>%
+  mod2_4 <- MIPModel() |>
     add_variable(vlambda[j], j = 1:ND, type = "continuous", 
-                 lb = 0) %>%
-    add_variable(vtheta, type = "continuous") %>%
-    set_objective(vtheta, "min") %>%
+                 lb = 0) |>
+    add_variable(vtheta, type = "continuous") |>
+    set_objective(vtheta, "min") |>
     add_constraint(sum_expr(vlambda[j] * xdata[j,i], j = 1:ND) 
-                   <= vtheta * xdata[k,i], i = 1:NX) %>%
+                   <= vtheta * xdata[k,i], i = 1:NX) |>
     add_constraint(sum_expr(vlambda[j] * ydata[j,r], j = 1:ND) 
                    >= ydata[k,r], r = 1:NY) 
 
@@ -535,7 +536,7 @@ DMUnames <- list("A", "B", "C", "D")
 dimnames(res2_4.efficiency)<-list(DMUnames,"BCC-IO")
 dimnames(res2_4.lambda)<-list(DMUnames,Lambdanames)
 kbl (cbind(res2_4.efficiency, res2_4.lambda), booktabs=T,
-        caption="Input-Oriented VRS Envelopment Results (BCC-IO)")%>%
+        caption="Input-Oriented VRS Envelopment Results (BCC-IO)")|>
 kable_styling(protect_latex = TRUE)
 
 ```
@@ -563,13 +564,13 @@ res2_5.lambda     <- matrix(rep(-1.0, ND), nrow=ND, ncol=ND)
 RTS<-"VRS"
 for (k in 1:ND) {
   
-  mod2_5 <- MIPModel() %>%
+  mod2_5 <- MIPModel() |>
     add_variable(vlambda[j], j = 1:ND, type = "continuous", 
-                 lb = 0) %>%
-    add_variable(vtheta, type = "continuous") %>%
-    set_objective(vtheta, "min") %>%
+                 lb = 0) |>
+    add_variable(vtheta, type = "continuous") |>
+    set_objective(vtheta, "min") |>
     add_constraint(sum_expr(vlambda[j] * xdata[j,i], j = 1:ND) 
-                   <= vtheta * xdata[k,i], i = 1:NX) %>%
+                   <= vtheta * xdata[k,i], i = 1:NX) |>
     add_constraint(sum_expr(vlambda[j] * ydata[j,r], j = 1:ND) 
                    >= ydata[k,r], r = 1:NY)
 
@@ -596,7 +597,7 @@ dimnames(res2_5.efficiency)<-list(DMUnames,"BCC-IO")
 dimnames(res2_5.lambda)<-list(DMUnames,Lambdanames)
 kbl (cbind(res2_5.efficiency, res2_5.lambda), booktabs=T,
         caption="Input-Oriented BCC Model with Option of 
-        Alternate Returns to Scale")%>%
+        Alternate Returns to Scale")|>
 kable_styling(protect_latex = TRUE)
 
 ```
@@ -628,7 +629,7 @@ ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1);
 # Define data size
 
 kbl(cbind(XBaker1,YBaker1), booktabs=T,
-       caption="Baker Dataset")%>%
+       caption="Baker Dataset")|>
 kable_styling(protect_latex = TRUE)
 ```
 
@@ -676,13 +677,13 @@ We are now ready to do the analysis. Note that Baker's analysis uses the multipl
 RTS<-"CRS"
 for (k in 1:ND) {
   
-  result <- MIPModel() %>%
+  result <- MIPModel() |>
     add_variable(vlambda[j], j = 1:ND, type = "continuous", 
-                 lb = 0) %>%
-    add_variable(vtheta, type = "continuous") %>%
-    set_objective(vtheta, "min") %>%
+                 lb = 0) |>
+    add_variable(vtheta, type = "continuous") |>
+    set_objective(vtheta, "min") |>
     add_constraint(sum_expr(vlambda[j] * xdata[j,i], j = 1:ND) 
-                   <= vtheta * xdata[k,i], i = 1:NX) %>%
+                   <= vtheta * xdata[k,i], i = 1:NX) |>
     add_constraint(sum_expr(vlambda[j] * ydata[j,r], j = 1:ND) 
                    >= ydata[k,r], r = 1:NY) 
 
@@ -697,7 +698,7 @@ results <-   solve_model(result, with_ROI(solver = "glpk"))
                      get_solution(results, vlambda[j])[,3] )))
 }
 kbl (cbind(results.efficiency, results.lambda), booktab=T,
-        caption="Results from Baker's Example (CRS)")%>%
+        caption="Results from Baker's Example (CRS)")|>
 kable_styling(protect_latex = TRUE)
 
 BakerCCR.Res<-cbind(results.efficiency, results.lambda)
@@ -721,7 +722,7 @@ Let's compare the results from the constant and variable returns to scale cases.
 ```{r}
 kbl (cbind(results.efficiency,BakerCCR.Res), 
      booktabs=T, digits=6,
-     caption="Comparison of CRS vs. VRS Efficiency Scores")%>%
+     caption="Comparison of CRS vs. VRS Efficiency Scores")|>
 kable_styling(protect_latex = TRUE)
 ```
 
@@ -747,7 +748,7 @@ results.uweight[k,] <- rduals[(NX+1):(NX+NY)]
 
 kbl(c(results.vweight[k,],results.uweight[k,]),
     booktabs=T,
-    caption="Input and output weights for last DMU")%>%
+    caption="Input and output weights for last DMU")|>
 kable_styling(protect_latex = TRUE)
 ```
 
@@ -760,13 +761,13 @@ Let's now wrap this into the full series of linear programs so as to calculate t
 RTS<-"CRS"
 for (k in 1:ND) {
   
-  result <- MIPModel() %>%
+  result <- MIPModel() |>
     add_variable(vlambda[j], j = 1:ND, type = "continuous", 
-                 lb = 0) %>%
-    add_variable(vtheta, type = "continuous") %>%
-    set_objective(vtheta, "min") %>%
+                 lb = 0) |>
+    add_variable(vtheta, type = "continuous") |>
+    set_objective(vtheta, "min") |>
     add_constraint(sum_expr(vlambda[j] * xdata[j,i], j = 1:ND) 
-                   <= vtheta * xdata[k,i], i = 1:NX) %>%
+                   <= vtheta * xdata[k,i], i = 1:NX) |>
     add_constraint(sum_expr(vlambda[j] * ydata[j,r], j = 1:ND) 
                    >= ydata[k,r], r = 1:NY) 
 
@@ -789,7 +790,7 @@ result <-   solve_model(result, with_ROI(solver = "glpk"))
 
 kbl (cbind(results.efficiency, results.lambda, results.vweight, 
               results.uweight),booktabs=T, digits=6, 
-        caption="Results from Baker's Example")%>%
+        caption="Results from Baker's Example")|>
 kable_styling(protect_latex = TRUE)
 ```
 
@@ -858,20 +859,20 @@ Implementing this algebraically is quite straightforward.
 RTS<-"CRS"
 for (k in 1:ND) {
   
-  LPSlack <- MIPModel() %>%
+  LPSlack <- MIPModel() |>
     add_variable(vlambda[j], j = 1:ND, type = "continuous", 
-                 lb = 0) %>%
-    add_variable(vtheta, type = "continuous") %>%
+                 lb = 0) |>
+    add_variable(vtheta, type = "continuous") |>
     add_variable(xslack[i], i = 1:NX, type = "continuous", 
-                 lb=0) %>%
+                 lb=0) |>
     add_variable(yslack[r], r = 1:NY, type = "continuous", 
-                 lb=0) %>%
+                 lb=0) |>
     
-    set_objective(vtheta, "min") %>%
+    set_objective(vtheta, "min") |>
     
     add_constraint(sum_expr(vlambda[j] * xdata[j,i]+xslack[i], 
                             j = 1:ND) 
-                   - vtheta * xdata[k,i]==0, i = 1:NX) %>%
+                   - vtheta * xdata[k,i]==0, i = 1:NX) |>
     
     add_constraint(sum_expr(vlambda[j] * ydata[j,r]-yslack[r], 
                             j = 1:ND) 
@@ -905,7 +906,7 @@ rownames(results.efficiency)<-c("A", "B", "C", "D", "E", "F")
 #print (results.efficiency)
 kbl (cbind(results.efficiency,xdata,ydata,results.lambda), 
      booktabs=T, digits=5,
-     caption="Input-oriented Efficiency Results")%>%
+     caption="Input-oriented Efficiency Results")|>
 kable_styling(protect_latex = TRUE)
 ```
 
