@@ -348,13 +348,11 @@ res2_1 <- solve_model(mod2_1, with_ROI(solver = "glpk"))
 
 The piping command can make it much more concise to not need to keep reassigning things to the model with each command. A few things to keep in mind with piping:
 
--   The piped commands are like glue connecting two commands together so you don't want to end with another pipe that expects a different object.
-
+-   Piping was first implemented in R by way of packages such as `magrittr` and became so popular that a piping operator, `|>`, was added to the base system of `R` in version 4.1.0 (mid 2021).
+-   The pipe command is like glue connecting two commands together. This highlights that you don't want to end with another pipe that expects a different object.
+-   Piped models are shorter making them easier to write and express.
 -   Piped models may be harder to debug as syntax errors point to the full piped object rather than just one individual line.
-
--   Piped `ompr`models may be more concise looking but do not appear to run faster based on my early tests.
-
--   The piping operator, `|>`, introduced by the `magrittr`package and then adopted by `dplyr`has become so popular that it was added to the core `R` system in version 4.1 (mid 2021).
+-   Piped `ompr` models may be more concise looking but do not appear to run faster based on my early tests.
 
 Now, let's get to looking over the results.
 
