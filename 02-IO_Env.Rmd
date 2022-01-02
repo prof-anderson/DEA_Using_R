@@ -44,75 +44,68 @@ As the manager responsible for the stores in the region, there are many question
 We'll start by drawing a visual representation of the input-output model. The function `DrawIOdiagram` is from the `TRA` package and allows for creating a nicely formatted input-output diagram.  For those that are new to `R`, it is important to load each package before its use using the `library` command. The library command loads it into memory but also package will need to be installed first.  Most packages are available on CRAN and can be installed from CRAN by using install.packages command. RStudio makes it easier by just clicking on the install button in the IDE.  The `TRA` package 
 \vspace{12pt}
 
-```{r DEA_IO_Plot1, out.width="2in"}
+We'll start by drawing a visual representation of the input-output model. The function `DrawIOdiagram` is from the `TRA` package and allows for creating a nicely formatted input-output diagram. \index{DrawIOdiagram}\
+
+```{r DEA-IO-Plot1, out.width="50%", fig.align='center', fig.cap="A Simple DEA Model for Store Management"}
 library (TRA) # Note, may need to install directly from github
-              # install.packages("remotes")
-              # library(remotes)
               # remotes::install_github("prof-anderson/TRA")
-library (rsvg)
-library (DiagrammeR, quietly=TRUE) 
-library (DiagrammeRsvg, quietly=TRUE) 
-library (rsvg, quietly=TRUE) 
-library (htmltools, quietly=TRUE)
-# fig.cap='A Simple DEA Model for Store Management'
+
 Figure <- DrawIOdiagram (c("Employees\n(FTE)" ), 
                          c("Sales\n($/week)"), 
                          '"\nStore\n "')
 tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),
-                             'images/DEA_IO_stores.PNG')) 
+                             'generated-images/DEA_IO_stores.PNG')) 
+knitr::include_graphics("generated-images/DEA_IO_stores.PNG")
+
 ```
 
-![A Simple DEA Model for Store Management](images/DEA_IO_stores.PNG){#fig:DEA_IO_stores}
+The figure for drawing input-output diagrams is worth a little discussion and explanation.
 
-I find this visual diagram a helpful representation that making a function is helpful. A few things to note about the function as used. First, it creates a graphic image and saves it in a project subdirectory named `images`. If you don't have an images directory, you can create one or modify the statement to remove it. Another nice feature is that the text passed to the function such as `"Sales\\n(\$/week)"` allows for a line return character such as `"\\n"`.  
+This follows three steps to work for both HTML & PDF:
 
-Now we will create the corresponding data.
+1.  Generate diagram object and save to Figure object
+2.  Export Figure as image to images directory
+3.  Display image
 
-```{r}
+A few other things to note from reading the previous code chunk:
 
+1.  It assumes that there is a subdirectory for images - if there isn't a subdirectory for images, you can create one or edit the path.  I created a subdirectory `generated-images` to highlight that these are images that I am creating through R and do not need to be included in the github repository.
+2.  The text passed to the function such as `"Sales\n($/week)"` allows for a line return character such as `"\n"`.  This allows the name of the output and the unit to be on separate line.  The line return is also used to provide a taller box by being placed above and below the label for the box.  
+
+Let's get started now with creating our data.  
+
+```{r Displaying_First_Dataset}
 x <- matrix(c(10,20,30,50),ncol=1, 
             dimnames=list(LETTERS[1:4],"x"))
 y <- matrix(c(75,100,300,400),ncol=1,
             dimnames=list(LETTERS[1:4],"y"))
 
-StoreNames<- c("Al\'s Pantry", 
-               "Bob\'s Mill", 
-               "Trader Carrie\'s", 
-               "Dilbertson\'s")
-StoreData<-cbind(StoreNames,x,y)
-colnames(StoreData)<-c("Store Name", "Employees (x)", 
-                  "Sales (y)")
-
+storenames<- c("Al\'s Pantry", "Bob\'s Mill", 
+               "Trader Carrie\'s", "Dilbertson\'s")
+temp<-cbind(storenames,x,y)
+colnames(temp)<-c("Store Name", "Employees (x)", "Sales (y)")
 ```
 
-Note that the `cbind` function is used to do a column-wise binding of three objects, `StoreNames`, `x` and `y` so that they are side by side.  
+The above commands create matrices that hold the data and have named rows and columns to match. The `<-` symbol is a key function in R and means to assign what is in the right to the object on the left.  We are creating the input and output data, named `x` and `y`.  A temporary table, `temp` is then made for combining all the information in a single table.  The apostrophe for store names needs to be prefixed with a slash to avoid it being misinterpreted when use it for a table.    
 
-```{r}
-library(kableExtra)
-kbl(StoreData, booktabs=T, caption="First Dataset for DEA")
-# kbl is a shorthand for kable
-# booktabs is an option for making formal publishing table format
+The next code chunk creates the table. We will use `kable` from the `knitr` package for displaying the table.  We will use the added package `KableExtra` to provide a simpler way to do sophisticated tables. We'll provide the code chunk for this table but generally avoid code chunks for displaying tables in the future unless there is a specific item to show. Key items in this code chunk is that we ensure the `kableExtra` package is loaded.  The `kbl` command is used to provide a shortcut for the `kable` function with explicit options available. The `booktabs` option is for generating clean PDF formatting of the tables required by the publisher, `escape` allows for LaTeX characters and code to be used as needed.  The piping operator `|>` means to pass the previous command's results into the next command. The piping operator requires R 4.1.0 or higher to be used. The `kable_styling` command provides a lot more formatting richness.  In this case, it is passing an option of `hold_position` to ensure that LaTeX keeps the table placed close to this location.  For more information on using kable and kableExtra for doing mathematical modeling, see Appendix D of *Optimization Modeling Using R*.  
+
+```{r first-dataset-table}
+library (kableExtra)
+kbl (temp, booktabs=T, escape=F,
+     caption="First Dataset for DEA") |>
+  kable_styling(latex_options = "hold_position")
 ```
-
-Which of these units are the best? Which are laggards? Simply looking at the data is difficult. Let's get started now with R.
-
-While we aren't giving a formal introduction to R, let's start by explaining the above commands. The first line `library (kableExtra)` loads a package that extends the more basic `kable` package.  `kableExtra` has a number of improvements including resizing tables, a shorthand notation, and much more. [^io_env-1]
-
-[^io_env-1]: `kableExtra` is one of many thousands of contributed external packages that can be downloaded to extend R. If it does not work to load it using the library, you likely need to install it onto your computer using the `install` command.
-
-The following command creates a matrix that hold the data. The data consists of a concatenated or combined list using the `c` command of four numbers. The number of columns for this matrix is set to one (`ncol=1`) and therefore there are four rows. The matrix has row names based on the first four capital letters and a column name of `x`. By convention, DEA practitioners typically use x to denote input. The \<- symbol is a key function in R and it assigns what is on the right to the object on the left. 
-
-The same is done for creating a set of output, y.
-
-The last command uses the `kbl` function  to display the combined data. 
 
 For benchmarking, we want to know which ones are doing the best job.
 
-Can you tell which units represent the best tradeoff between inputs and outputs? None of the units are dominated by any of the other units. Dominance would be producing more outputs using less input so let's move on to looking at it graphically.
+Can you tell which stores represent the best tradeoff between inputs and outputs? None of the stores are strictly dominated by any of the other stores. Dominance would be producing more outputs using less input so let's move on to looking at it graphically.
 
 ## Graphical Analysis
 
-Let's start by doing a simple plot of the data. For now, I'm going to make use of a function in Peter Bogetoft and Lars Otto's `Benchmarking` package which provides a very handy two-dimensional plot in the format often used for showing production. The first line loads the `Benchmarking` package and uses an optional parameter of quietly in order to not display comments that might be generated. The `dea.plot`function takes the data and then a variety of custom options, many of them specific to DEA types of plots. `RTS`represents returns to scale and will be dealt with in more detail later in this chapter as will orientation. The `txt`parameter is used for passing data point labels. In this case, we check the length of the vector `x`, see that it has four letters, and then set `txt` to a list of the first four capital letters, A, B, C, and D. If we had used the `letters` function instead of `LETTERS` and 2:5, it would have given the letters b, c, d, and e. Since the `dea.plot` function is built upon standard R plot routines, the authors wisely allow for parameters to also be be passed. For example, `fex`sets a scaling for the text data labels. For more information on how to use the `Benchmarking` package along with a more economics-oriented treatment of DEA, please refer to the package's help file or [@BogetoftBenchmarkingDEASFA2011].
+Let's start by doing a simple plot of the data. For now, I'm going to make use of a function in Peter Bogetoft and Lars Otto's `Benchmarking` package which provides a very handy two-dimensional plot in the format often used for showing production. 
+
+The first line loads the `Benchmarking` package and uses an optional parameter of quietly in order to not display comments that might be generated. The `dea.plot`function takes the data and then a variety of custom options, many of them specific to DEA types of plots. `RTS`represents returns to scale and will be dealt with in more detail later in this chapter as will orientation. The `txt`parameter is used for passing data point labels. In this case, we check the length of the vector `x`, see that it has four letters, and then set `txt` to a list of the first four capital letters, A, B, C, and D. If we had used the `letters` function instead of `LETTERS` and 2:5, it would have given the letters b, c, d, and e. Since the `dea.plot` function is built upon standard R plot routines, the authors wisely allow for parameters to also be be passed. For example, `fex`sets a scaling for the text data labels. For more information on how to use the `Benchmarking` package along with a more economics-oriented treatment of DEA, please refer to the package's help file or [@BogetoftBenchmarkingDEASFA2011].
 
 ```{r  fig.cap="Plot of First Data Set"}
 library(Benchmarking, quietly=TRUE)
@@ -123,7 +116,7 @@ dea.plot(x, y, RTS="crs", ORIENTATION="in-out",
          fex=1, GRID=TRUE, RANGE=FALSE, param=NULL)
 ```
 
-This chart clearly shows that unit *C* has the best ratio of output (y) to input (x). The diagonal line represents an efficiency frontier of best practices that could be achieved by scaling up or down unit *C*. As the input is scaled up or down, it is assumed that the output of unit *C* would be scaled up or down by the same value. We will revisit this assumption in a later section but for now, think of this as saying that unit *C* cannot enjoy economies of scale by getting larger or suffer from diseconomies of scale by getting smaller so it is referred to as constant returns to scale or CRS.
+This chart shows that unit *C* has the best ratio of output (y) to input (x). The diagonal line represents an efficiency frontier of best practices that could be achieved by scaling up or down unit *C*. As the input is scaled up or down, it is assumed that the output of unit *C* would be scaled up or down by the same value. We will revisit this assumption in a later section but for now, think of this as saying that unit *C* cannot enjoy economies of scale by getting larger or suffer from diseconomies of scale by getting smaller so it is referred to as constant returns to scale or CRS.
 
 Furthermore, we can graphically examine the technical efficiency of each of the other units. I'm going to start with unit B since it is a little easier to visualize. For now, let's think of the question, how much more or less input would *C* require to produce as much output as *B*.
 
@@ -133,7 +126,80 @@ Another result of the analysis is how to construct the target for *B*'s evaluati
 
 The same steps can be followed for analyzing units *A*, *C*, and *D* resulting in efficiencies of 75%, 100%, and 80% respectively.
 
-## The Linear Programs for DEA
+## A First Linear Program for DEA
+
+### Developing the Linear Program 
+
+Let's begin to frame this more mathematically. From the graphical figure, we could say that we want to create a target for evaluating store B based on some multiple of store C. We want to create targets for B that produce at least as much output using the same input or less. For now, let's emphasize input-reduction.  In this case, we modify this to say that we want to use as little input while using the same output. Given that we have a single set input and single output case and we know that C is the standard setter for everyone, we can frame this mathematically.
+
+Let's define this multiplier of unit C as $\lambda_C$.  Given the emphasis on input-reduction, we can now require the target for B must produce the same level of output, as B actually did. This would be $y_C\cdot\lambda_C=y_B$ in terms of our data or  $300\cdot\lambda_C=100$ or  $\lambda_C=\frac{1}{3}$. The use of a Greek symbol, $lambda$ is a common convention in the DEA field.  It helps in avoiding confusion that *x* and *y* are commonly as variables but in DEA these are fixed data values.  
+
+Let's confirm this target based on $\lambda_C=$ does in fact use less input than B does.  The target uses $x_C\cdot\lambda_C=30\cdot\frac{1}{3}=10$.  Since the target only requires a *10* employees (input) as compared to the *20* used by B, we can say that the target for store B uses just 50% of the input used by the actual store B.  We might term this efficiency, $\theta$ as the target input divided by the actual input.  
+
+$$\theta=\frac{x_C\cdot\lambda_C}{x_B}=\frac{30\cdot\frac{1}{3}}{20}=\frac{10}{20}=0.50$$
+
+We could also rewrite that relationship for $\theta$ as $x_c\cdot\lambda_C=x_b\cdot\theta$.  The best target for performance is based on C.  If we did not know that we might try doing the same calculations using A, B, and D with $\lambda_A$, $\lambda_B$, and $\lambda_D$,  respectively.  The values of $\theta$ would be higher in each case.
+
+In general, we don't usually know which unit is the standard setter as we did in this case for C so let's work on generalizing this.  Let's use all of the $lambda$ variables at once.  We'll also allow blended targets constructed out of parts of each of the four stores.
+
+What we are really doing by finding the *best* target is finding the smallest value of $\theta$ that still produces the same level of output using the least of input.
+
+On the output side we are saying: 
+
+$$y_A\cdot\lambda_A + y_B\cdot\lambda_B + y_C\cdot\lambda_C +y_D\cdot\lambda_D =  y_B$$
+
+Substituting in numbers this would be
+
+$$80\cdot\lambda_A + 100\cdot\lambda_B + 300\cdot\lambda_C +400\cdot\lambda_D =  100$$
+
+The input relationship could be thought of as 
+
+$$x_A\cdot\lambda_A + x_B\cdot\lambda_B + x_C\cdot\lambda_C +x_D\cdot\lambda_D = \theta \cdot x_B$$
+
+Our goal is to find the *best* target or smallest value of $theta$.  We could then pull this together to say
+
+$$
+\begin{split}
+ \begin{aligned}
+    \text{minimize  }   & \theta \\ 
+  &  y_A\cdot\lambda_A + y_B\cdot\lambda_B + y_C\cdot\lambda_C +y_D\cdot\lambda_D =  y_B\\
+ & x_A\cdot\lambda_A + x_B\cdot\lambda_B + x_C\cdot\lambda_C +x_D\cdot\lambda_D = \theta \cdot x_B
+\end{aligned}
+  \end{split}
+$$
+
+This is a linear program which we could then enter and run.  If we do so, we would find that same of the values of $\lambda$ would be negative.  Using negative values of a store to make a target for performance doesn't really make sense this in application.  A zero value makes sense but not a negative value so we add non-negativity constraints or bounds on the $\lambda values.
+
+$$
+\begin{split}
+ \begin{aligned}
+    \text{minimize  }   & \theta \\ 
+  \text{subject to:  }   &  y_A\cdot\lambda_A + y_B\cdot\lambda_B + y_C\cdot\lambda_C +y_D\cdot\lambda_D =  y_B\\
+ & x_A\cdot\lambda_A + x_B\cdot\lambda_B + x_C\cdot\lambda_C +x_D\cdot\lambda_D = \theta \cdot x_B \\
+ & x_A, \; x_B, \; x_C, \; x_D \geq 0 
+\end{aligned}
+  \end{split}
+$$
+
+Next, since we are trying to find the smallest possible value of $\theta$, we could in fact relax the equality constraints to be inequalities.  For the output, the target for B must be at least as large as the actual output of B.  For the input constraint we could say that the target input for B cannot exceed the reduced input used by B.  For brevity, we can also abbreviate *minimize*  as *min* and *subject to* as *s.t.*.  This gives us the following linear program formulation.
+
+$$
+\begin{split}
+ \begin{aligned}
+    \text{min  }   & \theta \\ 
+  \text{s.t.:  }   &  y_A\cdot\lambda_A + y_B\cdot\lambda_B + y_C\cdot\lambda_C +y_D\cdot\lambda_D \geq  y_B\\
+ & x_A\cdot\lambda_A + x_B\cdot\lambda_B + x_C\cdot\lambda_C +x_D\cdot\lambda_D \leq \theta \cdot x_B \\
+ & x_A, \; x_B, \; x_C, \; x_D \geq 0 
+\end{aligned}
+  \end{split}
+$$
+
+### Implementing a First Linear Program for DEA
+
+Let's make a simple, explicit linear program for doing DEA. We are going to use the `ompr` package.
+
+
+## A More Formal and General Linear Program
 
 The graphical approach is intuitive but accuracy is limited to that of drawing tools. More importantly, it does not scale to more complex models with multiple inputs and outputs. Let's frame this topic mathematically so that we can proceed systematically.
 
