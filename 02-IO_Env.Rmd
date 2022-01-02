@@ -598,10 +598,10 @@ for (k in 1:ND) {
     solve_model(with_ROI(solver = "glpk")) 
   
   print(c("DMU=",k,solver_status(res2_3)))
-    res2_3.efficiency[k] <-  get_solution(res2_3, vtheta)       
-    res2_3.lambda[k,] <- t(as.matrix(as.numeric(
-              get_solution(res2_3, vlambda[j])[,3] )))
-# Put resulting from solution in lambda matrix
+  res2_3.efficiency[k] <-  get_solution(res2_3, vtheta)       
+  res2_3.lambda[k,] <- t(as.matrix(as.numeric(
+    get_solution(res2_3, vlambda[j])[,3] )))
+# Put result from solution in lambda matrix
 # Comes out of ompr as a dataframe, use as.matrix to convert from 
 #    data frame to matrix
 # Grabs 3rd column to put into results matrix.  
@@ -612,7 +612,7 @@ for (k in 1:ND) {
 
 Success! This indicates each of the four linear programs was solved to optimality. By itself, it doesn't help much though. We need to now display each column of results.
 
-```{r, echo=FALSE}
+```{r, echo=TRUE}
 temp <- cbind(res2_1.names$DMUnamesbyletter, # Add letters as column
               res2_3.efficiency, res2_3.lambda) 
 kbl(temp, 
@@ -630,16 +630,21 @@ It is an important step of any DEA study to carefully examine the results. In th
 
 ## Returns to Scale
 
-Let's also add a constraint that will accommodate returns to scale. All it needs to do is constrain the sum of the $\lambda$ variables equal to 1 enforces variables returns to scale or VRS. The other very common returns to scale option is constant returns to scale or CRS. For CRS, you can delete the constraint but it is helpful to maintain a consistent model size so we can make it a redundant constraint by constraining it to be greater than or equal to zero. Since $\lambda$'s are by definition non-negative, the sum of $\lambda$'s is also non-negative and therefore the constraint is superfluous or redundant under CRS.
+### Variable Returns to Scale
+
+Up to this point, our analyses used an assumption of constant returns to scale. This might result in targets that are considered unfair as it can build a target based on a radically larger or smaller set of DMUs. Whether the stores were larger or smaller, store C set the performance target for other units.  
+
+Instead, let's add constraint that says that the target of performance must be made up of parts that add up to a whole unit.  All it needs to do is constrain the sum of the $\lambda$ variables to equal 1 or in other words, $\sum_{j} \lambda_j  = 1$. This prevents the target from being made up of just one greatly shrunken version of a unit, say C making the target for A in our earlier example. It also prevents an over reliance of scaling up a unit to make the performance target, in our example C being scaled up to make a comparison target for D. This constraint makes the model into a variables returns to scale or VRS input-oriented envelopment model.
+
 
 $$
 \begin{split}
 \begin{aligned}
     \text{minimize  }   & \theta \\
-    \text{subject to } & \sum_{j=1}^{n} \lambda_j  = 1\\
-                       & \sum_{j=1}^{n} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \forall \; i\\
-                       & \sum_{j=1}^{n} y_{r,j}\lambda_j - s^y =  y_{r,k} \forall \; r\\
-                       & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall i, \; r, \; j
+    \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j \leq \theta x_{i,k} \; \forall \; i\\
+                       & \sum_{j=1}^{n} y_{r,j}\lambda_j \geq y_{r,k} \; \forall \; r\\
+                       & \sum_{j=1}^{n} \lambda_j  = 1\\
+                       & \lambda_j \geq 0  \; \forall  \; j
   \end{aligned}
   (\#eq:Ch2LPBCCIOE) 
  \end{split}
@@ -681,18 +686,21 @@ res2_4 <-   solve_model(mod2_4, with_ROI(solver = "glpk"))
     res2_4.lambda[k,] <- t(as.matrix(as.numeric(
               get_solution(res2_4, vlambda[j])[,3] )))
 }  # Repeat for each unit, k
+```
 
-Lambdanames <- list("L_A", "L_B", "L_C", "L_D")
-DMUnames <- list("A", "B", "C", "D")
-dimnames(res2_4.efficiency)<-list(DMUnames,"BCC-IO")
-dimnames(res2_4.lambda)<-list(DMUnames,Lambdanames)
-kbl (cbind(res2_4.efficiency, res2_4.lambda), booktabs=T,
-        caption="Input-Oriented VRS Envelopment Results (BCC-IO)")    |>
-kable_styling(protect_latex = TRUE)
-
+```{r, echo=FALSE}
+temp <- cbind(res2_1.names$DMUnamesbyletter, # Add letters as column
+              res2_4.efficiency, res2_4.lambda) 
+kbl(temp, 
+    booktabs=T, digits=3, escape=F, row.names=F,
+    col.names=c("DMU", "$\\theta^{VRS}$", res2_1.names$LambdanamesbyletterLX),
+    caption= "Input-Oriented VRS Envelopment Results (BCC-IO)") |>
+  kable_styling(latex_options = "hold_position")
 ```
 
 Notice that the efficiencies have increased or stayed the same. Whereas earlier three out of four DMUs were inefficient, now three out of four are efficient. Much more could be said about returns to scale. One way of thinking of returns to scale is whether doubling the inputs should be expected to result in doubling the outputs that should be achieved. Another way to think of it is whether it is fair to think of scaling up or down an efficient significantly to set a performance target for a much bigger or smaller unit. For example, would it be *fair* to compare a small convenience store such as 7-11 to a CostCo store scaled down by a factor of a 100?
+
+### Other Returns to Scale
 
 In addition to Constant Returns to Scale (CRS) and Variable Returns to Scale (VRS), two other common approaches are Increasing Returns to Scale (IRS) and Decreasing Returns to Scale (DRS). Technically, IRS is sometimes more formally referred to as non-decreasing returns to scale. Similarly, DRS corresponds to non-increasing returns to scale.
 
@@ -705,14 +713,15 @@ The actual returns to scale models are straightforward to implement.
 | IRS/NDRS         | $\sum_{j=1}^{N^D} \lambda_j \geq 1$ |
 | DRS/NIRS         | $\sum_{j=1}^{N^D} \lambda_j \leq 1$ |
 
+No envelopment constraint on the sum of $\lambda$ is needed to create a CRS model and to convert a VRS formulation into a CRS we can just delete the new constraint.  On the other hand, it may sometimes be helpful to maintain a consistent model size in terms of number of constraints as we make richer models. We can make it a redundant constraint by constraining the sum of $\lambda$ to be greater than or equal to zero, $\sum_{j} \lambda_j\geq0$. Since $\lambda$'s are by definition non-negative, the sum of $\lambda$'s is also non-negative and therefore the constraint is superfluous or redundant.
+
 Now, we will generalize this by allowing a parameter to set the returns to scale.
 
 ```{r Adding-RTS}
-
 res2_5.efficiency <- matrix(rep(-1.0, 1), nrow=ND, ncol=1)
 res2_5.lambda     <- matrix(rep(-1.0, ND), nrow=ND, ncol=ND)
 
-RTS<-"VRS"
+RTS<-"DRS"
 for (k in 1:ND) {
   
   mod2_5 <- MIPModel()                                                |>
@@ -742,15 +751,16 @@ for (k in 1:ND) {
               get_solution(res2_5, vlambda[j])[,3] )))
 } #Close loop for each DMU
 
-Lambdanames <- list("L_A", "L_B", "L_C", "L_D")
-DMUnames <- list("A", "B", "C", "D")
-dimnames(res2_5.efficiency)<-list(DMUnames,"BCC-IO")
-dimnames(res2_5.lambda)<-list(DMUnames,Lambdanames)
-kbl (cbind(res2_5.efficiency, res2_5.lambda), booktabs=T,
-        caption="Input-Oriented BCC Model with Option of 
-        Alternate Returns to Scale")                                  |>
-kable_styling(protect_latex = TRUE)
+```
 
+```{r, echo=FALSE}
+temp <- cbind(res2_1.names$DMUnamesbyletter, # Add letters as column
+              res2_5.efficiency, res2_5.lambda) 
+kbl(temp, 
+    booktabs=T, digits=3, escape=F, row.names=F,
+    col.names=c("DMU", "$\\theta^{DRS}$", res2_1.names$LambdanamesbyletterLX),
+    caption= "Input-Oriented DRS Envelopment Results") |>
+  kable_styling(latex_options = "hold_position")
 ```
 
 ## Multiple Inputs and Multiple Outputs
@@ -761,7 +771,7 @@ Let's create a richer dataset. For this example, we will use the dataset from Ke
 
 This data is a little more complicated so let's make sure that we understand the definitions. Look at the line for the inputs which we will call `XBaker1`. The list of 12 data values has the structure defined as two columns for two separate inputs by use of `ncol=2`. This then means that there are 6 rows or DMUs in this dataset. The six units are given capital letters for names starting with A. The names of the inputs are hard coded as `x1`and `x2` to represent the *staff hours per day* and the *supplies per day* respectively.
 
-```{r Multiple_inputs_outputs}
+```{r, eval=FALSE}
 XBaker1 <- matrix(c(150, 400, 320, 520, 350, 320, 
                     0.2, 0.7, 1.2, 2.0, 1.2, 0.7),
                   ncol=2, dimnames=list(LETTERS[1:6],
@@ -770,7 +780,7 @@ XBaker1 <- matrix(c(150, 400, 320, 520, 350, 320,
 
 The two outputs of *reimbursed patient-days* and *privately paid patient-days* are named "y1" and "y2" but otherwise have the same structure as the inputs.
 
-```{r}
+```{r, eval=FALSE}
 YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 
                     3500, 21000, 10500, 42000, 25000, 15000),
                   ncol=2,dimnames=list(LETTERS[1:6],
@@ -783,6 +793,25 @@ kbl(cbind(XBaker1,YBaker1), booktabs=T,
        caption="Baker Dataset")                                       |>
 kable_styling(protect_latex = TRUE)
 ```
+
+
+```{r}
+x <- matrix(c(10, 20, 30, 50, 22, 29,
+              75, 100, 220, 480, 290, 210), byrow=FALSE, ncol=2, 
+            dimnames=list(LETTERS[1:6],c("x1","x2")))
+y <- matrix(c(75,100,300,400, 110, 120),ncol=1,
+            dimnames=list(LETTERS[1:6],"y"))
+
+storenames<- c("Al\'s Pantry", "Bob\'s Mill", 
+               "Trader Carrie\'s", "Dilbertson\'s",
+               "Ed\'s Eggshop", "Flo\'s Farmacopia")
+temp<-cbind(storenames,x,y)
+colnames(temp)<-c("Store Name", "Employees (x1)", "Floor Space (x2)", "Sales (y)")
+
+kbl (temp)
+```
+
+Let's extend our earlier store management by adding as an input, store floor space and two more stores, 
 
 Note that I'm naming the data sets based on their origin and then loading them into xdata and ydata for actual operation. This allows the model to be generalized.
 
