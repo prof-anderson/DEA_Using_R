@@ -44,15 +44,15 @@ As the manager responsible for the stores in the region, there are many question
 We'll start by drawing a visual representation of the input-output model. The function `DrawIOdiagram` is from the `TRA` package and allows for creating a nicely formatted input-output diagram.  For those that are new to `R`, it is important to load each package before its use using the `library` command. The library command loads it into memory but also package will need to be installed first.  Most packages are available on CRAN and can be installed from CRAN by using install.packages command. RStudio makes it easier by just clicking on the install button in the IDE.  The `TRA` package 
 \vspace{12pt}
 
-We'll start by drawing a visual representation of the input-output model. The function `DrawIOdiagram` is from the `TRA` package and allows for creating a nicely formatted input-output diagram. \index{DrawIOdiagram}\
+We'll start by drawing a visual representation of the input-output model. The function `DrawIOdiagram` is from the `TRA` package and allows for creating a nicely formatted input-output diagram. \index{DrawIOdiagram}
 
-```{r DEA-IO-Plot1, out.width="50%", fig.align='center', fig.cap="A Simple DEA Model for Store Management"}
+```{r DEA-IO-Plot1, eval=FALSE, out.width="50%", fig.align='center', fig.cap="A Simple DEA Model for Store Management"}
 library (TRA) # Note, may need to install directly from github
               # remotes::install_github("prof-anderson/TRA")
 
 Figure <- DrawIOdiagram (c("Employees\n(FTE)" ), 
                          c("Sales\n($/week)"), 
-                         '"\nStore\n "')
+                         c('"\nStore\n "'))
 tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),
                              'generated-images/DEA_IO_stores.PNG')) 
 knitr::include_graphics("generated-images/DEA_IO_stores.PNG")
@@ -128,6 +128,8 @@ The same steps can be followed for analyzing units *A*, *C*, and *D* resulting i
 
 ## A First Linear Program for DEA
 
+The graphical approach is intuitive but accuracy is limited to that of drawing tools. More importantly, it does not scale to more complex models with multiple inputs and outputs. Let's frame this topic mathematically so that we can proceed systematically.
+
 ### Developing the Linear Program 
 
 Let's begin to frame this more mathematically. From the graphical figure, we could say that we want to create a target for evaluating store B based on some multiple of store C. We want to create targets for B that produce at least as much output using the same input or less. For now, let's emphasize input-reduction.  In this case, we modify this to say that we want to use as little input while using the same output. Given that we have a single set input and single output case and we know that C is the standard setter for everyone, we can frame this mathematically.
@@ -150,7 +152,7 @@ $$y_A\cdot\lambda_A + y_B\cdot\lambda_B + y_C\cdot\lambda_C +y_D\cdot\lambda_D =
 
 Substituting in numbers this would be
 
-$$80\cdot\lambda_A + 100\cdot\lambda_B + 300\cdot\lambda_C +400\cdot\lambda_D =  100$$
+$$75\cdot\lambda_A + 100\cdot\lambda_B + 300\cdot\lambda_C +400\cdot\lambda_D =  100$$
 
 The input relationship could be thought of as 
 
@@ -198,10 +200,105 @@ $$
 
 Let's make a simple, explicit linear program for doing DEA. We are going to use the `ompr` package.
 
+For this case, let's use the numbers directly for values of inputs and outputs.
+
+$$
+ \begin{split}
+ \begin{aligned}
+    \text{Min    } & \theta &\text{[Efficiency]}\\
+    \text{s.t.:  } & 75 \lambda_A + 100 \lambda_B +
+                    300 \lambda_C + 400 \lambda_D 
+                    \geq 100 &\text{[Output]}\\
+                    & 10 \lambda_A + 20 \lambda_B +
+                    30 \lambda_C + 50 \lambda_D 
+                    \leq 20 \theta &\text{[Input]}\\
+                  & \lambda_A , \; \lambda_B , \; \lambda_D , \; \lambda_D \geq 0  
+  \end{aligned}
+  \end{split}
+$$
+
+We're going to use our data from earlier but first we will load a collection of libraries to be used later. The `ompr`package is for optimization and serves as a general human readable format of optimization models that can then interface with a variety of solver engines. The `ROI.plugin.glpk` package is for the specific solver engine, `glpk`, that we used. Other LP solving engines are available and can be used instead.
+
+```{r loading_packages, message=FALSE, warning=FALSE}
+library(dplyr, quietly=TRUE)           
+library(ROI, quietly=TRUE)             
+library(ROI.plugin.glpk, quietly=TRUE) 
+library(ompr, quietly=TRUE)            
+library(ompr.roi, quietly=TRUE)        
+```
+
+The `dplyr` package is useful for a broad range of data analysis. The `ROI` package is the R Optimization Interface and provides a standardized interface layer to different optimization routines. The specific routines are provided through a plugin, in this case, `ROI.plugin.glpk` for the glpk optimization system. A variety of other optimization systems can be used as well by using the corresponding plugin. The `ompr` package provides the algebraic modeling functions for building the model to then pass to `ROI` by way of the `ompr.roi` package. While this layered structure may sound complicated, it has several important benefits. First, it allows for concise algebraic representation of the linear program by way of `ompr`. Second, the use of the `ROI` layer allows the analyst to change the optimization system used (such as from `glpk` to `symphony`) without affecting the model built.
+
+```{r}
+mod2_0 <- MIPModel ()
+```
+
+The `MIPModel` command creates an initial, empty model which we name `mod2_0` to represent our initial optimation model in chapter.
+
+The following commands create and add each of the four $\lambda$ variables one at a time to the `mod2_0` model and resaves it as the same model. We can't use Greek symbol, $\lambda$ directly in the `ompr` model so we will use a capital `L` instead.  Each of these $\lambda$ variables are defined to be continuous variables and have lower bounds set of 0 by using `lb=0`.
+
+The $\theta$ variable is added in the same manner but does not need a lower bound 0
+```{r}
+mod2_0 <- add_variable(mod2_0, VL_A, type="continuous", lb=0)
+mod2_0 <- add_variable(mod2_0, VL_B, type="continuous", lb=0)
+mod2_0 <- add_variable(mod2_0, VL_C, type="continuous", lb=0)
+mod2_0 <- add_variable(mod2_0, VL_D, type="continuous", lb=0)
+
+mod2_0 <- add_variable(mod2_0, Vtheta, type="continuous")
+```
+
+We can call get a summary of our status of building up the `mod2_0` linear program model by just entering `mod2_0` object.
+
+```{r}
+mod2_0
+```
+
+We can see that we have five variables.  Let's proceed to adding our objective function.
+
+```{r}
+mod2_0 <- set_objective(mod2_0, Vtheta, "min")
+```
+
+Next we can add our input constraint.
+```{r}
+mod2_0 <- add_constraint (mod2_0, 10*VL_A+20*VL_B+30*VL_C+50*VL_D <= 20*Vtheta)
+```
+
+Our last `ompr` model building command is to add our output constraint.
+
+```{r}
+mod2_0 <- add_constraint (mod2_0, 75*VL_A+100*VL_B+300*VL_C+400*VL_D >= 100)
+```
+
+We can now solve the linear programming model and place the results in `res2_0`.  We are going to use the `glpk` linear programming solver.  
+
+```{r}
+res2_0 <- solve_model(mod2_0, with_ROI (solver="glpk"))
+```
+
+Let's check the status to ensure that it found an optimal solution.
+
+```{r}
+res2_0$status
+```
+
+Now, let's examine the results.
+
+```{r}
+res2_0$solution
+```
+
+Lastly, let's provide the results in a nicely formatted table with column names corresponding to the mathematical model.
+
+```{r}
+kbl(res2_0$solution, digits=3,booktabs=T, escape=F,
+col.names=c("$\\lambda_A$", "$\\lambda_B$", "$\\lambda_C$", 
+            "$\\lambda_D$", "$\\theta$"),
+caption="Initial Input-Oriented Envelopment Analysis for DMU B") |>
+kable_styling(latex_options = "hold_position")
+```
 
 ## A More Formal and General Linear Program
-
-The graphical approach is intuitive but accuracy is limited to that of drawing tools. More importantly, it does not scale to more complex models with multiple inputs and outputs. Let's frame this topic mathematically so that we can proceed systematically.
 
 A key way to begin the mathematical development of the envelopment model is to ask, can you find a combination of units that produces a target with at least as much output using less input? The blend of other units is described by a vector $\lambda$. Another way to denote this is $\lambda_j$ is the specific amount of a unit *j* used in setting the target for for performance for unit *k*.
 
@@ -237,10 +334,10 @@ In fact, we will go one step further and say that we want to find the maximum in
 $$
  \begin{split}
  \begin{aligned}
-    \text{minimize  }   & \theta \\
-    \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j \leq \theta x_{i,k} \; \forall \; i\\
-                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \; \forall \; r\\
-                       & \lambda_j \geq 0  \; \forall \; j
+    \text{min    } & \theta \\
+    \text{s.t.:  } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j \leq \theta x_{i,k} \; \forall \; i\\
+                   & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \; \forall \; r\\
+                   & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
   (\#eq:Ch2LPCCRIOE-NoSlack-Simple)
   \end{split}
@@ -251,10 +348,10 @@ Expressing the target on the left and the actual unit's value with the radial re
 $$
 \begin{split}
 \begin{aligned}
-    \text{minimize  }   & \theta \\
-    \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} \leq 0 \; \forall \; i\\
-                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \;  \forall \; r\\
-                       & \lambda_j \geq 0  \; \forall \; j
+    \text{min  }   & \theta \\
+    \text{s.t.:  } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} \leq 0 \; \forall \; i\\
+                   & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \;  \forall \; r\\
+                   & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
   (\#eq:Ch2LPCCRIOE-NoSlack)
  \end{split}
@@ -308,18 +405,6 @@ Let's define some data structures for holding our data and results.
 
 ```
 
-We're going to use our data from earlier but first we will load a collection of libraries to be used later. The `ompr`package is for optimization and serves as a general human readable format of optimization models that can then interface with a variety of solver engines. The `ROI.plugin.glpk` package is for the specific solver engine, `glpk`, that we used. Other LP solving engines are available and can be used instead.
-
-```{r loading_packages, message=FALSE, warning=FALSE}
-library(dplyr, quietly=TRUE)           
-library(ROI, quietly=TRUE)             
-library(ROI.plugin.glpk, quietly=TRUE) 
-library(ompr, quietly=TRUE)            
-library(ompr.roi, quietly=TRUE)        
-```
-
-The `dplyr` package is useful for a broad range of data analysis. The `ROI` package is the R Optimization Interface and provides a standardized interface layer to different optimization routines. The specific routines are provided through a plugin, in this case, `ROI.plugin.glpk` for the glpk optimization system. A variety of other optimization systems can be used as well by using the corresponding plugin. The `ompr` package provides the algebraic modeling functions for building the model to then pass to `ROI` by way of the `ompr.roi` package. While this layered structure may sound complicated, it has several important benefits. First, it allows for concise algebraic representation of the linear program by way of `ompr`. Second, the use of the `ROI` layer allows the analyst to change the optimization system used (such as from `glpk` to `symphony`) without affecting the model built.
-
 We are going to start by building a model for just one DMU, in this case, the second DMU (B) by setting `k`to be 2.
 
 ```{r}
@@ -339,7 +424,7 @@ mod2_1 <- add_variable(mod2_1,
              vlambda[j], j = 1:ND, type = "continuous", lb = 0) 
 ```
 
-Let's start with our $\lambda$ variables. In this statement, we add variables named `vlambda` to the model, mod2_1 and assign the more complete object back to the same object, mod2_1. We set `vlambda` to have separate variables, indexed from `1` to `ND`, each of which are of a continuous type and have a lower bound (`lb`) of zero. Since we have 4 units that can have elements mixed, ND=4, and therefore we have four non-negative continuous variables. Note that I follow a convention of prefixing all linear programming variables with a v to differentiate from a variable inside of an `ompr` model and other R objects in my working environment. Conflicts between `R` and `ompr` variables seem to arise often among `ompr` users.
+Let's start with our $\lambda$ variables. In this statement, we add variables named `vlambda` to the model, mod2_1 and assign the more complete object back to the same object, mod2_1. We set `vlambda` to have separate variables, indexed from `1` to `ND`, each of which are of a continuous type and have a lower bound (`lb`) of zero. Since we have 4 units that can have elements mixed, ND=4, and therefore we have four non-negative continuous variables. Note that I follow a convention of prefixing all linear programming variables with a `v` to differentiate from a variable inside of an `ompr` model and other R objects in my working environment. Conflicts between `R` and `ompr` variables seem to arise often among `ompr` users.
 
 Next, let's add the $\theta$ variable.
 
@@ -353,8 +438,7 @@ This follows the same format but there is only one variable. Also, it does not n
 Moving on to the objective function, we set the objective function for the linear program using the `set_objective`function. In this case, our objective function was *minimize* $\theta$ .
 
 ```{r}
-mod2_1 <- set_objective(mod2_1,
-                        vtheta, "min")
+mod2_1 <- set_objective(mod2_1, vtheta, "min")
 ```
 
 Next, we will move on to the constraints. We'll start with the constraints on the inputs, limiting the amount of inputs used by a unit to no more of the input than the unit being studied. Recall the constraint, $\sum_{j=1}^{N^D}x_{i,j}\lambda_j\leq\theta x_{i,k}\;\forall\;i$ but in our case, there is only one input so i is 1.
@@ -397,7 +481,6 @@ res2_1
 This tells us that the model was solved to optimality and that the optimal solution ($\theta$ in our case), was 0.50. Building the model up step by step can be helpful but a more concise form of model building connect each command to the previous one using a piping operator, `|>`. One way to think of piping is that if you have two functions, A and B and want to use the result of function A in B, you can do this `A() |> B()` or "Take A's result and pass it into the start of B."
 
 ```{r first_ompr_piped_model}
-
 mod2_1 <- MIPModel()                                          |>
   add_variable(vlambda[j], j = 1:ND, type = "continuous", 
                lb = 0)                                        |>
@@ -409,7 +492,6 @@ mod2_1 <- MIPModel()                                          |>
                  >= ydata[k,1])
 
 res2_1 <- solve_model(mod2_1, with_ROI(solver = "glpk")) 
-
 ```
 
 The piping command can make it much more concise to not need to keep reassigning things to the model with each command. A few things to keep in mind with piping:
@@ -460,7 +542,6 @@ The results in the table indicate that DMU *B* has an efficiency score of 50%. T
 Let's now extend it to handle multiple inputs, `NX`, and outputs, `NY`. Of course this doesn't have any impact on our results just yet since we are still only using a single input and output but we now have the structure to accommodate the more general case. To provide a little variety, we'll change it to the first DMU, A, to give a little more variety.
 
 ```{r ompr-mult-IO, message=FALSE, results='asis'}
-
 k<-1    
 # DMU to analyze.  Let's change it to the first unit, DMU A.
 
@@ -534,7 +615,6 @@ dimnames(res2_3.lambda)<-list(DMUnames,Lambdanames)
 kbl (cbind(res2_3.efficiency, res2_3.lambda), booktabs=T,
         caption="Input-Oriented Efficiency Results")          |>
 kable_styling(protect_latex = TRUE)
-
 ```
 
 The results match those observed graphically but let's discuss them. These results indicate that only DMU *C* is efficient. A rescaled version of *C* could produce the same level of output of *A*, *B*, and *D*, while using 25%, 50%, and 20% less input respectively. The targets of performance for *A* and *C* are constructed by scaling down unit *C* to a much smaller size, as shown by the the values of $\lambda$. In contrast, *D*'s performance is surpassed by a 33% larger version of *C*.
