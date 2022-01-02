@@ -261,6 +261,7 @@ mod2_0 <- set_objective(mod2_0, Vtheta, "min")
 ```
 
 Next we can add our input constraint.
+
 ```{r}
 mod2_0 <- add_constraint (mod2_0, 10*VL_A+20*VL_B+30*VL_C+50*VL_D <= 20*Vtheta)
 ```
@@ -303,7 +304,7 @@ kable_styling(latex_options = "hold_position")
 
 A key way to begin the mathematical development of the envelopment model is to ask, can you find a combination of units that produces a target with at least as much output using less input? The blend of other units is described by a vector $\lambda$. Another way to denote this is $\lambda_j$ is the specific amount of a unit *j* used in setting the target for for performance for unit *k*.
 
-This can be easily expanded to the multiple input and multiple output case by defining $x_{i,j}$ to be the amount of the *i*'th input used by unit *j* and $y_{r,j}$ to be the amount of the *r*'th output produced by unit *j*. For simplicity, this example will focus on the one input and one output case rather than the *m* input and *s* output case but the R code explicitly allows for $m,s>1$. To make the code more readable, I will use a slightly different convention $N^X$ or NX instead of *m* to refer to the number of inputs (x's) and $N^Y$ or NY to be the number of outputs (y's) instead of *s*. Also, the normal mathematical convention is to use *n* to denote the number of Decision Making Units (DMUs) so I will use $N^D$ or ND to indicate that in the R code.
+This can be easily expanded to the multiple input and multiple output case by defining $x_{i,j}$ to be the amount of the *i*'th input used by unit *j* and $y_{r,j}$ to be the amount of the *r*'th output produced by unit *j*. For simplicity, this example will focus on the one input and one output case rather than the *m* input and *s* output case but the R code explicitly allows for $m,s>1$. To make the code more readable, I will use a slightly different convention $N^X$ or `NX` instead of *m* to refer to the number of inputs (x's) and $N^Y$ or `NY` to be the number of outputs (y's) instead of *s*. Also, the normal mathematical convention is to use *n* to denote the number of Decision Making Units (DMUs) so I will use $N^D$ or `ND` to indicate that in the R code.
 
 Let's connect these ideas together now using these mathematical building blocks. The core idea of the envelopment model of a DMU *k* can be thought of as to find a target constructed of a mix of the DMU's described by a vector $\lambda$ that uses no more input to achieve the same or more every output as DMU *k*. The amount of the *i'th* input used by the target is then $\sum_{j=1}^{N^D} x_{i,j}\lambda_j$. By the same token, the amount of the *r'th* output produced by the target is $\sum_{j=1}^{N^D} y_{r,j}\lambda_j$.
 
