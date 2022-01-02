@@ -49,10 +49,11 @@ We'll start by drawing a visual representation of the input-output model. The fu
 ```{r DEA-IO-Plot1, eval=FALSE, out.width="50%", fig.align='center', fig.cap="A Simple DEA Model for Store Management"}
 library (TRA) # Note, may need to install directly from github
               # remotes::install_github("prof-anderson/TRA")
-
+library (DiagrammeR)
+library (rsvg)
 Figure <- DrawIOdiagram (c("Employees\n(FTE)" ), 
                          c("Sales\n($/week)"), 
-                         c('"\nStore\n "'))
+                         c("\nStore\n "))
 tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),
                              'generated-images/DEA_IO_stores.PNG')) 
 knitr::include_graphics("generated-images/DEA_IO_stores.PNG")
@@ -357,7 +358,7 @@ $$
  \end{split}
 $$
 
-## Creating the LP - The Algebraic Approach
+### Implementing the LP Algebraically
 
 There are two fundamentally different approaches to setting up linear programs for solving. The first approach is to define data structures to pass vectors for the objective function coefficients and constraint right hand sides along with a matrix of data describing the constraints. This requires careful setting up of the linear programs and is a bigger cognitive step away from the mathematical representation. Another approach is to use algebraic modeling languages. Standalone algebraic optimization modeling languages include LINGO, AMPL, GAMS, GMPL, and others.
 
@@ -429,8 +430,7 @@ Let's start with our $\lambda$ variables. In this statement, we add variables na
 Next, let's add the $\theta$ variable.
 
 ```{r}
-mod2_1 <- add_variable(mod2_1,
-             vtheta, type = "continuous") 
+mod2_1 <- add_variable(mod2_1, vtheta, type = "continuous") 
 ```
 
 This follows the same format but there is only one variable. Also, it does not need to have a lower bound.
