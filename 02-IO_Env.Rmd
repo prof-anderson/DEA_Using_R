@@ -293,12 +293,15 @@ res2_0$solution
 Lastly, let's provide the results in a nicely formatted table with column names corresponding to the mathematical model.
 
 ```{r}
-kbl(res2_0$solution, digits=3,booktabs=T, escape=F,
-col.names=c("$\\lambda_A$", "$\\lambda_B$", "$\\lambda_C$", 
-            "$\\lambda_D$", "$\\theta$"),
-caption="Initial Input-Oriented Envelopment Analysis for DMU B") |>
-kable_styling(latex_options = "hold_position")
+kbl(t(as.matrix(res2_0$solution)), 
+    digits =3, booktabs=T, escape=F,
+    col.names=c("$\\lambda_A$", "$\\lambda_B$", "$\\lambda_C$", 
+                "$\\lambda_D$", "$\\theta$"),
+    caption="Initial Input-Oriented Envelopment Analysis for DMU B") |>
+  kable_styling(latex_options = "hold_position")
 ```
+
+The first line takes the solution solution object, converts it to a matrix, and then transposes it from a row orientation to a column orientation. The second line sets the number of digits to 3, `booktabs` is set again for high quality publication, and `escape` is set to `FALSE` or `F` in order to enable LaTeX for column names.  The third and fourth lines of code provide LaTeX symbols for column names.  The fifth line sets a caption and then pipes the kable object to a function that then holds the position in the LaTeX rendered page.  
 
 ## A More Formal and General Linear Program
 
@@ -368,42 +371,28 @@ Until recently, R did not have the ability to do algebraic modeling optimization
 Let's define some data structures for holding our data and results.
 
 ```{r Declaring_Structures_of_Results_ompr}
+ND <- nrow(x); NX <- ncol(x); NY <- ncol(y); # Define data size
 
-  ND <- nrow(x); NX <- ncol(x); NY <- ncol(y); # Define data size
+xdata<-x[1:ND,] 
+dim(xdata)<-c(ND,NX) 
+ydata<-y[1:ND,]
+dim(ydata)<-c(ND,NY)
 
-  xdata<-x[1:ND,] 
-  dim(xdata)<-c(ND,NX) 
-  ydata<-y[1:ND,]
-  dim(ydata)<-c(ND,NY)
-                 # Now we will create lists of names
-  DMUnames <- list(c(LETTERS[1:ND]))               
-           # DMU names: A, B, ...
-  Xnames <- lapply(list(rep("X",NX)),paste0,1:NX)   
-           # Input names: x1, ...
-  Ynames <- lapply(list(rep("Y",NY)),paste0,1:NY)   
-           # Output names: y1, ...
-  Vnames <- lapply(list(rep("v",NX)),paste0,1:NX)   
-           # Input weight names: v1, ...
-  Unames <- lapply(list(rep("u",NY)),paste0,1:NY)   
-           # Output weight names: u1, ...
-  SXnames <- lapply(list(rep("sx",NX)),paste0,1:NX) 
-           # Input slack names: sx1, ...
-  SYnames <- lapply(list(rep("sy",NY)),paste0,1:NY) 
-           # Output slack names: sy1, ...
-  Lambdanames <- lapply(list(rep("L_",ND)),paste0, 
-                        LETTERS[1:ND])
+       # Now we will create lists of names
+DMUnames <- list(c(LETTERS[1:ND]))               
+       # DMU names: A, B, ...
+Xnames <- lapply(list(rep("X",NX)),paste0,1:NX)   
+       # Input names: x1, ...
+Ynames <- lapply(list(rep("Y",NY)),paste0,1:NY)   
+       # Output names: y1, ...
+Lambdanames <- lapply(list(rep("L_",ND)),paste0, 
+                      LETTERS[1:ND])
 
-  results.efficiency <- matrix(rep(-1.0, ND), nrow=ND)
-  dimnames(results.efficiency)<-c(DMUnames,"CCR-IO")  
+results.efficiency <- matrix(rep(-1.0, ND), nrow=ND)
+dimnames(results.efficiency)<-c(DMUnames,"CCR-IO")  
   
-  results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,)
-  dimnames(results.lambda)<-c(DMUnames,Lambdanames)
-
-  results.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND) 
-  dimnames(results.xslack)<-c(DMUnames,SXnames)
-
-  results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND) 
-  dimnames(results.yslack)<-c(DMUnames,SYnames)
+results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND)
+dimnames(results.lambda)<-c(DMUnames,Lambdanames)
 
 ```
 
@@ -479,7 +468,7 @@ Again, we can get a summary of this results object by simply typing in the objec
 res2_1
 ```
 
-This tells us that the model was solved to optimality and that the optimal solution ($\theta$ in our case), was 0.50. Building the model up step by step can be helpful but a more concise form of model building connect each command to the previous one using a piping operator, `|>`. One way to think of piping is that if you have two functions, A and B and want to use the result of function A in B, you can do this `A() |> B()` or "Take A's result and pass it into the start of B."
+This tells us that the model was solved to optimality and that the optimal solution ($\theta$ in our case), was 0.50. Building the model up step by step can be helpful but a more concise form of model building connects each command to the previous one using a piping operator, `|>`. One way to think of piping is that if you have two functions, A and B and want to use the result of function A in B, you can do this `A() |> B()` or "Take A's result and pass it into the start of B."  The piping is the same operator that we use to pass a `kable` table into `kable_styling`.
 
 ```{r first_ompr_piped_model}
 mod2_1 <- MIPModel()                                          |>
@@ -497,17 +486,18 @@ res2_1 <- solve_model(mod2_1, with_ROI(solver = "glpk"))
 
 The piping command can make it much more concise to not need to keep reassigning things to the model with each command. A few things to keep in mind with piping:
 
--   Piping was first implemented in R by way of packages such as `magrittr` and became so popular that a piping operator, `|>`, was added to the base system of `R` in version 4.1.0 (mid 2021).
--   The pipe command is like glue connecting two commands together. This highlights that you don't want to end with another pipe that expects a different object.
+-   Piping was first implemented in R by way of packages such as `magrittr` and became so popular that a piping operator, `|>`, was added to the base system of `R` in version 4.1.0 (mid 2021). This means that you will get an error message if you try to use `\>` operator on earlier versions of R. You can upgrade the version of R, unpipe the commands, or use `magrittr` and the older `%>%` pipe operator.
+-   The pipe command is like glue connecting two commands together. This highlights that you don't want to end with another pipe that expects a different object.  The last `add_constraint` command does **not** have a pipe.  
+-   The solving is based on passing in the model, `mod2_1` directly but could have been piped.
 -   Piped models are shorter making them easier to write and express.
--   Piped models may be harder to debug as syntax errors point to the full piped object rather than just one individual line.
+-   Piped models may be harder to debug as syntax errors point to the full piped object rather than just one individual line. This is potentially very important reason for many people to build unpiped models, at least for development purposes.
 -   Piped `ompr` models may be more concise looking but do not appear to run faster based on my early tests.
 
 Now, let's get to looking over the results.
 
 ```{r}
-res2_1theta <-  get_solution(res2_1, vtheta) 
-res2_1lambda <-  get_solution(res2_1, vlambda[j])
+res2_1theta <- get_solution(res2_1, vtheta) 
+res2_1lambda <- get_solution(res2_1, vlambda[j])
 ```
 
 Again, we can view both results.
@@ -523,28 +513,38 @@ These results match what we expect but let's clean up the formatting. For exampl
    # Only doing analysis for one unit at a time to start
 
 res2_1.efficiency <- matrix(rep(-1.0, 1), nrow=1, ncol=1)
-res2_1.lambda     <- matrix(rep(-1.0, ND), nrow=1,ncol=ND)
+res2_1.lambda     <- matrix(rep(-1.0, ND), nrow=1, ncol=ND)
 res2_1.efficiency <- t(res2_1theta)
-colnames(res2_1.efficiency) <- c("CCR-IO")
-
 res2_1.lambda <- t(res2_1lambda[3])
       # Takes the third column from the results and transposes
       #    results to be structured correctly for later viewing
-colnames(res2_1.lambda) <- c("L_A", "L_B", "L_C", "L_D")
-
-kbl(cbind(res2_1.efficiency, res2_1.lambda), booktabs=T,
-       caption= 'Input-Oriented Envelopment Analysis for DMU B')
 ```
 
-The above table follows a few convenient conventions. First, rather than using $\theta$, we label the efficiency score by the model used for the model, in this case the constant returns to scale is labeled as CCR after Charnes, Cooper, and Rhodes [@CharnesDataEnvelopmentAnalysis1978]. Later we will cover other models including the variable returns to scale model, labeled BCC after Banker, Charnes, and Cooper [@Bankermodelsestimatingtechnical1984]. Another convention is to use "L" in place of the Greek symbol $\lambda$ due to complications with using Greek symbols in R matrix row or column names.
+The following code chunk demonstrates the model building.
+
+It starts by generating a set of names based on model dimensions using the `DEAnames` function from the `TRA` package.  We will then select to use the `LambdanamesbyletterLX` to give LaTeX structured column names ready to be used as column names.  We can can then apply column  names to the table without needing to redefine the original table.  We will often use a similar approach but will not display the table generating code chunk for brevity.  
+
+```{r}
+res2_1.names <- TRA::DEAnames(NX, NY, ND)
+
+kbl(cbind(res2_1.efficiency, res2_1.lambda), 
+    booktabs=T, digits=3, escape=F, 
+    col.names=c("$\\theta^{CRS}$", res2_1.names$LambdanamesbyletterLX),
+    caption= 'Input-Oriented Envelopment Analysis for DMU B') |>
+  kable_styling(latex_options = "hold_position")
+```
+
+
+The above table follows a few convenient conventions. First, rather than using $\theta$, we label the efficiency score by the model used for the model, in this case the constant returns to scale is superscripted with CRS. In some research, it might be labeled as CCR after Charnes, Cooper, and Rhodes [@CharnesDataEnvelopmentAnalysis1978]. Later we will cover other models including the variable returns to scale model and label it is as VRS although it is often labeled BCC after Banker, Charnes, and Cooper [@Bankermodelsestimatingtechnical1984]. While we used the Greek symbol, $lambda$ for the column names of the lambda matrix, another convention is to use "L" in place of the Greek symbol $\lambda$ due to complications with using Greek symbols and LaTeX in R matrix row or column names.
 
 The results in the table indicate that DMU *B* has an efficiency score of 50%. The target of performance is made of DMU *C* scaled down by a factor of 0.33. These results match the graphical results from earlier.
 
-Let's now extend it to handle multiple inputs, `NX`, and outputs, `NY`. Of course this doesn't have any impact on our results just yet since we are still only using a single input and output but we now have the structure to accommodate the more general case. To provide a little variety, we'll change it to the first DMU, A, to give a little more variety.
+Let's now extend it to handle multiple inputs, `NX`, and outputs, `NY`. Of course this doesn't have any impact on our results just yet since we are still only using a single input and output but we now have the structure to accommodate the more general case. To provide a little variety, we'll change it to the first DMU, A, (`k<-1`) to give a little more variety.
+
+The key change to accommodate multiple inputs is to change the add_constraint command to repeat this constraint for `i = 1:NX`.  This means that the constraint is repeated for every value from 1 to `NX`.  If we had 10 inputs ($N^X=10$) then there would be ten constraints.  The first substituting in `i=1`, the second `i=2`, etc.  
 
 ```{r ompr-mult-IO, message=FALSE, results='asis'}
-k<-1    
-# DMU to analyze.  Let's change it to the first unit, DMU A.
+k<-1    # DMU to analyze.  Let's change it to the first unit, DMU A.
 
 res2_2 <- MIPModel()                                            |>
   add_variable(vlambda[j], j = 1:ND, type = "continuous", 
@@ -561,16 +561,20 @@ res2_2theta <-  get_solution(res2_2, vtheta)
 res2_2lambda <-  get_solution(res2_2, vlambda[j])
 
 res2_2.efficiency <- t(res2_2theta)
-colnames(res2_2.efficiency) <- c("CCR-IO")
 res2_2.lambda <- t(res2_2lambda[3])
  # Takes the third column from the results and transposes 
   #    results to be structured better for later viewing
-colnames(res2_2.lambda) <- c("L_A", "L_B", "L_C", "L_D")
+```
 
-kbl (cbind(res2_2.efficiency, res2_2.lambda), booktabs=T,
-     caption='Input-Oriented Envelopment Analysis for DMU A')
-#library (pander);pander (cbind(res2_2.efficiency, res2_2.lambda), caption="Input-Oriented Envelopment Analysis for DMU A")
+```{r, echo=FALSE}
+# No need to recreate names structure because they are the same as earlier.
+# res2_2.names <- TRA::DEAnames(NX, NY, ND)
 
+kbl(cbind(res2_2.efficiency, res2_2.lambda), 
+    booktabs=T, digits=3, escape=F, 
+    col.names=c("$\\theta^{CRS}$", res2_1.names$LambdanamesbyletterLX),
+    caption= 'Input-Oriented Envelopment Analysis for DMU A') |>
+  kable_styling(latex_options = "hold_position")
 ```
 
 Again, the results match what would be expected from Figure 1. Now we will extend this to handle all four of the decision making units.
@@ -598,9 +602,9 @@ for (k in 1:ND) {
     res2_3.lambda[k,] <- t(as.matrix(as.numeric(
               get_solution(res2_3, vlambda[j])[,3] )))
 # Put resulting from solution in lambda matrix
-# Comes out of ompr as a dataframe, use as.matrix 
-#    to convert from data frame to matrix
-#    grabs 3rd column to put into results matrix.  
+# Comes out of ompr as a dataframe, use as.matrix to convert from 
+#    data frame to matrix
+# Grabs 3rd column to put into results matrix.  
 # First two columns of dataframe are for other info as.numeric 
 #    forces the numbers to treated as numbers rather than text.
 }
@@ -608,15 +612,17 @@ for (k in 1:ND) {
 
 Success! This indicates each of the four linear programs was solved to optimality. By itself, it doesn't help much though. We need to now display each column of results.
 
-```{r}
-Lambdanames <- list("L_A", "L_B", "L_C", "L_D")
-DMUnames <- list("A", "B", "C", "D")
-dimnames(res2_3.efficiency)<-list(DMUnames,"CCR-IO")
-dimnames(res2_3.lambda)<-list(DMUnames,Lambdanames)
-kbl (cbind(res2_3.efficiency, res2_3.lambda), booktabs=T,
-        caption="Input-Oriented Efficiency Results")          |>
-kable_styling(protect_latex = TRUE)
+```{r, echo=FALSE}
+temp <- cbind(res2_1.names$DMUnamesbyletter, # Add letters as column
+              res2_3.efficiency, res2_3.lambda) 
+kbl(temp, 
+    booktabs=T, digits=3, escape=F, row.names=F,
+    col.names=c("DMU", "$\\theta^{CRS}$", res2_1.names$LambdanamesbyletterLX),
+    caption= 'Input-Oriented Envelopment Efficiency Results') |>
+  kable_styling(latex_options = "hold_position")
 ```
+
+This table command uses a few extra practices of building the table into a temporary object, `temp` and adding a column of DMU names to it rather than using row names. Again, names have not changed from the `res2_1` so there is no need to recreate the names.  We then turn off the display of row names in the table using `row.names=F`.  
 
 The results match those observed graphically but let's discuss them. These results indicate that only DMU *C* is efficient. A rescaled version of *C* could produce the same level of output of *A*, *B*, and *D*, while using 25%, 50%, and 20% less input respectively. The targets of performance for *A* and *C* are constructed by scaling down unit *C* to a much smaller size, as shown by the the values of $\lambda$. In contrast, *D*'s performance is surpassed by a 33% larger version of *C*.
 
