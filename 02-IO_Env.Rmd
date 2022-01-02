@@ -330,7 +330,7 @@ Let's define the proportion of the studied unit's input needed by the target as 
 
 In fact, we will go one step further and say that we want to find the maximum input possible reduction in k's input or conversely, the minimum amount of the input that could be used by the target while still producing the same or more output. We do this by adding a new variable, $\theta$, which is the radial reduction in the amount of DMU *k*'s input. We want to find how low we can drive this by *minimizing* $\theta$. This gives us the following linear program, often abbreviated as LP.[^io_env-2]
 
-[^io_env-2]: The mathematics in this book is was written using LaTeX embedded within the rmarkdown document. Another benefit of using rmarkdown is that it is possible embed LaTeX without requiring using a full LaTeX document.
+[^io_env-2]: The mathematics in this book are written using LaTeX embedded within the Rmarkdown document. Another benefit of using Rmarkdown is that it is possible embed LaTeX without requiring using a full LaTeX document.
 
 $$
  \begin{split}
