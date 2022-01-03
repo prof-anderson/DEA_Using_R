@@ -17,6 +17,7 @@ BaseballCCRIO.png
 *.pdf
 CCL_1990_IO_diagram.png
 generated-images/*.png
+generated-images/*.PNG
 DEA_Using_R.tex
 DEA_Using_R.log
 DEA_Using_R.bib
