@@ -266,17 +266,159 @@ Key takeaways about the impact of orientation:
 
 We have focused on radial efficiency scores up to this point. The primary emphasis is on proportionally decreasing the inputs (input-orientation) or increasing the outputs (output-orientation). The decision of input versus output-orientation is then very important. Also, radial models generally use a second phase of slack maximization to form targets of best practices.
 
-$$
-\frac {\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}}  {\sum_{r=1}^{N^Y} \frac{s^y_r}{y_{r,k}}}
-$$
-
 Rather than dealing with slacks at the end and in a second phase, another approach is to use it directly at the beginning.  It is called the slack-based model.
 
-The simplest slack based model would be to simply use a variation of the second phase of the two phase model presented in Chapter 2.
+The simplest slack based model would be to simply use a variation of the second phase of the two phase model presented in Chapter 2.  Let's use a CRS case.  
+
+$$
+\begin{split}
+ \begin{aligned}
+    \text{max    } & \sum_{i}s^x_i + \sum_{r}s^y_r\\
+    \text{s.t.:  } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j  + s^x_i = x_{i,k} \; \forall \; i\\
+                   & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
+                   & \lambda_j , \; s^x_i, \; s^y_r \geq 0  \; \forall \; j,\; i,\; r
+  \end{aligned}
+\end{split}
+$$
+
+### Store Example of Slack-Based Model
+
+Let's revisit our grocery store example with seven stores again.
+
+```{r, echo=FALSE}
+x <- matrix(c(10, 20, 30, 50, 22, 29, 35,
+              75, 100, 220, 480, 290, 210, 220), byrow=FALSE, ncol=2, 
+            dimnames=list(LETTERS[1:7],c("x1","x2")))
+y <- matrix(c(75,100,300,400, 280, 120, 300),ncol=1,
+            dimnames=list(LETTERS[1:7],"y"))
+
+storenames<- c("Al\'s Pantry", "Bob\'s Mill", 
+               "Trader Carrie\'s", "Dilbertson\'s",
+               "Ed\'s Eggshop", "Flo\'s Farmacopia", "Gary\'s Grocery")
+temp<-cbind(storenames,x,y)
+colnames(temp)<-c("Store Name", "Employees (x1)", "Floor Space (x2)", "Sales (y)")
+kbl (temp)
+NX <- ncol(x); NY <- ncol(y); ND <- nrow(x)
+store7names <- TRA::DEAnames(NX, NY, ND)
+
+```
+
+```{r CRS2PhaseIO}
+CRS2PhaseIO.xslack    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
+CRS2PhaseIO.yslack    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
+xdata<-x
+ydata<-y
+
+RTS<-"CRS"
+for (k in 1:ND) {
+  
+  LPSlack <- MIPModel()                                             |>
+    add_variable(vlambda[j], j = 1:ND, type = "continuous", lb = 0) |>
+    add_variable(vtheta, type = "continuous")                       |>
+    add_variable(xslack[i], i = 1:NX, type = "continuous", lb = 0)  |>
+    add_variable(yslack[r], r = 1:NY, type = "continuous", lb = 0)  |>
+    
+    set_objective(vtheta, "min")                                    |>
+    
+    add_constraint(sum_expr(vlambda[j] * xdata[j,i], 
+                            j = 1:ND)+xslack[i] 
+                   - vtheta * xdata[k,i]==0, i = 1:NX)              |>
+    
+    add_constraint(sum_expr(vlambda[j] * ydata[j,r], 
+                            j = 1:ND) -yslack[r]
+                    ==ydata[k,r], r = 1:NY) 
+  
+    result1 <-   solve_model(LPSlack, with_ROI(solver = "glpk")) 
+
+    # The following are the key steps to slack maximization 
+    phase1obj <-  get_solution(result1, vtheta)  
+    # Get Phase 1 objective value
+
+    LPSlack<-add_constraint(LPSlack, vtheta==phase1obj)   
+                     # Passing result from phase 1 to phase 2
+    
+    LPSlack<-set_objective(LPSlack, sum_expr(xslack[i], i=1:NX)
+                  + sum_expr(yslack[r], r=1:NY), "max")
+              # Modify the objective function for phase 2
+    result2 <-   solve_model(LPSlack, with_ROI(solver = "glpk")) 
+    CRS2PhaseIO.efficiency[k] <-  get_solution(result2, vtheta)       
+    CRS2PhaseIO.lambda[k,] <- t(as.matrix(
+                 as.numeric(get_solution(result2, 
+                                         vlambda[.])[,3] )))
+    CRS2PhaseIO.xslack[k,]  <- t(as.matrix(
+                 as.numeric(get_solution(result2, 
+                                         xslack[.])[,3] )))
+    CRS2PhaseIO.yslack[k,]  <- t(as.matrix(
+                 as.numeric(get_solution(result2, 
+                                         yslack[.])[,3] )))
+    }
+
+CRS2PhaseIO.Res<-cbind(CRS2PhaseIO.efficiency, CRS2PhaseIO.lambda, 
+                          results.xslack, results.yslack)
+rownames(CRS2PhaseIO.Res) <- store7names$DMUnamesbyletter
+```
+
+```{r Slack1}
+Slack1.xslack    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
+Slack1.yslack    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
+
+RTS<-"CRS"
+for (k in 1:ND) {
+  
+  LPSlack <- MIPModel()                                             |>
+    add_variable(vlambda[j], j = 1:ND, type = "continuous", lb = 0) |>
+    add_variable(vtheta, type = "continuous")                       |>
+    add_variable(xslack[i], i = 1:NX, type = "continuous", lb = 0)  |>
+    add_variable(yslack[r], r = 1:NY, type = "continuous", lb = 0)  |>
+    
+    set_objective(vtheta, "min")                                    |>
+    
+    add_constraint(sum_expr(vlambda[j] * xdata[j,i], 
+                            j = 1:ND)+xslack[i] 
+                   - vtheta * xdata[k,i]==0, i = 1:NX)              |>
+    
+    add_constraint(sum_expr(vlambda[j] * ydata[j,r], 
+                            j = 1:ND) -yslack[r]
+                    ==ydata[k,r], r = 1:NY) 
+  
+    LPSlack<-set_objective(LPSlack, sum_expr(xslack[i], i=1:NX)
+                  + sum_expr(yslack[r], r=1:NY), "max")
+  
+    result2 <-   solve_model(LPSlack, with_ROI(solver = "glpk")) 
+
+    Slack1.efficiency[k] <-  get_solution(result2, vtheta)       
+    Slack1.lambda[k,] <- t(as.matrix(
+                 as.numeric(get_solution(result2, 
+                                         vlambda[.])[,3] )))
+    Slack1.xslack[k,]  <- t(as.matrix(
+                 as.numeric(get_solution(result2, 
+                                         xslack[.])[,3] )))
+    Slack1.yslack[k,]  <- t(as.matrix(
+                 as.numeric(get_solution(result2, 
+                                         yslack[.])[,3] )))
+    }
+
+Slack1.Res<-cbind(Slack1.efficiency, Slack1.lambda, 
+                          Slack1.xslack, Slack1.yslack)
+rownames(Slack1.Res) <- store7names$DMUnamesbyletter
+```
+
+Let's compare the results of our slack based model to the two-phase results from chapter 2.
+
+```{r}
+kbl (cbind(CRS2PhaseIO.Res,Slack1.Res), booktabs=T, escape=F, digits=3,
+     col.names=c("$\\theta^{CRS}$", store7names$LambdanamesbyletterLX, 
+                 store7names$SXnamesLX, store7names$SYnamesLX),
+        caption="Slack Maximizing Results from Seven Store")          |>
+  kable_styling (latex_options = c("hold_position", "scale_down"))
+```
 
 
 Simply adding slacks though means that inputs or outputs that are in smaller units tend to have have higher magnitudes.  Also, changing units of measure for inputs and outputs will affect the targets developed.  For example, changing profit as an output from millions of dollars to dollars will magnify the impact on the objective function of profit by $10^6$.  
 
+$$
+\frac {\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}}  {\sum_{r=1}^{N^Y} \frac{s^y_r}{y_{r,k}}}
+$$
 
 
 $$
