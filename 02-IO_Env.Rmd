@@ -5,7 +5,7 @@
 
 ```{r, include=FALSE, eval=FALSE}
 # library(bookdown); library(rmarkdown); rmarkdown::render("02-IO_Env.Rmd", "tufte_book2")
-library(bookdown); library(c); rmarkdown::render("02-IO_Env.Rmd", "pdf_book")
+library(bookdown); library(rmarkdown); rmarkdown::render("02-IO_Env.Rmd", "pdf_book")
 ```
 
 Data envelopment analysis or DEA is a powerful tool for conducting studies of efficiency and has been used in thousands of publications since its inception in the 1970s.
@@ -580,7 +580,6 @@ kbl(cbind(res2_2.efficiency, res2_2.lambda),
 Again, the results match what would be expected from Figure 1. Now we will extend this to handle all four of the decision making units.
 
 ```{r ompr_mult_DMUs, message=FALSE}
-
 res2_3.efficiency <- matrix(rep(-1.0, 1), nrow=ND, ncol=1)
 res2_3.lambda     <- matrix(rep(-1.0, ND), nrow=ND,ncol=ND)
 
@@ -654,7 +653,6 @@ To incorporate this, we can add another constraint to our previous model and sol
 [^io_env-3]: In R, as in many languages, the distinction between assignment and testing for equivalency is important. Two symbols are used for assignment, `=` or `<-` while `==` is used to test for whether two items are equivalent.
 
 ```{r Adding-VRS}
-
 res2_4.efficiency <- matrix(rep(-1.0, 1), nrow=ND, ncol=1)
 res2_4.lambda     <- matrix(rep(-1.0, ND), nrow=ND,ncol=ND)
 
