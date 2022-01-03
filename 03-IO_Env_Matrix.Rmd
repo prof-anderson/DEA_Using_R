@@ -16,12 +16,11 @@ The standard form of linear programming can be described as the following.
 $$
 \begin{split}
  \begin{aligned}
-    \text{minimize  }   & CX \\
-    \text{subject to } & AX \geq B\\ 
+    \text{min  }   & CX \\
+    \text{s.t.:  } & AX \geq B\\ 
                        & X \geq 0  
   \end{aligned}
    \end{split}
-  (\#eq:Ch3LPCCRIOE-Matrix-Simple)
 $$
 
 Note that in this form, *X* is a vector of variables. This is a little confusing for people doing DEA since in DEA *x* represents inputs. The vector *X* has length equal to the number of units examined plus one more for theta and the number of inputs and the number of outputs. *C* is a vector of data with the same number of elements as the *X* vector. *A* is a matrix of data and *B* is a vector describing the constraint right hand sides.
@@ -31,13 +30,12 @@ Recall that in the previous chapter we had presented the standard LP model of th
 $$
 \begin{split}
 \begin{aligned}
-    \text{minimize  }   & \theta \\
-    \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j \leq \theta x_{i,k} \forall \; i\\
-                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \forall \; r\\
-                       & \lambda_j \geq 0  \; \forall \; j
+    \text{min    } & \theta \\
+    \text{s.t.:  } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j \leq \theta x_{i,k} \; \forall \; i\\
+                   & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \;\forall \; r\\
+                   & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
    \end{split}
-  (\#eq:Ch3LPCCRIOE-NoSlack)
 $$
 
 The first step is to simply move the expression with a variable from the right hand side of the input inequality to the right handside.
@@ -45,13 +43,12 @@ The first step is to simply move the expression with a variable from the right h
 $$
 \begin{split}
  \begin{aligned}
-    \text{minimize  }   & \theta \\
-    \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} \leq 0 \forall \; i\\
-                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \forall \; r\\
-                       & \lambda_j \geq 0  \; \forall \; j
+    \text{min    } & \theta \\
+    \text{s.t.:  } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} \leq 0 \; \forall \; i\\
+                   & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \; \forall \; r\\
+                   & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
    \end{split}
-  (\#eq:Ch3LPCCRIOE-Rearranged-NoSlack)
 $$
 
 Now we will convert the model's input and output constraints from inequalities into equalities by explicitly defining slack variables. This isn't necessary just yet but will be used later in the chapter. Note that when we do so, we will be adding more variable to the *X* vector.
@@ -59,10 +56,10 @@ Now we will convert the model's input and output constraints from inequalities i
 $$
 \begin{split}
  \begin{aligned}
-    \text{minimize  }   & \theta \\
-    \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \;\forall \; i\\
-                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
-                       & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; i,r,j
+    \text{min   } & \theta \\
+    \text{s.t.: } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \;\forall \; i\\
+                  & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
+                  & \lambda_j , \;s^x_i, \;s^y_r \geq 0  \; \forall \; i,\;r,\;j
   \end{aligned}
    \end{split}
   (\#eq:Ch3LPCCRIOE-Slack)
@@ -86,16 +83,15 @@ The next step is to incorporate the data into the model. Since there is only one
 $$
 \begin{split}
  \begin{aligned}
-    \text{minimize  }   & 0\lambda_A + 0\lambda_B + 0\lambda_C + 0\lambda_D + 
+    \text{min    } & 0\lambda_A + 0\lambda_B + 0\lambda_C + 0\lambda_D + 
                           1\theta + 0s^x_1 + 0s^y_1\\
-    \text{subject to } & 10\lambda_A + 20\lambda_B + 30\lambda_C + 50\lambda_D -
+    \text{s.t.:  } & 10\lambda_A + 20\lambda_B + 30\lambda_C + 50\lambda_D -
                           20\theta + 1s^x_1 + 0s^y_1 = 0\\
-                       & 75\lambda_A + 100\lambda_B + 300\lambda_C + 400\lambda_D + 
+                   & 75\lambda_A + 100\lambda_B + 300\lambda_C + 400\lambda_D + 
                            0\theta + 0s^x_1 - 1s^y_1 = 100\\
-                       & \lambda_A, \lambda_B, \lambda_C, \lambda_D, \theta, s^x_1, s^y_1 \geq 0  \;
+                   & \lambda_A, \; \lambda_B, \; \lambda_C, \; \lambda_D, \; \theta, \; s^x_1, \; s^y_1 \geq 0  \;
   \end{aligned}
    \end{split}
-  (\#eq:Ch3LPCCRIOE-Data)
 $$
 
 Notice that this formulation now includes seven decision variables. The linear programming convention is to define the vector of all variables to be *X*. In this case, $X=[\lambda_A, \lambda_B, \lambda_C, \lambda_D, \theta, s^x_1, s^y_1 ]^\tau$. The $^\tau$ is a transpose operator that changes a vector from a column vector to a row vector or row to column. In this case, the *X* is a column vector but the elements are shown as a horizontal row vector to save space and then flipped using the transpose operator. Using the *X* vector for decision variables allows us to separate the data from the variables into the following.
@@ -103,10 +99,10 @@ Notice that this formulation now includes seven decision variables. The linear p
 $$
 \begin{split}
  \begin{aligned}
-    \text{minimize  }   & \begin{bmatrix}
+    \text{min }   & \begin{bmatrix}
          0 & 0 & 0 & 0 & 1 & 0 & 0
      \end{bmatrix} X \\
-    \text{subject to } & \begin{bmatrix}
+    \text{s.t.:  } & \begin{bmatrix}
          10 & 20 & 30 & 50 & -20 & 1 & 0 & \\ 
           75 & 100 & 300 & 400  & 0 & 0 & -1 &
      \end{bmatrix}  X \begin{matrix}
@@ -118,7 +114,6 @@ $$
    & X \geq 0  
   \end{aligned}
 \end{split}
-(\#eq:Ch3LPCCRIOE-Matrix-Example)
 $$
 
 Now, let's show the data elements. The *C* vector contains the coefficients of the objective function.
@@ -129,7 +124,6 @@ $$
          0 & 0 & 0 & 0 & 1 & 0 & 0
      \end{bmatrix}  
 \end{split}
-(\#eq:Ch3Data-CElement)
 $$
 
 The *A* matrix contains the variable's coefficients from the constraints.
@@ -141,7 +135,6 @@ $$
           75 & 100 & 300 & 400  & 0 & 0 & -1 &
      \end{bmatrix}  \\
 \end{split}
-(\#eq:Ch3Data-AElement)
 $$
 
 Lastly, the *B* vector contains the right hand sides of the constraints.
@@ -153,8 +146,9 @@ $$
 100
 \end{bmatrix} 
 \end{split}
-(\#eq:Data-BElement)
-$$ The bulk of the LP is then defined by passing along the numerical A matrix and the vectors of B and C.
+$$ 
+
+The bulk of the LP is then defined by passing along the numerical A matrix and the vectors of B and C.
 
 As models get larger, the full numerical representation becomes difficult for humans to read even if it is a very good format for computers. If you stare at that too long, you may go "bug-eyed." Personally I really like the algebraic representations. The `lpSolve`package in R is capable of taking an LP model in this form and solving it. Now we just need to structure the data in R to put it in the same format.
 
@@ -303,7 +297,7 @@ The above commands have two important functions. The first merely sets it to be 
 The `lp.control` function returns a long list of options being used for the linear programming solver. The defaults are fine for now and it can take a full page to list all the settings so I just store it into an object, `lpcontrol` so it doesn't display it for now.
 
 ```{r Display-lp-with-Obj}
-   lpe 
+lpe 
 ```
 
 Now we will prepare for adding names to elements of our data matrix. This is a little tricky so don't worry if these commands are initially confusing. Also, if you are fluent in R, you can probably come up with more elegant ways of doing this.

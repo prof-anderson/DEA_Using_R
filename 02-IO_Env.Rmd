@@ -5,7 +5,7 @@
 
 ```{r, include=FALSE, eval=FALSE}
 # library(bookdown); library(rmarkdown); rmarkdown::render("02-IO_Env.Rmd", "tufte_book2")
-library(bookdown); library(c); rmarkdown::render("02-IO_Env.Rmd", "pdf_book")
+library(bookdown); library(rmarkdown); rmarkdown::render("02-IO_Env.Rmd", "pdf_book")
 ```
 
 Data envelopment analysis or DEA is a powerful tool for conducting studies of efficiency and has been used in thousands of publications since its inception in the 1970s.
@@ -44,75 +44,69 @@ As the manager responsible for the stores in the region, there are many question
 We'll start by drawing a visual representation of the input-output model. The function `DrawIOdiagram` is from the `TRA` package and allows for creating a nicely formatted input-output diagram.  For those that are new to `R`, it is important to load each package before its use using the `library` command. The library command loads it into memory but also package will need to be installed first.  Most packages are available on CRAN and can be installed from CRAN by using install.packages command. RStudio makes it easier by just clicking on the install button in the IDE.  The `TRA` package 
 \vspace{12pt}
 
-```{r DEA_IO_Plot1, out.width="2in"}
+We'll start by drawing a visual representation of the input-output model. The function `DrawIOdiagram` is from the `TRA` package and allows for creating a nicely formatted input-output diagram. \index{DrawIOdiagram}
+
+```{r DEA-IO-Plot1, eval=FALSE, out.width="50%", fig.align='center', fig.cap="A Simple DEA Model for Store Management"}
 library (TRA) # Note, may need to install directly from github
-              # install.packages("remotes")
-              # library(remotes)
               # remotes::install_github("prof-anderson/TRA")
+library (DiagrammeR)
 library (rsvg)
-library (DiagrammeR, quietly=TRUE) 
-library (DiagrammeRsvg, quietly=TRUE) 
-library (rsvg, quietly=TRUE) 
-library (htmltools, quietly=TRUE)
-# fig.cap='A Simple DEA Model for Store Management'
 Figure <- DrawIOdiagram (c("Employees\n(FTE)" ), 
                          c("Sales\n($/week)"), 
-                         '"\nStore\n "')
+                         c("\nStore\n "))
 tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),
-                             'images/DEA_IO_stores.PNG')) 
+                             'generated-images/DEA_IO_stores.PNG')) 
+knitr::include_graphics("generated-images/DEA_IO_stores.PNG")
+
 ```
 
-![A Simple DEA Model for Store Management](images/DEA_IO_stores.PNG){#fig:DEA_IO_stores}
+The figure for drawing input-output diagrams is worth a little discussion and explanation.
 
-I find this visual diagram a helpful representation that making a function is helpful. A few things to note about the function as used. First, it creates a graphic image and saves it in a project subdirectory named `images`. If you don't have an images directory, you can create one or modify the statement to remove it. Another nice feature is that the text passed to the function such as `"Sales\\n(\$/week)"` allows for a line return character such as `"\\n"`.  
+This follows three steps to work for both HTML & PDF:
 
-Now we will create the corresponding data.
+1.  Generate diagram object and save to Figure object
+2.  Export Figure as image to images directory
+3.  Display image
 
-```{r}
+A few other things to note from reading the previous code chunk:
 
+1.  It assumes that there is a subdirectory for images - if there isn't a subdirectory for images, you can create one or edit the path.  I created a subdirectory `generated-images` to highlight that these are images that I am creating through R and do not need to be included in the github repository.
+2.  The text passed to the function such as `"Sales\n($/week)"` allows for a line return character such as `"\n"`.  This allows the name of the output and the unit to be on separate line.  The line return is also used to provide a taller box by being placed above and below the label for the box.  
+
+Let's get started now with creating our data.  
+
+```{r Displaying_First_Dataset}
 x <- matrix(c(10,20,30,50),ncol=1, 
             dimnames=list(LETTERS[1:4],"x"))
 y <- matrix(c(75,100,300,400),ncol=1,
             dimnames=list(LETTERS[1:4],"y"))
 
-StoreNames<- c("Al\'s Pantry", 
-               "Bob\'s Mill", 
-               "Trader Carrie\'s", 
-               "Dilbertson\'s")
-StoreData<-cbind(StoreNames,x,y)
-colnames(StoreData)<-c("Store Name", "Employees (x)", 
-                  "Sales (y)")
-
+storenames<- c("Al\'s Pantry", "Bob\'s Mill", 
+               "Trader Carrie\'s", "Dilbertson\'s")
+temp<-cbind(storenames,x,y)
+colnames(temp)<-c("Store Name", "Employees (x)", "Sales (y)")
 ```
 
-Note that the `cbind` function is used to do a column-wise binding of three objects, `StoreNames`, `x` and `y` so that they are side by side.  
+The above commands create matrices that hold the data and have named rows and columns to match. The `<-` symbol is a key function in R and means to assign what is in the right to the object on the left.  We are creating the input and output data, named `x` and `y`.  A temporary table, `temp` is then made for combining all the information in a single table.  The apostrophe for store names needs to be prefixed with a slash to avoid it being misinterpreted when use it for a table.    
 
-```{r}
-library(kableExtra)
-kbl(StoreData, booktabs=T, caption="First Dataset for DEA")
-# kbl is a shorthand for kable
-# booktabs is an option for making formal publishing table format
+The next code chunk creates the table. We will use `kable` from the `knitr` package for displaying the table.  We will use the added package `KableExtra` to provide a simpler way to do sophisticated tables. We'll provide the code chunk for this table but generally avoid code chunks for displaying tables in the future unless there is a specific item to show. Key items in this code chunk is that we ensure the `kableExtra` package is loaded.  The `kbl` command is used to provide a shortcut for the `kable` function with explicit options available. The `booktabs` option is for generating clean PDF formatting of the tables required by the publisher, `escape` allows for LaTeX characters and code to be used as needed.  The piping operator `|>` means to pass the previous command's results into the next command. The piping operator requires R 4.1.0 or higher to be used. The `kable_styling` command provides a lot more formatting richness.  In this case, it is passing an option of `hold_position` to ensure that LaTeX keeps the table placed close to this location.  For more information on using kable and kableExtra for doing mathematical modeling, see Appendix D of *Optimization Modeling Using R*.  
+
+```{r first-dataset-table}
+library (kableExtra)
+kbl (temp, booktabs=T, escape=F,
+     caption="First Dataset for DEA") |>
+  kable_styling(latex_options = "hold_position")
 ```
-
-Which of these units are the best? Which are laggards? Simply looking at the data is difficult. Let's get started now with R.
-
-While we aren't giving a formal introduction to R, let's start by explaining the above commands. The first line `library (kableExtra)` loads a package that extends the more basic `kable` package.  `kableExtra` has a number of improvements including resizing tables, a shorthand notation, and much more. [^io_env-1]
-
-[^io_env-1]: `kableExtra` is one of many thousands of contributed external packages that can be downloaded to extend R. If it does not work to load it using the library, you likely need to install it onto your computer using the `install` command.
-
-The following command creates a matrix that hold the data. The data consists of a concatenated or combined list using the `c` command of four numbers. The number of columns for this matrix is set to one (ncol=1) and therefore there are four rows. The matrix has row names based on the first four capital letters and a column name of `x`. By convention, DEA practitioners typically use x to denote input. The \<- symbol is a key function in R and it assigns what is on the right to the object on the left. 
-
-The same is done for creating a set of output, y.
-
-The last command uses the `kbl` function  to display the combined data. 
 
 For benchmarking, we want to know which ones are doing the best job.
 
-Can you tell which units represent the best tradeoff between inputs and outputs? None of the units are dominated by any of the other units. Dominance would be producing more outputs using less input so let's move on to looking at it graphically.
+Can you tell which stores represent the best tradeoff between inputs and outputs? None of the stores are strictly dominated by any of the other stores. Dominance would be producing more outputs using less input so let's move on to looking at it graphically.
 
 ## Graphical Analysis
 
-Let's start by doing a simple plot of the data. For now, I'm going to make use of a function in Peter Bogetoft and Lars Otto's `Benchmarking` package which provides a very handy two-dimensional plot in the format often used for showing production. The first line loads the `Benchmarking`package and uses an optional parameter of quietly in order to not display comments that might be generated. The `dea.plot`function takes the data and then a variety of custom options, many of them specific to DEA types of plots. `RTS`represents returns to scale and will be dealt with in more detail later in this chapter as will orientation. The `txt`parameter is used for passing data point labels. In this case, we check the length of the vector `x`, see that it has four letters, and then set `txt` to a list of the first four capital letters, A, B, C, and D. If we had used the `letters` function instead of `LETTERS` and 2:5, it would have given the letters b, c, d, and e. Since the `dea.plot` function is built upon standard R plot routines, the authors wisely allow for parameters to also be be passed. For example, `fex`sets a scaling for the text data labels. For more information on how to use the `Benchmarking` package along with a more economics-oriented treatment of DEA, please refer to the package's help file or [@BogetoftBenchmarkingDEASFA2011].
+Let's start by doing a simple plot of the data. For now, I'm going to make use of a function in Peter Bogetoft and Lars Otto's `Benchmarking` package which provides a very handy two-dimensional plot in the format often used for showing production. 
+
+The first line loads the `Benchmarking` package and uses an optional parameter of quietly in order to not display comments that might be generated. The `dea.plot`function takes the data and then a variety of custom options, many of them specific to DEA types of plots. `RTS`represents returns to scale and will be dealt with in more detail later in this chapter as will orientation. The `txt`parameter is used for passing data point labels. In this case, we check the length of the vector `x`, see that it has four letters, and then set `txt` to a list of the first four capital letters, A, B, C, and D. If we had used the `letters` function instead of `LETTERS` and 2:5, it would have given the letters b, c, d, and e. Since the `dea.plot` function is built upon standard R plot routines, the authors wisely allow for parameters to also be be passed. For example, `fex`sets a scaling for the text data labels. For more information on how to use the `Benchmarking` package along with a more economics-oriented treatment of DEA, please refer to the package's help file or [@BogetoftBenchmarkingDEASFA2011].
 
 ```{r  fig.cap="Plot of First Data Set"}
 library(Benchmarking, quietly=TRUE)
@@ -123,7 +117,7 @@ dea.plot(x, y, RTS="crs", ORIENTATION="in-out",
          fex=1, GRID=TRUE, RANGE=FALSE, param=NULL)
 ```
 
-This chart clearly shows that unit *C* has the best ratio of output (y) to input (x). The diagonal line represents an efficiency frontier of best practices that could be achieved by scaling up or down unit *C*. As the input is scaled up or down, it is assumed that the output of unit *C* would be scaled up or down by the same value. We will revisit this assumption in a later section but for now, think of this as saying that unit *C* cannot enjoy economies of scale by getting larger or suffer from diseconomies of scale by getting smaller so it is referred to as constant returns to scale or CRS.
+This chart shows that unit *C* has the best ratio of output (y) to input (x). The diagonal line represents an efficiency frontier of best practices that could be achieved by scaling up or down unit *C*. As the input is scaled up or down, it is assumed that the output of unit *C* would be scaled up or down by the same value. We will revisit this assumption in a later section but for now, think of this as saying that unit *C* cannot enjoy economies of scale by getting larger or suffer from diseconomies of scale by getting smaller so it is referred to as constant returns to scale or CRS.
 
 Furthermore, we can graphically examine the technical efficiency of each of the other units. I'm going to start with unit B since it is a little easier to visualize. For now, let's think of the question, how much more or less input would *C* require to produce as much output as *B*.
 
@@ -133,13 +127,187 @@ Another result of the analysis is how to construct the target for *B*'s evaluati
 
 The same steps can be followed for analyzing units *A*, *C*, and *D* resulting in efficiencies of 75%, 100%, and 80% respectively.
 
-## The Linear Programs for DEA
+## A First Linear Program for DEA
 
 The graphical approach is intuitive but accuracy is limited to that of drawing tools. More importantly, it does not scale to more complex models with multiple inputs and outputs. Let's frame this topic mathematically so that we can proceed systematically.
 
+### Developing the Linear Program 
+
+Let's begin to frame this more mathematically. From the graphical figure, we could say that we want to create a target for evaluating store B based on some multiple of store C. We want to create targets for B that produce at least as much output using the same input or less. For now, let's emphasize input-reduction.  In this case, we modify this to say that we want to use as little input while using the same output. Given that we have a single set input and single output case and we know that C is the standard setter for everyone, we can frame this mathematically.
+
+Let's define this multiplier of unit C as $\lambda_C$.  Given the emphasis on input-reduction, we can now require the target for B must produce the same level of output, as B actually did. This would be $y_C\cdot\lambda_C=y_B$ in terms of our data or  $300\cdot\lambda_C=100$ or  $\lambda_C=\frac{1}{3}$. The use of a Greek symbol, $lambda$ is a common convention in the DEA field.  It helps in avoiding confusion that *x* and *y* are commonly as variables but in DEA these are fixed data values.  
+
+Let's confirm this target based on $\lambda_C=$ does in fact use less input than B does.  The target uses $x_C\cdot\lambda_C=30\cdot\frac{1}{3}=10$.  Since the target only requires a *10* employees (input) as compared to the *20* used by B, we can say that the target for store B uses just 50% of the input used by the actual store B.  We might term this efficiency, $\theta$ as the target input divided by the actual input.  
+
+$$\theta=\frac{x_C\cdot\lambda_C}{x_B}=\frac{30\cdot\frac{1}{3}}{20}=\frac{10}{20}=0.50$$
+
+We could also rewrite that relationship for $\theta$ as $x_c\cdot\lambda_C=x_b\cdot\theta$.  The best target for performance is based on C.  If we did not know that we might try doing the same calculations using A, B, and D with $\lambda_A$, $\lambda_B$, and $\lambda_D$,  respectively.  The values of $\theta$ would be higher in each case.
+
+In general, we don't usually know which unit is the standard setter as we did in this case for C so let's work on generalizing this.  Let's use all of the $lambda$ variables at once.  We'll also allow blended targets constructed out of parts of each of the four stores.
+
+What we are really doing by finding the *best* target is finding the smallest value of $\theta$ that still produces the same level of output using the least of input.
+
+On the output side we are saying: 
+
+$$y_A\cdot\lambda_A + y_B\cdot\lambda_B + y_C\cdot\lambda_C +y_D\cdot\lambda_D =  y_B$$
+
+Substituting in numbers this would be
+
+$$75\cdot\lambda_A + 100\cdot\lambda_B + 300\cdot\lambda_C +400\cdot\lambda_D =  100$$
+
+The input relationship could be thought of as 
+
+$$x_A\cdot\lambda_A + x_B\cdot\lambda_B + x_C\cdot\lambda_C +x_D\cdot\lambda_D = \theta \cdot x_B$$
+
+Our goal is to find the *best* target or smallest value of $theta$.  We could then pull this together to say
+
+$$
+\begin{split}
+ \begin{aligned}
+    \text{minimize  }   & \theta \\ 
+  &  y_A\cdot\lambda_A + y_B\cdot\lambda_B + y_C\cdot\lambda_C +y_D\cdot\lambda_D =  y_B\\
+ & x_A\cdot\lambda_A + x_B\cdot\lambda_B + x_C\cdot\lambda_C +x_D\cdot\lambda_D = \theta \cdot x_B
+\end{aligned}
+  \end{split}
+$$
+
+This is a linear program which we could then enter and run.  If we do so, we would find that same of the values of $\lambda$ would be negative.  Using negative values of a store to make a target for performance doesn't really make sense this in application.  A zero value makes sense but not a negative value so we add non-negativity constraints or bounds on the $\lambda values.
+
+$$
+\begin{split}
+ \begin{aligned}
+    \text{minimize  }   & \theta \\ 
+  \text{subject to:  }   &  y_A\cdot\lambda_A + y_B\cdot\lambda_B + y_C\cdot\lambda_C +y_D\cdot\lambda_D =  y_B\\
+ & x_A\cdot\lambda_A + x_B\cdot\lambda_B + x_C\cdot\lambda_C +x_D\cdot\lambda_D = \theta \cdot x_B \\
+ & x_A, \; x_B, \; x_C, \; x_D \geq 0 
+\end{aligned}
+  \end{split}
+$$
+
+Next, since we are trying to find the smallest possible value of $\theta$, we could in fact relax the equality constraints to be inequalities.  For the output, the target for B must be at least as large as the actual output of B.  For the input constraint we could say that the target input for B cannot exceed the reduced input used by B.  For brevity, we can also abbreviate *minimize*  as *min* and *subject to* as *s.t.*.  This gives us the following linear program formulation.
+
+$$
+\begin{split}
+ \begin{aligned}
+    \text{min  }   & \theta \\ 
+  \text{s.t.:  }   &  y_A\cdot\lambda_A + y_B\cdot\lambda_B + y_C\cdot\lambda_C +y_D\cdot\lambda_D \geq  y_B\\
+ & x_A\cdot\lambda_A + x_B\cdot\lambda_B + x_C\cdot\lambda_C +x_D\cdot\lambda_D \leq \theta \cdot x_B \\
+ & x_A, \; x_B, \; x_C, \; x_D \geq 0 
+\end{aligned}
+  \end{split}
+$$
+
+### Implementing a First Linear Program for DEA
+
+Let's make a simple, explicit linear program for doing DEA. We are going to use the `ompr` package.
+
+For this case, let's use the numbers directly for values of inputs and outputs.
+
+$$
+ \begin{split}
+ \begin{aligned}
+    \text{Min    } & \theta &\text{[Efficiency]}\\
+    \text{s.t.:  } & 75 \lambda_A + 100 \lambda_B +
+                    300 \lambda_C + 400 \lambda_D 
+                    \geq 100 &\text{[Output]}\\
+                    & 10 \lambda_A + 20 \lambda_B +
+                    30 \lambda_C + 50 \lambda_D 
+                    \leq 20 \theta &\text{[Input]}\\
+                  & \lambda_A , \; \lambda_B , \; \lambda_D , \; \lambda_D \geq 0  
+  \end{aligned}
+  \end{split}
+$$
+
+We're going to use our data from earlier but first we will load a collection of libraries to be used later. The `ompr`package is for optimization and serves as a general human readable format of optimization models that can then interface with a variety of solver engines. The `ROI.plugin.glpk` package is for the specific solver engine, `glpk`, that we used. Other LP solving engines are available and can be used instead.
+
+```{r loading_packages, message=FALSE, warning=FALSE}
+library(dplyr, quietly=TRUE)           
+library(ROI, quietly=TRUE)             
+library(ROI.plugin.glpk, quietly=TRUE) 
+library(ompr, quietly=TRUE)            
+library(ompr.roi, quietly=TRUE)        
+```
+
+The `dplyr` package is useful for a broad range of data analysis. The `ROI` package is the R Optimization Interface and provides a standardized interface layer to different optimization routines. The specific routines are provided through a plugin, in this case, `ROI.plugin.glpk` for the glpk optimization system. A variety of other optimization systems can be used as well by using the corresponding plugin. The `ompr` package provides the algebraic modeling functions for building the model to then pass to `ROI` by way of the `ompr.roi` package. While this layered structure may sound complicated, it has several important benefits. First, it allows for concise algebraic representation of the linear program by way of `ompr`. Second, the use of the `ROI` layer allows the analyst to change the optimization system used (such as from `glpk` to `symphony`) without affecting the model built.
+
+```{r}
+mod2_0 <- MIPModel ()
+```
+
+The `MIPModel` command creates an initial, empty model which we name `mod2_0` to represent our initial optimation model in chapter.
+
+The following commands create and add each of the four $\lambda$ variables one at a time to the `mod2_0` model and resaves it as the same model. We can't use Greek symbol, $\lambda$ directly in the `ompr` model so we will use a capital `L` instead.  Each of these $\lambda$ variables are defined to be continuous variables and have lower bounds set of 0 by using `lb=0`.
+
+The $\theta$ variable is added in the same manner but does not need a lower bound 0
+```{r}
+mod2_0 <- add_variable(mod2_0, VL_A, type="continuous", lb=0)
+mod2_0 <- add_variable(mod2_0, VL_B, type="continuous", lb=0)
+mod2_0 <- add_variable(mod2_0, VL_C, type="continuous", lb=0)
+mod2_0 <- add_variable(mod2_0, VL_D, type="continuous", lb=0)
+
+mod2_0 <- add_variable(mod2_0, Vtheta, type="continuous")
+```
+
+We can call get a summary of our status of building up the `mod2_0` linear program model by just entering `mod2_0` object.
+
+```{r}
+mod2_0
+```
+
+We can see that we have five variables.  Let's proceed to adding our objective function.
+
+```{r}
+mod2_0 <- set_objective(mod2_0, Vtheta, "min")
+```
+
+Next we can add our input constraint.
+
+```{r}
+mod2_0 <- add_constraint (mod2_0, 10*VL_A+20*VL_B+30*VL_C+50*VL_D <= 20*Vtheta)
+```
+
+Our last `ompr` model building command is to add our output constraint.
+
+```{r}
+mod2_0 <- add_constraint (mod2_0, 75*VL_A+100*VL_B+300*VL_C+400*VL_D >= 100)
+```
+
+We can now solve the linear programming model and place the results in `res2_0`.  We are going to use the `glpk` linear programming solver.  
+
+```{r}
+res2_0 <- solve_model(mod2_0, with_ROI (solver="glpk"))
+```
+
+Let's check the status to ensure that it found an optimal solution.
+
+```{r}
+res2_0$status
+```
+
+Now, let's examine the results.
+
+```{r}
+res2_0$solution
+```
+
+Lastly, let's provide the results in a nicely formatted table with column names corresponding to the mathematical model.
+
+```{r}
+kbl(t(as.matrix(res2_0$solution)), 
+    digits =3, booktabs=T, escape=F,
+    col.names=c("$\\lambda_A$", "$\\lambda_B$", "$\\lambda_C$", 
+                "$\\lambda_D$", "$\\theta$"),
+    caption="Initial Input-Oriented Envelopment Analysis for DMU B") |>
+  kable_styling(latex_options = "hold_position")
+```
+
+The first line takes the solution solution object, converts it to a matrix, and then transposes it from a row orientation to a column orientation. The second line sets the number of digits to 3, `booktabs` is set again for high quality publication, and `escape` is set to `FALSE` or `F` in order to enable LaTeX for column names.  The third and fourth lines of code provide LaTeX symbols for column names.  The fifth line sets a caption and then pipes the kable object to a function that then holds the position in the LaTeX rendered page.  
+
+## A More Formal and General Linear Program
+
 A key way to begin the mathematical development of the envelopment model is to ask, can you find a combination of units that produces a target with at least as much output using less input? The blend of other units is described by a vector $\lambda$. Another way to denote this is $\lambda_j$ is the specific amount of a unit *j* used in setting the target for for performance for unit *k*.
 
-This can be easily expanded to the multiple input and multiple output case by defining $x_{i,j}$ to be the amount of the *i*'th input used by unit *j* and $y_{r,j}$ to be the amount of the *r*'th output produced by unit *j*. For simplicity, this example will focus on the one input and one output case rather than the *m* input and *s* output case but the R code explicitly allows for $m,s>1$. To make the code more readable, I will use a slightly different convention $N^X$ or NX instead of *m* to refer to the number of inputs (x's) and $N^Y$ or NY to be the number of outputs (y's) instead of *s*. Also, the normal mathematical convention is to use *n* to denote the number of Decision Making Units (DMUs) so I will use $N^D$ or ND to indicate that in the R code.
+This can be easily expanded to the multiple input and multiple output case by defining $x_{i,j}$ to be the amount of the *i*'th input used by unit *j* and $y_{r,j}$ to be the amount of the *r*'th output produced by unit *j*. For simplicity, this example will focus on the one input and one output case rather than the *m* input and *s* output case but the R code explicitly allows for $m,s>1$. To make the code more readable, I will use a slightly different convention $N^X$ or `NX` instead of *m* to refer to the number of inputs (x's) and $N^Y$ or `NY` to be the number of outputs (y's) instead of *s*. Also, the normal mathematical convention is to use *n* to denote the number of Decision Making Units (DMUs) so I will use $N^D$ or `ND` to indicate that in the R code.
 
 Let's connect these ideas together now using these mathematical building blocks. The core idea of the envelopment model of a DMU *k* can be thought of as to find a target constructed of a mix of the DMU's described by a vector $\lambda$ that uses no more input to achieve the same or more every output as DMU *k*. The amount of the *i'th* input used by the target is then $\sum_{j=1}^{N^D} x_{i,j}\lambda_j$. By the same token, the amount of the *r'th* output produced by the target is $\sum_{j=1}^{N^D} y_{r,j}\lambda_j$.
 
@@ -166,15 +334,15 @@ Let's define the proportion of the studied unit's input needed by the target as 
 
 In fact, we will go one step further and say that we want to find the maximum input possible reduction in k's input or conversely, the minimum amount of the input that could be used by the target while still producing the same or more output. We do this by adding a new variable, $\theta$, which is the radial reduction in the amount of DMU *k*'s input. We want to find how low we can drive this by *minimizing* $\theta$. This gives us the following linear program, often abbreviated as LP.[^io_env-2]
 
-[^io_env-2]: The mathematics in this book is was written using LaTeX embedded within the rmarkdown document. Another benefit of using rmarkdown is that it is possible embed LaTeX without requiring using a full LaTeX document.
+[^io_env-2]: The mathematics in this book are written using LaTeX embedded within the Rmarkdown document. Another benefit of using Rmarkdown is that it is possible embed LaTeX without requiring using a full LaTeX document.
 
 $$
  \begin{split}
  \begin{aligned}
-    \text{minimize  }   & \theta \\
-    \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j \leq \theta x_{i,k} \; \forall \; i\\
-                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \; \forall \; r\\
-                       & \lambda_j \geq 0  \; \forall \; j
+    \text{min    } & \theta \\
+    \text{s.t.:  } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j \leq \theta x_{i,k} \; \forall \; i\\
+                   & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \; \forall \; r\\
+                   & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
   (\#eq:Ch2LPCCRIOE-NoSlack-Simple)
   \end{split}
@@ -185,16 +353,16 @@ Expressing the target on the left and the actual unit's value with the radial re
 $$
 \begin{split}
 \begin{aligned}
-    \text{minimize  }   & \theta \\
-    \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} \leq 0 \; \forall \; i\\
-                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \;  \forall \; r\\
-                       & \lambda_j \geq 0  \; \forall \; j
+    \text{min  }   & \theta \\
+    \text{s.t.:  } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} \leq 0 \; \forall \; i\\
+                   & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \;  \forall \; r\\
+                   & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
   (\#eq:Ch2LPCCRIOE-NoSlack)
  \end{split}
 $$
 
-## Creating the LP - The Algebraic Approach
+### Implementing the LP Algebraically
 
 There are two fundamentally different approaches to setting up linear programs for solving. The first approach is to define data structures to pass vectors for the objective function coefficients and constraint right hand sides along with a matrix of data describing the constraints. This requires careful setting up of the linear programs and is a bigger cognitive step away from the mathematical representation. Another approach is to use algebraic modeling languages. Standalone algebraic optimization modeling languages include LINGO, AMPL, GAMS, GMPL, and others.
 
@@ -203,56 +371,30 @@ Until recently, R did not have the ability to do algebraic modeling optimization
 Let's define some data structures for holding our data and results.
 
 ```{r Declaring_Structures_of_Results_ompr}
+ND <- nrow(x); NX <- ncol(x); NY <- ncol(y); # Define data size
 
-  ND <- nrow(x); NX <- ncol(x); NY <- ncol(y); # Define data size
+xdata<-x[1:ND,] 
+dim(xdata)<-c(ND,NX) 
+ydata<-y[1:ND,]
+dim(ydata)<-c(ND,NY)
 
-  xdata<-x[1:ND,] 
-  dim(xdata)<-c(ND,NX) 
-  ydata<-y[1:ND,]
-  dim(ydata)<-c(ND,NY)
-                 # Now we will create lists of names
-  DMUnames <- list(c(LETTERS[1:ND]))               
-           # DMU names: A, B, ...
-  Xnames <- lapply(list(rep("X",NX)),paste0,1:NX)   
-           # Input names: x1, ...
-  Ynames <- lapply(list(rep("Y",NY)),paste0,1:NY)   
-           # Output names: y1, ...
-  Vnames <- lapply(list(rep("v",NX)),paste0,1:NX)   
-           # Input weight names: v1, ...
-  Unames <- lapply(list(rep("u",NY)),paste0,1:NY)   
-           # Output weight names: u1, ...
-  SXnames <- lapply(list(rep("sx",NX)),paste0,1:NX) 
-           # Input slack names: sx1, ...
-  SYnames <- lapply(list(rep("sy",NY)),paste0,1:NY) 
-           # Output slack names: sy1, ...
-  Lambdanames <- lapply(list(rep("L_",ND)),paste0, 
-                        LETTERS[1:ND])
+       # Now we will create lists of names
+DMUnames <- list(c(LETTERS[1:ND]))               
+       # DMU names: A, B, ...
+Xnames <- lapply(list(rep("X",NX)),paste0,1:NX)   
+       # Input names: x1, ...
+Ynames <- lapply(list(rep("Y",NY)),paste0,1:NY)   
+       # Output names: y1, ...
+Lambdanames <- lapply(list(rep("L_",ND)),paste0, 
+                      LETTERS[1:ND])
 
-  results.efficiency <- matrix(rep(-1.0, ND), nrow=ND)
-  dimnames(results.efficiency)<-c(DMUnames,"CCR-IO")  
+results.efficiency <- matrix(rep(-1.0, ND), nrow=ND)
+dimnames(results.efficiency)<-c(DMUnames,"CCR-IO")  
   
-  results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,)
-  dimnames(results.lambda)<-c(DMUnames,Lambdanames)
-
-  results.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND) 
-  dimnames(results.xslack)<-c(DMUnames,SXnames)
-
-  results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND) 
-  dimnames(results.yslack)<-c(DMUnames,SYnames)
+results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND)
+dimnames(results.lambda)<-c(DMUnames,Lambdanames)
 
 ```
-
-We're going to use our data from earlier but first we will load a collection of libraries to be used later. The `ompr`package is for optimization and serves as a general human readable format of optimization models that can then interface with a variety of solver engines. The `ROI.plugin.glpk` package is for the specific solver engine, `glpk`, that we used. Other LP solving engines are available and can be used instead.
-
-```{r loading_packages, message=FALSE, warning=FALSE}
-library(dplyr, quietly=TRUE)           
-library(ROI, quietly=TRUE)             
-library(ROI.plugin.glpk, quietly=TRUE) 
-library(ompr, quietly=TRUE)            
-library(ompr.roi, quietly=TRUE)        
-```
-
-The `dplyr` package is useful for a broad range of data analysis. The `ROI` package is the R Optimization Interface and provides a standardized interface layer to different optimization routines. The specific routines are provided through a plugin, in this case, `ROI.plugin.glpk` for the glpk optimization system. A variety of other optimization systems can be used as well by using the corresponding plugin. The `ompr` package provides the algebraic modeling functions for building the model to then pass to `ROI` by way of the `ompr.roi` package. While this layered structure may sound complicated, it has several important benefits. First, it allows for concise algebraic representation of the linear program by way of `ompr`. Second, the use of the `ROI` layer allows the analyst to change the optimization system used (such as from `glpk` to `symphony`) without affecting the model built.
 
 We are going to start by building a model for just one DMU, in this case, the second DMU (B) by setting `k`to be 2.
 
@@ -273,13 +415,12 @@ mod2_1 <- add_variable(mod2_1,
              vlambda[j], j = 1:ND, type = "continuous", lb = 0) 
 ```
 
-Let's start with our $\lambda$ variables. In this statement, we add variables named `vlambda` to the model, mod2_1 and assign the more complete object back to the same object, mod2_1. We set `vlambda` to have separate variables, indexed from `1` to `ND`, each of which are of a continuous type and have a lower bound (`lb`) of zero. Since we have 4 units that can have elements mixed, ND=4, and therefore we have four non-negative continuous variables. Note that I follow a convention of prefixing all linear programming variables with a v to differentiate from a variable inside of an `ompr` model and other R objects in my working environment. Conflicts between `R` and `ompr` variables seem to arise often among `ompr` users.
+Let's start with our $\lambda$ variables. In this statement, we add variables named `vlambda` to the model, mod2_1 and assign the more complete object back to the same object, mod2_1. We set `vlambda` to have separate variables, indexed from `1` to `ND`, each of which are of a continuous type and have a lower bound (`lb`) of zero. Since we have 4 units that can have elements mixed, ND=4, and therefore we have four non-negative continuous variables. Note that I follow a convention of prefixing all linear programming variables with a `v` to differentiate from a variable inside of an `ompr` model and other R objects in my working environment. Conflicts between `R` and `ompr` variables seem to arise often among `ompr` users.
 
 Next, let's add the $\theta$ variable.
 
 ```{r}
-mod2_1 <- add_variable(mod2_1,
-             vtheta, type = "continuous") 
+mod2_1 <- add_variable(mod2_1, vtheta, type = "continuous") 
 ```
 
 This follows the same format but there is only one variable. Also, it does not need to have a lower bound.
@@ -287,8 +428,7 @@ This follows the same format but there is only one variable. Also, it does not n
 Moving on to the objective function, we set the objective function for the linear program using the `set_objective`function. In this case, our objective function was *minimize* $\theta$ .
 
 ```{r}
-mod2_1 <- set_objective(mod2_1,
-                        vtheta, "min")
+mod2_1 <- set_objective(mod2_1, vtheta, "min")
 ```
 
 Next, we will move on to the constraints. We'll start with the constraints on the inputs, limiting the amount of inputs used by a unit to no more of the input than the unit being studied. Recall the constraint, $\sum_{j=1}^{N^D}x_{i,j}\lambda_j\leq\theta x_{i,k}\;\forall\;i$ but in our case, there is only one input so i is 1.
@@ -328,10 +468,9 @@ Again, we can get a summary of this results object by simply typing in the objec
 res2_1
 ```
 
-This tells us that the model was solved to optimality and that the optimal solution ($\theta$ in our case), was 0.50. Building the model up step by step can be helpful but a more concise form of model building connect each command to the previous one using a piping operator, `|>`. One way to think of piping is that if you have two functions, A and B and want to use the result of function A in B, you can do this `A() |> B()` or "Take A's result and pass it into the start of B."
+This tells us that the model was solved to optimality and that the optimal solution ($\theta$ in our case), was 0.50. Building the model up step by step can be helpful but a more concise form of model building connects each command to the previous one using a piping operator, `|>`. One way to think of piping is that if you have two functions, A and B and want to use the result of function A in B, you can do this `A() |> B()` or "Take A's result and pass it into the start of B."  The piping is the same operator that we use to pass a `kable` table into `kable_styling`.
 
 ```{r first_ompr_piped_model}
-
 mod2_1 <- MIPModel()                                          |>
   add_variable(vlambda[j], j = 1:ND, type = "continuous", 
                lb = 0)                                        |>
@@ -343,24 +482,22 @@ mod2_1 <- MIPModel()                                          |>
                  >= ydata[k,1])
 
 res2_1 <- solve_model(mod2_1, with_ROI(solver = "glpk")) 
-
 ```
 
 The piping command can make it much more concise to not need to keep reassigning things to the model with each command. A few things to keep in mind with piping:
 
--   The piped commands are like glue connecting two commands together so you don't want to end with another pipe that expects a different object.
-
--   Piped models may be harder to debug as syntax errors point to the full piped object rather than just one individual line.
-
--   Piped `ompr`models may be more concise looking but do not appear to run faster based on my early tests.
-
--   The piping operator, `|>`, introduced by the `magrittr`package and then adopted by `dplyr`has become so popular that it was added to the core `R` system in version 4.1 (mid 2021).
+-   Piping was first implemented in R by way of packages such as `magrittr` and became so popular that a piping operator, `|>`, was added to the base system of `R` in version 4.1.0 (mid 2021). This means that you will get an error message if you try to use `\>` operator on earlier versions of R. You can upgrade the version of R, unpipe the commands, or use `magrittr` and the older `%>%` pipe operator.
+-   The pipe command is like glue connecting two commands together. This highlights that you don't want to end with another pipe that expects a different object.  The last `add_constraint` command does **not** have a pipe.  
+-   The solving is based on passing in the model, `mod2_1` directly but could have been piped.
+-   Piped models are shorter making them easier to write and express.
+-   Piped models may be harder to debug as syntax errors point to the full piped object rather than just one individual line. This is potentially very important reason for many people to build unpiped models, at least for development purposes.
+-   Piped `ompr` models may be more concise looking but do not appear to run faster based on my early tests.
 
 Now, let's get to looking over the results.
 
 ```{r}
-res2_1theta <-  get_solution(res2_1, vtheta) 
-res2_1lambda <-  get_solution(res2_1, vlambda[j])
+res2_1theta <- get_solution(res2_1, vtheta) 
+res2_1lambda <- get_solution(res2_1, vlambda[j])
 ```
 
 Again, we can view both results.
@@ -376,29 +513,38 @@ These results match what we expect but let's clean up the formatting. For exampl
    # Only doing analysis for one unit at a time to start
 
 res2_1.efficiency <- matrix(rep(-1.0, 1), nrow=1, ncol=1)
-res2_1.lambda     <- matrix(rep(-1.0, ND), nrow=1,ncol=ND)
+res2_1.lambda     <- matrix(rep(-1.0, ND), nrow=1, ncol=ND)
 res2_1.efficiency <- t(res2_1theta)
-colnames(res2_1.efficiency) <- c("CCR-IO")
-
 res2_1.lambda <- t(res2_1lambda[3])
       # Takes the third column from the results and transposes
       #    results to be structured correctly for later viewing
-colnames(res2_1.lambda) <- c("L_A", "L_B", "L_C", "L_D")
-
-kbl(cbind(res2_1.efficiency, res2_1.lambda), booktabs=T,
-       caption= 'Input-Oriented Envelopment Analysis for DMU B')
 ```
 
-The above table follows a few convenient conventions. First, rather than using $\theta$, we label the efficiency score by the model used for the model, in this case the constant returns to scale is labeled as CCR after Charnes, Cooper, and Rhodes [@CharnesDataEnvelopmentAnalysis1978]. Later we will cover other models including the variable returns to scale model, labeled BCC after Banker, Charnes, and Cooper [@Bankermodelsestimatingtechnical1984]. Another convention is to use "L" in place of the Greek symbol $\lambda$ due to complications with using Greek symbols in R matrix row or column names.
+The following code chunk demonstrates the model building.
+
+It starts by generating a set of names based on model dimensions using the `DEAnames` function from the `TRA` package.  We will then select to use the `LambdanamesbyletterLX` to give LaTeX structured column names ready to be used as column names.  We can can then apply column  names to the table without needing to redefine the original table.  We will often use a similar approach but will not display the table generating code chunk for brevity.  
+
+```{r}
+res2_1.names <- TRA::DEAnames(NX, NY, ND)
+
+kbl(cbind(res2_1.efficiency, res2_1.lambda), 
+    booktabs=T, digits=3, escape=F, 
+    col.names=c("$\\theta^{CRS}$", res2_1.names$LambdanamesbyletterLX),
+    caption= 'Input-Oriented Envelopment Analysis for DMU B') |>
+  kable_styling(latex_options = "hold_position")
+```
+
+
+The above table follows a few convenient conventions. First, rather than using $\theta$, we label the efficiency score by the model used for the model, in this case the constant returns to scale is superscripted with CRS. In some research, it might be labeled as CCR after Charnes, Cooper, and Rhodes [@CharnesDataEnvelopmentAnalysis1978]. Later we will cover other models including the variable returns to scale model and label it is as VRS although it is often labeled BCC after Banker, Charnes, and Cooper [@Bankermodelsestimatingtechnical1984]. While we used the Greek symbol, $lambda$ for the column names of the lambda matrix, another convention is to use "L" in place of the Greek symbol $\lambda$ due to complications with using Greek symbols and LaTeX in R matrix row or column names.
 
 The results in the table indicate that DMU *B* has an efficiency score of 50%. The target of performance is made of DMU *C* scaled down by a factor of 0.33. These results match the graphical results from earlier.
 
-Let's now extend it to handle multiple inputs, `NX`, and outputs, `NY`. Of course this doesn't have any impact on our results just yet since we are still only using a single input and output but we now have the structure to accommodate the more general case. To provide a little variety, we'll change it to the first DMU, A, to give a little more variety.
+Let's now extend it to handle multiple inputs, `NX`, and outputs, `NY`. Of course this doesn't have any impact on our results just yet since we are still only using a single input and output but we now have the structure to accommodate the more general case. To provide a little variety, we'll change it to the first DMU, A, (`k<-1`) to give a little more variety.
+
+The key change to accommodate multiple inputs is to change the add_constraint command to repeat this constraint for `i = 1:NX`.  This means that the constraint is repeated for every value from 1 to `NX`.  If we had 10 inputs ($N^X=10$) then there would be ten constraints.  The first substituting in `i=1`, the second `i=2`, etc.  
 
 ```{r ompr-mult-IO, message=FALSE, results='asis'}
-
-k<-1    
-# DMU to analyze.  Let's change it to the first unit, DMU A.
+k<-1    # DMU to analyze.  Let's change it to the first unit, DMU A.
 
 res2_2 <- MIPModel()                                            |>
   add_variable(vlambda[j], j = 1:ND, type = "continuous", 
@@ -415,22 +561,25 @@ res2_2theta <-  get_solution(res2_2, vtheta)
 res2_2lambda <-  get_solution(res2_2, vlambda[j])
 
 res2_2.efficiency <- t(res2_2theta)
-colnames(res2_2.efficiency) <- c("CCR-IO")
 res2_2.lambda <- t(res2_2lambda[3])
  # Takes the third column from the results and transposes 
   #    results to be structured better for later viewing
-colnames(res2_2.lambda) <- c("L_A", "L_B", "L_C", "L_D")
+```
 
-kbl (cbind(res2_2.efficiency, res2_2.lambda), booktabs=T,
-     caption='Input-Oriented Envelopment Analysis for DMU A')
-#library (pander);pander (cbind(res2_2.efficiency, res2_2.lambda), caption="Input-Oriented Envelopment Analysis for DMU A")
+```{r, echo=FALSE}
+# No need to recreate names structure because they are the same as earlier.
+# res2_2.names <- TRA::DEAnames(NX, NY, ND)
 
+kbl(cbind(res2_2.efficiency, res2_2.lambda), 
+    booktabs=T, digits=3, escape=F, 
+    col.names=c("$\\theta^{CRS}$", res2_1.names$LambdanamesbyletterLX),
+    caption= 'Input-Oriented Envelopment Analysis for DMU A') |>
+  kable_styling(latex_options = "hold_position")
 ```
 
 Again, the results match what would be expected from Figure 1. Now we will extend this to handle all four of the decision making units.
 
 ```{r ompr_mult_DMUs, message=FALSE}
-
 res2_3.efficiency <- matrix(rep(-1.0, 1), nrow=ND, ncol=1)
 res2_3.lambda     <- matrix(rep(-1.0, ND), nrow=ND,ncol=ND)
 
@@ -448,13 +597,13 @@ for (k in 1:ND) {
     solve_model(with_ROI(solver = "glpk")) 
   
   print(c("DMU=",k,solver_status(res2_3)))
-    res2_3.efficiency[k] <-  get_solution(res2_3, vtheta)       
-    res2_3.lambda[k,] <- t(as.matrix(as.numeric(
-              get_solution(res2_3, vlambda[j])[,3] )))
-# Put resulting from solution in lambda matrix
-# Comes out of ompr as a dataframe, use as.matrix 
-#    to convert from data frame to matrix
-#    grabs 3rd column to put into results matrix.  
+  res2_3.efficiency[k] <-  get_solution(res2_3, vtheta)       
+  res2_3.lambda[k,] <- t(as.matrix(as.numeric(
+    get_solution(res2_3, vlambda[j])[,3] )))
+# Put result from solution in lambda matrix
+# Comes out of ompr as a dataframe, use as.matrix to convert from 
+#    data frame to matrix
+# Grabs 3rd column to put into results matrix.  
 # First two columns of dataframe are for other info as.numeric 
 #    forces the numbers to treated as numbers rather than text.
 }
@@ -462,16 +611,16 @@ for (k in 1:ND) {
 
 Success! This indicates each of the four linear programs was solved to optimality. By itself, it doesn't help much though. We need to now display each column of results.
 
-```{r}
-Lambdanames <- list("L_A", "L_B", "L_C", "L_D")
-DMUnames <- list("A", "B", "C", "D")
-dimnames(res2_3.efficiency)<-list(DMUnames,"CCR-IO")
-dimnames(res2_3.lambda)<-list(DMUnames,Lambdanames)
-kbl (cbind(res2_3.efficiency, res2_3.lambda), booktabs=T,
-        caption="Input-Oriented Efficiency Results")          |>
-kable_styling(protect_latex = TRUE)
-
+```{r, echo=TRUE}
+temp <- cbind(res2_1.names$DMUnamesbyletter, # Add letters as column
+              res2_3.efficiency, res2_3.lambda) 
+kbl(temp, booktabs=T, digits=3, escape=F, row.names=F,
+    col.names=c("DMU", "$\\theta^{CRS}$", res2_1.names$LambdanamesbyletterLX),
+    caption= 'Input-Oriented Envelopment Efficiency Results') |>
+  kable_styling(latex_options = "hold_position")
 ```
+
+This table command uses a few extra practices of building the table into a temporary object, `temp` and adding a column of DMU names to it rather than using row names. Again, names have not changed from the `res2_1` so there is no need to recreate the names.  We then turn off the display of row names in the table using `row.names=F`.  
 
 The results match those observed graphically but let's discuss them. These results indicate that only DMU *C* is efficient. A rescaled version of *C* could produce the same level of output of *A*, *B*, and *D*, while using 25%, 50%, and 20% less input respectively. The targets of performance for *A* and *C* are constructed by scaling down unit *C* to a much smaller size, as shown by the the values of $\lambda$. In contrast, *D*'s performance is surpassed by a 33% larger version of *C*.
 
@@ -479,16 +628,21 @@ It is an important step of any DEA study to carefully examine the results. In th
 
 ## Returns to Scale
 
-Let's also add a constraint that will accommodate returns to scale. All it needs to do is constrain the sum of the $\lambda$ variables equal to 1 enforces variables returns to scale or VRS. The other very common returns to scale option is constant returns to scale or CRS. For CRS, you can delete the constraint but it is helpful to maintain a consistent model size so we can make it a redundant constraint by constraining it to be greater than or equal to zero. Since $\lambda$'s are by definition non-negative, the sum of $\lambda$'s is also non-negative and therefore the constraint is superfluous or redundant under CRS.
+### Variable Returns to Scale
+
+Up to this point, our analyses used an assumption of constant returns to scale. This might result in targets that are considered unfair as it can build a target based on a radically larger or smaller set of DMUs. Whether the stores were larger or smaller, store C set the performance target for other units.  
+
+Instead, let's add constraint that says that the target of performance must be made up of parts that add up to a whole unit.  All it needs to do is constrain the sum of the $\lambda$ variables to equal 1 or in other words, $\sum_{j} \lambda_j  = 1$. This prevents the target from being made up of just one greatly shrunken version of a unit, say C making the target for A in our earlier example. It also prevents an over reliance of scaling up a unit to make the performance target, in our example C being scaled up to make a comparison target for D. This constraint makes the model into a variables returns to scale or VRS input-oriented envelopment model.
+
 
 $$
 \begin{split}
 \begin{aligned}
     \text{minimize  }   & \theta \\
-    \text{subject to } & \sum_{j=1}^{n} \lambda_j  = 1\\
-                       & \sum_{j=1}^{n} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \forall \; i\\
-                       & \sum_{j=1}^{n} y_{r,j}\lambda_j - s^y =  y_{r,k} \forall \; r\\
-                       & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall i, \; r, \; j
+    \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j \leq \theta x_{i,k} \; \forall \; i\\
+                       & \sum_{j=1}^{n} y_{r,j}\lambda_j \geq y_{r,k} \; \forall \; r\\
+                       & \sum_{j=1}^{n} \lambda_j  = 1\\
+                       & \lambda_j \geq 0  \; \forall  \; j
   \end{aligned}
   (\#eq:Ch2LPBCCIOE) 
  \end{split}
@@ -499,7 +653,6 @@ To incorporate this, we can add another constraint to our previous model and sol
 [^io_env-3]: In R, as in many languages, the distinction between assignment and testing for equivalency is important. Two symbols are used for assignment, `=` or `<-` while `==` is used to test for whether two items are equivalent.
 
 ```{r Adding-VRS}
-
 res2_4.efficiency <- matrix(rep(-1.0, 1), nrow=ND, ncol=1)
 res2_4.lambda     <- matrix(rep(-1.0, ND), nrow=ND,ncol=ND)
 
@@ -530,18 +683,21 @@ res2_4 <-   solve_model(mod2_4, with_ROI(solver = "glpk"))
     res2_4.lambda[k,] <- t(as.matrix(as.numeric(
               get_solution(res2_4, vlambda[j])[,3] )))
 }  # Repeat for each unit, k
+```
 
-Lambdanames <- list("L_A", "L_B", "L_C", "L_D")
-DMUnames <- list("A", "B", "C", "D")
-dimnames(res2_4.efficiency)<-list(DMUnames,"BCC-IO")
-dimnames(res2_4.lambda)<-list(DMUnames,Lambdanames)
-kbl (cbind(res2_4.efficiency, res2_4.lambda), booktabs=T,
-        caption="Input-Oriented VRS Envelopment Results (BCC-IO)")    |>
-kable_styling(protect_latex = TRUE)
-
+```{r, echo=FALSE}
+temp <- cbind(res2_1.names$DMUnamesbyletter, # Add letters as column
+              res2_4.efficiency, res2_4.lambda) 
+kbl(temp, 
+    booktabs=T, digits=3, escape=F, row.names=F,
+    col.names=c("DMU", "$\\theta^{VRS}$", res2_1.names$LambdanamesbyletterLX),
+    caption= "Input-Oriented VRS Envelopment Results (BCC-IO)") |>
+  kable_styling(latex_options = "hold_position")
 ```
 
 Notice that the efficiencies have increased or stayed the same. Whereas earlier three out of four DMUs were inefficient, now three out of four are efficient. Much more could be said about returns to scale. One way of thinking of returns to scale is whether doubling the inputs should be expected to result in doubling the outputs that should be achieved. Another way to think of it is whether it is fair to think of scaling up or down an efficient significantly to set a performance target for a much bigger or smaller unit. For example, would it be *fair* to compare a small convenience store such as 7-11 to a CostCo store scaled down by a factor of a 100?
+
+### Other Returns to Scale
 
 In addition to Constant Returns to Scale (CRS) and Variable Returns to Scale (VRS), two other common approaches are Increasing Returns to Scale (IRS) and Decreasing Returns to Scale (DRS). Technically, IRS is sometimes more formally referred to as non-decreasing returns to scale. Similarly, DRS corresponds to non-increasing returns to scale.
 
@@ -554,14 +710,15 @@ The actual returns to scale models are straightforward to implement.
 | IRS/NDRS         | $\sum_{j=1}^{N^D} \lambda_j \geq 1$ |
 | DRS/NIRS         | $\sum_{j=1}^{N^D} \lambda_j \leq 1$ |
 
+No envelopment constraint on the sum of $\lambda$ is needed to create a CRS model and to convert a VRS formulation into a CRS we can just delete the new constraint.  On the other hand, it may sometimes be helpful to maintain a consistent model size in terms of number of constraints as we make richer models. We can make it a redundant constraint by constraining the sum of $\lambda$ to be greater than or equal to zero, $\sum_{j} \lambda_j\geq0$. Since $\lambda$'s are by definition non-negative, the sum of $\lambda$'s is also non-negative and therefore the constraint is superfluous or redundant.
+
 Now, we will generalize this by allowing a parameter to set the returns to scale.
 
 ```{r Adding-RTS}
-
 res2_5.efficiency <- matrix(rep(-1.0, 1), nrow=ND, ncol=1)
 res2_5.lambda     <- matrix(rep(-1.0, ND), nrow=ND, ncol=ND)
 
-RTS<-"VRS"
+RTS<-"DRS"
 for (k in 1:ND) {
   
   mod2_5 <- MIPModel()                                          |>
@@ -590,89 +747,64 @@ for (k in 1:ND) {
     res2_5.lambda[k,] <- t(as.matrix(as.numeric(
               get_solution(res2_5, vlambda[j])[,3] )))
 } #Close loop for each DMU
-
-Lambdanames <- list("L_A", "L_B", "L_C", "L_D")
-DMUnames <- list("A", "B", "C", "D")
-dimnames(res2_5.efficiency)<-list(DMUnames,"BCC-IO")
-dimnames(res2_5.lambda)<-list(DMUnames,Lambdanames)
-kbl (cbind(res2_5.efficiency, res2_5.lambda), booktabs=T,
-        caption="Input-Oriented BCC Model with Option of 
-        Alternate Returns to Scale")                          |>
-kable_styling(protect_latex = TRUE)
-
+```
+```{r, echo=FALSE}
+temp <- cbind(res2_1.names$DMUnamesbyletter, # Add letters as column
+              res2_5.efficiency, res2_5.lambda) 
+kbl(temp, 
+    booktabs=T, digits=3, escape=F, row.names=F,
+    col.names=c("DMU", "$\\theta^{DRS}$", 
+    res2_1.names$LambdanamesbyletterLX),
+    caption= "Input-Oriented DRS Envelopment Results")        |>
+  kable_styling(latex_options = "hold_position")
 ```
 
 ## Multiple Inputs and Multiple Outputs
 
 Using DEA for two-dimensional examples such as the one-input, one-output model is easy to draw and visualize but overkill and not generally very useful.
 
-Let's create a richer dataset. For this example, we will use the dataset from Kenneth Baker's third edition of *Optimization Modeling with Spreadsheets*, pages 175-178, Example 5.3 titled "Hope Valley Health Care Association." In this example, a health care organization wants to benchmark six nursing homes against each other.
-
-This data is a little more complicated so let's make sure that we understand the definitions. Look at the line for the inputs which we will call `XBaker1`. The list of 12 data values has the structure defined as two columns for two separate inputs by use of `ncol=2`. This then means that there are 6 rows or DMUs in this dataset. The six units are given capital letters for names starting with A. The names of the inputs are hard coded as `x1`and `x2` to represent the *staff hours per day* and the *supplies per day* respectively.
-
-```{r Multiple_inputs_outputs}
-XBaker1 <- matrix(c(150, 400, 320, 520, 350, 320, 
-                    0.2, 0.7, 1.2, 2.0, 1.2, 0.7),
-                  ncol=2, dimnames=list(LETTERS[1:6],
-                                        c("x1", "x2")))
-```
-
-The two outputs of *reimbursed patient-days* and *privately paid patient-days* are named "y1" and "y2" but otherwise have the same structure as the inputs.
-
 ```{r}
-YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 
-                    3500, 21000, 10500, 42000, 25000, 15000),
-                  ncol=2,dimnames=list(LETTERS[1:6],
-                                       c("y1", "y2")))
+x <- matrix(c(10, 20, 30, 50, 22, 29,
+              75, 100, 220, 480, 290, 210), byrow=FALSE, ncol=2, 
+            dimnames=list(LETTERS[1:6],c("x1","x2")))
+y <- matrix(c(75,100,300,400, 280, 120),ncol=1,
+            dimnames=list(LETTERS[1:6],"y"))
 
-ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1); 
-# Define data size
+storenames<- c("Al\'s Pantry", "Bob\'s Mill", 
+               "Trader Carrie\'s", "Dilbertson\'s",
+               "Ed\'s Eggshop", "Flo\'s Farmacopia")
+temp<-cbind(storenames,x,y)
+colnames(temp)<-c("Store Name", "Employees (x1)", "Floor Space (x2)", "Sales (y)")
 
-kbl(cbind(XBaker1,YBaker1), booktabs=T,
-       caption="Baker Dataset")                                   |>
-kable_styling(protect_latex = TRUE)
+kbl (temp, 
+    booktabs=T, digits=3, escape=F, row.names=F,
+    caption= "Six Store Example")                      |>
+  kable_styling(latex_options = "hold_position")
 ```
+
+Let's extend our earlier store management by adding as an input, store floor space and two more stores, 
 
 Note that I'm naming the data sets based on their origin and then loading them into xdata and ydata for actual operation. This allows the model to be generalized.
 
-```{r Get_Baker_data_ready}
-xdata      <-XBaker1[1:ND,]  # Call it xdata
+```{r Prepare-data}
+ND <- nrow(x); NX <- ncol(x); NY <- ncol(y)
+
+xdata      <-x[1:ND,]  # Call it xdata
 dim(xdata) <-c(ND,NX)  # structure data correctly
-ydata      <-YBaker1[1:ND,]
+ydata      <-y[1:ND,]
 dim(ydata) <-c(ND,NY)
 
 # Need to remember to restructure the results matrices.
 
 results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
 results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
-results.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
-results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
 results.vweight    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
 results.uweight    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
-
-DMUnames    <- list(c(LETTERS[1:ND]))
-Xnames      <- lapply(list(rep("X",NX)),paste0,1:NX)
-Ynames      <- lapply(list(rep("Y",NY)),paste0,1:NY)
-Vnames      <- lapply(list(rep("v",NX)),paste0,1:NX)
-Unames      <- lapply(list(rep("u",NY)),paste0,1:NY)
-SXnames     <- lapply(list(rep("sx",NX)),paste0,1:NX)
-SYnames     <- lapply(list(rep("sy",NY)),paste0,1:NY)
-Lambdanames <- lapply(list(rep("L_",ND)),paste0,LETTERS[1:ND])
-  
-dimnames(xdata)              <- c(DMUnames,Xnames)
-dimnames(ydata)              <- c(DMUnames,Ynames)
-dimnames(results.efficiency) <- c(DMUnames,"CCR-IO")
-dimnames(results.lambda)     <- c(DMUnames,Lambdanames)
-dimnames(results.xslack)     <- c(DMUnames,SXnames)
-dimnames(results.yslack)     <- c(DMUnames,SYnames)
-dimnames(results.vweight)    <- c(DMUnames,Vnames)
-dimnames(results.uweight)    <- c(DMUnames,Unames)
-
 ```
 
 We are now ready to do the analysis. Note that Baker's analysis uses the multiplier model and then from this reads out of the sensitivity report the lambda values. We will discuss the multiplier model in more detail later.
 
-```{r Baker-example1}
+```{r Store6-CRS}
 
 RTS<-"CRS"
 for (k in 1:ND) {
@@ -697,16 +829,19 @@ results <-   solve_model(result, with_ROI(solver = "glpk"))
     results.lambda[k,] <- t(as.matrix(as.numeric(
                      get_solution(results, vlambda[j])[,3] )))
 }
-kbl (cbind(results.efficiency, results.lambda), booktab=T,
-        caption="Results from Baker's Example (CRS)")           |>
-kable_styling(protect_latex = TRUE)
-
-BakerCCR.Res<-cbind(results.efficiency, results.lambda)
+Store6CRS.Res<-cbind(results.efficiency, results.lambda)
+Store6CRS.Eff<-results.efficiency 
 ```
 
-The efficiency scores match those reported in Baker, page 176, Figure 5.8. The columns to the right of the efficiency score are the lambdas. The lambdas for facility 5, (E), are given on page 177 of Baker and match the fifth row of our results.
+```{r}
+store6names <- TRA::DEAnames(NX, NY, ND)
+rownames(Store6CRS.Res) <- store6names$DMUnamesbyletter
+kbl (Store6CRS.Res, booktabs=T, escape=F,
+     col.names=c("$\\theta^{CRS}$", store6names$LambdanamesbyletterLX),
+        caption="Results from Six Store Example (CRS)")               |>
+kable_styling(protect_latex = TRUE)
+```
 
-In contrast, the second and third column warrant a more careful look. Both of those columns report very small negative numbers. These numbers are due to computational issues in the linear programming solvers and should be interpreted as zero. Rounding the results can make the tables easier for interpretation by the user. 
 
 ```{r rounded-table}
 kbl (cbind(results.efficiency, results.lambda), 
@@ -719,10 +854,43 @@ The small, nearly zero, values that may appear in DEA calculations can cause som
 
 Let's compare the results from the constant and variable returns to scale cases.
 
+```{r Store6-VRS}
+
+RTS<-"VRS"
+for (k in 1:ND) {
+  
+  result <- MIPModel()                                            |>
+    add_variable(vlambda[j], j = 1:ND, type = "continuous", 
+                 lb = 0)                                          |>
+    add_variable(vtheta, type = "continuous")                     |>
+    set_objective(vtheta, "min")                                  |>
+    add_constraint(sum_expr(vlambda[j] * xdata[j,i], j = 1:ND) 
+                   <= vtheta * xdata[k,i], i = 1:NX)              |>
+    add_constraint(sum_expr(vlambda[j] * ydata[j,r], j = 1:ND) 
+                   >= ydata[k,r], r = 1:NY) 
+
+    if (RTS=="VRS") {result <- add_constraint(result, 
+                 sum_expr(vlambda[j],j = 1:ND) == 1) }  
+  # Returns to Scale
+
+results <-   solve_model(result, with_ROI(solver = "glpk")) 
+    
+    results.efficiency[k] <-  get_solution(results, vtheta)       
+    results.lambda[k,] <- t(as.matrix(as.numeric(
+                     get_solution(results, vlambda[j])[,3] )))
+}
+Store6VRS.Res<-cbind(results.efficiency, results.lambda)
+Store6VRS.Eff<-results.efficiency
+```
+
+
 ```{r}
-kbl (cbind(results.efficiency,BakerCCR.Res), 
-     booktabs=T, digits=6,
-     caption="Comparison of CRS vs. VRS Efficiency Scores")   |>
+temp <- cbind(Store6CRS.Eff,Store6VRS.Eff)
+rownames(temp)<- store6names$DMUnamesbyletter
+kbl (temp, 
+     booktabs=T, digits=5, 
+     col.names=c("$\\theta^{CRS}$", "$\\theta^{VRS}$"),
+     caption="Comparison of CRS vs. VRS Efficiency Scores")      |>
 kable_styling(protect_latex = TRUE)
 ```
 
@@ -734,29 +902,9 @@ A few takeaways from these results:
 
 Recently, Dirk Schumacher has added the option of extraction dual results from glpk-solved linear programs. As of April, 2018, it is in the developmental version of ompr which is installed using devtools.
 
-```{r Multiplier-Weights-from-Env-Model}
+Let's now wrap this into the full series of linear programs so as to calculate the multiplier weights for each unit in the CRS model.  
 
-rduals <- as.matrix(get_row_duals(results))
-
-results.vweight[k,] <- -1*rduals[1:NX]
-   # Extract first NX row duals assuming 
-   #   first set of constraints for inputs
-   # Multiply input weights by -1 to adjust for inequality direction
-
-results.uweight[k,] <- rduals[(NX+1):(NX+NY)]
-   # Extract next NY row duals assuming output constraints follow inputs 
-
-kbl(c(results.vweight[k,],results.uweight[k,]),
-    booktabs=T,
-    caption="Input and output weights for last DMU")   |>
-kable_styling(protect_latex = TRUE)
-```
-
-These results are for just the last unit examined.
-
-Let's now wrap this into the full series of linear programs so as to calculate the multiplier weights for each unit.
-
-```{r Baker-example-w-mult-weight}
+```{r Store6-example-w-mult-weight}
 
 RTS<-"CRS"
 for (k in 1:ND) {
@@ -775,24 +923,26 @@ for (k in 1:ND) {
                  sum_expr(vlambda[j],j = 1:ND) == 1) }  
   # Returns to Scale
 
-result <-   solve_model(result, with_ROI(solver = "glpk")) 
-    
-    results.efficiency[k] <-  get_solution(result, vtheta)       
-    results.lambda[k,] <- t(as.matrix(as.numeric(
-                     get_solution(result, vlambda[j])[,3] )))
-    rduals  <- as.matrix(get_row_duals(result))
+  result <- solve_model(result, with_ROI(solver = "glpk")) 
+  results.efficiency[k] <-  get_solution(result, vtheta)       
+  results.lambda[k,] <- t(as.matrix(as.numeric(
+    get_solution(result, vlambda[j])[,3] )))
+  rduals  <- as.matrix(get_row_duals(result))
 
-    results.vweight[k,] <- -1*rduals[1:NX]
-
-    results.uweight[k,] <- rduals[(NX+1):(NX+NY)]
- 
-    }
-
-kbl (cbind(results.efficiency, results.lambda, results.vweight, 
-              results.uweight),booktabs=T, digits=6, 
-        caption="Results from Baker's Example")                  |>
+  results.vweight[k,] <- -1*rduals[1:NX]
+  results.uweight[k,] <- rduals[(NX+1):(NX+NY)]
+  }
+temp <- cbind (results.efficiency, results.lambda, results.vweight, results.uweight)
+rownames(temp) <- store6names$DMUnamesbyletter
+```
+```{r}
+kbl (temp,booktabs=T, digits=6, escape=F,
+     col.names=c("$\\theta^{CRS}$", store6names$LambdanamesbyletterLX,
+                 store6names$VnamesLX, store6names$UnamesLX),
+        caption="Results from Six Store Example")                       |>
 kable_styling(protect_latex = TRUE)
 ```
+
 
 A few things should be noticed with respect the the multiplier weights:
 
@@ -803,6 +953,112 @@ A few things should be noticed with respect the the multiplier weights:
 ## Slack Maximization
 
 Situations can arise where units may appear to be radially efficient but can still find opportunities to improve one or more inputs or outputs. This is defined as weakly efficient.
+
+### Numerical Example of Slack
+
+First, let's add a new grocery store, Gary's Grocery, which is identical to the stellar Trader Carrie's except for using five extra staff members.  
+
+```{r}
+x <- matrix(c(10, 20, 30, 50, 22, 29, 35,
+              75, 100, 220, 480, 290, 210, 220), byrow=FALSE, ncol=2, 
+            dimnames=list(LETTERS[1:7],c("x1","x2")))
+y <- matrix(c(75,100,300,400, 280, 120, 300),ncol=1,
+            dimnames=list(LETTERS[1:7],"y"))
+
+storenames<- c("Al\'s Pantry", "Bob\'s Mill", 
+               "Trader Carrie\'s", "Dilbertson\'s",
+               "Ed\'s Eggshop", "Flo\'s Farmacopia", "Gary\'s Grocery")
+temp<-cbind(storenames,x,y)
+colnames(temp)<-c("Store Name", "Employees (x1)", "Floor Space (x2)", "Sales (y)")
+kbl (temp)
+```
+
+
+```{r}
+ND <- nrow(x); NX <- ncol(x); NY <- ncol(y)
+
+xdata      <-x[1:ND,]  # Call it xdata
+dim(xdata) <-c(ND,NX)  # structure data correctly
+ydata      <-y[1:ND,]
+dim(ydata) <-c(ND,NY)
+
+# Need to remember to restructure the results matrices.
+
+results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
+results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
+results.vweight    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
+results.uweight    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
+
+RTS<-"CRS"
+for (k in 1:ND) {
+  
+  result <- MIPModel()                                              |>
+    add_variable(vlambda[j], j = 1:ND, type = "continuous", 
+                 lb = 0)                                            |>
+    add_variable(vtheta, type = "continuous")                       |>
+    set_objective(vtheta, "min")                                    |>
+    add_constraint(sum_expr(vlambda[j] * xdata[j,i], j = 1:ND) 
+                   <= vtheta * xdata[k,i], i = 1:NX)                |>
+    add_constraint(sum_expr(vlambda[j] * ydata[j,r], j = 1:ND) 
+                   >= ydata[k,r], r = 1:NY) 
+
+    if (RTS=="VRS") {result <- add_constraint(result, 
+                 sum_expr(vlambda[j],j = 1:ND) == 1) }  
+  # Returns to Scale
+
+results <-   solve_model(result, with_ROI(solver = "glpk")) 
+    
+    results.efficiency[k] <-  get_solution(results, vtheta)       
+    results.lambda[k,] <- t(as.matrix(as.numeric(
+                     get_solution(results, vlambda[j])[,3] )))
+}
+Store7CRS.Res<-cbind(results.efficiency, results.lambda)
+Store7CRS.Eff<-results.efficiency 
+
+store7names <- TRA::DEAnames(NX, NY, ND)
+rownames(Store7CRS.Res) <- store7names$DMUnamesbyletter
+kbl (Store7CRS.Res, booktabs=T, escape=F,
+     col.names=c("$\\theta^{CRS}$", store7names$LambdanamesbyletterLX),
+        caption="Results from Seven Store Example (CRS)")               |>
+kable_styling(protect_latex = TRUE)
+
+```
+
+In this case, Gary's Grocery had an efficiency score, $\theta^{CRS}=1.0$ and was deemed efficient.  Interestingly it did not use itself for comparison $\lambda_G=0.0$ and had its target formed based on Trader Carrie's, $\lambda_C=1.0$. This indicates that Gary's Grocery is radially efficient as no target can be made that allows for improving on *all* inputs.  The radial efficiency scores may not reflect fully efficient operation. 
+
+```{r}
+k<-7
+result <- MIPModel()                                              |>
+  add_variable(vlambda[j], j = 1:ND, type = "continuous", 
+               lb = 0)                                            |>
+  add_variable(vtheta, type = "continuous")                       |>
+  set_objective(vtheta, "min")                                    |>
+  add_constraint(vlambda[3] ==0)                                  |>
+       # constraint preventing the use of DMU 3 for Gary.
+  add_constraint(sum_expr(vlambda[j] * xdata[j,i], j = 1:ND) 
+                 <= vtheta * xdata[k,i], i = 1:NX)                |>
+  add_constraint(sum_expr(vlambda[j] * ydata[j,r], j = 1:ND) 
+                 >= ydata[k,r], r = 1:NY) 
+  if (RTS=="VRS") {result <- add_constraint(result, 
+                 sum_expr(vlambda[j],j = 1:ND) == 1) }  
+  # Returns to Scale
+
+results <-   solve_model(result, with_ROI(solver = "glpk")) 
+    
+    results.efficiency[k] <-  get_solution(results, vtheta)       
+    results.lambda[k,] <- t(as.matrix(as.numeric(
+                     get_solution(results, vlambda[j])[,3] )))
+
+rownames(Store7CRS.Res) <- store7names$DMUnamesbyletter
+kbl (Store7CRS.Res, booktabs=T, escape=F,
+     col.names=c("$\\theta^{CRS}$", store7names$LambdanamesbyletterLX),
+        caption="Alternate Optimal Solution for Gary's")               |>
+kable_styling(protect_latex = TRUE)
+```
+
+Notice that this is an instance *multiple optimal solutions* or *multiple optima*.  We can demonstrate this by simply adding a constraint that prevents at iteration 7 (Gary's Grocery) from having Trader Carrie's used in target setting ($\lambda_C=0$) will result in exactly the same efficiency score and thereby objective function value.  We were lucky in this case to find a target that pointed initially to Trader Carrie's.  In the case of multiple optima, finding a solution by luck is not a reliable procedure.  We could have just easily found Gary's Grocery to find the 
+
+### Modeling to Account for Slacks
 
 In order to accommodate this, we need to extend the simple radial model by adding variables to reflect nonradial slacks. We do this by converting the model's input and output constraints from inequalities into equalities by explicitly defining slack variables.
 
@@ -852,71 +1108,88 @@ $$
 (\#eq:Ch2LPCCRIOE-Second-Phase)
 $$
 
-Implementing this algebraically is quite straightforward.
+### Implementing the Slack Maxization Approach
+
+Implementing this algebraically is quite straightforward. The code is provided below but it is easy to get lost in the code.  
+
+The key steps are that after setting up and solving the model, we read in the Phase 1 objective function value 
+
+`phase1obj <-  get_solution(result, vtheta)`
+
+We then constrain variable `vtheta` to that value in Phase 2.
+
+`add_constraint(LPSlack, vtheta==phase1obj)`
+
+Lastly, we change the objective function to maximize the sum of slacks.
+
+`set_objective(LPSlack, sum_expr(xslack[i], i=1:NX)+sum_expr(yslack[r], r=1:NY), "max")`
+
+We can then solve the model again.
 
 ```{r Slack-max}
+results.xslack    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
+results.yslack    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
 
 RTS<-"CRS"
 for (k in 1:ND) {
   
-  LPSlack <- MIPModel()                                         |>
-    add_variable(vlambda[j], j = 1:ND, type = "continuous", 
-                 lb = 0)                                        |>
-    add_variable(vtheta, type = "continuous")                   |>
-    add_variable(xslack[i], i = 1:NX, type = "continuous", 
-                 lb=0)                                          |>
-    add_variable(yslack[r], r = 1:NY, type = "continuous", 
-                 lb=0)                                          |>
+  LPSlack <- MIPModel()                                             |>
+    add_variable(vlambda[j], j = 1:ND, type = "continuous", lb = 0) |>
+    add_variable(vtheta, type = "continuous")                       |>
+    add_variable(xslack[i], i = 1:NX, type = "continuous", lb = 0)  |>
+    add_variable(yslack[r], r = 1:NY, type = "continuous", lb = 0)  |>
     
-    set_objective(vtheta, "min")                                |>
+    set_objective(vtheta, "min")                                    |>
     
-    add_constraint(sum_expr(vlambda[j] * xdata[j,i]+xslack[i], 
-                            j = 1:ND) 
-                   - vtheta * xdata[k,i]==0, i = 1:NX)          |>
+    add_constraint(sum_expr(vlambda[j] * xdata[j,i], 
+                            j = 1:ND)+xslack[i] 
+                   - vtheta * xdata[k,i]==0, i = 1:NX)              |>
     
-    add_constraint(sum_expr(vlambda[j] * ydata[j,r]-yslack[r], 
-                            j = 1:ND) 
+    add_constraint(sum_expr(vlambda[j] * ydata[j,r], 
+                            j = 1:ND) -yslack[r]
                     ==ydata[k,r], r = 1:NY) 
-
-    if (RTS=="VRS") {LPSlack<-add_constraint(LPSlack, 
-                                             sum_expr(vlambda[j],
-                                j = 1:ND) == 1) }  
   
-
-    result <-   solve_model(LPSlack, with_ROI(solver = "glpk")) 
+    result1 <-   solve_model(LPSlack, with_ROI(solver = "glpk")) 
 
     # The following are the key steps to slack maximization 
-    phase1obj <-  get_solution(result, vtheta)  
+    phase1obj <-  get_solution(result1, vtheta)  
     # Get Phase 1 objective value
 
-    add_constraint(LPSlack, vtheta==phase1obj)   
+    LPSlack<-add_constraint(LPSlack, vtheta==phase1obj)   
                      # Passing result from phase 1 to phase 2
-    set_objective(LPSlack, sum_expr(
-              xslack[i], i=1:NX)+sum_expr(yslack[r], r=1:NY), "max")
+    
+    LPSlack<-set_objective(LPSlack, sum_expr(xslack[i], i=1:NX)
+                  + sum_expr(yslack[r], r=1:NY), "max")
               # Modify the objective function for phase 2
-    result <-   solve_model(LPSlack, with_ROI(solver = "glpk")) 
-  
-    results.efficiency[k] <-  get_solution(result, vtheta)       
+    result2 <-   solve_model(LPSlack, with_ROI(solver = "glpk")) 
+    results.efficiency[k] <-  get_solution(result2, vtheta)       
     results.lambda[k,] <- t(as.matrix(
-                 as.numeric(get_solution(result, 
-                                         vlambda[j])[,3] )))
-}
+                 as.numeric(get_solution(result2, 
+                                         vlambda[.])[,3] )))
+    results.xslack[k,]  <- t(as.matrix(
+                 as.numeric(get_solution(result2, 
+                                         xslack[.])[,3] )))
+    results.yslack[k,]  <- t(as.matrix(
+                 as.numeric(get_solution(result2, 
+                                         yslack[.])[,3] )))
+    }
 
-rownames(results.efficiency)<-c("A", "B", "C", "D", "E", "F")
-#print (results.efficiency)
-kbl (cbind(results.efficiency,xdata,ydata,results.lambda), 
-     booktabs=T, digits=5,
-     caption="Input-oriented Efficiency Results")             |>
+Store7SlackMax.Res<-cbind(results.efficiency, results.lambda, 
+                          results.xslack, results.yslack)
+rownames(Store7SlackMax.Res) <- store7names$DMUnamesbyletter
+```
+```{r, echo=FALSE}
+kbl (Store7SlackMax.Res, booktabs=T, escape=F, digits=3,
+     col.names=c("$\\theta^{CRS}$", store7names$LambdanamesbyletterLX, 
+                 store7names$SXnamesLX, store7names$SYnamesLX),
+        caption="Slack Maximizing Results from Seven Store")          |>
 kable_styling(protect_latex = TRUE)
 ```
 
-The rightmost columns, denoted by "L\_" are the resulting lambda values.
 
-## To-Do for Chapter
+The results indicate the presence of non-radial slacks in Stores B, F, and G. Not only can B's efficiency be improved by using 16.7% less of every input, the first input can be further reduced by 4.667.  A simple focus on just radial efficiency score, $\theta$ will understate the potential for improved operations.
 
--   Enrich example of slacks
--   Add graphical figure showing slack maximization
--   Generalize column name setting for ND where appropriate.
+The total slacks may be thought of as the difference between the best target and the actual inputs and outputs of the units studied.
 
 ## Exercises
 

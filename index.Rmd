@@ -34,3 +34,56 @@ Readers unfamiliar with R but knowledgeable about DEA may use this book as an op
 This book can be used as a supplement for a graduate course on productivity analysis with papers drawn from the literature.
 
 All of the code for the book is available in a github repository.
+
+## Instructor Notes {.unnumbered}
+
+This book can be used in support of an advanced elective or graduate course to help people understand the approach and implementation of Data Envelopment Analysis. This can be then supplemented by readings and projects associated with the specific application area(s) of interest such as health care, education, manufacturing, economics, or government policy.
+
+## Acknowldegements {.unnumbered}
+
+This book has benefited from the interactions of many people over the years. In particular, I would like to thank the following students and graduates from over the recent years that have made direct or indirect contributions this effort.
+
+-   Tim Calderwood
+-   William "Ike" Eisenhauer
+-   Jiali Ju
+-   Aurobindh Kalathil Puthanpura
+-   Tom Shott
+-   Kevin van Blommestein
+-   Ambica Sogal
+-   Navdeep Singh
+-   William (Ike) Eisenhauer
+
+I would also like to thank earlier doctoral graduates for rich mutual interactions:
+
+-   Dr. Janice Forrester
+-   Dr. Gerald Williams
+-   Dr. Lane Inman
+-   Dr. Scott Leavengood
+-   Dr. Dong-Joon Lim
+-   Dr. Maoloud Dabab
+-   Dr. Nina Chaichi
+
+Various colleagues have helped over the years including:
+
+-   Dr. John Ruggiero
+-   Dr. Shawna Grosskopf
+-   Dr. Rolf Fare
+-   Dr. Chester Ismay
+-   Dr. Andy Johnson
+-   Dr. Ole Olesen
+-   Dr. K. Louis Luangkesorn
+-   Dr. Jili Hu
+-   Dr. Joe Zhu
+-   Dr. Larry Seiford
+
+In particular, the frequent discussions of DEA at INFORMS have been very helpful.
+
+Also, this work makes extensive use of the `ompr` package authored by Dirk Schumacher. The rich algebraic modeling capabilities of `ompr` have made this book significantly more accessible.
+
+I want to thank Dr. Gunter Sharp and Dr. Ronald Bohlander for their support during my time at the Georgia Institute of Technology along with Dr. Steven Hackman who introduced me to DEA.
+
+Lastly, I would like to thank my family, Carrie, Trent, and Paige.  Their patience as Dad toiled at the computer over the years was always appreciated. 
+
+
+> Tim Anderson
+> `r tufte::quote_footer(Sys.Date())`
