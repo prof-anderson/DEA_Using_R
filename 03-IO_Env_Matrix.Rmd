@@ -303,7 +303,7 @@ The above commands have two important functions. The first merely sets it to be 
 The `lp.control` function returns a long list of options being used for the linear programming solver. The defaults are fine for now and it can take a full page to list all the settings so I just store it into an object, `lpcontrol` so it doesn't display it for now.
 
 ```{r Display-lp-with-Obj}
-   lpe 
+lpe 
 ```
 
 Now we will prepare for adding names to elements of our data matrix. This is a little tricky so don't worry if these commands are initially confusing. Also, if you are fluent in R, you can probably come up with more elegant ways of doing this.
