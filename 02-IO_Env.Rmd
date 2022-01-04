@@ -1010,7 +1010,6 @@ kbl (Store7CRS.Res, booktabs=T, escape=F,
      col.names=c("$\\theta^{CRS}$", store7names$LambdanamesbyletterLX),
         caption="Results from Seven Store Example (CRS)")               |>
 kable_styling(protect_latex = TRUE)
-
 ```
 
 In this case, Gary's Grocery had an efficiency score, $\theta^{CRS}=1.0$ and was deemed efficient.  Interestingly it did not use itself for comparison $\lambda_G=0.0$ and had its target formed based on Trader Carrie's, $\lambda_C=1.0$. This indicates that Gary's Grocery is radially efficient as no target can be made that allows for improving on *all* inputs.  The radial efficiency scores may not reflect fully efficient operation. 
