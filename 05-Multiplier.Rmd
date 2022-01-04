@@ -386,9 +386,13 @@ $$
 
 We won't dwell further on this transformation and will leave it to the reader to explore further but this is is why we can extract dual values of the envelopment model to get the multiplier weights from the multiplier model.  Also, it is why we can extract the envelopment's $\lambda$ values from the multiplier model's results.   
 
+(Example of extracting lambdas, compare to ch 2 results.)
+
 ## Weight Restrictions in the Multiplier Model
 
+Simple example, then use a package
 
 ## Variable Returns to Scale
 
-
+Formulate and implement a model
+Implement model
