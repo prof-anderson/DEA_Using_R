@@ -60,12 +60,15 @@ $$
 
 Next let's implement this in `ompr` which may serve as a convenient refresher as well.
 
-```{r}
-library(dplyr, warn.conflicts=FALSE)    
+```{r, message=FALSE}
 library(ROI, quietly=TRUE)              
 library(ROI.plugin.glpk, quietly=TRUE)  
 library(ompr, quietly=TRUE)             
-library(ompr.roi, quietly=TRUE)         
+library(ompr.roi, quietly=TRUE)     
+```
+
+
+```{r}
 
 result <- MIPModel () %>%
   add_variable (u1, type="continuous", lb=0) %>%
@@ -258,7 +261,7 @@ This linear program can then be implemented in an linear programming system.
 
 We will implement this using the `ompr` package again, as we did in chapters 2 and 4.
 
-We're going to use our data from earlier. For this example, we will use the dataset from Kenneth Baker's third edition of *Optimization Modeling with Spreadsheets*, pages 175-178, Example 5.3 titled "Hope Valley Health Care Association." In this case, a health care organization wants to benchmark six nursing homes against each other.
+We're going to use our data from earlier of grocery stores. 
 
 ```{r multiplier-model }
 
