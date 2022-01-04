@@ -221,7 +221,6 @@ $$
 We're going to use our data from earlier but first we will load a collection of libraries to be used later. The `ompr`package is for optimization and serves as a general human readable format of optimization models that can then interface with a variety of solver engines. The `ROI.plugin.glpk` package is for the specific solver engine, `glpk`, that we used. Other LP solving engines are available and can be used instead.
 
 ```{r loading_packages, message=FALSE, warning=FALSE}
-library(dplyr, quietly=TRUE)           
 library(ROI, quietly=TRUE)             
 library(ROI.plugin.glpk, quietly=TRUE) 
 library(ompr, quietly=TRUE)            
@@ -832,7 +831,8 @@ Store6CRS.Eff<-results.efficiency
 ```{r}
 store6names <- TRA::DEAnames(NX, NY, ND)
 rownames(Store6CRS.Res) <- store6names$DMUnamesbyletter
-kbl (Store6CRS.Res, booktabs=T, escape=F, digits=5
+
+kbl (Store6CRS.Res, booktabs=T, escape=F, digits=5,
      col.names=c("$\\theta^{CRS}$", store6names$LambdanamesbyletterLX),
         caption="Results from Six Store Example (CRS)")               |>
 kable_styling(protect_latex = TRUE)
