@@ -304,6 +304,8 @@ store7names <- TRA::DEAnames(NX, NY, ND)
 ```
 
 ```{r CRS2PhaseIO}
+CRS2PhaseIO.efficiency <- matrix(rep(-1.0, ND), nrow=ND)
+CRS2PhaseIO.lambda     <- matrix(rep(-1.0, ND*ND), nrow=ND,ncol=ND)
 CRS2PhaseIO.xslack    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
 CRS2PhaseIO.yslack    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
 xdata<-x
@@ -359,23 +361,21 @@ rownames(CRS2PhaseIO.Res) <- store7names$DMUnamesbyletter
 ```
 
 ```{r Slack1}
-Slack1.xslack    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
-Slack1.yslack    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
+Slack1.lambda <- matrix(rep(-1.0, ND*ND), nrow=ND,ncol=ND) 
+Slack1.xslack <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
+Slack1.yslack <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
 
 RTS<-"CRS"
 for (k in 1:ND) {
   
   LPSlack <- MIPModel()                                             |>
     add_variable(vlambda[j], j = 1:ND, type = "continuous", lb = 0) |>
-    add_variable(vtheta, type = "continuous")                       |>
     add_variable(xslack[i], i = 1:NX, type = "continuous", lb = 0)  |>
     add_variable(yslack[r], r = 1:NY, type = "continuous", lb = 0)  |>
     
-    set_objective(vtheta, "min")                                    |>
-    
     add_constraint(sum_expr(vlambda[j] * xdata[j,i], 
                             j = 1:ND)+xslack[i] 
-                   - vtheta * xdata[k,i]==0, i = 1:NX)              |>
+                   - xdata[k,i]==0, i = 1:NX)              |>
     
     add_constraint(sum_expr(vlambda[j] * ydata[j,r], 
                             j = 1:ND) -yslack[r]
@@ -386,7 +386,6 @@ for (k in 1:ND) {
   
     result2 <-   solve_model(LPSlack, with_ROI(solver = "glpk")) 
 
-    Slack1.efficiency[k] <-  get_solution(result2, vtheta)       
     Slack1.lambda[k,] <- t(as.matrix(
                  as.numeric(get_solution(result2, 
                                          vlambda[.])[,3] )))
@@ -398,8 +397,8 @@ for (k in 1:ND) {
                                          yslack[.])[,3] )))
     }
 
-Slack1.Res<-cbind(Slack1.efficiency, Slack1.lambda, 
-                          Slack1.xslack, Slack1.yslack)
+Slack1.Res<-cbind(Slack1.lambda, 
+                  Slack1.xslack, Slack1.yslack)
 rownames(Slack1.Res) <- store7names$DMUnamesbyletter
 ```
 
@@ -408,6 +407,8 @@ Let's compare the results of our slack based model to the two-phase results from
 ```{r}
 kbl (cbind(CRS2PhaseIO.Res,Slack1.Res), booktabs=T, escape=F, digits=3,
      col.names=c("$\\theta^{CRS}$", store7names$LambdanamesbyletterLX, 
+                 store7names$SXnamesLX, store7names$SYnamesLX,
+                 store7names$LambdanamesbyletterLX, 
                  store7names$SXnamesLX, store7names$SYnamesLX),
         caption="Slack Maximizing Results from Seven Store")          |>
   kable_styling (latex_options = c("hold_position", "scale_down"))
