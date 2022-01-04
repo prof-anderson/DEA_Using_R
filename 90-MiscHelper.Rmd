@@ -9,6 +9,11 @@ Introduction
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r, include=FALSE, eval=FALSE}
+# library(bookdown); library(rmarkdown); rmarkdown::render("90-MiscHelper.Rmd", "tufte_book2")
+library(bookdown); library(rmarkdown); rmarkdown::render("90-MiscHelper.Rmd", "pdf_book")
+```
+
 This chapter explains some functions or commands that may be helpful to the DEA researcher and also describes some that don't exist yet but could be helpful.
 
 ## Filtering Nonpositive Columns
@@ -22,8 +27,10 @@ Let's revisit the Baker Hughes Corporation Directional Drilling example from Cha
 Let's start by looking at the full envelopment results of the Baker Hughes example from earlier in the book.  This table shows both the efficiency score and every value of the matrix of $\lambda$ values.
 
 ```{r BHCorp, echo=FALSE, warning=FALSE}
-library(MultiplierDEA)
-library(kableExtra)
+library (MultiplierDEA)
+library (kableExtra)
+library (TRA)
+library (pander)
 
 NX <- 1; NY <- 4 ;ND <- 14
 names <- TRA::DEAnames (NX, NY, ND)
@@ -41,7 +48,7 @@ YBH <- matrix(c( 32,  50,  40,  30,  25,   8,   2,
                 5.8, 5.8, 5.6, 5.4, 6.1, 6.9, 6.6,
                 8.0, 6.4, 5.3, 5.5, 5.1, 6.9, 6.6, 
                 5.4, 4.7, 6.1, 6.5, 6.4, 6.8, 7.1),
-                ncol=NX,dimnames=c(list(names$DMUnamesbyletter),
+                ncol=NY,dimnames=c(list(names$DMUnamesbyletter),
                                    list(names$Ynames)))
 
 resBH<-DeaMultiplierModel(XBH,YBH,rts = "vrs", orientation="input")
@@ -117,10 +124,10 @@ library(DiagrammeRsvg)
 library(rsvg)
 library(htmltools)
 a <- "'"  
-Xlabels <- c(mapply(paste0, a, Xnames, a)) 
+Xlabels <- c(mapply(paste0, a, names$Xnames, a)) 
               # Wraps names with ' (backtick)
 
-Ylabels <- c(mapply(paste0, a, Ynames, a))
+Ylabels <- c(mapply(paste0, a, names$Ynames, a))
 
 Modellabel <- c(mapply(paste0, a, "\n\nCCRIO\n\n ", a)) 
               # Pads model name with two carriage returns
@@ -174,12 +181,12 @@ Okay.  Now let's generalize it for an arbitrary number of inputs and outputs.
 library(DiagrammeR)
 a <- "'"
 
-NX <- lengths(Xnames)     # Number of inputs
-NY <- lengths(Ynames)     # Number of outputs
+NX <- lengths(names$Xnames)     # Number of inputs
+NY <- lengths(names$Ynames)     # Number of outputs
 
-Xlabels <- c(mapply(paste0, a, Xnames, a))
+Xlabels <- c(mapply(paste0, a, names$Xnames, a))
 
-Ylabels <- c(mapply(paste0, a, Ynames, a))
+Ylabels <- c(mapply(paste0, a, names$Ynames, a))
 
 nboxpad <- max(floor(1+NX/2), floor(1+NY/2)) 
 
