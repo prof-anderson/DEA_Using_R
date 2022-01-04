@@ -263,83 +263,57 @@ We will implement this using the `ompr` package again, as we did in chapters 2 a
 
 We're going to use our data from earlier of grocery stores. 
 
-```{r multiplier-model }
+```{r, echo=FALSE}
+x <- matrix(c(10, 20, 30, 50, 22, 29, 35,
+              75, 100, 220, 480, 290, 210, 220), byrow=FALSE, ncol=2, 
+            dimnames=list(LETTERS[1:7],c("x1","x2")))
+y <- matrix(c(75,100,300,400, 280, 120, 300),ncol=1,
+            dimnames=list(LETTERS[1:7],"y"))
 
-XBaker1 <- matrix(c(150, 400, 320, 520, 350, 320, 
-                    0.2, 0.7, 1.2, 2.0, 1.2, 0.7),
-                  ncol=2,dimnames=list(LETTERS[1:6],c("x1", "x2")))
+storenames<- c("Al\'s Pantry", "Bob\'s Mill", 
+               "Trader Carrie\'s", "Dilbertson\'s",
+               "Ed\'s Eggshop", "Flo\'s Farmacopia", "Gary\'s Grocery")
+temp<-cbind(storenames,x,y)
+colnames(temp)<-c("Store Name", "Employees (x1)", "Floor Space (x2)", "Sales (y)")
+kbl (temp, booktabs=TRUE)
+NX <- ncol(x); NY <- ncol(y); ND <- nrow(x)
+store7names <- TRA::DEAnames(NX, NY, ND)
 
-YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 
-                    3500, 21000, 10500, 42000, 25000, 15000),
-                  ncol=2,dimnames=list(LETTERS[1:6],c("y1", "y2")))
-
-ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1); 
+ND <- nrow(x); NX <- ncol(x); NY <- ncol(y); 
 # Define data size
 
-xdata      <-XBaker1 [1:ND,]  # Call it xdata
-dim(xdata) <-c(ND,NX)  # structure data correctly
-ydata      <-YBaker1[1:ND,]
-dim(ydata) <-c(ND,NY)
-```
-
-Remember the inputs are named as "x1" and"x2" to represent the *staff hours per day* and the *supplies per day* respectively. The two outputs of *reimbursed patient-days* and *privately paid patient-days* are named "y1" and "y2".
-
-```{r}
-YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 
-                    3500, 21000, 10500, 42000, 25000, 15000),
-                  ncol=2,dimnames=list(LETTERS[1:6],c("y1", "y2")))
-
-ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1); 
-# Define data size
+xdata      <- x [1:ND,]  # Call it xdata
+dim(xdata) <- c(ND,NX)  # structure data correctly
+ydata      <- y [1:ND,]
+dim(ydata) <- c(ND,NY)
 
 ```
 
-Note that I'm naming the data sets based on their origin and then loading them into xdata and ydata for actual operation.
+Remember the inputs are named as "x1" and"x2" to represent the staff (full-time equivalent employees) and the store size ($m^2$) respectively. The output is sales are named "y1". As usual, I'm copying the source data into objects, `xdata` and `ydata`, for actual operation.
 
 ```{r Structure-Results}
 
-results.efficiency <- matrix(rep(-1.0, ND), nrow=ND)
-results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND)
-results.vweight    <- matrix(rep(-1.0, ND*NX), nrow=ND) 
-results.uweight    <- matrix(rep(-1.0, ND*NY), nrow=ND) 
-results.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND) 
-results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND) 
+mm1.efficiency <- matrix(rep(-1.0, ND), nrow=ND)
+mm1.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND)
+mm1.vweight    <- matrix(rep(-1.0, ND*NX), nrow=ND) 
+mm1.uweight    <- matrix(rep(-1.0, ND*NY), nrow=ND) 
+mm1.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND) 
+mm1.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND) 
 
-DMUnames <- list(c(LETTERS[1:ND]))
-Xnames<- lapply(list(rep("X",NX)), paste0,1:NX)
-Ynames<- lapply(list(rep("Y",NY)), paste0,1:NY)
-Vnames<- lapply(list(rep("v",NX)), paste0,1:NX)
-Unames<- lapply(list(rep("u",NY)), paste0,1:NY)
-SXnames<- lapply(list(rep("sx",NX)), paste0,1:NX)
-SYnames<- lapply(list(rep("sy",NY)), paste0,1:NY)
-Lambdanames <- lapply(list(rep("L_",ND)), paste0, LETTERS[1:ND])
-  
-dimnames(xdata)<-c(DMUnames,Xnames)
-dimnames(ydata)<-c(DMUnames,Ynames)
-dimnames(results.efficiency)<-c(DMUnames,"CCR-IO")
-dimnames(results.lambda)<-c(DMUnames,Lambdanames)
-dimnames(results.xslack)<-c(DMUnames,SXnames)
-dimnames(results.yslack)<-c(DMUnames,SYnames)
-dimnames(results.uweight)<-c(DMUnames,Unames)
-dimnames(results.vweight)<-c(DMUnames,Vnames)
-
+mmnames <- TRA::DEAnames(NX, NY, ND)
 ```
 
-We are now ready to do the analysis. In Baker, the analysis is done using the multiplier model. In chapter 2 we used the envelopment model to examine this case. Now we will use the multiplier model.
+We are now ready to do the analysis. In chapter 2 we used the envelopment model to examine this case. Now we will use the multiplier model.
 
-```{r Baker-example-analysis, eval=TRUE}
+```{r eval=TRUE}
 
 for (k in 1:ND) {
 
   result <- MIPModel() %>%
-  add_variable(vweight[i], i = 1:NX, type = "continuous", 
-               lb = 0) %>%
-  add_variable(uweight[r], r = 1:NY, type = "continuous", 
-               lb = 0) %>%
-  set_objective(sum_expr(uweight[r] * ydata[k,r], r = 1:NY), 
-                "max") %>%
-  add_constraint(sum_expr(vweight[i] * xdata[k,i], 
-                          i = 1:NX) == 1) %>%
+  add_variable(vweight[i], i = 1:NX, type = "continuous", lb = 0) %>%
+  add_variable(uweight[r], r = 1:NY, type = "continuous", lb = 0) %>%
+  set_objective(sum_expr(uweight[r] * ydata[k,r], r = 1:NY), "max") %>%
+  add_constraint(sum_expr(vweight[i] * xdata[k,i], i = 1:NX) == 1) %>%
   add_constraint((sum_expr(uweight[r] * ydata[j,r], r = 1:NY)-
                     sum_expr(vweight[i] * xdata[j,i], i = 1:NX)) 
                  <= 0, j = 1:ND)
@@ -347,19 +321,19 @@ for (k in 1:ND) {
 
   result <- solve_model(result, with_ROI(solver = "glpk", 
                                          verbose = FALSE))
-  results.efficiency[k] <- objective_value (result) 
+  mm2.efficiency[k] <- objective_value (result) 
 
   # Get the output weights
   tempvweight <- get_solution(result, vweight[i])
-  results.vweight[k,] <- tempvweight[,3]
+  mm2.vweight[k,] <- tempvweight[,3]
 
   # Get the input weights
   tempuweight <- get_solution(result, uweight[i])
-  results.uweight[k,] <- tempuweight[,3]
+  mm2.uweight[k,] <- tempuweight[,3]
  }
 
 pander(cbind (results.efficiency, results.vweight, results.uweight), 
-      caption="Multiplier Model Results from Baker's Example")
+      caption="Multiplier Model Results from 7 Store Example")
 
 ```
 
