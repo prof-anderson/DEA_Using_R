@@ -414,11 +414,33 @@ kbl (cbind(CRS2PhaseIO.Res,Slack1.Res), booktabs=T, escape=F, digits=3,
   kable_styling (latex_options = c("hold_position", "scale_down"))
 ```
 
+Some important takeaways from these results.  
 
-Simply adding slacks though means that inputs or outputs that are in smaller units tend to have have higher magnitudes.  Also, changing units of measure for inputs and outputs will affect the targets developed.  For example, changing profit as an output from millions of dollars to dollars will magnify the impact on the objective function of profit by $10^6$.  
+- First, note that stores C and E are strongly efficient in both models.  In the slack based model, C and E are compared only against themselves and have zero slack in all three slack variables.  
+- The slack based model's objective function would simply be the sum of slack in FTE, square meters of floor space, and sales in thousands of dollars.
+- The target for the weakly efficient store, G, is the same for in both analyses.
+- The target is different for the four radially inefficient stores:  A, B, D, and F.  This corresponds to a different projection.
+- The slack on the second input ($s^x_2$) for store D is almost twenty times higher than that of the slack for any input on any other store. 
+- A reminder that the values of input 2 are on the order the order ten times that of the first input.  This means that in adding slacks, the second input will tend to have more pull in the objective function.
+
+These observations lead us to consider a couple of options.  First, we can convert the sum of slacks to a sum of slack percentages by dividing by each store's actual inputs or outputs.
 
 $$
-\frac {\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}}  {\sum_{r=1}^{N^Y} \frac{s^y_r}{y_{r,k}}}
+\begin{split}
+ \begin{aligned}
+    \text{max    } & \sum_{i} \frac{s^x_i}{x_{i,k}} + \sum_{r}\frac{s^y_r}{y_{r,k}}\\
+    \text{s.t.:  } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j  + s^x_i = x_{i,k} \; \forall \; i\\
+                   & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
+                   & \lambda_j , \; s^x_i, \; s^y_r \geq 0  \; \forall \; j,\; i,\; r
+  \end{aligned}
+\end{split}
+$$
+
+Furthermore, we can come up single metric $\rho$, that can serve as an efficiency score.  While it doesn't have the same radial interpretation of both $\theta$ or $\phi$ from the input or output-oriented model, it provides a nice holistic metric that captures inefficiency on both.  
+
+The following formula for 
+$$
+\rho = \frac {1-\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}}  {1+\sum_{r=1}^{N^Y} \frac{s^y_r}{y_{r,k}}}
 $$
 
 
