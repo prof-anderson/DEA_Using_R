@@ -513,8 +513,10 @@ colnames(temp) <- c("$\\theta^{CRS}$",
      
 kbl (TRA::poscol(temp, cutoff=0.000001), 
      booktabs=T, escape=F, digits=3,
-        caption="Maximizing Slack vs. Slack Percentage") |>
-  kable_styling (latex_options = c("hold_position", "scale_down"))
+        caption="Maximizing Slack vs. Slack Percentage")           |>
+  kable_styling (latex_options = c("hold_position", "scale_down")) |>
+  add_header_above(c(" " = 2, "Sum of Slacks" = 6, 
+                     "Sum of Slack Percentages" = 6))
 ```
 
 ```{r, echo=FALSE, eval=FALSE}
@@ -526,3 +528,9 @@ kbl (cbind(rho_numerator1, rho_numerator2,
 
 ```
 
+The results in the table interesting.  
+
+- The measures of $\rho$ are relatively robust and consistent with the efficiency scores.
+- For the slack based models, changing the measures from maximizing slacks to slack percentages changed the targets ($\lambda$ values) not the holistic overall score of $\rho$.  This is unlikely to persist in more complex models.
+- The `poscol` function from the `TRA` package was used with a `cutoff` value to eliminate columns of $\lambda$ for inefficient units.  
+- The `add_header_above` function from `kableExtra` was used to provide groupings of columns.  

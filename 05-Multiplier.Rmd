@@ -56,7 +56,6 @@ $$
                        & u_1, u_2\geq 0  \
   \end{aligned}
 \end{split}
-(\#eq:Ch5NLP-HardCode)
 $$
 
 Next let's implement this in `ompr` which may serve as a convenient refresher as well.
@@ -175,7 +174,7 @@ $$
 
 The $\forall\;j$ in the constraints indicates that the constraint should be repeated for all possible values of j. In our case it would have a constraint for $j=1$, (Alfred), then another constraint with $j=2$ (Barb), etc. The $\forall\;r$ in variable lower bounds is used to repeat the non-negativity of each weighting variable (in this case, $u_1$ and $u_2$).
 
-The above formulation is nearly generalized. Let's replace the last hardcoded items remaining. The first is that the formulation only calculates the score for first manager. To generalize this, let's replace the *1* in the objective function with *k*. This would allow us to calculate the optimal score for any manager, *k*. Secondly, the summations each assume that there are only two outputs. Let's replace this with$N^Y$ to serve as a count of the number of outputs.
+The above formulation is nearly generalized. Let's replace the last hardcoded items remaining. The first is that the formulation only calculates the score for first manager. To generalize this, let's replace the *1* in the objective function with *k*. This would allow us to calculate the optimal score for any manager, *k*. Secondly, the summations each assume that there are only two outputs. Let's replace this with $N^Y$ to serve as a count of the number of outputs.
 
 $$
 \begin{split}
@@ -193,7 +192,7 @@ This formulation is now a linear programming model that will find an optimal sco
 
 ## The Ratio Model
 
-Now, let's further extend this model in incorporate inputs. Not only are the restaurant managers producing different outcomes, they are also using different resources, say capital and labor. Let's denote capital investment as $x_1$ and labor in full-time-equivalents as $x_2$.
+Now, let's further extend this model to incorporate inputs. Not only are the restaurant managers producing different outcomes, they are also using different resources, say capital and labor. Let's denote capital investment as $x_1$ and labor in full-time-equivalents as $x_2$.
 
 We can frame the question of doing a two-input, two-output study in the same way as we did for the two output example earlier. Instead of a simple score, the manager can have a ratio of weighted outputs over weighted inputs.
 
@@ -202,14 +201,15 @@ For the two-input, two-output case, the formulation is given below.
 $$
 \begin{split}
 \begin{aligned}
-    \text {max } \frac{\sum_{r=1}^{2} u_r y_{r,k}} {\sum_{i=1}^{2} v_i x_{i,k} } \\
+    \text {max } & \frac{\sum_{r=1}^{2} u_r y_{r,k}} {\sum_{i=1}^{2} v_i x_{i,k} } \\
     \text{s.t.:   } & \frac{\sum_{r=1}^{2} u_r y_{r,k}} {\sum_{i=1}^{2} v_i x_{i,k} }
                           \leq 1 \; \forall \; j\\
-                       u_r, v_i\geq 0  \; \forall \; r,i
+                    & u_r, v_i\geq 0  \; \forall \; r,\; i
   \end{aligned}
 \end{split}
-(\#eq:Ch5NLPCCRIOM-Ratio)
-$$ We have two sets of variables now. The first is $u_r$ which is the weight on the *r*'th output. The second is $v_i$ which is the weight on the *i*'th input.
+$$ 
+
+We have two sets of variables now. The first is $u_r$ which is the weight on the *r*'th output. The second is $v_i$ which is the weight on the *i*'th input.
 
 For clarification, we make a small variation from traditional DEA notation. Normally the number of inputs is *m* and the number of outputs is *s*. To make the code more readable, I will use a convention of *NX* instead of *m* to refer to the number of inputs (x's) and *NY* to be the number of ouputs (y's) instead of *s*. Also, *n* is used to denote the number of Decision Making Units (DMUs) and therefore I'll use *ND* to indicate that in the R code. In the mathematical formulations, superscripts are used to differentiate the the different N's resulting in $N^X$, $N^Y$, and $N^D$ for `NX`, `NY`, and `ND` or *m*, *s*, and *n* respectively.
 
@@ -222,7 +222,6 @@ $$
                   &   u_r, \;v_i\geq 0  \; \forall \; r,i
   \end{aligned}
 \end{split}
-(\#eq:Ch5NLPCCRIOM-Ratio-General)
 $$
 
 This isn't a linear program because we are dividing functions of variables by functions of variables. We need to make a few transformations. First, we clear the denominator of each of the constraints and collect the terms on resulting in the following formulation.
@@ -244,14 +243,13 @@ Alas, it is still a nonlinear objective function. Fortunately, we can take advan
 $$
 \begin{split}
  \begin{aligned}
-    \text {max } \sum_{r=1}^{N^Y} u_r y_{r,k} \\
-    \text{s.t.:   } & \sum_{i=1}^{N^X} v_i x_{i,k} = 1 \\
+    \text {max   } & \sum_{r=1}^{N^Y} u_r y_{r,k} \\
+    \text{s.t.:  } & \sum_{i=1}^{N^X} v_i x_{i,k} = 1 \\
     & \sum_{r=1}^{N^Y} u_r y_{r,k} - \sum_{i=1}^{N^X} v_i x_{i,k} 
                           \leq 0 \; \forall \; j\\
-                       u_r, v_i\geq 0  \; \forall \; r,i
+                   &  u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
-   \end{split}
-  (\#eq:Ch5LPCCRIOM)
+ \end{split}
 $$
 
 This linear program can then be implemented in an linear programming system.
@@ -279,7 +277,6 @@ xdata      <-XBaker1 [1:ND,]  # Call it xdata
 dim(xdata) <-c(ND,NX)  # structure data correctly
 ydata      <-YBaker1[1:ND,]
 dim(ydata) <-c(ND,NY)
-  
 ```
 
 Remember the inputs are named as "x1" and"x2" to represent the *staff hours per day* and the *supplies per day* respectively. The two outputs of *reimbursed patient-days* and *privately paid patient-days* are named "y1" and "y2".
@@ -356,7 +353,6 @@ for (k in 1:ND) {
   # Get the input weights
   tempuweight <- get_solution(result, uweight[i])
   results.uweight[k,] <- tempuweight[,3]
-
  }
 
 pander(cbind (results.efficiency, results.vweight, results.uweight), 
@@ -374,4 +370,3 @@ Issues to consider in the future for this chapter or other chapters.
 -   Non-Archimedean Infinitesimal
 -   Returns to Scale
 -   Adding output-oriented multiplier model
--   Adding returns to scale to multiplier model
