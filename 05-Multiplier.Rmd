@@ -19,6 +19,7 @@ Assume that you, Alfred, are one of six restaurant managers of various franchise
 ```{r multiplier_rest_Y_data }
 
 library(pander)           # For making nice tables
+library(kableExtra)
 
  YRest1 <- matrix(c(25, 14, 42, 18, 19, 14, 3500, 2100, 1050, 
                     4200, 2500, 1500), ncol=2,
