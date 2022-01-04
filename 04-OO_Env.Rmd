@@ -65,7 +65,7 @@ As usual, we will start with loading a collection of packages.
 library (kableExtra)       # Nicely formatted tables
 library (ROI)              # R Optimization Interface package
 library (ROI.plugin.glpk)  # Connection to glpk as solver
-library (ompr)             # Optimization Modeling using R
+library (ompr)             # Optimization Modeling Package
 library (ompr.roi)         # Connective tissue
 library (TRA)
 ```
@@ -297,10 +297,9 @@ storenames<- c("Al\'s Pantry", "Bob\'s Mill",
                "Ed\'s Eggshop", "Flo\'s Farmacopia", "Gary\'s Grocery")
 temp<-cbind(storenames,x,y)
 colnames(temp)<-c("Store Name", "Employees (x1)", "Floor Space (x2)", "Sales (y)")
-kbl (temp)
+kbl (temp, booktabs=TRUE)
 NX <- ncol(x); NY <- ncol(y); ND <- nrow(x)
 store7names <- TRA::DEAnames(NX, NY, ND)
-
 ```
 
 ```{r CRS2PhaseIO}
