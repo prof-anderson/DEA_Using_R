@@ -436,12 +436,82 @@ $$
 \end{split}
 $$
 
-Furthermore, we can come up single metric $\rho$, that can serve as an efficiency score.  While it doesn't have the same radial interpretation of both $\theta$ or $\phi$ from the input or output-oriented model, it provides a nice holistic metric that captures inefficiency on both.  
+The $\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}$ is the sum of all input slacks by percentage.  We could convert this to an average slack percentage by dividing by the number of inputs, $N^x$.  A value 0% would mean no slacks in any input.  Similar things could be done on the output side.  
 
-The following formula for 
+We can use a single metric $\rho$, that can serve as an efficiency score by combining both the average input slack and the output slack.
+
 $$
-\rho = \frac {1-\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}}  {1+\sum_{r=1}^{N^Y} \frac{s^y_r}{y_{r,k}}}
+\rho = \frac {1- \frac {1}{N^x}\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}}  {1+\frac {1}{N^y}\sum_{r=1}^{N^Y} \frac{s^y_r}{y_{r,k}}}
 $$
+While it doesn't have the same radial interpretation of both $\theta$ or $\phi$ from the input or output-oriented model, it provides a nice holistic metric that captures inefficiency on both inputs and outputs.  A value of $\rho=1.0$ represents an efficient unit.  A value of $\rho=0.5$ might be due to an average input slack of 50% on the inputs in a unit that is output efficient.  On the other hand, it might also represent a unit that only produces half of what an efficient target produces despite being input efficient.  In either case, an overall efficiency of 50% seems warranted.  Unfortunately the function for calculating $\rho$ involves dividing functions of variables, $s^x_i$  by functions of other variables, $x^y_r$.  This makes it a nonlinear function which is more difficult to optimize.    
+
+Let's calculate $\rho$ for each of the stores using the slack based model.  
+
+```{r}
+rho_numerator <- 1 - rowMeans(Slack1.xslack/x)
+rho_denominator <- 1 + rowMeans (Slack1.yslack/y)
+Slack1.rho <- rho_numerator/rho_denominator
+```
+
+```{r Slack2}
+Slack2.lambda <- matrix(rep(-1.0, ND*ND), nrow=ND,ncol=ND) 
+Slack2.xslack <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
+Slack2.yslack <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
+
+RTS<-"CRS"
+for (k in 1:ND) {
+  
+  LPSlack <- MIPModel()                                             |>
+    add_variable(vlambda[j], j = 1:ND, type = "continuous", lb = 0) |>
+    add_variable(xslack[i], i = 1:NX, type = "continuous", lb = 0)  |>
+    add_variable(yslack[r], r = 1:NY, type = "continuous", lb = 0)  |>
+    
+    add_constraint(sum_expr(vlambda[j] * xdata[j,i], 
+                            j = 1:ND)+xslack[i] 
+                   - xdata[k,i]==0, i = 1:NX)              |>
+    
+    add_constraint(sum_expr(vlambda[j] * ydata[j,r], 
+                            j = 1:ND) -yslack[r]
+                    ==ydata[k,r], r = 1:NY) 
+  
+    LPSlack<-set_objective(LPSlack, 
+                           sum_expr(xslack[i]/xdata[k,i], i=1:NX)
+                           + sum_expr(yslack[r]/ydata[k,r], r=1:NY), 
+                           "max")
+  
+    result3 <-   solve_model(LPSlack, with_ROI(solver = "glpk")) 
+
+    Slack2.lambda[k,] <- t(as.matrix(
+                 as.numeric(get_solution(result3, 
+                                         vlambda[.])[,3] )))
+    Slack2.xslack[k,]  <- t(as.matrix(
+                 as.numeric(get_solution(result3, 
+                                         xslack[.])[,3] )))
+    Slack2.yslack[k,]  <- t(as.matrix(
+                 as.numeric(get_solution(result3, 
+                                         yslack[.])[,3] )))
+    }
+
+Slack2.Res<-cbind(Slack2.lambda, 
+                  Slack2.xslack, Slack2.yslack)
+rownames(Slack2.Res) <- store7names$DMUnamesbyletter
+
+rho_numerator <- 1 - rowMeans(Slack2.xslack/x)
+rho_denominator <- 1 + rowMeans (Slack2.yslack/y)
+Slack2.rho <- rho_numerator/rho_denominator
+```
+
+
+```{r}
+kbl (cbind(Slack1.rho,Slack1.Res, Slack2.rho,Slack2.Res), 
+     booktabs=T, escape=F, digits=3,
+     col.names=c("$\\rho^{CRS}$", store7names$LambdanamesbyletterLX, 
+                 store7names$SXnamesLX, store7names$SYnamesLX,
+                 "$\\rho^{CRS}$", store7names$LambdanamesbyletterLX, 
+                 store7names$SXnamesLX, store7names$SYnamesLX),
+        caption="Maximizing Slack vs. Slack Percentage") |>
+  kable_styling (latex_options = c("hold_position", "scale_down"))
+```
 
 
 $$
