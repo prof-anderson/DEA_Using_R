@@ -221,7 +221,6 @@ $$
 We're going to use our data from earlier but first we will load a collection of libraries to be used later. The `ompr`package is for optimization and serves as a general human readable format of optimization models that can then interface with a variety of solver engines. The `ROI.plugin.glpk` package is for the specific solver engine, `glpk`, that we used. Other LP solving engines are available and can be used instead.
 
 ```{r loading_packages, message=FALSE, warning=FALSE}
-library(dplyr, quietly=TRUE)           
 library(ROI, quietly=TRUE)             
 library(ROI.plugin.glpk, quietly=TRUE) 
 library(ompr, quietly=TRUE)            
@@ -332,7 +331,7 @@ In this chapter, we will focus on satisfying the second constraint while trying 
 
 Let's define the proportion of the studied unit's input needed by the target as $\theta$. A value of $\theta=1$ then means no input reduction can be found in order to produce that unit's level of output. Similarly, $x_j$ is the amount of input used by unit *j* and $y_j$ is the amount of output produced by unit *j*.
 
-In fact, we will go one step further and say that we want to find the maximum input possible reduction in k's input or conversely, the minimum amount of the input that could be used by the target while still producing the same or more output. We do this by adding a new variable, $\theta$, which is the radial reduction in the amount of DMU *k*'s input. We want to find how low we can drive this by *minimizing* $\theta$. This gives us the following linear program, often abbreviated as LP.[^io_env-2]
+In fact, we will go one step further and say that we want to find the maximum input possible reduction in *k*'s input or conversely, the minimum amount of the input that could be used by the target while still producing the same or more output. We do this by adding a new variable, $\theta$, which is the radial reduction in the amount of DMU *k*'s input. We want to find how low we can drive this by *minimizing* $\theta$. This gives us the following linear program, often abbreviated as LP.[^io_env-2]
 
 [^io_env-2]: The mathematics in this book are written using LaTeX embedded within the Rmarkdown document. Another benefit of using Rmarkdown is that it is possible embed LaTeX without requiring using a full LaTeX document.
 
@@ -344,7 +343,6 @@ $$
                    & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \; \forall \; r\\
                    & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
-  (\#eq:Ch2LPCCRIOE-NoSlack-Simple)
   \end{split}
 $$
 
@@ -358,7 +356,6 @@ $$
                    & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \;  \forall \; r\\
                    & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
-  (\#eq:Ch2LPCCRIOE-NoSlack)
  \end{split}
 $$
 
@@ -721,13 +718,13 @@ res2_5.lambda     <- matrix(rep(-1.0, ND), nrow=ND, ncol=ND)
 RTS<-"DRS"
 for (k in 1:ND) {
   
-  mod2_5 <- MIPModel()                                          |>
+  mod2_5 <- MIPModel()                                                |>
     add_variable(vlambda[j], j = 1:ND, type = "continuous", 
-                 lb = 0)                                        |>
-    add_variable(vtheta, type = "continuous")                   |>
-    set_objective(vtheta, "min")                                |>
+                 lb = 0)                                              |>
+    add_variable(vtheta, type = "continuous")                         |>
+    set_objective(vtheta, "min")                                      |>
     add_constraint(sum_expr(vlambda[j] * xdata[j,i], j = 1:ND) 
-                   <= vtheta * xdata[k,i], i = 1:NX)            |>
+                   <= vtheta * xdata[k,i], i = 1:NX)                  |>
     add_constraint(sum_expr(vlambda[j] * ydata[j,r], j = 1:ND) 
                    >= ydata[k,r], r = 1:NY)
 
@@ -747,15 +744,16 @@ for (k in 1:ND) {
     res2_5.lambda[k,] <- t(as.matrix(as.numeric(
               get_solution(res2_5, vlambda[j])[,3] )))
 } #Close loop for each DMU
+
 ```
+
 ```{r, echo=FALSE}
 temp <- cbind(res2_1.names$DMUnamesbyletter, # Add letters as column
               res2_5.efficiency, res2_5.lambda) 
 kbl(temp, 
     booktabs=T, digits=3, escape=F, row.names=F,
-    col.names=c("DMU", "$\\theta^{DRS}$", 
-    res2_1.names$LambdanamesbyletterLX),
-    caption= "Input-Oriented DRS Envelopment Results")        |>
+    col.names=c("DMU", "$\\theta^{DRS}$", res2_1.names$LambdanamesbyletterLX),
+    caption= "Input-Oriented DRS Envelopment Results") |>
   kable_styling(latex_options = "hold_position")
 ```
 
@@ -776,10 +774,7 @@ storenames<- c("Al\'s Pantry", "Bob\'s Mill",
 temp<-cbind(storenames,x,y)
 colnames(temp)<-c("Store Name", "Employees (x1)", "Floor Space (x2)", "Sales (y)")
 
-kbl (temp, 
-    booktabs=T, digits=3, escape=F, row.names=F,
-    caption= "Six Store Example")                      |>
-  kable_styling(latex_options = "hold_position")
+kbl (temp)
 ```
 
 Let's extend our earlier store management by adding as an input, store floor space and two more stores, 
@@ -809,13 +804,13 @@ We are now ready to do the analysis. Note that Baker's analysis uses the multipl
 RTS<-"CRS"
 for (k in 1:ND) {
   
-  result <- MIPModel()                                          |>
+  result <- MIPModel()                                              |>
     add_variable(vlambda[j], j = 1:ND, type = "continuous", 
-                 lb = 0)                                        |>
-    add_variable(vtheta, type = "continuous")                   |>
-    set_objective(vtheta, "min")                                |>
+                 lb = 0)                                            |>
+    add_variable(vtheta, type = "continuous")                       |>
+    set_objective(vtheta, "min")                                    |>
     add_constraint(sum_expr(vlambda[j] * xdata[j,i], j = 1:ND) 
-                   <= vtheta * xdata[k,i], i = 1:NX)            |>
+                   <= vtheta * xdata[k,i], i = 1:NX)                |>
     add_constraint(sum_expr(vlambda[j] * ydata[j,r], j = 1:ND) 
                    >= ydata[k,r], r = 1:NY) 
 
@@ -836,18 +831,11 @@ Store6CRS.Eff<-results.efficiency
 ```{r}
 store6names <- TRA::DEAnames(NX, NY, ND)
 rownames(Store6CRS.Res) <- store6names$DMUnamesbyletter
-kbl (Store6CRS.Res, booktabs=T, escape=F,
+
+kbl (Store6CRS.Res, booktabs=T, escape=F, digits=5,
      col.names=c("$\\theta^{CRS}$", store6names$LambdanamesbyletterLX),
         caption="Results from Six Store Example (CRS)")               |>
 kable_styling(protect_latex = TRUE)
-```
-
-
-```{r rounded-table}
-kbl (cbind(results.efficiency, results.lambda), 
-     booktabs=T, 
-        caption=
-          "Results from Baker's Example (CRS) with Rounded Values")
 ```
 
 The small, nearly zero, values that may appear in DEA calculations can cause some computational difficulty. For example, testing for zero lambda values could miss cases where the value is approximately but not exactly zero.
@@ -859,13 +847,13 @@ Let's compare the results from the constant and variable returns to scale cases.
 RTS<-"VRS"
 for (k in 1:ND) {
   
-  result <- MIPModel()                                            |>
+  result <- MIPModel()                                              |>
     add_variable(vlambda[j], j = 1:ND, type = "continuous", 
-                 lb = 0)                                          |>
-    add_variable(vtheta, type = "continuous")                     |>
-    set_objective(vtheta, "min")                                  |>
+                 lb = 0)                                            |>
+    add_variable(vtheta, type = "continuous")                       |>
+    set_objective(vtheta, "min")                                    |>
     add_constraint(sum_expr(vlambda[j] * xdata[j,i], j = 1:ND) 
-                   <= vtheta * xdata[k,i], i = 1:NX)              |>
+                   <= vtheta * xdata[k,i], i = 1:NX)                |>
     add_constraint(sum_expr(vlambda[j] * ydata[j,r], j = 1:ND) 
                    >= ydata[k,r], r = 1:NY) 
 
@@ -888,9 +876,9 @@ Store6VRS.Eff<-results.efficiency
 temp <- cbind(Store6CRS.Eff,Store6VRS.Eff)
 rownames(temp)<- store6names$DMUnamesbyletter
 kbl (temp, 
-     booktabs=T, digits=5, 
+     booktabs=T, digits=5, escape=F,
      col.names=c("$\\theta^{CRS}$", "$\\theta^{VRS}$"),
-     caption="Comparison of CRS vs. VRS Efficiency Scores")      |>
+     caption="Comparison of CRS vs. VRS Efficiency Scores")       |>
 kable_styling(protect_latex = TRUE)
 ```
 
@@ -909,13 +897,13 @@ Let's now wrap this into the full series of linear programs so as to calculate t
 RTS<-"CRS"
 for (k in 1:ND) {
   
-  result <- MIPModel()                                           |>
+  result <- MIPModel()                                                |>
     add_variable(vlambda[j], j = 1:ND, type = "continuous", 
-                 lb = 0)                                         |>
-    add_variable(vtheta, type = "continuous")                    |>
-    set_objective(vtheta, "min")                                 |>
+                 lb = 0)                                              |>
+    add_variable(vtheta, type = "continuous")                         |>
+    set_objective(vtheta, "min")                                      |>
     add_constraint(sum_expr(vlambda[j] * xdata[j,i], j = 1:ND) 
-                   <= vtheta * xdata[k,i], i = 1:NX)             |>
+                   <= vtheta * xdata[k,i], i = 1:NX)                  |>
     add_constraint(sum_expr(vlambda[j] * ydata[j,r], j = 1:ND) 
                    >= ydata[k,r], r = 1:NY) 
 
@@ -935,6 +923,7 @@ for (k in 1:ND) {
 temp <- cbind (results.efficiency, results.lambda, results.vweight, results.uweight)
 rownames(temp) <- store6names$DMUnamesbyletter
 ```
+
 ```{r}
 kbl (temp,booktabs=T, digits=6, escape=F,
      col.names=c("$\\theta^{CRS}$", store6names$LambdanamesbyletterLX,
@@ -972,7 +961,6 @@ temp<-cbind(storenames,x,y)
 colnames(temp)<-c("Store Name", "Employees (x1)", "Floor Space (x2)", "Sales (y)")
 kbl (temp)
 ```
-
 
 ```{r}
 ND <- nrow(x); NX <- ncol(x); NY <- ncol(y)
@@ -1021,7 +1009,6 @@ kbl (Store7CRS.Res, booktabs=T, escape=F,
      col.names=c("$\\theta^{CRS}$", store7names$LambdanamesbyletterLX),
         caption="Results from Seven Store Example (CRS)")               |>
 kable_styling(protect_latex = TRUE)
-
 ```
 
 In this case, Gary's Grocery had an efficiency score, $\theta^{CRS}=1.0$ and was deemed efficient.  Interestingly it did not use itself for comparison $\lambda_G=0.0$ and had its target formed based on Trader Carrie's, $\lambda_C=1.0$. This indicates that Gary's Grocery is radially efficient as no target can be made that allows for improving on *all* inputs.  The radial efficiency scores may not reflect fully efficient operation. 
@@ -1069,9 +1056,8 @@ $$
     \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \; \forall \; i\\
                        & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
-  \end{aligned}
-   \end{split}
-  (\#eq:Ch2LPCCRIOE-Slacks)
+ \end{aligned}
+\end{split}
 $$
 
 Simply formulating the model with slacks is insufficient. We want to maximize these slacks after having found the best possible radial contraction (minimum value of $\theta$.) This is done by adding a term summing the slacks to the objective function. Note that this sum of slacks is multiplied by $\epsilon$ which is a non-Archimedean infinitesimal. The value of $\epsilon$ should be considered to be so small as to ensure that minimizing theta takes priority or maximizing the sum of slacks. Note also that maximizing the sum of slacks is denoted by minimizing the negative sum of slacks.
@@ -1085,7 +1071,6 @@ $$
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
   \end{aligned}
  \end{split}
-  (\#eq:Ch2LPCCRIOE-Two-Phase)
 $$
 
 A common mistake in implementing DEA is to use a finite approximation for $\epsilon$ such as $10^{-6}$. Any finite value can cause distortions in $\theta$. For example, an application comparing companies using revenue and expenses might have inputs and outputs on the order of millions or billions. In this case, non-radial slacks could also be on the order of $10^{6}$. Multiplying the two results in a value similar in magnitude to the maximum possible efficiency score ($10^{-6}10^{6}=1$) which would then potentially overwhelm the radial efficiency, $\theta$, part of the objective function and lead to distorted results.
@@ -1105,7 +1090,6 @@ $$
                   & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
   \end{aligned}
 \end{split}
-(\#eq:Ch2LPCCRIOE-Second-Phase)
 $$
 
 ### Implementing the Slack Maxization Approach
@@ -1178,6 +1162,7 @@ Store7SlackMax.Res<-cbind(results.efficiency, results.lambda,
                           results.xslack, results.yslack)
 rownames(Store7SlackMax.Res) <- store7names$DMUnamesbyletter
 ```
+
 ```{r, echo=FALSE}
 kbl (Store7SlackMax.Res, booktabs=T, escape=F, digits=3,
      col.names=c("$\\theta^{CRS}$", store7names$LambdanamesbyletterLX, 

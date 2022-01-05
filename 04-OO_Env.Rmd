@@ -65,7 +65,7 @@ As usual, we will start with loading a collection of packages.
 library (kableExtra)       # Nicely formatted tables
 library (ROI)              # R Optimization Interface package
 library (ROI.plugin.glpk)  # Connection to glpk as solver
-library (ompr)             # Optimization Modeling using R
+library (ompr)             # Optimization Modeling Package
 library (ompr.roi)         # Connective tissue
 library (TRA)
 ```
@@ -297,13 +297,14 @@ storenames<- c("Al\'s Pantry", "Bob\'s Mill",
                "Ed\'s Eggshop", "Flo\'s Farmacopia", "Gary\'s Grocery")
 temp<-cbind(storenames,x,y)
 colnames(temp)<-c("Store Name", "Employees (x1)", "Floor Space (x2)", "Sales (y)")
-kbl (temp)
+kbl (temp, booktabs=TRUE)
 NX <- ncol(x); NY <- ncol(y); ND <- nrow(x)
 store7names <- TRA::DEAnames(NX, NY, ND)
-
 ```
 
 ```{r CRS2PhaseIO}
+CRS2PhaseIO.efficiency <- matrix(rep(-1.0, ND), nrow=ND)
+CRS2PhaseIO.lambda     <- matrix(rep(-1.0, ND*ND), nrow=ND,ncol=ND)
 CRS2PhaseIO.xslack    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
 CRS2PhaseIO.yslack    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
 xdata<-x
@@ -354,28 +355,26 @@ for (k in 1:ND) {
     }
 
 CRS2PhaseIO.Res<-cbind(CRS2PhaseIO.efficiency, CRS2PhaseIO.lambda, 
-                          results.xslack, results.yslack)
+                       CRS2PhaseIO.xslack, CRS2PhaseIO.yslack)
 rownames(CRS2PhaseIO.Res) <- store7names$DMUnamesbyletter
 ```
 
 ```{r Slack1}
-Slack1.xslack    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
-Slack1.yslack    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
+Slack1.lambda <- matrix(rep(-1.0, ND*ND), nrow=ND,ncol=ND) 
+Slack1.xslack <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
+Slack1.yslack <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
 
 RTS<-"CRS"
 for (k in 1:ND) {
   
   LPSlack <- MIPModel()                                             |>
     add_variable(vlambda[j], j = 1:ND, type = "continuous", lb = 0) |>
-    add_variable(vtheta, type = "continuous")                       |>
     add_variable(xslack[i], i = 1:NX, type = "continuous", lb = 0)  |>
     add_variable(yslack[r], r = 1:NY, type = "continuous", lb = 0)  |>
     
-    set_objective(vtheta, "min")                                    |>
-    
     add_constraint(sum_expr(vlambda[j] * xdata[j,i], 
                             j = 1:ND)+xslack[i] 
-                   - vtheta * xdata[k,i]==0, i = 1:NX)              |>
+                   - xdata[k,i]==0, i = 1:NX)              |>
     
     add_constraint(sum_expr(vlambda[j] * ydata[j,r], 
                             j = 1:ND) -yslack[r]
@@ -386,7 +385,6 @@ for (k in 1:ND) {
   
     result2 <-   solve_model(LPSlack, with_ROI(solver = "glpk")) 
 
-    Slack1.efficiency[k] <-  get_solution(result2, vtheta)       
     Slack1.lambda[k,] <- t(as.matrix(
                  as.numeric(get_solution(result2, 
                                          vlambda[.])[,3] )))
@@ -398,8 +396,8 @@ for (k in 1:ND) {
                                          yslack[.])[,3] )))
     }
 
-Slack1.Res<-cbind(Slack1.efficiency, Slack1.lambda, 
-                          Slack1.xslack, Slack1.yslack)
+Slack1.Res<-cbind(Slack1.lambda, 
+                  Slack1.xslack, Slack1.yslack)
 rownames(Slack1.Res) <- store7names$DMUnamesbyletter
 ```
 
@@ -408,99 +406,130 @@ Let's compare the results of our slack based model to the two-phase results from
 ```{r}
 kbl (cbind(CRS2PhaseIO.Res,Slack1.Res), booktabs=T, escape=F, digits=3,
      col.names=c("$\\theta^{CRS}$", store7names$LambdanamesbyletterLX, 
+                 store7names$SXnamesLX, store7names$SYnamesLX,
+                 store7names$LambdanamesbyletterLX, 
                  store7names$SXnamesLX, store7names$SYnamesLX),
         caption="Slack Maximizing Results from Seven Store")          |>
   kable_styling (latex_options = c("hold_position", "scale_down"))
 ```
 
+Some important takeaways from these results.  
 
-Simply adding slacks though means that inputs or outputs that are in smaller units tend to have have higher magnitudes.  Also, changing units of measure for inputs and outputs will affect the targets developed.  For example, changing profit as an output from millions of dollars to dollars will magnify the impact on the objective function of profit by $10^6$.  
+- First, note that stores C and E are strongly efficient in both models.  In the slack based model, C and E are compared only against themselves and have zero slack in all three slack variables.  
+- The slack based model's objective function would simply be the sum of slack in FTE, square meters of floor space, and sales in thousands of dollars.
+- The target for the weakly efficient store, G, is the same for in both analyses.
+- The target is different for the four radially inefficient stores:  A, B, D, and F.  This corresponds to a different projection.
+- The slack on the second input ($s^x_2$) for store D is almost twenty times higher than that of the slack for any input on any other store. 
+- A reminder that the values of input 2 are on the order the order ten times that of the first input.  This means that in adding slacks, the second input will tend to have more pull in the objective function.
 
-$$
-\frac {\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}}  {\sum_{r=1}^{N^Y} \frac{s^y_r}{y_{r,k}}}
-$$
+### Slack Percentages
 
-
-$$
-\begin{split}
- \begin{aligned}
-    \text{minimize  }   & \rho_k= \frac {1-\frac{1}{N^X}\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}}  {1+\frac{1}{N^Y}\sum_{r=1}^{N^Y} \frac{s^y_r}{y_{r,k}}}\\
-    \text{s.t.:  } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j + s^x_i = x_{i,k}  \; \forall \; i\\
-                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
-                       & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
-  \end{aligned}
-   \end{split}
-  (\#eq:Ch6SBM_v01)
-$$
-
-We again create a normalizing constraint to linearize the objective function.
+These observations lead us to consider a couple of options.  First, we can convert the sum of slacks to a sum of slack percentages by dividing by each store's actual inputs or outputs.
 
 $$
 \begin{split}
  \begin{aligned}
-    \text{minimize  }  & \rho_k= 1-\frac{1}{N^X}\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}  \\
-    \text{s.t.:  } & 1+\frac{1}{N^Y}\sum_{r=1}^{N^Y} \frac{s^y_r}{y_{r,k}} =1 \\
-                       & \sum_{j=1}^{N^D} x_{i,j}\lambda_j + s^x_i = x_{i,k}  \; \forall \; i\\
-                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
-                       & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
+    \text{max    } & \sum_{i} \frac{s^x_i}{x_{i,k}} + \sum_{r}\frac{s^y_r}{y_{r,k}}\\
+    \text{s.t.:  } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j  + s^x_i = x_{i,k} \; \forall \; i\\
+                   & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
+                   & \lambda_j , \; s^x_i, \; s^y_r \geq 0  \; \forall \; j,\; i,\; r
   \end{aligned}
-   \end{split}
-  (\#eq:Ch6SBM_v02)
+\end{split}
 $$
 
-Now, let's move on to examining an implementation in R.
+The $\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}$ is the sum of all input slacks by percentage.  We could convert this to an average slack percentage by dividing by the number of inputs, $N^x$.  A value 0% would mean no slacks in any input.  Similar things could be done on the output side.  
 
-```{r, eval=FALSE}
+We can use a single metric $\rho$, that can serve as an efficiency score by combining both the average input slack and the output slack.
+
+$$
+\rho = \frac {1- \frac {1}{N^x}\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}}  {1+\frac {1}{N^y}\sum_{r=1}^{N^Y} \frac{s^y_r}{y_{r,k}}}
+$$
+While it doesn't have the same radial interpretation of both $\theta$ or $\phi$ from the input or output-oriented model, it provides a nice holistic metric that captures inefficiency on both inputs and outputs.  A value of $\rho=1.0$ represents an efficient unit.  A value of $\rho=0.5$ might be due to an average input slack of 50% on the inputs in a unit that is output efficient.  On the other hand, it might also represent a unit that only produces half of what an efficient target produces despite being input efficient.  In either case, an overall efficiency of 50% seems warranted.  Unfortunately the function for calculating $\rho$ involves dividing functions of variables, $s^x_i$  by functions of other variables, $x^y_r$.  This makes it a nonlinear function which is more difficult to optimize.    
+
+Let's calculate $\rho$ for each of the stores using the slack based model.  
+
+```{r}
+rho_numerator1 <- 1 - rowMeans(Slack1.xslack/x)
+rho_denominator1 <- 1 + rowMeans (Slack1.yslack/y)
+Slack1.rho <- rho_numerator1/rho_denominator1
+```
+
+```{r Slack2}
+Slack2.lambda <- matrix(rep(-1.0, ND*ND), nrow=ND,ncol=ND) 
+Slack2.xslack <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
+Slack2.yslack <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
+
 RTS<-"CRS"
 for (k in 1:ND) {
   
-  LPSlack <- MIPModel() %>%
-    add_variable(vlambda[j], j = 1:ND, type = "continuous", 
-                 lb = 0) %>%
-    add_variable(xslack[i], i = 1:NX, type = "continuous", 
-                 lb=0) %>%
-    add_variable(yslack[r], r = 1:NY, type = "continuous", 
-                 lb=0) %>%
+  LPSlack <- MIPModel()                                             |>
+    add_variable(vlambda[j], j = 1:ND, type = "continuous", lb = 0) |>
+    add_variable(xslack[i], i = 1:NX, type = "continuous", lb = 0)  |>
+    add_variable(yslack[r], r = 1:NY, type = "continuous", lb = 0)  |>
     
-    set_objective(sum_expr(xslack[i]/xdata[k,i], 
-                            i = 1:NX), "max") %>%
+    add_constraint(sum_expr(vlambda[j] * xdata[j,i], 
+                            j = 1:ND)+xslack[i] 
+                   - xdata[k,i]==0, i = 1:NX)              |>
     
-    add_constraint(sum_expr(vlambda[j] * xdata[j,i]+xslack[i], 
-                            j = 1:ND) 
-                   - vtheta * xdata[k,i]==0, i = 1:NX) %>%
-    
-    add_constraint(sum_expr(vlambda[j] * ydata[j,r]-yslack[r], 
-                            j = 1:ND) 
+    add_constraint(sum_expr(vlambda[j] * ydata[j,r], 
+                            j = 1:ND) -yslack[r]
                     ==ydata[k,r], r = 1:NY) 
-
-    if (RTS=="VRS") {LPSlack<-add_constraint(LPSlack, 
-                                             sum_expr(vlambda[j],
-                                j = 1:ND) == 1) }  
   
-
-    result <-   solve_model(LPSlack, with_ROI(solver = "glpk")) 
-
-    # The following are the key steps to slack maximization 
-    phase1obj <-  get_solution(result, vtheta)  # Get Phase 1 objective value
-
-    add_constraint(LPSlack, vtheta==phase1obj)   
-                     # Passing result from phase 1 to phase 2
-    set_objective(LPSlack, sum_expr(
-              xslack[i], i=1:NX)+sum_expr(yslack[r], r=1:NY), "max")
-              # Modify the objective function for phase 2
-    result <-   solve_model(LPSlack, with_ROI(solver = "glpk")) 
+    LPSlack<-set_objective(LPSlack, 
+                           sum_expr(xslack[i]/xdata[k,i], i=1:NX)
+                           + sum_expr(yslack[r]/ydata[k,r], r=1:NY), 
+                           "max")
   
-    results.efficiency[k] <-  get_solution(result, vtheta)       
-    results.lambda[k,] <- t(as.matrix(
-                 as.numeric(get_solution(result, 
-                                         vlambda[j])[,3] )))
-}
+    result3 <-   solve_model(LPSlack, with_ROI(solver = "glpk")) 
 
-rownames(results.efficiency)<-c("A", "B", "C", "D", "E", "F")
-#print (results.efficiency)
-pander(cbind(results.efficiency,xdata,ydata,results.lambda), 
-       round=5,
-       caption="Input-oriented Efficiency Results")
+    Slack2.lambda[k,] <- t(as.matrix(
+                 as.numeric(get_solution(result3, 
+                                         vlambda[.])[,3] )))
+    Slack2.xslack[k,]  <- t(as.matrix(
+                 as.numeric(get_solution(result3, 
+                                         xslack[.])[,3] )))
+    Slack2.yslack[k,]  <- t(as.matrix(
+                 as.numeric(get_solution(result3, 
+                                         yslack[.])[,3] )))
+    }
+
+Slack2.Res<-cbind(Slack2.lambda, 
+                  Slack2.xslack, Slack2.yslack)
+rownames(Slack2.Res) <- store7names$DMUnamesbyletter
+
+rho_numerator2 <- 1 - rowMeans(Slack2.xslack/x)
+rho_denominator2 <- 1 + rowMeans (Slack2.yslack/y)
+Slack2.rho <- rho_numerator2/rho_denominator2
+```
+
+```{r, echo=FALSE}
+temp <- cbind(CRS2PhaseIO.efficiency, Slack1.rho, Slack1.Res, Slack2.rho,Slack2.Res)
+colnames(temp) <- c("$\\theta^{CRS}$", 
+                    "$\\rho^{CRS}$", store7names$LambdanamesbyletterLX,
+                    store7names$SXnamesLX, store7names$SYnamesLX,
+                    "$\\rho^{CRS}$", store7names$LambdanamesbyletterLX,
+                    store7names$SXnamesLX, store7names$SYnamesLX)
+     
+kbl (TRA::poscol(temp, cutoff=0.000001), 
+     booktabs=T, escape=F, digits=3,
+        caption="Maximizing Slack vs. Slack Percentage")           |>
+  kable_styling (latex_options = c("hold_position", "scale_down")) |>
+  add_header_above(c(" " = 2, "Sum of Slacks" = 6, 
+                     "Sum of Slack Percentages" = 6))
+```
+
+```{r, echo=FALSE, eval=FALSE}
+kbl (cbind(rho_numerator1, rho_numerator2,
+           rho_denominator1, rho_denominator2), 
+     booktabs=T, escape=F, 
+        caption="Maximizing Slack vs. Slack Percentage") |>
+  kable_styling (latex_options = c("hold_position", "scale_down"))
 
 ```
 
+The results in the table interesting.  
+
+- The measures of $\rho$ are relatively robust and consistent with the efficiency scores.
+- For the slack based models, changing the measures from maximizing slacks to slack percentages changed the targets ($\lambda$ values) not the holistic overall score of $\rho$.  This is unlikely to persist in more complex models.
+- The `poscol` function from the `TRA` package was used with a `cutoff` value to eliminate columns of $\lambda$ for inefficient units.  
+- The `add_header_above` function from `kableExtra` was used to provide groupings of columns.  
