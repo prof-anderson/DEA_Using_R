@@ -326,15 +326,15 @@ We are now ready to do the analysis. In Baker, the analysis is done using the mu
 
 for (k in 1:ND) {
 
-  result <- MIPModel()                                            |>
+  result <- MIPModel()                                          |>
   add_variable(vweight[i], i = 1:NX, type = "continuous", 
-               lb = 0)                                            |>
+               lb = 0)                                          |>
   add_variable(uweight[r], r = 1:NY, type = "continuous", 
-               lb = 0)                                            |>
+               lb = 0)                                          |>
   set_objective(sum_expr(uweight[r] * ydata[k,r], r = 1:NY), 
-                "max")                                            |>
+                "max")                                          |>
   add_constraint(sum_expr(vweight[i] * xdata[k,i], 
-                          i = 1:NX) == 1)                         |>
+                          i = 1:NX) == 1)                       |>
   add_constraint((sum_expr(uweight[r] * ydata[j,r], r = 1:NY)-
                     sum_expr(vweight[i] * xdata[j,i], i = 1:NX)) 
                  <= 0, j = 1:ND)
