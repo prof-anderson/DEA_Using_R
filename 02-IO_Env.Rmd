@@ -876,7 +876,7 @@ Store6VRS.Eff<-results.efficiency
 temp <- cbind(Store6CRS.Eff,Store6VRS.Eff)
 rownames(temp)<- store6names$DMUnamesbyletter
 kbl (temp, 
-     booktabs=T, digits=5, 
+     booktabs=T, digits=5, escape=F,
      col.names=c("$\\theta^{CRS}$", "$\\theta^{VRS}$"),
      caption="Comparison of CRS vs. VRS Efficiency Scores")       |>
 kable_styling(protect_latex = TRUE)
@@ -961,7 +961,6 @@ temp<-cbind(storenames,x,y)
 colnames(temp)<-c("Store Name", "Employees (x1)", "Floor Space (x2)", "Sales (y)")
 kbl (temp)
 ```
-
 
 ```{r}
 ND <- nrow(x); NX <- ncol(x); NY <- ncol(y)

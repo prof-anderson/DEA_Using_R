@@ -47,14 +47,14 @@ Let's take the restaurant data and formulate the model.
 $$
 \begin{split}
 \begin{aligned}
-    \text {max } & 25 u_1 + 3500 u_2 \\
+    \text {max }   & 25 u_1 + 3500 u_2 \\
     \text{s.t.:  } & 25 u_1 + 3500 u_2 \leq 1.0\\
-                       & 14 u_1 + 2100 u_2 \leq 1.0\\
-                       & 42 u_1 + 1050 u_2 \leq 1.0\\
-                       & 18 u_1 + 4200 u_2 \leq 1.0\\
-                       & 19 u_1 + 2500 u_2 \leq 1.0\\
-                       & 14 u_1 + 1500 u_2 \leq 1.0\\
-                       & u_1, u_2\geq 0  \
+                   & 14 u_1 + 2100 u_2 \leq 1.0\\
+                   & 42 u_1 + 1050 u_2 \leq 1.0\\
+                   & 18 u_1 + 4200 u_2 \leq 1.0\\
+                   & 19 u_1 + 2500 u_2 \leq 1.0\\
+                   & 14 u_1 + 1500 u_2 \leq 1.0\\
+                   & u_1, u_2\geq 0  \
   \end{aligned}
 \end{split}
 $$
@@ -149,7 +149,7 @@ We can then rewrite the formulation to the following. The summation is over the 
 $$
 \begin{split}
 \begin{aligned}
-    \text {max } \sum_{r=1}^{2} u_r y_{r,1}\\
+    \text {max } & \sum_{r=1}^{2} u_r y_{r,1}\\
     \text{s.t.:  } &  \sum_{r=1}^{2} u_r y_{r,1} \leq 1.0 \quad \text{[Alfred]}\\
      &  \sum_{r=1}^{2} u_r y_{r,2} \leq 1.0  \quad \text{[Barb]}\\
      &  \sum_{r=1}^{2} u_r y_{r,3} \leq 1.0  \quad \text{[Chris]}\\
@@ -167,13 +167,12 @@ Now we will extend this further to reflect that the constraint of being less tha
 $$
 \begin{split}
 \begin{aligned}
-    \text {max } \sum_{r=1}^{2} u_r y_{r,1}\\
+    \text {max }    & \sum_{r=1}^{2} u_r y_{r,1}\\
     \text{s.t.:   } &  \sum_{r=1}^{2} u_r y_{r,j} 
                           \leq 1.0  \; \forall \; j\\
-     &                  u_r \geq 0  \; \forall \; r
+                    &  u_r \geq 0  \; \forall \; r
   \end{aligned}
 \end{split}
-(\#eq:Ch5NLP6People)
 $$
 
 The $\forall\;j$ in the constraints indicates that the constraint should be repeated for all possible values of j. In our case it would have a constraint for $j=1$, (Alfred), then another constraint with $j=2$ (Barb), etc. The $\forall\;r$ in variable lower bounds is used to repeat the non-negativity of each weighting variable (in this case, $u_1$ and $u_2$).
@@ -183,13 +182,12 @@ The above formulation is nearly generalized. Let's replace the last hardcoded it
 $$
 \begin{split}
 \begin{aligned}
-    \text {max } \sum_{r=1}^{N^Y} u_r y_{r,k}\\
+    \text {max }    & \sum_{r=1}^{N^Y} u_r y_{r,k}\\
     \text{s.t.:   } &  \sum_{r=1}^{N^Y} u_r y_{r,j} 
                           \leq 1.0 \; \forall \; j\\
-     &                  u_r \geq 0  \; \forall \; r
+                    & u_r \geq 0  \; \forall \; r
   \end{aligned}
 \end{split}
-(\#eq:Ch5NLPScoringk)
 $$
 
 This formulation is now a linear programming model that will find an optimal score for manager *k* regardless of the number of outputs and the number of other managers being considered. This approach could be used in a variety of peer evaluation or self-evaluation applications where each unit is given the opportunity to evaluate themselves relative to their peers. This model will always give a person their highest possible score. Note that this model does not incorporate the resources used to achieve these outcomes. For that, we can use a traditional ratio idea of output over input.
@@ -238,8 +236,7 @@ $$
                           \leq 0 \; \forall \; j\\
                    & u_r, \; v_i\geq 0  \; \forall \; r,i
   \end{aligned}
-   \end{split}
-  (\#eq:Ch5LPCCRIOM-Ratio2)
+ \end{split}
 $$
 
 Alas, it is still a nonlinear objective function. Fortunately, we can take advantage of the structure of the problem. There are an infinite number of possible combinations of numerators and denominators that can give the same ratio. For example, if a unit were to receive a 90% efficiency score, this could be with a numerator of nine and a denominator of 10 or a numerator of 90 and a denominator of 100. Each of these pairs satisfies the constraints and is therefore equally valid. One clever trick solves the nonlinearity by setting the denominator to be a constant. The next step is to select normalizing value for the objective function. Let's set the denominator equal to one. In this case, we simply add a constraint, $\sum_{i=1}^{N^X} v_i x_{i,k}$, to the linear program and replace the denominator in the objective function to one means that we can rewrite the objective function using only the numerator.
@@ -251,7 +248,7 @@ $$
     \text{s.t.:  } & \sum_{i=1}^{N^X} v_i x_{i,k} = 1 \\
     & \sum_{r=1}^{N^Y} u_r y_{r,k} - \sum_{i=1}^{N^X} v_i x_{i,k} 
                           \leq 0 \; \forall \; j\\
-                   &  u_r, v_i\geq 0  \; \forall \; r,i
+                   &  u_r, \; v_i\geq 0  \; \forall \; r,i
   \end{aligned}
  \end{split}
 $$
@@ -307,7 +304,6 @@ mm1names <- TRA::DEAnames(NX, NY, ND)
 We are now ready to do the analysis. In chapter 2 we used the envelopment model to examine this case. Now we will use the multiplier model.
 
 ```{r eval=TRUE}
-
 for (k in 1:ND) {
 
   result <- MIPModel() |>
@@ -354,11 +350,9 @@ kbl (mm1.combined , booktabs=T, escape=F, digits=4,
 
 The weights from the multiplier model often have multiple alternative solutions-in other words, different values for decision variables that give the same objective function value. In optimization, this situation is called multiple optima. In DEA this means that the weights may be different depending upon the particular settings used for solving the linear program. The result is that you should be careful in over interpreting the weights as well as in how you interpret results when trying to reproduce analyses.
 
-
 ### Envelopment Multipler Model Duality Relationship
 
 Duality is a fundamental characteristic of linear programming.  Every linear program has a dual program that is a bit of mirror image of the original.  The multiplier model and the envelopment models are fundamentally connected by duality. The multiplier model of DEA is considered the dual of the envelopment model and the reverse is also true.
-
 
 Consider the basic structure of an LP as discussed in Chapter 3.  
 
