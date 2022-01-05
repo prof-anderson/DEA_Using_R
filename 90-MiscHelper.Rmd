@@ -5,13 +5,12 @@
 Introduction
 -----------------------------
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r, include=FALSE, eval=FALSE}
+library(bookdown); library(rmarkdown); rmarkdown::render("90-MiscHelper.Rmd", "pdf_book")
 ```
 
-```{r, include=FALSE, eval=FALSE}
-# library(bookdown); library(rmarkdown); rmarkdown::render("90-MiscHelper.Rmd", "tufte_book2")
-library(bookdown); library(rmarkdown); rmarkdown::render("90-MiscHelper.Rmd", "pdf_book")
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
 This chapter explains some functions or commands that may be helpful to the DEA researcher and also describes some that don't exist yet but could be helpful.
@@ -30,9 +29,8 @@ Let's start by looking at the full envelopment results of the Baker Hughes examp
 library (MultiplierDEA)
 library (kableExtra)
 library (TRA)
-library (pander)
 
-NX <- 1; NY <- 4 ;ND <- 14
+NX <- 1; NY <- 4; ND <- 14
 names <- TRA::DEAnames (NX, NY, ND)
 
 XBH <- matrix(c(1.07, 1.06, 0.325, 1.60, 0.55, 0.2, 0.35, 
@@ -74,9 +72,6 @@ In theory, a cutoff could be set to exactly zero but there can be very small flo
 ```{r displaysmallertable1}
 df <- cbind(resBH$Efficiency,resBH$Lambda)
 cutoff <- 0.000001
-pander(tempdf <- df[, colSums(df) > cutoff],
-       caption = "Envelopment results displaying only columns containing 
-       positive values.")
 
 kbl (tempdf <- df[, colSums(df) > cutoff], 
      booktabs=T, escape=F, 
@@ -101,15 +96,44 @@ This function simply needs the number of DMUs, inputs, and outputs.
 Let's see what the function does. 
 
 ```{r nameexample}
-NX <-1
-NY <- 4
-ND <- 10
-
-modelnames<-DEAnames(1, 4, 10)
+NX <- 2; NY <- 3; ND <- 4
+modelnames <-DEAnames(2,2,4)
 modelnames
-
 ```
 
+These are names that can be used as row names or column names.  They categorized as regular text names. Names that end with an `LX` suffix are structured in the format needed for LaTeX rendering of tables in RMarkdown and Kable.  
+
+```{r}
+x <- matrix(c(10,20,30,50,60,70,80,90),ncol=2)
+y <- matrix(c(75,100,300,400,90,110,320,430), ncol=2)
+```
+
+```{r}
+t1 <- cbind (x,y)
+t2 <- cbind (x,y)
+rownames(t2) <- modelnames$DMUnamesbyletter
+colnames(t2) <- c(modelnames$Xnames, modelnames$Ynames)
+t3 <- cbind (x,y)
+rownames(t3) <- modelnames$DMUnamesbynumber
+colnames(t3) <- c(modelnames$XnamesLX, modelnames$YnamesLX)
+```
+
+```{r}
+library(kableExtra)
+
+kbl(t1, booktabs=TRUE, escape=FALSE,
+    caption="A Table without Row or Column Names.")  |>
+  kable_styling (latex_options = c("hold_position"))
+
+kbl(t2, booktabs=TRUE, escape=FALSE,
+    caption="A Table with Plain Text Names.")        |>
+  kable_styling (latex_options = c("hold_position"))
+
+kbl(t3, booktabs=TRUE, escape=FALSE,
+    caption="A Table with LaTeX Names.")             |>
+  kable_styling (latex_options = c("hold_position"))
+
+```
 
 
 ## Function for Drawing Input-Output Diagram
@@ -175,7 +199,6 @@ tmp<-capture.output(rsvg_png(charToRaw(export_svg(demoIOdiagram)),
 
 ![Demo IO Diagram](demoIOdiagram.png){#fig:demoIOdiagram width=25% }  
 Okay.  Now let's generalize it for an arbitrary number of inputs and outputs.
-
 
 ```{r TryingIODiagram2, dpi=144}
 library(DiagrammeR)
