@@ -1,8 +1,3 @@
----
-output:
-  html_document: default
-  pdf_document: default
----
 
 # Multiplier Models
 
@@ -65,22 +60,20 @@ Next let's implement this in `ompr` which may serve as a convenient refresher as
 library(ROI, quietly=TRUE)              
 library(ROI.plugin.glpk, quietly=TRUE)  
 library(ompr, quietly=TRUE)             
-library(ompr.roi, quietly=TRUE)     
-```
 
+library(ompr.roi, quietly=TRUE)         
 
-```{r}
+result <- MIPModel ()                         |>
+  add_variable (u1, type="continuous", lb=0)  |>
+  add_variable (u2, type="continuous", lb=0)  |>
+  set_objective (25*u1+3500*u2, "max")        |>
+  add_constraint (25*u1+3500*u2 <= 1.0)       |>
+  add_constraint (14*u1+2100*u2 <= 1.0)       |>
+  add_constraint (42*u1+1050*u2 <= 1.0)       |>
+  add_constraint (28*u1+4200*u2 <= 1.0)       |>
+  add_constraint (19*u1+2500*u2 <= 1.0)       |>
+  add_constraint (14*u1+1500*u2 <= 1.0)       |>
 
-result <- MIPModel () |>
-  add_variable (u1, type="continuous", lb=0) |>
-  add_variable (u2, type="continuous", lb=0) |>
-  set_objective (25*u1+3500*u2, "max") |>
-  add_constraint (25*u1+3500*u2 <= 1.0) |>
-  add_constraint (14*u1+2100*u2 <= 1.0) |>
-  add_constraint (42*u1+1050*u2 <= 1.0) |>
-  add_constraint (28*u1+4200*u2 <= 1.0) |>
-  add_constraint (19*u1+2500*u2 <= 1.0) |>
-  add_constraint (14*u1+1500*u2 <= 1.0) |>
   solve_model(with_ROI(solver = "glpk"))
 
 u1_result <- get_solution(result, u1) 
@@ -95,16 +88,18 @@ pander(cbind(alfred_score, u1_result, u2_result),
 We could repeat the process for each person, by simply changing the objective function.
 
 ```{r}
-result <- MIPModel () |>
-  add_variable (u1, type="continuous", lb=0) |>
-  add_variable (u2, type="continuous", lb=0) |>
-  set_objective (14*u1+2100*u2, "max") |>
-  add_constraint (25*u1+3500*u2 <= 1.0) |>
-  add_constraint (14*u1+2100*u2 <= 1.0) |>
-  add_constraint (42*u1+1050*u2 <= 1.0) |>
-  add_constraint (28*u1+4200*u2 <= 1.0) |>
-  add_constraint (19*u1+2500*u2 <= 1.0) |>
-  add_constraint (14*u1+1500*u2 <= 1.0) |>
+
+result <- MIPModel ()                         |>
+  add_variable (u1, type="continuous", lb=0)  |>
+  add_variable (u2, type="continuous", lb=0)  |>
+  set_objective (14*u1+2100*u2, "max")        |>
+  add_constraint (25*u1+3500*u2 <= 1.0)       |>
+  add_constraint (14*u1+2100*u2 <= 1.0)       |>
+  add_constraint (42*u1+1050*u2 <= 1.0)       |>
+  add_constraint (28*u1+4200*u2 <= 1.0)       |>
+  add_constraint (19*u1+2500*u2 <= 1.0)       |>
+  add_constraint (14*u1+1500*u2 <= 1.0)       |>
+
   solve_model(with_ROI(solver = "glpk"))
 
 u1_result <- get_solution(result, u1) 
@@ -119,16 +114,17 @@ pander(cbind(barb_score, u1_result, u2_result),
 Let's do it for Chris.
 
 ```{r}
-result <- MIPModel () |>
-  add_variable (u1, type="continuous", lb=0) |>
-  add_variable (u2, type="continuous", lb=0) |>
-  set_objective (42*u1+1050*u2, "max") |>
-  add_constraint (25*u1+3500*u2 <= 1.0) |>
-  add_constraint (14*u1+2100*u2 <= 1.0) |>
-  add_constraint (42*u1+1050*u2 <= 1.0) |>
-  add_constraint (28*u1+4200*u2 <= 1.0) |>
-  add_constraint (19*u1+2500*u2 <= 1.0) |>
-  add_constraint (14*u1+1500*u2 <= 1.0) |>
+result <- MIPModel ()                         |>
+  add_variable (u1, type="continuous", lb=0)  |>
+  add_variable (u2, type="continuous", lb=0)  |>
+  set_objective (42*u1+1050*u2, "max")        |>
+  add_constraint (25*u1+3500*u2 <= 1.0)       |>
+  add_constraint (14*u1+2100*u2 <= 1.0)       |>
+  add_constraint (42*u1+1050*u2 <= 1.0)       |>
+  add_constraint (28*u1+4200*u2 <= 1.0)       |>
+  add_constraint (19*u1+2500*u2 <= 1.0)       |>
+  add_constraint (14*u1+1500*u2 <= 1.0)       |>
+
   solve_model(with_ROI(solver = "glpk"))
 
 u1_result <- get_solution(result, u1) 
@@ -306,11 +302,15 @@ We are now ready to do the analysis. In chapter 2 we used the envelopment model 
 ```{r eval=TRUE}
 for (k in 1:ND) {
 
-  result <- MIPModel() |>
-  add_variable(vweight[i], i = 1:NX, type = "continuous", lb = 0) |>
-  add_variable(uweight[r], r = 1:NY, type = "continuous", lb = 0) |>
-  set_objective(sum_expr(uweight[r] * ydata[k,r], r = 1:NY), "max") |>
-  add_constraint(sum_expr(vweight[i] * xdata[k,i], i = 1:NX) == 1) |>
+  result <- MIPModel()                                          |>
+  add_variable(vweight[i], i = 1:NX, type = "continuous", 
+               lb = 0)                                          |>
+  add_variable(uweight[r], r = 1:NY, type = "continuous", 
+               lb = 0)                                          |>
+  set_objective(sum_expr(uweight[r] * ydata[k,r], r = 1:NY), 
+                "max")                                          |>
+  add_constraint(sum_expr(vweight[i] * xdata[k,i], 
+                          i = 1:NX) == 1)                       |>
   add_constraint((sum_expr(uweight[r] * ydata[j,r], r = 1:NY)-
                     sum_expr(vweight[i] * xdata[j,i], i = 1:NX)) 
                  <= 0, j = 1:ND)
