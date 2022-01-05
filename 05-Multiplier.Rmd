@@ -265,15 +265,15 @@ We will implement this using the `ompr` package again, as we did in chapters 2 a
 We're going to use our data from earlier of grocery stores. 
 
 ```{r, echo=FALSE}
-x <- matrix(c(10, 20, 30, 50, 22, 29, 35,
-              75, 100, 220, 480, 290, 210, 220), byrow=FALSE, ncol=2, 
-            dimnames=list(LETTERS[1:7],c("x1","x2")))
-y <- matrix(c(75,100,300,400, 280, 120, 300),ncol=1,
-            dimnames=list(LETTERS[1:7],"y"))
+x <- matrix(c(10, 20, 30, 50, 22, 29,
+              75, 100, 220, 480, 290, 210), byrow=FALSE, ncol=2, 
+            dimnames=list(LETTERS[1:6],c("x1","x2")))
+y <- matrix(c(75,100,300,400, 280, 120),ncol=1,
+            dimnames=list(LETTERS[1:6],"y"))
 
 storenames<- c("Al\'s Pantry", "Bob\'s Mill", 
                "Trader Carrie\'s", "Dilbertson\'s",
-               "Ed\'s Eggshop", "Flo\'s Farmacopia", "Gary\'s Grocery")
+               "Ed\'s Eggshop", "Flo\'s Farmacopia")
 temp<-cbind(storenames,x,y)
 colnames(temp)<-c("Store Name", "Employees (x1)", "Floor Space (x2)", "Sales (y)")
 kbl (temp, booktabs=TRUE)
@@ -331,17 +331,23 @@ for (k in 1:ND) {
   # Get the input weights
   tempuweight <- get_solution(result, uweight[i])
   mm1.uweight[k,] <- tempuweight[,3]
+  templambda <- as.matrix(get_row_duals(result))
+  mm1.lambda[k,] <- templambda [-1]
+  # Drops the first dual value since that 
+  #    constraint since is for setting denom=1
  }
 
 #pander(cbind (results.efficiency, results.vweight, results.uweight), 
 #      caption="Multiplier Model Results from 7 Store Example")
 
-mm1.combined <- cbind (mm1.efficiency, mm1.vweight, mm1.uweight)
+mm1.combined <- cbind (mm1.efficiency, 
+                       mm1.vweight, mm1.uweight,
+                       mm1.lambda)
 ```
 
 ```{r}
 kbl (mm1.combined , booktabs=T, escape=F, digits=4,
-     col.names=c("$\\theta^{CRS}$", mm1names$VnamesLX, mm1names$UnamesLX),
+     col.names=c("$\\theta^{CRS}$", mm1names$VnamesLX, mm1names$UnamesLX, mm1names$LambdanamesbyletterLX),
      caption =c("Multiplier Model Results from 7 Store Example"))    |>
   kable_styling (latex_options = c("hold_position"))
 ```
