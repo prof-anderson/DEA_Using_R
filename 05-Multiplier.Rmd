@@ -272,7 +272,8 @@ storenames<- c("Al\'s Pantry", "Bob\'s Mill",
                "Trader Carrie\'s", "Dilbertson\'s",
                "Ed\'s Eggshop", "Flo\'s Farmacopia")
 temp<-cbind(storenames,x,y)
-colnames(temp)<-c("Store Name", "Employees (x1)", "Floor Space (x2)", "Sales (y)")
+colnames(temp)<-c("Store Name", "Employees (x1)", 
+                  "Floor Space (x2)", "Sales (y)")
 kbl (temp, booktabs=TRUE)
 NX <- ncol(x); NY <- ncol(y); ND <- nrow(x)
 store7names <- TRA::DEAnames(NX, NY, ND)
@@ -307,10 +308,10 @@ We are now ready to do the analysis. In chapter 2 we used the envelopment model 
 for (k in 1:ND) {
 
   result <- MIPModel() |>
-  add_variable(vweight[i], i = 1:NX, type = "continuous", lb = 0) |>
-  add_variable(uweight[r], r = 1:NY, type = "continuous", lb = 0) |>
+  add_variable(vweight[i], i = 1:NX, type = "continuous", lb = 0)   |>
+  add_variable(uweight[r], r = 1:NY, type = "continuous", lb = 0)   |>
   set_objective(sum_expr(uweight[r] * ydata[k,r], r = 1:NY), "max") |>
-  add_constraint(sum_expr(vweight[i] * xdata[k,i], i = 1:NX) == 1) |>
+  add_constraint(sum_expr(vweight[i] * xdata[k,i], i = 1:NX) == 1)  |>
   add_constraint((sum_expr(uweight[r] * ydata[j,r], r = 1:NY)-
                     sum_expr(vweight[i] * xdata[j,i], i = 1:NX)) 
                  <= 0, j = 1:ND)
