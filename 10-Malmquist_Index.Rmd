@@ -142,16 +142,15 @@ First, we'll create a dataset.
 ```{r creating_graphical_data}
 malm_gr_data<-tibble(Year=c(1,1,1,2,2,2),
                     DMU=c(1,2,3,1,2,3),
-                    X=c(7,29,24.2,10,28,15.2),
-                    Y=c(11.1,22.4,18,7.7,16.1,6))
+                    X=c(10,  28,15.2,  7,  29,  24.2),
+                    Y=c(7.7, 16.1,6,   11.1,22.4,18   ))
 ```
 
 ```{r, display_gr_malm_data, echo=FALSE}
 pander(malm_gr_data, caption="Data for graphical example of the Malmquist Productivity Index with unit being studied as DMU 3.")
-
 ```
 
-This table is a pretty simple and compact format but MPI requires more organization. Specifically, even a simple dataset requires us to specify inputs and outputs just like in other DEA applications but it also needs time periods and a way to match each DMU from period to period. The `deaR` package has a function to convert a dataset into the appropriate format.
+This table is a pretty simple and compact format but MPI requires more organization. Specifically, even a simple dataset requires us to specify inputs and outputs just like in other DEA applications but it also needs time periods and a way to match each DMU from period to period. The `deaR` package has a function, `read_malmquist` to convert a dataset into the appropriate format.
 
 ```{r}
 #Process data into the format required by deaR
@@ -166,6 +165,11 @@ malm_gr_data_pro <-
 ```
 
 Let's look at the data structure that the `deaR` package is using.
+
+```{r}
+pander(malm_gr_data_pro)
+```
+
 
 ```{r}
 result_gr <- malmquist_index(malm_gr_data_pro,
