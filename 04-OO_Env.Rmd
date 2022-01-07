@@ -527,9 +527,11 @@ kbl (cbind(rho_numerator1, rho_numerator2,
 
 ```
 
-The results in the table interesting.  
+The results in the table are interesting:  
 
-- The measures of $\rho$ are relatively robust and consistent with the efficiency scores.
-- For the slack based models, changing the measures from maximizing slacks to slack percentages changed the targets ($\lambda$ values) not the holistic overall score of $\rho$.  This is unlikely to persist in more complex models.
-- The `poscol` function from the `TRA` package was used with a `cutoff` value to eliminate columns of $\lambda$ for inefficient units.  
+- The measures of $\rho$ are relatively robust and consistent with the efficiency scores $\theta$ and $1/\phi$.  
+- For the slack based models, changing the measures from maximizing slacks to slack percentages changed the targets ($\lambda$ values) but  not the holistic overall score of $\rho$.  This is unlikely to persist in more complex models.
+- The `poscol` function from the `TRA` package was used with a `cutoff` value to eliminate columns of $\lambda$ for inefficient units.
 - The `add_header_above` function from `kableExtra` was used to provide groupings of columns.  
+
+A variety of slack-based models have been developed over the years.  Returns to scale can be incorporated in the same manner as in traditional input and output-oriented models.
