@@ -173,8 +173,8 @@ pander(malm_gr_data_pro)
 
 ```{r}
 result_gr <- malmquist_index(malm_gr_data_pro,
-                               orientation = "oo",
-                               rts = "crs",
+                               orientation = "io",
+                               rts = "vrs",
                                type1 = "cont",
                                type2 = "fgnz")
 
