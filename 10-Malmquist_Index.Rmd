@@ -226,11 +226,9 @@ colnames(res_mi_fgnz) <- c("MPI", "PEch", "SEch", "TC")
 
 pander(res_mi_fgnz)
 
-
 # Using Benchmarking package
 # MQ <- Benchmarking::malmquist(X=mx, Y=my, ID=mID, TIME=mt)
 # Says "Error '==' only defined for equally-sized data frames
-
 
 ```
 
@@ -359,7 +357,6 @@ mID <-rownames (mt)
 # MQ <- Benchmarking::malmquist(X=mx, Y=my, ID=mID, TIME=mt)
 # Says "Error '==' only defined for equally-sized data frames
 
-
 # Using deaR package
 # Convert data into to deaR's format
 
@@ -379,6 +376,5 @@ pander(mres0_19_20)
 # Using Benchmarking package
 # MQ <- Benchmarking::malmquist(X=mx, Y=my, ID=mID, TIME=mt)
 # Says "Error '==' only defined for equally-sized data frames
-
 
 ```
