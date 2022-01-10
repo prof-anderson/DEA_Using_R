@@ -9,7 +9,7 @@ As industries become ever more global and more competitive, it is critical to do
 
 ## Purpose of this Book
 
-R is a powerful analytical environment and Data Envelopment Analysis or DEA is a widely adopted methodology for providing insights to applications on performance improvement. This naturally makes the combination a good option.
+R is a powerful analytics tool and Data Envelopment Analysis or DEA is a widely adopted methodology for providing insights to applications on performance improvement. This naturally makes the combination a good option.
 
 This book is intended to help use other people's DEA packages for R, how to write R code for doing DEA, and conducting DEA applications. Using existing packages is relatively straightforward and this is demonstrated multiple times. Writing R code allows one to dig deeper into how things work and means that a researcher could then implement appropriate variations or extensions to DEA rather than only relying on the functions written by others. Lastly, a variety of applications are provided based on both published and unpublished work that show how to wrestle with data, interpret results, and dig deeper into where models breakdown.
 
