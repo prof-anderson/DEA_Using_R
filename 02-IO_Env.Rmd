@@ -171,7 +171,7 @@ $$
   \end{split}
 $$
 
-This is a linear program which we could then enter and run.  If we do so, we would find that same of the values of $\lambda$ would be negative.  Using negative values of a store to make a target for performance doesn't really make sense this in application.  A zero value makes sense but not a negative value so we add non-negativity constraints or bounds on the $\lambda values.
+This is a linear program which we could then enter and run.  If we do so, we would find that same of the values of $\lambda$ would be negative.  Using negative values of a store to make a target for performance doesn't really make sense this in application.  A zero value makes sense but not a negative value so we add non-negativity constraints or bounds on the $\lambda$ values.
 
 $$
 \begin{split}
