@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # Matrix Implementations of DEA
 
 ```{r Install-support-libraries, echo= FALSE}
@@ -493,10 +498,12 @@ dimnames(results.yslack)<-c(DMUnames,SYnames)
 #    results.lambda[k,]         
 #    results.xslack[k,]
 #    results.yslack[k,]
-    pander(cbind(t(results.lambda[k,]),
-                 results.xslack[k,],
-                 results.yslack[k,]), 
-           caption="Envelopment variables and slacks for DMU B")
+##     pander(cbind(t(results.lambda[k,]),
+  ##     results.yslack[k,]), 
+    ##   caption="Envelopment variables and slacks for DMU B")
+kbl(cbind(t(results.lambda[k,]),
+     results.yslack[k,]), booktabs = T, digits = 2,
+     caption="Envelopment variables and slacks for DMU B")
 ```
 
 Now, let's put it all together to summarize the results.

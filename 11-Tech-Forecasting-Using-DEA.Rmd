@@ -87,9 +87,10 @@ fj_full_data_ex2 <- data.frame(t(c("Aircraft",
 
 fj_full_data_ex <- cbind(t(fj_full_data_ex1), t(fj_full_data_ex2))
 
-pander (fj_full_data_ex,
-        caption="Columns of Fighter Jet Data")
-
+##pander (fj_full_data_ex,
+##        caption="Columns of Fighter Jet Data")
+knitr::kable (fj_full_data_ex,
+    caption="Columns of Fighter Jet Data")
 ```
 
 Let's do a few things. First, let's grab only the columns of data of data that we will be using. The regression study was limited to just four columns of specifications due to the high correlations among variables. In order to make a fair comparison, TFDEA was limited to using the same four columns. Also, we'll abbreviate the names of the columns for better display.
