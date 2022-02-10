@@ -208,7 +208,8 @@ colnames(y)[2] <- c("Private")
 # Calculate the efficiency score
 result <- CrossEfficiency(x,y,"crs", "input")
 # Examine the cross efficiency score for DMUs
-kbl (result$ce_ave, align = "c", caption="Cross-Efficiency Scores", booktabs = T, digits = 4)
+kbl (result$ce_ave, align = "c", booktabs = T, digits = 4,
+     caption="Cross-Efficiency Scores")
 
 ```
 
@@ -335,10 +336,12 @@ for (k in 1:ND) {
 
 dimnames(results.crosseval) <- c(DMUnames,DMUnames)
 dimnames(results.crosseff) <- c(DMUnames)
-kbl (results.crosseval, caption = "Cross-evaluation Matrix", booktabs = T)
+kbl (results.crosseval, booktabs = T, 
+     caption = "Cross-evaluation Matrix")
 
 #for (j in 1:ND) {results.crosseff[j]<-sum(results.crosseval[,j])/ND}
-kbl (results.crosseff, caption = "Cross-Efficiency Results", booktabs = T)
+kbl (results.crosseff, booktabs = T, 
+     caption = "Cross-Efficiency Results")
 
 ```
 
@@ -378,8 +381,8 @@ calccrosseff <- function (x,y,vmatrix,umatrix) {
 ```{r}
 rescross <- calccrosseff (x, y, resfunc$vweight, resfunc$uweight)
 
-kbl (rbind(rescross$crosseval,t(rescross$crosseff)), 
-             caption="Cross-Evaluation Matrix and Cross-Evaluation Scores", booktabs = T)
+kbl (rbind(rescross$crosseval,t(rescross$crosseff)), booktabs = T, 
+             caption="Cross-Evaluation Matrix and Cross-Evaluation Scores")
 
 ```
 
@@ -501,8 +504,8 @@ YTT03 <- matrix(c(5,7,8,4,9,10,4,
                 ncol=3, dimnames=list(LETTERS[1:7], 
                                       c("C1","C2","C3")))
 
-kbl (cbind(XTT03, YTT03), 
-        caption = "Input-Output Data for Takamura and Tone, 2003", booktabs = T)
+kbl (cbind(XTT03, YTT03), booktabs = T, 
+        caption = "Input-Output Data for Takamura and Tone, 2003")
 ```
 
 Comments about cross-efficiency functions from DEAmultiplier package.
