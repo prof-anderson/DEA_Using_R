@@ -38,7 +38,7 @@ Over the following weeks, these thoughts percolated, including a day long visit 
 In the end, we decided that the mathematics and restrictions of product forecasting were different enough that MPI was not the right approach.
 Over the ensuing months, with a PhD student, Oliver (Lane) Inman, the approach took shape and we started calling it Technology Forecasting Using DEA or TFDEA.
 
-The first application was revisiting microprocessor benchmarking in line with Moore's Law [@AndersonFurtherexaminationMoore2002\]. Later work examined fighter jets \[@InmanImprovingtimemarket2005; @InmanPredictingjetfighter2006] and other products.
+The first application was revisiting microprocessor benchmarking in line with Moore's Law \[@AndersonFurtherexaminationMoore2002\]. Later work examined fighter jets \[@InmanImprovingtimemarket2005; @InmanPredictingjetfighter2006\] and other products.
 
 Dr. Inman's thesis formalized and significantly extended the approach of TFDEA.
 An interesting case study included enterprise database system and their changing performance over time by identifying a key disruptive innovation has rippled through industry after industry including most phones used around the world.
@@ -118,7 +118,7 @@ fj_full_data_ex <- cbind(t(fj_full_data_ex1), t(fj_full_data_ex2))
 ##pander (fj_full_data_ex,
 ##        caption="Columns of Fighter Jet Data")
 kbl (fj_full_data_ex, bootabs= T,
-    caption="Columns of Fighter Jet Data")
+    caption="Columns of Fighter Jet Data", booktabs = T, digits = 4)
 ```
 
 Let's do a few things.
@@ -146,7 +146,7 @@ colnames(fj_data)<- c("Name",
                          "Mach (Y3)", 
                          "BVRM (Y4)")
 
-kbl (head(fj_data), caption = "Data for Regression and TFDEA Study", booktabs = T)
+kbl (head(fj_data), caption = "Data for Regression and TFDEA Study", booktabs = T, digits = 4, align = 'c')
 
 ```
 
@@ -197,7 +197,7 @@ colnames(combined_res1)<- c("Efficiency",
                            "Peer Year",
                            "First Flight")
 kbl (combined_res1,
-       caption = "Efficiency of Fighter Jet, Peer Year, and Year of First Flight", booktabs = T)
+       caption = "Efficiency of Fighter Jet, Peer Year, and Year of First Flight", booktabs = T, align = 'c')
 
 ```
 
@@ -209,7 +209,7 @@ fj_gamma <- combined_res1[,1] ^
    (1/(combined_res1[,2] - combined_res1[,3]))
 
 combined_res1 <- cbind(combined_res1, fj_gamma)
-kbl (head(combined_res1), booktabs = T, digits = 4)
+kbl (head(combined_res1), booktabs = T,  align = 'c')
 ```
 
 This value of gamma gives us then the annualized rate of change that compounds to give us far higher performance of the newer products.
@@ -266,7 +266,7 @@ Let's examine the pieces of information that we receive for results.
 res2eff <- cbind(fj_data$FirstFlight, res2$dmu_eff_rel,res2$dmu_eff_cur)
 colnames (res2eff) <- c("FirstFlight", "Eff at Release", "Eff at 1960")
 kbl (res2eff,
-       caption="Comparison of Efficiency at Time of Release vs. 1960", booktabs = T, digits = 4)
+       caption="Comparison of Efficiency at Time of Release vs. 1960", booktabs = T, digits = 4, align = 'c')
 ```
 
 These results require a careful look.
