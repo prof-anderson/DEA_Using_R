@@ -39,8 +39,8 @@ To make the code more readable, I will use which corresponds to *NX* instead of 
 Also, *n* is used to denote the number of Decision Making Units (DMUs) and therefore I'll use *ND* to indicate that in the R code.
 
 We have two important sets of variables now.
-The first is $u_r$ which is the weight on the r'th output.
-The second is $v_i$ which is the weight on the i'th input.
+The first is $u_r$ which is the weight on the *r*'th output.
+The second is $v_i$ which is the weight on the *i*'th input.
 
 The multiplier model can be thought of as finding a weighting scheme for outputs over inputs that give you the best possible score while giving no one better than *1.0.*
 
@@ -208,7 +208,7 @@ colnames(y)[2] <- c("Private")
 # Calculate the efficiency score
 result <- CrossEfficiency(x,y,"crs", "input")
 # Examine the cross efficiency score for DMUs
-kbl (result$ce_ave, align = C, caption="Cross-Efficiency Scores", booktabs = T, digits = 4)
+kbl (result$ce_ave, align = "c", caption="Cross-Efficiency Scores", booktabs = T, digits = 4)
 
 ```
 
