@@ -117,7 +117,7 @@ fj_full_data_ex <- cbind(t(fj_full_data_ex1), t(fj_full_data_ex2))
 
 ##pander (fj_full_data_ex,
 ##        caption="Columns of Fighter Jet Data")
-kbl (fj_full_data_ex, bootabs= T,
+kbl (fj_full_data_ex, booktabs= T,
     caption="Columns of Fighter Jet Data", booktabs = T, digits = 4)
 ```
 
