@@ -26,12 +26,13 @@ An advantage to ranking is that it generally requires less DMUs than estimating 
 *"What is the scope of the data set?"* The scope of the data set implies whether or not you are comparing DMUs within a single company, within an industry, or across industries.
 For example, in the area of warehouse evaluation, a company such as AT&T or the Defense Logistics Agency may choose to evaluate their warehouses internally.
 These companies may have enough warehouses to perform a meaningful DEA evaluation.
-On the other hand, they would not be making use of comparisons against warehouses in other companies unless they include other companies. \[27\]
+On the other hand, they would not be making use of comparisons against warehouses in other companies unless they include other companies.
+\[27\]
 
 ## Inputs and Outputs
 
-*"What are the important factors related to the operation of the DMUs?"* Leaving out an important factor or including an irrelevant one can significantly change the results. \[43\]
-For example, an analysis of warehouses that didn't include automation might not be meaningful.
+*"What are the important factors related to the operation of the DMUs?"* Leaving out an important factor or including an irrelevant one can significantly change the results.
+\[43\] For example, an analysis of warehouses that didn't include automation might not be meaningful.
 
 *"Which relevant factors can be measured directly?"* For example, analyzing convenience store operations might include factors such as monthly sales and the number of gasoline pumps which can be easily measured.
 
@@ -63,8 +64,8 @@ In this case, perhaps a DEA model that allows for nondiscretionary inputs and ou
 
 *"Is there a reasonable number of DMUs for the model size that you specify in order to perform a DEA evaluation?"* In linear regression there is a strict rule that you need more data points than inputs.
 Unfortunately in DEA there doesn't exist a firm bound on the number of DMUs that are needed relative to model complexity.
-A commonly cited rule of thumb is that you need two or three times as many DMUs as inputs plus outputs. \[10\]
-In general, you should also have more DMUs than the number of inputs times the number of outputs too.
+A commonly cited rule of thumb is that you need two or three times as many DMUs as inputs plus outputs.
+\[10\] In general, you should also have more DMUs than the number of inputs times the number of outputs too.
 
 *"Are there relationships between factors that can make the analysis more realistic?"* In the baseball batting example, there was an obvious dominance relationship between home runs and singles.
 In other applications, the relationships may be more ambiguous but still important.
