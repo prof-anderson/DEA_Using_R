@@ -9,6 +9,7 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(pander)
+library(kableExtra)
 panderOptions('round',5) # Set option for rounding in pander data tables
 library(DiagrammeRsvg, quietly=TRUE)
 library(DiagrammeR, quietly=TRUE)
@@ -20,11 +21,14 @@ library(TRA)
 ```{r, echo=FALSE, eval=FALSE}
 library(bookdown); library(rmarkdown); rmarkdown::render("12-Software-Comp.Rmd", "pdf_book")
 ```
-## Introduction  
 
-Over the years, a variety of software packages have been developed for doing Data Envelopment Analysis.  The Benchmarking package was one of the earliest and most full-featured packages available. It continues to be the most downloaded R package for doing DEA to this day.=
+## Introduction
 
-Let's review data on current frequency of download for DEA packages.  
+Over the years, a variety of software packages have been developed for doing Data Envelopment Analysis.
+The Benchmarking package was one of the earliest and most full-featured packages available.
+It continues to be the most downloaded R package for doing DEA to this day.=
+
+Let's review data on current frequency of download for DEA packages.
 
 ```{r package_download_stats, echo=FALSE}
 library("ggplot2")
@@ -47,18 +51,19 @@ ggplot(pkg_dl_data, aes(end, downloads, group=package, color=package)) +
 
 ```
 
-The chapter "Computational Aspects of DEA" by Iqbal Ali in Data Envelopment Analysis_, edited by Charnes, Cooper, Lewin, and Seiford does an interesting job with exploring computational issues in early DEA implementations. Among the key insights is that a finite approximation for $\epsilon$ should not be used to maximize slacks. Iqbal Ali tests $\epsilon =10^{-5}$ to $\epsilon=10^{-8}$ demonstrating how DEA implementations can return incorrect values or even unbounded solutions.  
+The chapter "Computational Aspects of DEA" by Iqbal Ali in Data Envelopment Analysis\_, edited by Charnes, Cooper, Lewin, and Seiford does an interesting job with exploring computational issues in early DEA implementations.
+Among the key insights is that a finite approximation for $\epsilon$ should not be used to maximize slacks.
+Iqbal Ali tests $\epsilon =10^{-5}$ to $\epsilon=10^{-8}$ demonstrating how DEA implementations can return incorrect values or even unbounded solutions.
 
-Any reliable DEA package should be tested to ensure that they do not rely on finite values for $\epsilon$ and instead implement a two-phase approach as discussed earlier.  
+Any reliable DEA package should be tested to ensure that they do not rely on finite values for $\epsilon$ and instead implement a two-phase approach as discussed earlier.
 
 Other issues considered by Iqbal Ali include:
 
-* Which DEA models are implemented?
-* Is an anticycling technique employed?
-* Testing against ill-conditioned data
+-   Which DEA models are implemented?
+-   Is an anticycling technique employed?
+-   Testing against ill-conditioned data
 
-Most R packages for doing DEA rely on a standard linear programming solver.  
-
+Most R packages for doing DEA rely on a standard linear programming solver.
 
 ```{r loadhelperfiles, echo=FALSE }
 source('Helperfiles.R')
@@ -80,15 +85,27 @@ Create a common dataset, perhaps the ill-conditioned dataset from Iqbal Ali's pa
 
 ## Testing with Ill-Conditioned Data
 
-Data scaled with wide ranges may highlight problems in the DEA implementation of a package or a weakness in the underlying solver's numerical methods.  In the late 1990s I received a phone call from an Economics professor that had done her PhD doing DEA but was at a complete loss as to why her simple DEA input-oriented efficiency scores were as large as 47 when they should have ranged from just zero to 1.0.  She was was using SAS-OR. I asked her the magnitudes of the inputs and outputs and found that they were in units of dollars but ranged to the millions or billions. I suggested simply rescaling and that immediately solved the problem. Another random call from a student team of Michigan State students had the same problem while using the Excel Solver. I expect that the current linear programming solvers used by R DEA packages are robust enough to avoid scaling problems but is another item that should be checked.
+Data scaled with wide ranges may highlight problems in the DEA implementation of a package or a weakness in the underlying solver's numerical methods.
+In the late 1990s I received a phone call from an Economics professor that had done her PhD doing DEA but was at a complete loss as to why her simple DEA input-oriented efficiency scores were as large as 47 when they should have ranged from just zero to 1.0.
+She was was using SAS-OR.
+I asked her the magnitudes of the inputs and outputs and found that they were in units of dollars but ranged to the millions or billions.
+I suggested simply rescaling and that immediately solved the problem.
+Another random call from a student team of Michigan State students had the same problem while using the Excel Solver.
+I expect that the current linear programming solvers used by R DEA packages are robust enough to avoid scaling problems but is another item that should be checked.
 
-As discussed earlier, a common problem in some earlier DEA implementations was the use of finite values of $\epsilon$ causing computational issues and solvers that were susceptible to poorly scaled data.  
+As discussed earlier, a common problem in some earlier DEA implementations was the use of finite values of $\epsilon$ causing computational issues and solvers that were susceptible to poorly scaled data.
 
-Testing of large scale DEA problems dates back to the work of Dr. Dick Barr and Dr. Matt Durchholz at Southern Methodist University in the late 1980s and early 1990s. Since then Jose Dula and others have continued this work. Since DEA requires a series of simple linear programs, in general they don't represent a major computational burden. Any modern DEA package should be able to handle 1000 DMU problems with ease. Problems with tens of thousands to millions or more could be considered but careful consideration should be given to the impact of using an outlier based approach such as DEA in such a large dataset.  A six-sigma type of extreme value for positive performance of a particular DMU could cause a tremendous distortion of the efficiency frontier rendering the scores for many of the other DMUs inappropriate.
+Testing of large scale DEA problems dates back to the work of Dr. Dick Barr and Dr. Matt Durchholz at Southern Methodist University in the late 1980s and early 1990s.
+Since then Jose Dula and others have continued this work.
+Since DEA requires a series of simple linear programs, in general they don't represent a major computational burden.
+Any modern DEA package should be able to handle 1000 DMU problems with ease.
+Problems with tens of thousands to millions or more could be considered but careful consideration should be given to the impact of using an outlier based approach such as DEA in such a large dataset.
+A six-sigma type of extreme value for positive performance of a particular DMU could cause a tremendous distortion of the efficiency frontier rendering the scores for many of the other DMUs inappropriate.
 
-For demonstrating DEA, let's use a data set from Charnes, Cooper, and Li (1990) that was later also used Iqbal Ali for his computational performance.  This data set consists of three inputs and three outputs to be examined with an input-oriented CCR (CRS) envelopment model.  
+For demonstrating DEA, let's use a data set from Charnes, Cooper, and Li (1990) that was later also used Iqbal Ali for his computational performance.
+This data set consists of three inputs and three outputs to be examined with an input-oriented CCR (CRS) envelopment model.
 
-For the sake of illustration purposes, we will only use a select portion of the dataset to to start with.  
+For the sake of illustration purposes, we will only use a select portion of the dataset to to start with.
 
 ```{r create_bad_data, echo=FALSE}
 
@@ -121,7 +138,7 @@ y <- matrix(c(6785798, 1594957, 1088699,
                454584,   67154,  233733), ncol=3, byrow=TRUE,
             dimnames=list(LETTERS[1:12],c("GIOF", "PT", "RS")))
 
-pander(cbind(y,x), caption="Complex Data from Charnes, Cooper, and Li (1990)")
+kbl (cbind(y,x), caption="Complex Data from Charnes, Cooper, and Li (1990)", booktabs = T, digits = 4)
 ```
 
 ```{r CCL_1990_IO_Model}
@@ -137,15 +154,17 @@ tmp <- capture.output(rsvg_png(charToRaw (export_svg(Figure)),
 
 ![Input-Output Model from Charnes, Cooper, Li, (1990)](CCL_1990_IO_diagram.png){#fig:CCL1990}
 
-For each package, we will examine an input-oriented, constant returns to scale model. We will select slack maximization whenever it is available. Results are given for each analysis demonstrate the structure of the the lambda (envelopment variable) values returned as well as the efficiency scores.  
+For each package, we will examine an input-oriented, constant returns to scale model.
+We will select slack maximization whenever it is available.
+Results are given for each analysis demonstrate the structure of the the lambda (envelopment variable) values returned as well as the efficiency scores.
 
-Results are summarized at the end after all analyses to illustrate the efficiency score.  
+Results are summarized at the end after all analyses to illustrate the efficiency score.
 
 A few things to take note of:
 
-* `suppressPackageStartupMessages` is useful to cut down on warnings about duplicated functions among other items.  After all, it isn't surprising that most of the packages have a function named `dea`.
-* Functions are called from specific packages using the `::` such as `Benchmarking::dea` to call the  `dea` from the  `Benchmarking` package.
-* Parameters are passed by name into the DEA function to avoid ambiguity and to clarify the different naming conventions used in each package.
+-   `suppressPackageStartupMessages` is useful to cut down on warnings about duplicated functions among other items. After all, it isn't surprising that most of the packages have a function named `dea`.
+-   Functions are called from specific packages using the `::` such as `Benchmarking::dea` to call the `dea` from the `Benchmarking` package.
+-   Parameters are passed by name into the DEA function to avoid ambiguity and to clarify the different naming conventions used in each package.
 
 ## The Benchmarking Package
 
@@ -157,13 +176,14 @@ res_benchmarking <- Benchmarking::dea (X=x, Y=y, RTS="crs",
                                        ORIENTATION="in", 
                                        SLACK=TRUE, DUAL=FALSE)
 
-pander (cbind(res_benchmarking$eff,poscol(res_benchmarking$lambda)),
-        caption="Results from the Benchmarking package")
+kbl (cbind(res_benchmarking$eff,poscol(res_benchmarking$lambda)),
+        caption="Results from the Benchmarking package", 
+     booktabs = T, digits = 4)
 ```
 
-The results from Benchmarking are simple and straightforward.  
+The results from Benchmarking are simple and straightforward.
 
-* DMU names are used for column names in the efficiency scores but in the lambda (envelopment variables), they are numbered as L1, L2, etc. and names are not used in rows.  
+-   DMU names are used for column names in the efficiency scores but in the lambda (envelopment variables), they are numbered as L1, L2, etc. and names are not used in rows.
 
 ```{r run_nonparaeff}
 
@@ -176,7 +196,8 @@ res_nonparaeff <- nonparaeff::dea(base = nonparaeff_data,
                                   rts = 1,            # 1 = CRS
                                   onlytheta = FALSE)
 
-pander(res_nonparaeff$eff, caption="Efficiency Scores from nonparaeff")
+kbl (res_nonparaeff$eff, caption="Efficiency Scores from nonparaeff",
+     booktabs = T, digits = 4)
 
 res_lambda_nonparaeff<- (t(rbind(res_nonparaeff$lambda1,
              res_nonparaeff$lambda2,
@@ -191,16 +212,17 @@ res_lambda_nonparaeff<- (t(rbind(res_nonparaeff$lambda1,
              res_nonparaeff$lambda11,
              res_nonparaeff$lambda12)))
 
-pander (cbind(res_nonparaeff$eff,poscol(res_lambda_nonparaeff)),
-        caption="Results from the Benchmarking package")
+kbl (cbind(res_nonparaeff$eff,poscol(res_lambda_nonparaeff)),
+        caption="Results from the Benchmarking package", 
+     booktabs = T, digits = 4)
 
 ```
 
-Some items to note about nonparaeff.  
+Some items to note about nonparaeff.
 
-* The input and outputs are passed together with outputs first, then inputs and the number of outputs specified.
-* The $\lambda$ variables are returned separately for each DMU.
-* Returned objects lose the row and column names.
+-   The input and outputs are passed together with outputs first, then inputs and the number of outputs specified.
+-   The $\lambda$ variables are returned separately for each DMU.
+-   Returned objects lose the row and column names.
 
 ## The rDEA Package
 
@@ -211,21 +233,25 @@ suppressPackageStartupMessages(library (rDEA))
 res_rDEA <- rDEA::dea (XREF=x, YREF=y, X=x, Y=y,
                                model="input", RTS="constant")
 
-pander(res_rDEA$thetaOpt, caption="Efficiency Scores from Benchmarking")
+kbl (res_rDEA$thetaOpt, caption="Efficiency Scores from Benchmarking", 
+     booktabs = T, digits = 4)
 
-pander(res_rDEA$lambda, caption="Lambda Results from Benchmarking")
+kbl (res_rDEA$lambda, caption="Lambda Results from Benchmarking",
+     booktabs = T, digits = 4)
 
 ```
 
 Some notable characteristics of using the rDEA package are the following.
 
-* The rDEA allows for passing input prices in order to do a cost-minimization analysis.  
-* The model parameter combines both orientation and model decisions.
-* Explitily allows for separating the production technology (XREF and YREF) from the units to be estimated.  
+-   The rDEA allows for passing input prices in order to do a cost-minimization analysis.\
+-   The model parameter combines both orientation and model decisions.
+-   Explicitly allows for separating the production technology (XREF and YREF) from the units to be estimated.
 
 ## The DJL Package
 
-The DJL package comes from the name "Distance Measure Based Judgement and Learning" but is coincidentally also the initials of the primary author, Dr. Dong-Joon Lim.  The emphasis in this package is on a variety efficiency models from the perspective of distance metrics.  With this it provides a variety of models for accommodating super-efficiency related issues - particularly infeasibility under certain situations.  
+The DJL package comes from the name "Distance Measure Based Judgement and Learning" but is coincidentally also the initials of the primary author, Dr. Dong-Joon Lim.
+The emphasis in this package is on a variety efficiency models from the perspective of distance metrics.
+With this it provides a variety of models for accommodating super-efficiency related issues - particularly infeasibility under certain situations.
 
 ```{r run_DJL}
 
@@ -234,17 +260,20 @@ suppressPackageStartupMessages(library (DJL))
 res_DJL <- DJL::dm.dea (xdata=x, ydata=y, 
                         rts="crs", orientation="i")
 
-pander(res_DJL$eff, 
-       caption="Efficiency Scores from DJL")
+kbl(res_DJL$eff, 
+       caption="Efficiency Scores from DJL", 
+    booktabs = T, digits = 4)
 
-pander(res_DJL$lambda, 
-       caption="Lambda Variable Results from DJL")
+kbl (res_DJL$lambda, 
+       caption="Lambda Variable Results from DJL", 
+     booktabs = T, digits = 4)
 
 ```
 
 ## The multiplierDEA Package
 
-The multiplierDEA package was developed by Aurobindh Kalathil Puthanpura.  It was developed based on an interest in the multiplier DEA model, applying weight restrictions during in the multiplier model, and revisiting cross-efficiency.
+The multiplierDEA package was developed by Aurobindh Kalathil Puthanpura.
+It was developed based on an interest in the multiplier DEA model, applying weight restrictions during in the multiplier model, and revisiting cross-efficiency.
 
 ```{r run_MultiplierDEA}
 
@@ -253,25 +282,29 @@ suppressPackageStartupMessages(library (MultiplierDEA))
 res_MultiplierDEA <- MultiplierDEA::DeaMultiplierModel (x=x, y=y, 
                                rts="crs", orientation="input")
 
-pander(res_MultiplierDEA$Efficiency, 
-       caption="Efficiency Scores from multiplierDEA")
+kbl(res_MultiplierDEA$Efficiency, 
+       caption="Efficiency Scores from multiplierDEA", 
+    booktabs = T, digits = 4)
 
-pander(res_MultiplierDEA$Lambda, 
-       caption="Lambda Variable Results from multiplierDEA")
+kbl (res_MultiplierDEA$Lambda, 
+       caption="Lambda Variable Results from multiplierDEA", 
+     booktabs = T, digits = 4)
 
 ```
 
 ## The deaR Package
 
-The deaR package has a rich collection of data sets included in the package.  It also includes a broader collection of DEA variants than most of the other packages including:
+The deaR package has a rich collection of data sets included in the package.
+It also includes a broader collection of DEA variants than most of the other packages including:
 
-* Malmquist Productivity Index, 
-* Undesirable input and output models, 
-* Fuzzy DEA, 
-* Cross-Efficiency,
-* Bootstrapping DEA.  
+-   Malmquist Productivity Index,
+-   Undesirable input and output models,
+-   Fuzzy DEA,
+-   Cross-Efficiency,
+-   Bootstrapping DEA.
 
-Alas, the data structure is quite different from the other DEA packages making direct comparisons somewhat more difficult.  A comparison of deaR will be added in the future.  
+Alas, the data structure is quite different from the other DEA packages making direct comparisons somewhat more difficult.
+A comparison of deaR will be added in the future.
 
 ```{r run_deaR}
 
@@ -288,7 +321,8 @@ suppressPackageStartupMessages(library (deaR))
 
 ## Summarizing the Results from Different DEA Packages
 
-Let's now pull all the results together.  Ideally, all of the efficiency scores should match.  
+Let's now pull all the results together.
+Ideally, all of the efficiency scores should match.
 
 First, let's review the varying commands to illustrate the different syntax for the calls.
 
@@ -315,8 +349,6 @@ res_rDEA <- rDEA::dea (XREF=x, YREF=y, X=x, Y=y,
 
 ```
 
-
-
 ```{r combined_results}
 
 combined_eff <- cbind (res_benchmarking$eff, res_nonparaeff$eff,
@@ -328,10 +360,10 @@ colnames (combined_eff) <- c("Benchmarking", "nonparaeff", "rDEA",
 
 #panderOptions('digits',9)
 panderOptions('round',12)
-pander(combined_eff, caption = "Comparison of Efficiency Scores")      
+kbl (combined_eff, caption = "Comparison of Efficiency Scores",
+     booktabs = T, digits = 6)      
 
 ```
-
 
 ```{r combined_results_using_kable}
 library(kableExtra)
@@ -354,7 +386,8 @@ kable(combined_eff2, digits=16,
 #  kable_styling(latex_options="scale_down")
 ```
 
-The result is that the largest magnitude differences between Benchmarking's results and that of the other packages tested was a positive `r max(combined_eff2)` and the most negative (smaller than Benchmarking's efficiency scores) was `r min(combined_eff2)`.  These values are quite well behaved and more precise than most data used for analyses.  
+The result is that the largest magnitude differences between Benchmarking's results and that of the other packages tested was a positive `r max(combined_eff2)` and the most negative (smaller than Benchmarking's efficiency scores) was `r min(combined_eff2)`.
+These values are quite well behaved and more precise than most data used for analyses.
 
 ```{r}
 comparative_deviations <- rbind (colMeans(combined_eff2),
@@ -368,21 +401,21 @@ kable(comparative_deviations, digits=16,
 #  kable_styling(latex_options="scale_down")
 ```
 
-
 Computational performance could be further compared in many ways such as the following.
 
-* Additional comparisons could be made for the slacks to ensure that non-radial slacks are maximized.
-* Larger data sets could be tested. 
-* Other forms of ill-conditioned data could be tested.
-* Computational speed could be tested with data sets of over 1000. 
-* Returns to scale other than crs could be used. 
-* Detailed comparisons of lambda variables could be examined.
-* Testing could be done to to see if small numerical anomalies arise and affect results or if rounding processes to address this cause other problems. For example, LP solvers may return lambda values such as $-10^{-16}$ rather than zero or $0.99999998$ rather than $1.0$.
-* Examining DEA bootstrapping.
+-   Additional comparisons could be made for the slacks to ensure that non-radial slacks are maximized.
+-   Larger data sets could be tested.
+-   Other forms of ill-conditioned data could be tested.
+-   Computational speed could be tested with data sets of over 1000.
+-   Returns to scale other than crs could be used.
+-   Detailed comparisons of lambda variables could be examined.
+-   Testing could be done to to see if small numerical anomalies arise and affect results or if rounding processes to address this cause other problems. For example, LP solvers may return lambda values such as $-10^{-16}$ rather than zero or $0.99999998$ rather than $1.0$.
+-   Examining DEA bootstrapping.
 
 ## DEA Package Dependencies
 
-Let's explore another view of DEA packages by examining the packages that they depend upon.  A key aspect is what optimization engine each package uses.
+Let's explore another view of DEA packages by examining the packages that they depend upon.
+A key aspect is what optimization engine each package uses.
 
 ```{r DEA_package_dependencies}
 
@@ -401,32 +434,30 @@ set.seed(1)
 plot(dg, legendPosition = c(-1, -1), vertex.size = 10, cex = 0.7)
 ```
 
-This graph seems to indicate that Benchmarking is relatively indpendent of other packages despite being a powerful and well accepted tool.  Other packages appear to rely on a complex web of packages unrelated to DEA.  Interestingly, it appears that `lpsolveAPI` is only used by `DJL` and `Benchmarking` while the other packages depend on other solvers.  
+This graph seems to indicate that Benchmarking is relatively indpendent of other packages despite being a powerful and well accepted tool.
+Other packages appear to rely on a complex web of packages unrelated to DEA.
+Interestingly, it appears that `lpsolveAPI` is only used by `DJL` and `Benchmarking` while the other packages depend on other solvers.
 
 It would be more interesting to filter this to only include solver engines such as `lpsolveAPI`, `lpsolve`, `glpk`, and `symphony` along with the DEA packages.
 
 ## Summary of Package Features
 
+Comparative features Columns are used for each package Rows are:
 
-Comparative features
-Columns are used for each package
-Rows are:
-
-* Package Name
-* Package Author(s)
-* Version and date
-* Main LP package used? (ex. LPSolve API, GLPK, etc.)
-* All Traditional Models (IO/OO, CRS/VRS/DRS/IRS)?
-* Both Envelopment & Multiplier?
-* Slack Maximization?
-* Malmquist?
-* Weight Restrictions?
-* Bad outputs/Good Inputs?
-* Nondiscretionary Inputs/Outputs?
-* Directional Distance Functions?
-* Window Analysis?
-* Cross-Efficiency?
-* Special Features?
+-   Package Name
+-   Package Author(s)
+-   Version and date
+-   Main LP package used? (ex. LPSolve API, GLPK, etc.)
+-   All Traditional Models (IO/OO, CRS/VRS/DRS/IRS)?
+-   Both Envelopment & Multiplier?
+-   Slack Maximization?
+-   Malmquist?
+-   Weight Restrictions?
+-   Bad outputs/Good Inputs?
+-   Non-discretionary Inputs/Outputs?
+-   Directional Distance Functions?
+-   Window Analysis?
+-   Cross-Efficiency?
+-   Special Features?
 
 ## Future Work
-
