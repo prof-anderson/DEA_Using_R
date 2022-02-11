@@ -4,7 +4,6 @@
 ## Introduction
 
 ```{r, include=FALSE, eval=FALSE}
-# library(bookdown); library(rmarkdown); rmarkdown::render("02-IO_Env.Rmd", "tufte_book2")
 library(bookdown); library(rmarkdown); rmarkdown::render("02-IO_Env.Rmd", "pdf_book")
 ```
 

@@ -1,26 +1,5 @@
-```{r Ch_10_setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library (kableExtra)
-library(pander)
-panderOptions ('round',5) # Rounding in pander data tables
-library (knitr)
-library (DiagrammeR)
-library (DiagrammeRsvg)
-library (rsvg)
-library (htmltools)
-panderOptions('round',5) # Rounding in pander data tables
-library(TRA)  # Not on CRAN, install from github if needed
-   # devtools::install_github("prof-anderson/TRA")
-library ("Lahman", quietly=TRUE)
-library ("dplyr", quietly=TRUE)
-library ("pander", quietly=TRUE)
-library (DiagrammeRsvg, quietly=TRUE)
-library (rsvg, quietly=TRUE)
-library (htmltools, quietly=TRUE)
-library (Benchmarking)
-library (DJL)
-library (deaR)
-#library(bookdown); library(rmarkdown); rmarkdown::render("10-Malmquist_Index.Rmd", "pdf_book")
+```{r, include=FALSE, eval=FALSE}
+library(bookdown); library(rmarkdown); rmarkdown::render("10-Malmquist_Index.Rmd", "pdf_book")
 ```
 
 # Changing Performance over Time
@@ -28,6 +7,23 @@ library (deaR)
 ## Introduction[^malmquist_index-1]
 
 [^malmquist_index-1]: This chapter benefited from significant contributions by Aurobindh Kalathil Puthanpura, Nina Chaichi, Dr. Dong-Joon Lim, and Kevin van Blommestein but responsibility for all errors resides with Dr. Tim Anderson
+
+```{r Ch_10_setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library (kableExtra)
+library (knitr)
+library (DiagrammeR)
+library (DiagrammeRsvg, quietly=TRUE)
+library (rsvg, quietly=TRUE)
+library (htmltools, quietly=TRUE)
+library ("Lahman", quietly=TRUE)
+library ("dplyr", quietly=TRUE)
+library(TRA)  # Not on CRAN, install from github if needed
+   # devtools::install_github("prof-anderson/TRA")
+library (Benchmarking)
+library (DJL)
+library (deaR)
+```
 
 Often it is important to assess the changing performance over time rather than just at a single snapshot.
 We did some explorations of the changing distribution of scores in the chapter on baseball but we didn't really explore how these scores change on a year by year basis.
@@ -171,7 +167,7 @@ malm_gr_data<-tibble(Year=c(1,1,1,2,2,2),
                     Y=c(7.7, 16.1,6,   11.1,22.4,18   ))
 ```
 
-```{r, display_gr_malm_data, echo=FALSE}
+```{r, display-gr-malm-data, echo=FALSE}
 kbl (malm_gr_data, caption="Data for graphical example of the Malmquist Productivity Index with unit being studied as DMU 3.", booktabs = T, digits = 4, align = 'c')
 ```
 
@@ -194,7 +190,11 @@ malm_gr_data_pro <-
 Let's look at the data structure that the `deaR` package is using.
 
 ```{r}
-pander(malm_gr_data_pro)
+library (pander)  # Use pander since kable does not support lists
+pander(malm_gr_data_pro, 
+     caption="Data structure used by deaR package for Malmquist")
+#kbl (malm_gr_data_pro, booktabs=T, 
+#     caption="Data structure used by deaR package for Malmquist")
 ```
 
 ```{r}
@@ -210,7 +210,8 @@ res_mi_gr <- t(rbind(result_gr$mi, result_gr$ec,
                        result_gr$tc ))
 colnames(res_mi_gr) <- c("MPI", "PEch",  "TC")
 
-kbl (res_mi_gr, booktabs = T, digits = 4, align = 'c')
+kbl (res_mi_gr, booktabs = T, digits = 4, align = 'c', 
+     caption="Malmquist Productivity Analysis results using deaR")
 
 ```
 
@@ -227,10 +228,10 @@ I expect that it is due to one or more of the following factors:
 
 Let's revisit an example from the literature using the `deaR` package.
 
-```{r MPI_Griffell_Lovell_1999}
+```{r MPI-Griffell-Lovell-1999}
 
 data("Grifell_Lovell_1999")
-pander(Grifell_Lovell_1999)
+kbl (Grifell_Lovell_1999, booktabs=T)
 
 data_example <- read_malmquist(Grifell_Lovell_1999,
                                percol = 1,
@@ -283,7 +284,7 @@ tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),
                              'BaseballBatting.png'))
 ```
 
-```{r ch10_preparing_bb_data_with_dplyr}
+```{r ch10-preparing-bb-data-with-dplyr}
 
 batting<-Lahman::Batting
 
@@ -307,7 +308,7 @@ kbl (head(batting),
         caption="Results of Preparing Data using dplyr", booktabs = T, digits = 4, align = 'c')
 ```
 
-```{r preparing_BB_IO_1919_data}
+```{r preparing-BB-IO-1919-data}
 
 inputs <- c("PA")
 outputs <- c("BB", "X1B", "X2B", "X3B", "HR")
@@ -331,7 +332,7 @@ kbl (head (cbind(x19,y19)),
 
 ```
 
-```{r preparing_BB_IO_1920_data}
+```{r preparing-BB-IO-1920-data}
 
 batting1920AL <- batting %>% filter(yearID==1920, lgID=="AL")
 
@@ -353,7 +354,7 @@ kbl (head (cbind(x20,y20)),
 
 ```
 
-```{r ch10_doing_DEA}
+```{r ch10-doing-DEA}
 
 #res1920AL<-dm.dea(x20,y20, rts="crs", orientation="i", sg="ssm")
 
@@ -367,7 +368,7 @@ kbl (head (cbind(x20,y20)),
 This includes code chunks for doing Malmquist Productivity Index analysis of baseball batters using several packages.
 A key challenge though is that most DEA packages seem to have a problem with mismatched DMUs from period to period.
 
-```{r ch10_doing_second_MPI, eval=FALSE}
+```{r ch10-doing-second-MPI, eval=FALSE}
 
 # Eval set to FALSE due to packages not working with missing 
 #   DMUs from one period to the next.

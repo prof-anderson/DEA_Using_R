@@ -6,7 +6,6 @@
 
 As industries become ever more global and more competitive, it is critical to do things in the best way possible. Even organizations that have been successful for decades need to keep their competitive edge and avoid getting complacent. Furthermore This results in a search for best practices. What was a best practice ten years ago, may no longer be best practice. 
 
-
 ## Purpose of this Book
 
 R is a powerful analytics tool and Data Envelopment Analysis or DEA is a widely adopted methodology for providing insights to applications on performance improvement. This naturally makes the combination a good option.

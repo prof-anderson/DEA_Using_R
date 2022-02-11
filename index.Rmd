@@ -52,6 +52,8 @@ This book has benefited from the interactions of many people over the years. In 
 -   Ambica Sogal
 -   Navdeep Singh
 -   William (Ike) Eisenhauer
+-   Riad Alharithi
+-   Ketsaraporn Kaewkhiaolueang
 
 I would also like to thank earlier doctoral graduates for rich mutual interactions:
 

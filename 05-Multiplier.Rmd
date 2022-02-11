@@ -7,6 +7,10 @@ editor_options:
     wrap: 72
 ---
 
+```{r, echo=FALSE, eval=FALSE}
+library(bookdown); library(rmarkdown); rmarkdown::render("05-Multiplier.Rmd", "pdf_book")
+```
+
 # Multiplier Models
 
 ## Introduction
@@ -34,7 +38,7 @@ colleagues: Barb, Chris, Don, Ed, and Fran. Each restaurant manager is
 achieving outcomes (outputs.) At the end of the year, you want to make a
 case for having done well.
 
-```{r multiplier_rest_Y_data }
+```{r multiplier-rest-Y-data }
 
 library(pander)           # For making nice tables
 library(kableExtra)

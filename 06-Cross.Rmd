@@ -99,7 +99,7 @@ We will implement this using the ompr package again.
 We're going to use our data from earlier.
 For this example, we will use the dataset from Kenneth Baker's third edition of *Optimization Modeling with Spreadsheets*, pages 175-178, Example 5.3 titled "Hope Valley Health Care Association." In this case, a health care organization wants to benchmark six nursing homes against each other.
 
-```{r multiplier_model }
+```{r multiplier-model }
 
 library(kableExtra, quietly=TRUE)           
 library(dplyr, quietly=TRUE)            
@@ -144,7 +144,7 @@ ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1);
 
 Note that I'm naming the data sets based on their origin and then loading them into xdata and ydata for actual operation.
 
-```{r Structure_Results}
+```{r Structure-Results}
 # Need to remember to restructure the results matrices.
 
 results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
@@ -162,7 +162,7 @@ Now we will use the multiplier model using the DEAMultiplerModel package by Auro
 
 ```{r}
 library (MultiplierDEA)
-library(kableExtra)
+library (kableExtra)
 
 # Example from Kenneth R. Baker,
 #      Optimization Modeling with Spreadsheets, 
@@ -222,7 +222,7 @@ These features come at a significant cost though which will be discussed in more
 
 Let's revisit the Baker model again.
 
-```{r Baker_cross, eval=TRUE}
+```{r Baker-cross, eval=TRUE}
 
 multiplierIO <- function (x,y) 
   { 
@@ -395,7 +395,7 @@ To examine this issue, we need to invoke a secondary objective function again in
 
 A variety of mechanisms exist for dealing with the issue of multiple optima.
 
-```{r Baker_Cross_Eval_Sec, eval=TRUE}
+```{r Baker-Cross-Eval-Sec, eval=TRUE}
 # Implements secondary objective function to resolve multiple optima
 
 multiplierIOSec <- function (x, y) 

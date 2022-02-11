@@ -4,12 +4,14 @@ output:
   html_document: default
 ---
 
+```{r, echo=FALSE, eval=FALSE}
+library(bookdown); library(rmarkdown); rmarkdown::render("03-IO_Env_Matrix.Rmd", "pdf_book")
+```
+
 # Matrix Implementations of DEA
 
 ```{r Install-support-libraries, echo= FALSE}
 library (kableExtra)
-#library(bookdown); library(rmarkdown); rmarkdown::render("03-IO_Env_Matrix.Rmd", "pdf_book")
-library (pander)
 ```
 
 In the previous chapter we created the DEA linear program algebraically using the `ompr`package.
@@ -225,14 +227,10 @@ rownames (res3_1.solution) <- c("$\\lambda_A$", "$\\lambda_B$",
                                 "$\\lambda_C$", "$\\lambda_D$", 
                                 "$\\theta$", 
                                 "$s^x_1$", "$s^y_1$")
-pander (t(res3_1.solution), 
+kbl (t(res3_1.solution), booktabs=T, 
         caption=
   "Optimal solution values for DMU A with LaTeX column labels")
 ```
-
-When rendered in PDF format using `pander`, the table's space usage becomes less efficient.
-While every column label in the LaTeX table is shorter than it's corresponding column label with plain text (ex. $\lambda_A$ vs. L_A or $\theta$ vs. theta) , `pander`gives each column more width causing it to wrap the table and thereby take more page space.
-The result is that we will tend to stick with using the plain text labels as the default.
 
 ## Creating the LP Incrementally
 
@@ -255,16 +253,16 @@ First, let's declare each of the needed basic data structures.
 First, determine the number of DMUs, number of inputs, and number of outputs.
 
 ```{r Defining-Problem-Size}
-  x <- matrix(c(10,20,30,50), ncol=1,
-              dimnames=list(LETTERS[1:4],"x"))
+x <- matrix(c(10,20,30,50), ncol=1,
+            dimnames=list(LETTERS[1:4],"x"))
 
-  y <- matrix(c(75,100,300,400), ncol=1,
-              dimnames=list(LETTERS[1:4],"y"))
+y <- matrix(c(75,100,300,400), ncol=1,
+            dimnames=list(LETTERS[1:4],"y"))
   
-  ND <- nrow(x); NX <- ncol(x); NY <- ncol(y); 
-  
-  kbl(cbind(x,y), booktabs=T,
-      caption="Input-Output Data")
+ND <- nrow(x); NX <- ncol(x); NY <- ncol(y); 
+
+kbl(cbind(x,y), booktabs=T,
+    caption="Input-Output Data")
 ```
 
 Now we will declare the data structures for inputs and outputs that will contain the data that we use.
@@ -282,12 +280,12 @@ Now we can define the structure of the results that we will be calculating.
 This is overkill since it has space for results of every unit instead of just the one that we are analyzing now.
 
 ```{r Declaring-Structures-of-Results}
-  results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
-  results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
-  results.vweight    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
-  results.uweight    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
-  results.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
-  results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
+results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
+results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
+results.vweight    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
+results.uweight    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
+results.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
+results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
 ```
 
 Now it is time for more model options.
@@ -361,21 +359,21 @@ Also, if you are fluent in R, you can probably come up with more elegant ways of
 
 ```{r Add_names_to_LP}
 
-    lambda_names <- paste("L", 1:ND, sep = "")  
-    # We'll use L to represent Lambda
+lambda_names <- paste("L", 1:ND, sep = "")  
+# We'll use L to represent Lambda
+  
+eff_name <- "theta"   # Pick the appropriate variable name
+
+xslack_names <- paste ("sx", 1:NX, sep = "")  
+     # These are slack variables instead of inequalities
+yslack_names <- paste ("sy", 1:NY, sep = "")
+
+ColNames <- c(lambda_names, eff_name, xslack_names, yslack_names)
+
+x_constraint_names <- paste("Con_X_", 1:NX, sep = "")
+y_constraint_names <- paste("Con_Y_", 1:NY, sep = "")
     
-    eff_name <- "theta"   # Pick the appropriate variable name
-
-    xslack_names <- paste ("sx", 1:NX, sep = "")  
-         # These are slack variables instead of inequalities
-    yslack_names <- paste ("sy", 1:NY, sep = "")
-
-    ColNames <- c(lambda_names, eff_name, xslack_names, yslack_names)
-
-    x_constraint_names <- paste("Con_X_", 1:NX, sep = "")
-    y_constraint_names <- paste("Con_Y_", 1:NY, sep = "")
-    
-    RowNames <- NULL
+RowNames <- NULL
  
 ```
 
@@ -417,14 +415,14 @@ lpe
 Set the lower limits for all variables to be 0.0
 
 ```{r}
-      set.bounds (lpe, lower = rep(0.0, ND+1+NX+NY))  
+set.bounds (lpe, lower = rep(0.0, ND+1+NX+NY))  
 ```
 
 All the variables should be non-negative.
 (Technically the radial efficiency scores, $\theta$ is usually declared to be un-restricted in sign but this should not hurt the solution.)
 
 ```{r Display-lp-Non-Negativity-constraints }
-   lpe 
+lpe 
 ```
 
 ## Solving and Processing Results
@@ -432,7 +430,7 @@ All the variables should be non-negative.
 Finally, solve the LP to calculate the efficiency score.
 
 ```{r}
-     solve.lpExtPtr (lpe)
+solve.lpExtPtr (lpe)
 ```
 
 Simply solving doesn't tell us anything very useful.

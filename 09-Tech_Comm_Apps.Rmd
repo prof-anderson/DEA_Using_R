@@ -1,7 +1,9 @@
+```{r, include=FALSE, eval=FALSE}
+library(bookdown); library(rmarkdown); rmarkdown::render("09-Tech_Comm_Apps.Rmd", "pdf_book")
+```
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(pander)
-panderOptions('round',5) # Set option for rounding in pander data tables
 library(DiagrammeRsvg)
 library(rsvg)
 library(htmltools)
@@ -181,13 +183,11 @@ Again, the results match those of Thore and Rich.
 Their discussion of results emphasized the comparison of projects to each other by looking at the lambda values to see how the targets of comparison were made.
 
 ```{r}
-
 resNASA<-DeaMultiplierModel(XNASA,YNASA,rts = "vrs", orientation="input")
 
-#pander(poscol(cbind(resNASA$Efficiency,resNASA$vx,resNASA$uy)), 
-#       caption="Multiplier Model Results for NASA projects.")
 kbl (poscol(cbind(resNASA$Efficiency,resNASA$Lambda)), 
-       caption="Envelopment Model Results for NASA projects.", booktabs = T, digits = 4, align = 'c')
+     booktabs = T, digits = 4, align = 'c',
+       caption="Envelopment Model Results for NASA projects.")
 ```
 
 ## Possible to-Do Items for this Chapter
@@ -196,7 +196,7 @@ kbl (poscol(cbind(resNASA$Efficiency,resNASA$Lambda)),
 -   Perhaps fix naming of outputs in first case to be P1, P2,... rather than A, B, C,... to match Thore
 -   Perhaps generalize naming of projects for NASA case to match Thore
 -   Create helper function for names to pass numbers of DMUs, inputs, outputs, and output naming objects
--   Define \# of digits for pander tables
+-   Define \# of digits for tables
 
 ## To-Do Items for Packages (some for later)
 

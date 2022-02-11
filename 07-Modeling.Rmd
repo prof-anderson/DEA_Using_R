@@ -1,6 +1,6 @@
----
----
----
+```{r, echo=FALSE, eval=FALSE}
+library(bookdown); library(rmarkdown); rmarkdown::render("07-Modeling.Rmd", "pdf_book")
+```
 
 # DEA Modeling Issues and Questions
 

@@ -4,10 +4,12 @@ output:
   html_document: default
 ---
 
+```{r, echo=FALSE, eval=FALSE}
+library(bookdown); library(rmarkdown); rmarkdown::render("11-Tech-Forecasting-Using-DEA.Rmd", "pdf_book")
+```
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(pander)
-panderOptions('round',5) # Set option for rounding in pander data tables
 library(DiagrammeRsvg)
 library(rsvg)
 library(htmltools)
@@ -89,7 +91,7 @@ For more detailed information on the application, the interested reader is refer
 Let's start by examining the full dataset.
 Note that the names of the variables are rather long making their display quite awkward.
 
-```{r display_full_fighter_jet_data}
+```{r display-full-fighter-jet-data}
 data(fighter_jet)
 
 fj_full_data_ex1 <- data.frame(t(colnames(fighter_jet)))
@@ -115,8 +117,6 @@ fj_full_data_ex2 <- data.frame(t(c("Aircraft",
 
 fj_full_data_ex <- cbind(t(fj_full_data_ex1), t(fj_full_data_ex2))
 
-##pander (fj_full_data_ex,
-##        caption="Columns of Fighter Jet Data")
 kbl (fj_full_data_ex, booktabs= T, digits = 4,
     caption="Columns of Fighter Jet Data")
 ```
@@ -129,8 +129,7 @@ Also, we'll abbreviate the names of the columns for better display.
 
 Now, let's start by examining what the results would look like for just a simple DEA model of all of the fighter jets.
 
-```{r reorganize_fighter_jet_data}
-
+```{r reorganize-fighter-jet-data}
 fj_data <- dplyr::select(fighter_jet,
                          Name,
                          FirstFlight,
@@ -146,14 +145,14 @@ colnames(fj_data)<- c("Name",
                          "Mach (Y3)", 
                          "BVRM (Y4)")
 
-kbl (head(fj_data), caption = "Data for Regression and TFDEA Study", booktabs = T, digits = 4, align = 'c')
-
+kbl (head(fj_data), booktabs = T, digits = 4, align = 'c', 
+     caption = "Data for Regression and TFDEA Study")
 ```
 
 Note that for TFDEA, there is no input specified for this application.
 We will use a constant value of one as the input for each aircraft.
 
-```{r prepare_data_for_dea}
+```{r prepare-data-for-dea}
 fj_x <-  matrix (rep(1.0,nrow(fj_data)), 
                  nrow = nrow(fj_data), ncol=1,
                  dimnames=c(list(fj_data[,1]),c("x")))
@@ -168,7 +167,7 @@ kbl (head(cbind(fj_x, fj_y)),
 
 ```
 
-```{r run_dea}
+```{r run-dea}
 res1 <- DEA(fj_x, fj_y, rts="CRS", orientation="output")
 
 kbl (cbind(fj_data,res1$eff), 
@@ -181,7 +180,7 @@ More specifically, this indicates that the first US fighter jet, the F80, was ou
 Next, we can look at the envelopment variables that describe which aircraft(s) the F80 was compared against.
 Note that again we will use the `poscol` function to filter out the columns that are not used as peers for any other units (or fighter jets.)
 
-```{r dea_results_of_fighter_jet}
+```{r dea-results-of-fighter-jet}
 kbl (poscol(cbind(res1$eff, res1$lambda)), booktabs = T, digits = 3)
 ```
 
@@ -189,7 +188,7 @@ We can then go on to calculate the *peer year* of each fighter jet.
 This is the average year of the fighter jets that each fighter jet is compared against along with the original year of first flight.
 We refer to the use of the *peer year* as a dynamic frontier year model since the year of the efficiency frontier will vary depending on the mix of aircraft at each point.
 
-```{r combined_results_from_dea}
+```{r combined-results-from-dea}
 combined_res1 <- cbind (res1$eff,
                         res1$lambda %*% fj_data$FirstFlight,
                         fj_data$FirstFlight)
@@ -203,7 +202,7 @@ kbl (combined_res1,
 
 Next, we will use the different between these values to impute a rate of change.
 
-```{r calculate_rate_of_change}
+```{r calculate-rate-of-change}
 
 fj_gamma <- combined_res1[,1] ^ 
    (1/(combined_res1[,2] - combined_res1[,3]))
@@ -242,7 +241,7 @@ Notice the parameters passed:
 -   `second="min"` refers to whether a secondary objective function is used. This is similar to slack maximization in the two-phase DEA model and helps resolve issues of multiple optima.
 -   `mode="dynamic"`indicates that a dynamic frontier year is used rather than a static frontier year.
 
-```{r run_tfdea}
+```{r run-tfdea}
 res2 <- TFDEA(x=fj_x, y=fj_y,        # Use the same data
               dmu_date_rel=data.frame(fighter_jet$FirstFlight),  
                                      # Get first flight in right format
@@ -262,7 +261,7 @@ The result is that it is dropped from the analysis.
 
 Let's examine the pieces of information that we receive for results.
 
-```{r examine_pre1960_results}
+```{r examine-pre1960-results}
 res2eff <- cbind(fj_data$FirstFlight, res2$dmu_eff_rel,res2$dmu_eff_cur)
 colnames (res2eff) <- c("FirstFlight", "Eff at Release", "Eff at 1960")
 kbl (res2eff,
@@ -278,7 +277,7 @@ These results require a careful look.
 These results give us an annual rate of change of `res2$roc`.
 We can use this then to try to predict the post 1960 fighter jet's release dates.
 
-```{r examine_post1960_results}
+```{r examine-post1960-results}
 res2eff <- cbind(fj_data$FirstFlight, 
                  res2$dmu_eff_for, res2$dmu_date_for)
 colnames (res2eff) <- c("FirstFlight", 
@@ -287,4 +286,3 @@ kbl (filter(data.frame(res2eff), FirstFlight > 1960),
        caption="Forecasted Release Dates", booktabs = T, digits = 4)
 ```
 
-## 
