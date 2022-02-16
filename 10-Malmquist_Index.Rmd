@@ -9,9 +9,9 @@ library(bookdown); library(rmarkdown); rmarkdown::render("10-Malmquist_Index.Rmd
 [^malmquist_index-1]: This chapter benefited from significant contributions by Aurobindh Kalathil Puthanpura, Nina Chaichi, Dr. Dong-Joon Lim, and Kevin van Blommestein but responsibility for all errors resides with Dr. Tim Anderson
 
 ```{r Ch_10_setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
 library (kableExtra)
 library (knitr)
+knitr::opts_chunk$set(echo = TRUE)
 library (DiagrammeR)
 library (DiagrammeRsvg, quietly=TRUE)
 library (rsvg, quietly=TRUE)
@@ -58,7 +58,7 @@ This is then followed with a numerical version of that example.
 
 We will then follow this calculations using various packages.
 
-```{r display_malm1, out.width="45%", fig.show='hold', fig.align='center', fig.cap="Malmquist Graphical Example"}
+```{r displaymalm1, out.width="45%", fig.show='hold', fig.align='center', fig.cap="Malmquist Graphical Example"}
 knitr::include_graphics("images/ch10_malm1.PNG")
 ```
 
@@ -152,7 +152,7 @@ MPI & =TC\cdot P \\
 \end{split}
 $$
 
-```{r display_malm4, out.width="45%", fig.show='hold', fig.align='center', fig.cap="Detailed Graphical Example of Malmquist"}
+```{r displaymalm4, out.width="45%", fig.show='hold', fig.align='center', fig.cap="Detailed Graphical Example of Malmquist"}
 knitr::include_graphics("images/ch10_malm4.PNG")
 ```
 
