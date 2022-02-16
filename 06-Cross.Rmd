@@ -236,15 +236,15 @@ multiplierIO <- function (x,y)
 
     for (k in 1:ND) {
 
-    result <- MIPModel() %>%
+    result <- MIPModel()                                     |>
     add_variable(vweight[i], i = 1:NX, type = "continuous", 
-                 lb = 0) %>%
+                 lb = 0)                                     |>
     add_variable(uweight[r], r = 1:NY, type = "continuous", 
-                 lb = 0) %>%
+                 lb = 0)                                     |>
     set_objective(sum_expr(uweight[r] * y[k,r], r = 1:NY), 
-                  "max") %>%
+                  "max")                                     |>
     add_constraint(sum_expr(vweight[i] * x[k,i], i = 1:NX) 
-                   == 1) %>%
+                   == 1)                                     |>
     add_constraint((sum_expr(uweight[r] * y[j,r], r = 1:NY)-
                     sum_expr(vweight[i] * x[j,i], i = 1:NX)) 
                   <= 0, j = 1:ND)
@@ -410,30 +410,30 @@ multiplierIOSec <- function (x, y)
 
     for (k in 1:ND) {
 
-      result <- MIPModel() %>%
+      result <- MIPModel()                             |>
       add_variable(vweight[i], i = 1:NX, 
-                   type = "continuous", lb = 0) %>%
+                   type = "continuous", lb = 0)        
       add_variable(uweight[r], r = 1:NY, 
-                   type = "continuous", lb = 0) %>%
+                   type = "continuous", lb = 0)        |>
       set_objective(sum_expr(uweight[r] * y[k,r], 
-                             r = 1:NY), "max") %>%
+                             r = 1:NY), "max")         |>
       add_constraint(sum_expr(vweight[i] * x[k,i], 
-                              i = 1:NX) == 1) %>%
+                              i = 1:NX) == 1)          |>
       add_constraint((sum_expr(uweight[r] * y[j,r], r = 1:NY)-
                     sum_expr(vweight[i] * x[j,i], i = 1:NX)) 
                   <= 0, j = 1:ND)
       result
 
-      result2 <- MIPModel() %>%
+      result2 <- MIPModel()                           |>
       add_variable(vweight[i], i = 1:NX, 
-                   type = "continuous", lb = 0) %>%
+                   type = "continuous", lb = 0)       |>
       add_variable(uweight[r], r = 1:NY, 
-                   type = "continuous", lb = 0) %>%
+                   type = "continuous", lb = 0)       |>
       set_objective(sum_expr(uweight[r] * sum(y[,r]), 
-                             r = 1:NY), "max") %>%
+                             r = 1:NY), "max")        |>
           # Modified objective function for 
       add_constraint(sum_expr(vweight[i] * sum(x[,i]), 
-                              i = 1:NX) == 1) %>%
+                              i = 1:NX) == 1)         |>
       add_constraint(result, sum_expr(uweight[r] * sum(y[,r]), 
                                       r = 1:NY)-
                     sum_expr(vweight[i] * sum(x[,i]), i = 1:NX)  

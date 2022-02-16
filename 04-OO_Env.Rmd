@@ -103,12 +103,12 @@ res4_1.lambda     <- matrix(rep(-1.0, ND), nrow=ND,ncol=ND)
 RTS<-"CRS"
 for (k in 1:ND) {
   
-  result <- MIPModel() %>%
-    add_variable(vlambda[j], j = 1:ND, type = "continuous", lb = 0) %>%
-    add_variable(vphi, type = "continuous") %>%
-    set_objective(vphi, "max") %>%
+  result <- MIPModel()                                              |>
+    add_variable(vlambda[j], j = 1:ND, type = "continuous", lb = 0) |>
+    add_variable(vphi, type = "continuous")                         |>
+    set_objective(vphi, "max")                                      |>
     add_constraint(sum_expr(vlambda[j] * xdata[j,i], j = 1:ND) 
-                   <=  xdata[k,i], i = 1:NX) %>%
+                   <=  xdata[k,i], i = 1:NX)                        |>
     add_constraint(sum_expr(vlambda[j] * ydata[j,r], j = 1:ND) 
                    >= vphi * ydata[k,r], r = 1:NY) 
 
@@ -192,12 +192,12 @@ res4_3.lambda     <- matrix(rep(-1.0, ND), nrow=ND,ncol=ND)
 RTS<-"VRS"
 for (k in 1:ND) {
   
-  result <- MIPModel() %>%
-    add_variable(vlambda[j], j = 1:ND, type = "continuous", lb = 0) %>%
-    add_variable(vphi, type = "continuous") %>%
-    set_objective(vphi, "max") %>%
+  result <- MIPModel()                                              |>
+    add_variable(vlambda[j], j = 1:ND, type = "continuous", lb = 0) |>
+    add_variable(vphi, type = "continuous")                         |>
+    set_objective(vphi, "max")                                      |>
     add_constraint(sum_expr(vlambda[j] * xdata[j,i], j = 1:ND) 
-                   <=  xdata[k,i], i = 1:NX) %>%
+                   <=  xdata[k,i], i = 1:NX)                        |>
     add_constraint(sum_expr(vlambda[j] * ydata[j,r], j = 1:ND) 
                    >= vphi * ydata[k,r], r = 1:NY) 
 
@@ -374,7 +374,7 @@ for (k in 1:ND) {
     
     add_constraint(sum_expr(vlambda[j] * xdata[j,i], 
                             j = 1:ND)+xslack[i] 
-                   - xdata[k,i]==0, i = 1:NX)              |>
+                   - xdata[k,i]==0, i = 1:NX)                       |>
     
     add_constraint(sum_expr(vlambda[j] * ydata[j,r], 
                             j = 1:ND) -yslack[r]
@@ -409,7 +409,7 @@ kbl (cbind(CRS2PhaseIO.Res,Slack1.Res), booktabs=T, escape=F, digits=3,
                  store7names$SXnamesLX, store7names$SYnamesLX,
                  store7names$LambdanamesbyletterLX, 
                  store7names$SXnamesLX, store7names$SYnamesLX),
-        caption="Slack Maximizing Results from Seven Store")          |>
+        caption="Slack Maximizing Results from Seven Store")            |>
   kable_styling (latex_options = c("hold_position", "scale_down"))
 ```
 

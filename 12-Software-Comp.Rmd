@@ -192,8 +192,8 @@ res_nonparaeff <- nonparaeff::dea(base = nonparaeff_data,
                                   rts = 1,            # 1 = CRS
                                   onlytheta = FALSE)
 
-kbl (res_nonparaeff$eff, caption="Efficiency Scores from nonparaeff",
-     booktabs = T, digits = 4)
+kbl (res_nonparaeff$eff, booktabs = T, digits = 4,
+     caption="Efficiency Scores from nonparaeff")
 
 res_lambda_nonparaeff<- (t(rbind(res_nonparaeff$lambda1,
              res_nonparaeff$lambda2,
@@ -209,9 +209,8 @@ res_lambda_nonparaeff<- (t(rbind(res_nonparaeff$lambda1,
              res_nonparaeff$lambda12)))
 
 kbl (cbind(res_nonparaeff$eff,poscol(res_lambda_nonparaeff)),
-        caption="Results from the Benchmarking package", 
-     booktabs = T, digits = 4)
-
+     booktabs = T, digits = 4,
+     caption="Results from the Benchmarking package")
 ```
 
 Some items to note about nonparaeff.
@@ -346,8 +345,8 @@ combined_eff <- cbind (res_benchmarking$eff, res_nonparaeff$eff,
 colnames (combined_eff) <- c("Benchmarking", "nonparaeff", "rDEA", 
                              "DJL", "MultiplierDEA")
 
-kbl (combined_eff, caption = "Comparison of Efficiency Scores",
-     booktabs = T, digits = 6)      
+kbl (combined_eff, booktabs = T, digits = 6, 
+     caption = "Comparison of Efficiency Scores")      
 
 ```
 
@@ -360,10 +359,8 @@ combined_eff2 <- cbind (res_nonparaeff$eff-res_benchmarking$eff,
 colnames (combined_eff2) <- c("nonparaeff", "rDEA", 
                              "DJL", "MultiplierDEA")
 
-kable(combined_eff2, digits=16,
-      format="latex", booktabs=TRUE)
-# %>%
-#  kable_styling(latex_options="scale_down")
+kbl (combined_eff2, digits=16, format="latex", booktabs=T) |>
+  kable_styling(latex_options="scale_down")
 ```
 
 The result is that the largest magnitude differences between Benchmarking's results and that of the other packages tested was a positive `r max(combined_eff2)` and the most negative (smaller than Benchmarking's efficiency scores) was `r min(combined_eff2)`.
@@ -373,10 +370,11 @@ These values are quite well behaved and more precise than most data used for ana
 comparative_deviations <- rbind (colMeans(combined_eff2),
                       colMeans(abs(combined_eff2)))
 
-rownames(comparative_deviations) <- c("Mean Difference", "Mean Absolute Deviation")
+rownames(comparative_deviations) <- 
+  c("Mean Difference", "Mean Absolute Deviation")
 
-kable(comparative_deviations, digits=16,
-      format="latex", booktabs=TRUE)
+kbl (comparative_deviations, digits=16, booktabs=T,
+     caption="Differences between Benchmarking and other Packages")
 # %>%
 #  kable_styling(latex_options="scale_down")
 ```
@@ -404,7 +402,8 @@ library("miniCRAN")
 dea_packages_cran <- c("Benchmarking", "nonparaeff", "DJL", "rDEA") 
 #solver_packages <- c("lpsolve", "lpsolveAPI", "GLPK", "Rglpk",
 #                      "glpkAPI", "ompr", "ROI","rsymphony")
-# tags <- c("ggplot2", "data.table", "plyr", "knitr", "shiny", "xts", "lattice")
+# tags <- c("ggplot2", "data.table", "plyr", "knitr", "shiny", 
+#           "xts", "lattice")
 pkgDep(dea_packages_cran , suggests = FALSE, 
        enhances = FALSE)
         #, availPkgs = cranJuly2014

@@ -131,16 +131,16 @@ Part of the beauty of dplyr is the ability to consolidate all of this into a sin
 
 batting<-Lahman::Batting
 
-batting <- batting %>% 
-  select(playerID,yearID,teamID,lgID,AB,H,X2B,X3B,HR,BB) %>%
-  mutate(PA=as.numeric(AB+BB)) %>%
-  mutate(X1B=as.numeric(H-HR-X3B-X2B)) %>%
-  transform(BB=as.numeric(BB)) %>%
-  transform(X2B=as.numeric(X2B)) %>%
-  transform(X3B=as.numeric(X3B)) %>%
-  transform(HR=as.numeric(HR)) %>%
+batting <- batting                                       |>
+  select(playerID,yearID,teamID,lgID,AB,H,X2B,X3B,HR,BB) |>
+  mutate(PA=as.numeric(AB+BB))                           |>
+  mutate(X1B=as.numeric(H-HR-X3B-X2B))                   |>
+  transform(BB=as.numeric(BB))                           |>
+  transform(X2B=as.numeric(X2B))                         |>
+  transform(X3B=as.numeric(X3B))                         |>
+  transform(HR=as.numeric(HR))                           |>
   
-  filter(yearID>1900, PA>MinPA) %>%
+  filter(yearID>1900, PA>MinPA)                          |>
   select(playerID,yearID,teamID,lgID,PA,BB,X1B,X2B,X3B,HR)
 
 kbl (head(batting), 
@@ -176,15 +176,15 @@ tmp<-capture.output(rsvg_png(
 
 inputs <- c("PA")
 outputs <- c("BB", "X1B", "X2B", "X3B", "HR")
-batting1920AL <- batting %>% 
+batting1920AL <- batting   |> 
   filter(yearID==1920, lgID=="AL")
 
-x <- batting1920AL %>% select( PA)
+x <- batting1920AL |> select( PA)
 row.names(x)<-batting1920AL[,1]
 kbl (head (x), booktabs=T,
         caption="Inputs for the 1920AL")
 
-y <- batting1920AL %>% select(BB, X1B, X2B, X3B, HR)
+y <- batting1920AL |> select(BB, X1B, X2B, X3B, HR)
 row.names(y)<-batting1920AL[,1]
 kbl (head (y), booktabs=T,
      caption="Outputs for the 1920AL")

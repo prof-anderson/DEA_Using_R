@@ -482,7 +482,7 @@ res2_1 <- solve_model(mod2_1, with_ROI(solver = "glpk"))
 
 The piping command can make it much more concise to not need to keep reassigning things to the model with each command. A few things to keep in mind with piping:
 
--   Piping was first implemented in R by way of packages such as `magrittr` and became so popular that a piping operator, `|>`, was added to the base system of `R` in version 4.1.0 (mid 2021). This means that you will get an error message if you try to use `\>` operator on earlier versions of R. You can upgrade the version of R, unpipe the commands, or use `magrittr` and the older `%>%` pipe operator.
+-   Piping was first implemented in R by way of packages such as `magrittr` and became so popular that a piping operator, `|>`, was added to the base system of `R` in version 4.1.0 (mid 2021). This means that you will get an error message if you try to use `|>` operator on earlier versions of R. You can upgrade the version of R, unpipe the commands, or use `magrittr` and the older `%>%` pipe operator.
 -   The pipe command is like glue connecting two commands together. This highlights that you don't want to end with another pipe that expects a different object.  The last `add_constraint` command does **not** have a pipe.  
 -   The solving is based on passing in the model, `mod2_1` directly but could have been piped.
 -   Piped models are shorter making them easier to write and express.

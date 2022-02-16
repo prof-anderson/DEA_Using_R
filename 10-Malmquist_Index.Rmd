@@ -292,42 +292,41 @@ MinPA <- 400  # Minimum number of plate appearances
      # Might cause issues for shortened seasons
      # batting <- dplyr::filter(batting,PA>MinPA)
 
-batting <- batting %>% 
-  select(playerID,yearID,teamID,lgID,AB,H,X2B,X3B,HR,BB) %>%
-  mutate(PA=as.numeric(AB+BB)) %>%
-  mutate(X1B=as.numeric(H-HR-X3B-X2B)) %>%
-  transform(BB=as.numeric(BB)) %>%
-  transform(X2B=as.numeric(X2B)) %>%
-  transform(X3B=as.numeric(X3B)) %>%
-  transform(HR=as.numeric(HR)) %>%
-  
-  filter(yearID>1900, PA>MinPA) %>%
+batting <- batting                                        |>
+  select(playerID,yearID,teamID,lgID,AB,H,X2B,X3B,HR,BB)  |>
+  mutate(PA=as.numeric(AB+BB))                            |>
+  mutate(X1B=as.numeric(H-HR-X3B-X2B))                    |>
+  transform(BB=as.numeric(BB))                            |>
+  transform(X2B=as.numeric(X2B))                          |>
+  transform(X3B=as.numeric(X3B))                          |>
+  transform(HR=as.numeric(HR))                            |>
+  filter(yearID>1900, PA>MinPA)                           |>
   select(playerID,yearID,teamID,lgID,PA,BB,X1B,X2B,X3B,HR)
 
-kbl (head(batting), 
-        caption="Results of Preparing Data using dplyr", booktabs = T, digits = 4, align = 'c')
+kbl (head(batting), booktabs = T, digits = 4,
+     caption="Results of Preparing Data using dplyr")
 ```
 
 ```{r preparing-BB-IO-1919-data}
 
 inputs <- c("PA")
 outputs <- c("BB", "X1B", "X2B", "X3B", "HR")
-batting1919AL <- batting %>% filter(yearID==1919, lgID=="AL")
+batting1919AL <- batting  |> filter(yearID==1919, lgID=="AL")
 
-x19 <- batting1919AL %>% select(PA)
+x19 <- batting1919AL |> select(PA)
 row.names(x19)<-batting1919AL[,1]
 
-y19 <- batting1919AL %>% select(BB, X1B, X2B, X3B, HR)
+y19 <- batting1919AL |> select(BB, X1B, X2B, X3B, HR)
 row.names(y19)<-batting1919AL[,1]
 
-t19 <- batting1919AL %>% select(yearID)
+t19 <- batting1919AL |> select(yearID)
 row.names(t19)<-batting1919AL[,1]
 
 kbl (head (cbind(x19,y19)), 
         caption="Data for the 1919AL", booktab= T, digits = 4, align='c')
 
 #Data for DJL's Malmquist function
-# batting1919_20AL <- batting %>% filter((yearID>1918) 
+# batting1919_20AL <- batting |> filter((yearID>1918) 
 #                      & (yearID<1921), lgID=="AL")
 
 ```
