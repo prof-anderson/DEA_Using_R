@@ -667,7 +667,9 @@ ggplot (subset (teampayroll2,  lgID=="AL"),
 #                              resMLB$eff))
 
 kbl(head(subset (teampayroll2, yearID==1991 & lgID=="AL")), 
-    booktabs=T, caption="Sample of 1991 AL Team Payrolls")
+    booktabs=T, digits=2, 
+    caption="Sample of 1991 AL Team Payrolls") |>
+  kable_styling (latex_options = c("hold_position", "scale_down"))
 ```
 
 ```{r}
@@ -856,11 +858,15 @@ teampayroll3 <- teampayroll3[-1,]
 #pander(poscol(cbind(resMLB$eff,resMLB$lambda)), 
 #      caption="BCC Efficiency and Lambda Values of AL Teams")
 
-kbl (head(teampayroll3), booktabs=T)
+kbl (head(teampayroll3), booktabs=T, 
+     caption="Team Information") |>
+  kable_styling (latex_options = c("hold_position", "scale_down"))
+                 
 kbl (head(cbind(teampayroll2$Efficiency, 
                   teampayroll3$Efficiency)), booktabs=T, 
        caption=
-         "Sample of BCC-Efficiency vs. Allocative Efficiency")
+         "Sample of BCC-Efficiency vs. Allocative Efficiency") |>
+  kable_styling (latex_options = c("hold_position"))
 ```
 
 ### Future Research Opportunities on Team Management
