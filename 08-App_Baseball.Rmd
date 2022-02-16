@@ -66,8 +66,8 @@ Now we need to work on getting the data for different players.
 
 ```{r display-batting-data}
 library(kableExtra)
-kbl (head(Lahman::Batting), 
-       caption="Sample of Lahman Baseball Data", booktabs = T)
+kbl (head(Lahman::Batting), booktabs = T,
+       caption="Sample of Lahman Baseball Data")
 ```
 
 What does this all mean? The first column, `playerID`, is a uniquely coded ID for each player consisting of the first six letters of the last name, first two letters of the first name, and which instance of that eight letter combination the player is. For example, row 5 is `ansonca01,` which corresponds to the Hall of Famer, Cap Anson. Each row gives the statistics for a year that he had with a particular team. If the player plays for multiple teams in a year, they will have multiple rows. Also, if their career lasts more than one year, they will have more than one row.
@@ -86,16 +86,16 @@ Let's start by subsetting the data in terms of including only the columns that w
 batting<-Lahman::Batting
 batting <- dplyr::select(batting, playerID, yearID,
                          teamID, lgID, AB, H, X2B, X3B, HR, BB)
-kbl (head(batting), 
-       caption="Batting Data Used for Analysis", booktabs = T)
+kbl (head(batting), booktabs = T, 
+       caption="Batting Data Used for Analysis")
 ```
 
 Through the 2015 season, this dataset has 101,332 rows or player seasons. The game of baseball went through a lot of change in teams, rules, and other development and so it may be more useful to focus our attention on the after 1900. We've got plenty of data, let's filter the rows to only to only include years after 1900.
 
 ```{r filtering-data}
 batting<-dplyr::filter(batting,yearID>1900)
-kbl (head(batting), 
-       caption="Batting Statistics for Players after 1900", booktabs = T)
+kbl (head(batting), booktabs = T, 
+       caption="Batting Statistics for Players after 1900")
 ```
 
 As we discussed earlier, At-Bats (AB) is good but let's convert that to plate appearances, `PA`. Also, let's get the number of singles.
@@ -103,8 +103,8 @@ As we discussed earlier, At-Bats (AB) is good but let's convert that to plate ap
 ```{r converting-data}
 batting<-dplyr::mutate(batting,X1B=H-HR-X3B-X2B)
 batting<-dplyr::mutate(batting,PA=AB+BB)
-kbl (head(batting), 
-       caption="Calculate Singles and Plate Appearances", booktabs = T)
+kbl (head(batting), booktabs = T, 
+       caption="Calculate Singles and Plate Appearances")
 ```
 
 Lastly, now that we feel confident that our data transformation for calculating singles and plate appearances work, let's drop the old columns for hits and at-bats as well as reordering them.
@@ -112,15 +112,15 @@ Lastly, now that we feel confident that our data transformation for calculating 
 ```{r selecting-columns}
 batting <- dplyr::select(batting, playerID, yearID, teamID, 
                          lgID, PA, BB, X1B, X2B, X3B, HR)
-kbl (head(batting), 
-       caption="Batting Statistics Converted into Inputs and Outputs", booktabs = T)
+kbl (head(batting), booktabs = T, 
+       caption="Batting Statistics Converted into Inputs and Outputs")
 
 ```
 
 ```{r selecting-fulltime-players}
 MinPA <- 400
 batting <- dplyr::filter(batting,PA>MinPA)
-kbl (head(batting), caption="Limit to Full-time Players", booktabs = T)
+kbl (head(batting), booktabs = T, caption="Limit to Full-time Players")
 ```
 
 Now we will trim out players to only include those that have more than '$MinPA$' plate appearances to limit the impact of part-time players or platooning players.
@@ -143,8 +143,8 @@ batting <- batting                                       |>
   filter(yearID>1900, PA>MinPA)                          |>
   select(playerID,yearID,teamID,lgID,PA,BB,X1B,X2B,X3B,HR)
 
-kbl (head(batting), 
-        caption="Results of Preparing Data using dplyr", booktabs = T)
+kbl (head(batting), booktabs = T,
+     caption="Results of Preparing Data using dplyr")
 ```
 
 Now that we have data prepared along with the tools for further manipulation, we are ready to proceed onto the analysis.
@@ -227,7 +227,6 @@ res1920ALmult<-DeaMultiplierModel(x, y, rts = "crs",
 
 kbl(head (res1920ALmult$Efficiency), booktabs=T,
        caption="DEA Output Weights")
-
 ```
 
 Notice that the scores are up to 1.0 rather than 1.0 and higher as in the TFDEA package. This is because the TFDEA package reports efficiency as $\phi$ whereas the `DEAMultiplier` package reports $\frac{1}{\phi}$. The results are consistent and reciprocals. The value of $\phi$ is consistent with the formulation of the output-oriented model. The value of $\frac{1}{\phi}$ has the same interpretation $\theta$ where a value less than 1.0 indicates inefficiency. In fact, for the case of constant returns to scale (CRS), the orientation does not make a difference in the value of inefficiency found, in other words, $\theta=\frac{1}{\phi}$ For the sake of this discussion, we will interpret the results as $\frac{1}{\phi}$.
@@ -325,7 +324,7 @@ hist(res1920ALmult$Efficiency, xlim=c(0.6,1.0),
      main="Impact of Weight Restrictions on Batter Efficiency",
      xlab="Efficiency")
 hist(res1920ALmultWR$Efficiency,
-     add=T,col=scales::alpha('blue',.5),border=F,
+     add=T,col=scales::alpha('blue',.5), border=F,
      breaks=seq(0.6,1.0,by=binwidth) )
 
 ```
