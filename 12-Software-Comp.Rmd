@@ -2,7 +2,11 @@
 output:
   pdf_document: default
   html_document: default
+editor_options: 
+  markdown: 
+    wrap: sentence
 ---
+
 ```{r, echo=FALSE, eval=FALSE}
 library(bookdown); library(rmarkdown); rmarkdown::render("12-Software-Comp.Rmd", "pdf_book")
 ```
