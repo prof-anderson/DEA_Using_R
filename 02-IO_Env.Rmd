@@ -9,7 +9,7 @@ library(bookdown); library(rmarkdown); rmarkdown::render("02-IO_Env.Rmd", "pdf_b
 
 Data envelopment analysis or DEA is a powerful tool for conducting studies of efficiency and has been used in thousands of publications since its inception in the 1970s.
 
-While tools exist for conducting the evaluations, it is important to understand how the tools work. Many DEA studies have been conducted and published by authors with only a superficial understanding of the technique. This is equivalent to having a house built by carpenters that only (barely?) understand how to use a hammer. The purpose of this document is to show how DEA works, what it means, and how to use R for getting started with DEA. In order to keep things simple, this first step only looks at the input-oriented envelopment model with constant returns to scale. We will consider other models soon.
+While tools exist for conducting the evaluations, it is important to understand how the tools work. Many DEA studies have been conducted and published by authors with only a superficial understanding of the technique. This is equivalent to having a house built by carpenters who barely understand how to use a hammer. The purpose of this document is to explain what DEA means, demonstrate how it works, and how to use R for getting started with DEA. In order to keep things simple, the first step only looks at the input-oriented envelopment model with constant returns to scale. We will consider other models soon.
 
 This chapter walks through how DEA works and then shows how to implement the model in R using two very different approaches. Over the years, I have built DEA models in many languages and platforms: Pascal, LINDO, LINGO, Excel Macros, Excel VBA, GAMS, AMPL, XPress-MOSEL, and GLPK among others.
 
