@@ -88,4 +88,4 @@ Lastly, I would like to thank my family, Carrie, Trent, and Paige.  Their patien
 
 
 > Tim Anderson
-> `r tufte::quote_footer(Sys.Date())`
+> `r Sys.Date()`

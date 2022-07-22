@@ -39,8 +39,6 @@ achieving outcomes (outputs.) At the end of the year, you want to make a
 case for having done well.
 
 ```{r multiplier-rest-Y-data }
-
-library(pander)           # For making nice tables
 library(kableExtra)
 
  YRest1 <- matrix(c(25, 14, 42, 18, 19, 14, 3500, 2100, 1050, 

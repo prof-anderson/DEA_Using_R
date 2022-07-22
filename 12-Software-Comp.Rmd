@@ -199,22 +199,13 @@ res_nonparaeff <- nonparaeff::dea(base = nonparaeff_data,
 kbl (res_nonparaeff$eff, booktabs = T, digits = 4,
      caption="Efficiency Scores from nonparaeff")
 
-res_lambda_nonparaeff<- (t(rbind(res_nonparaeff$lambda1,
-             res_nonparaeff$lambda2,
-             res_nonparaeff$lambda3,
-             res_nonparaeff$lambda4,
-             res_nonparaeff$lambda5,
-             res_nonparaeff$lambda6,
-             res_nonparaeff$lambda7,
-             res_nonparaeff$lambda8,
-             res_nonparaeff$lambda9,
-             res_nonparaeff$lambda10,
-             res_nonparaeff$lambda11,
-             res_nonparaeff$lambda12)))
+res_lambda_nonparaeff<- res_nonparaeff[,1:13]
 
 kbl (cbind(res_nonparaeff$eff,poscol(res_lambda_nonparaeff)),
      booktabs = T, digits = 4,
-     caption="Results from the Benchmarking package")
+     caption="Results from the Benchmarking package") |>
+  kable_styling(latex_options = 
+                  c("hold_position", "scale_down"))
 ```
 
 Some items to note about nonparaeff.
