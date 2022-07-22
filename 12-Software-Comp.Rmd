@@ -208,7 +208,7 @@ kbl (cbind(res_nonparaeff$eff,poscol(res_lambda_nonparaeff)),
                   c("hold_position", "scale_down"))
 ```
 
-Some items to note about nonparaeff.
+Some items to note about `nonparaeff` .
 
 -   The input and outputs are passed together with outputs first, then inputs and the number of outputs specified.
 -   The $\lambda$ variables are returned separately for each DMU.

@@ -97,7 +97,7 @@ Let's see what the function does.
 
 ```{r nameexample}
 NX <- 2; NY <- 3; ND <- 4
-modelnames <-DEAnames(2,2,4)
+modelnames <-TRA::DEAnames(2,2,4)
 modelnames
 ```
 
@@ -111,11 +111,11 @@ y <- matrix(c(75,100,300,400,90,110,320,430), ncol=2)
 ```{r}
 t1 <- cbind (x,y)
 t2 <- cbind (x,y)
-rownames(t2) <- modelnames$DMUnames[[1]]
-colnames(t2) <- c(modelnames$Xnames[[1]], modelnames$Ynames[[1]])
+rownames(t2) <- modelnames$DMUnames
+colnames(t2) <- c(modelnames$Xnames, modelnames$Ynames)
 t3 <- cbind (x,y)
-rownames(t3) <- modelnames$DMUnames[[1]]
-colnames(t3) <- c(modelnames$XnamesLX[[1]], modelnames$YnamesLX[[1]])
+rownames(t3) <- modelnames$DMUnames
+colnames(t3) <- c(modelnames$XnamesLX, modelnames$YnamesLX)
 ```
 
 ```{r}

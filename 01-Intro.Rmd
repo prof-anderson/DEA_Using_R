@@ -4,7 +4,7 @@
 
 ## Why Benchmark?
 
-As industries become ever more global and more competitive, it is critical to do things in the best way possible. Even organizations that have been successful for decades need to keep their competitive edge and avoid getting complacent. Furthermore This results in a search for best practices. What was a best practice ten years ago, may no longer be best practice. 
+As industries become ever more global and more competitive, it is critical to do things in the best way possible. Even organizations that have been successful for decades need to keep their competitive edge and avoid getting complacent. Furthermore This results in a search for best practices. What was a best practice ten years ago, may no longer be best practice.
 
 ## Purpose of this Book
 
@@ -18,9 +18,9 @@ People familiar with optimization or taking an operations research course should
 
 While all R code used in this book runs, it is written from the perspective of demonstration and documentation. DEA problems are generally not very computationally demanding unless thousands or tens of thousands of units are being analyzed so computational efficiency is not emphasized.
 
-This book is intended to be a living resource and updated. It was originally developed to support the Extreme Technology Analytics Research Group at Portland State University. For more information on this research group, visit [www.tfdea.com](www.tfdea.com) or contact me at [tim.anderson\@pdx.edu](mailto:tim.anderson@pdx.edu){.email}.
+This book is intended to be a living resource and updated. It was originally developed to support the Extreme Technology Analytics Research Group at Portland State University. For more information on this research group, visit [www.tfdea.com](https://www.tfdea.com) or contact me at [tim.anderson\@pdx.edu](mailto:tim.anderson@pdx.edu){.email}.
 
-It builds upon materials developed in *Optimization Modeling Using R*. Readers not familiar with the basics of R, optimization, and mathematical notation may find that book to be a helpful reference.  In particular, it includes several helpful appendices covering mathematical notation use and notation in LaTeX, troubleshooting math modeling in R, and table building practices used in both books.  
+It builds upon materials developed in *Optimization Modeling Using R*. Readers not familiar with the basics of R, optimization, and mathematical notation may find that book to be a helpful reference. In particular, it includes several helpful appendices covering mathematical notation use and notation in LaTeX, troubleshooting math modeling in R, and table building practices used in both books.
 
 ## Resources
 
@@ -44,4 +44,3 @@ I've adopted the following conventions \index{Conventions} in this book.
 -   There may be more efficient ways of performing operations but the focus is on readability rather than computational efficiency.
 -   When formatting piping \index{Piping} operators such as `|>`, an intent is made to line them up for readability.
 -   Linear programming variables in R have a `v` prefix to differentiate them from other R objects. For example, a mathematical variable $\lambda$ may be implemented in the linear programming routine as `vlambda`. This is done to avoid name conflicts between the larger R environment and `ompr`.
-
