@@ -45,7 +45,7 @@ As the manager responsible for the stores in the region, there are many question
 -   Which stores might be employing best practices that could be adopted by other stores?
 -   Among the stores that are lagging in performance, are there particular stores they should focus attention on for learning best practices?
 
-We'll start by drawing a visual representation of the input-output model. The function `DrawIOdiagram` is from the `TRA` package and allows for creating a nicely formatted input-output diagram.  For those that are new to `R`, it is important to load each package before its use using the `library` command. The library command loads it into memory but the package must be installed first.  Most packages are available on CRAN and can be installed from CRAN by using install.packages command. RStudio makes it easier by just clicking on the install button in the IDE.  The `TRA` package -- INCOMPLETE
+We'll start by drawing a visual representation of the input-output model. The function `DrawIOdiagram` is from the `TRA` package and allows for creating a nicely formatted input-output diagram.  For those that are new to `R`, it is important to load each package before its use using the `library` command. The library command loads it into memory but the package must be installed first.  Most packages are available on CRAN and can be installed from CRAN by using install.packages command. RStudio makes it easier by just clicking on the install button in the IDE.  The `TRA` package is instead just available on github.  To install it, you will need a package, `remotes`, which can then be used to install a package directly from github.
 \vspace{12pt}
 
 
