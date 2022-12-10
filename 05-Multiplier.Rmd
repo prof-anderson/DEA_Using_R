@@ -39,15 +39,17 @@ achieving outcomes (outputs.) At the end of the year, you want to make a
 case for having done well.
 
 ```{r multiplier-rest-Y-data }
-library(kableExtra)
-
- YRest1 <- matrix(c(25, 14, 42, 18, 19, 14, 3500, 2100, 1050, 
-                    4200, 2500, 1500), ncol=2,
-                  dimnames=list(c("Alfred", "Barb","Chris", 
-                                  "Don", "Ed","Fran"),
-                                c("y1", "y2")))
+YRest1 <- matrix(c(25, 14, 42, 18, 19, 14, 3500, 2100, 1050,
+                   4200, 2500, 1500), ncol=2,
+                 dimnames=list(c("Alfred", "Barb","Chris", 
+                                 "Don", "Ed","Fran"),
+                               c("y1", "y2")))
 
 ND <- nrow(YRest1); NY <- ncol(YRest1) # Define data size
+```
+
+```{r, include=FALSE}
+library(kableExtra)
 ```
 
 ```{r, echo=TRUE}
@@ -87,7 +89,7 @@ $$
 $$
 
 Next let's implement this in `ompr` which may serve as a convenient
-refresher as well.
+refresher as well. As usual, we will load the needed packages.
 
 ```{r, message=FALSE}
 library(ROI, quietly=TRUE)              
@@ -98,16 +100,16 @@ library(ompr.roi, quietly=TRUE)
 
 ```{r}
 
-result <- MIPModel () |>
+result <- MIPModel ()                        |>
   add_variable (u1, type="continuous", lb=0) |>
   add_variable (u2, type="continuous", lb=0) |>
-  set_objective (25*u1+3500*u2, "max") |>
-  add_constraint (25*u1+3500*u2 <= 1.0) |>
-  add_constraint (14*u1+2100*u2 <= 1.0) |>
-  add_constraint (42*u1+1050*u2 <= 1.0) |>
-  add_constraint (28*u1+4200*u2 <= 1.0) |>
-  add_constraint (19*u1+2500*u2 <= 1.0) |>
-  add_constraint (14*u1+1500*u2 <= 1.0) |>
+  set_objective (25*u1+3500*u2, "max")       |>
+  add_constraint (25*u1+3500*u2 <= 1.0)      |>
+  add_constraint (14*u1+2100*u2 <= 1.0)      |>
+  add_constraint (42*u1+1050*u2 <= 1.0)      |>
+  add_constraint (28*u1+4200*u2 <= 1.0)      |>
+  add_constraint (19*u1+2500*u2 <= 1.0)      |>
+  add_constraint (14*u1+1500*u2 <= 1.0)      |>
   solve_model(with_ROI(solver = "glpk"))
 
 u1_result <- get_solution(result, u1) 
@@ -119,8 +121,8 @@ names(alfred_score)<-""
 ```{r, echo=FALSE}
 kbl (cbind(alfred_score, u1_result, u2_result), 
      escape=F, booktabs = T,
-     col.names = c("Score", "$u_1$", "u_2"),
-     caption="Alfred's Score and Results")|>
+     col.names = c("Score", "$u_1$", "$u_2$"),
+     caption="Alfred's Score and Results")    |>
   kable_styling(latex_options = "hold_position")
 ```
 
@@ -128,16 +130,16 @@ We could repeat the process for each person, by simply changing the
 objective function.
 
 ```{r}
-result <- MIPModel () |>
+result <- MIPModel ()                        |>
   add_variable (u1, type="continuous", lb=0) |>
   add_variable (u2, type="continuous", lb=0) |>
-  set_objective (14*u1+2100*u2, "max") |>
-  add_constraint (25*u1+3500*u2 <= 1.0) |>
-  add_constraint (14*u1+2100*u2 <= 1.0) |>
-  add_constraint (42*u1+1050*u2 <= 1.0) |>
-  add_constraint (28*u1+4200*u2 <= 1.0) |>
-  add_constraint (19*u1+2500*u2 <= 1.0) |>
-  add_constraint (14*u1+1500*u2 <= 1.0) |>
+  set_objective (14*u1+2100*u2, "max")       |>
+  add_constraint (25*u1+3500*u2 <= 1.0)      |>
+  add_constraint (14*u1+2100*u2 <= 1.0)      |>
+  add_constraint (42*u1+1050*u2 <= 1.0)      |>
+  add_constraint (28*u1+4200*u2 <= 1.0)      |>
+  add_constraint (19*u1+2500*u2 <= 1.0)      |>
+  add_constraint (14*u1+1500*u2 <= 1.0)      |>
   solve_model(with_ROI(solver = "glpk"))
 
 u1_result <- get_solution(result, u1) 
@@ -149,7 +151,7 @@ names(barb_score)<-""
 ```{r, echo=FALSE}
 kbl (cbind(barb_score, u1_result, u2_result), 
      escape=F, booktabs = T, digits = 5,
-     col.names = c("Score", "$u_1$", "u_2"),
+     col.names = c("Score", "$u_1$", "$u_2$"),
      caption="Barb's Score and Results")|>
   kable_styling(latex_options = "hold_position")
 ```
@@ -178,7 +180,7 @@ names(chris_score)<-""
 ```{r, echo=FALSE}
 kbl (cbind(chris_score, u1_result, u2_result), 
      escape=F, booktabs = T, digits=5,
-     col.names = c("Score", "$u_1$", "u_2"),
+     col.names = c("Score", "$u_1$", "$u_2$"),
      caption="Chris's Score and Results")|>
   kable_styling(latex_options = "hold_position")
 ```
