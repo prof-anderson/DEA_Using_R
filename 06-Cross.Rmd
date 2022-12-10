@@ -31,10 +31,10 @@ The multiplier model can be thought of as finding a weighting scheme for outputs
 $$
 \begin{split}
  \begin{aligned}
-    \text {max } \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
-    \text{s.t.:  } & \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} }
+    \text {max } & \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
+    \text{s.t.:  } & \frac{\sum_{r=1}^{N^Y} u_r y_{r,j}} {\sum_{i=1}^{N^X} v_i x_{i,j} }
                           \leq 1 \forall \; j\\
-                       u_r, v_i\geq 0  \; \forall \; r,i
+                  & u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
 \end{split}
 (\#eq:Ch6LPCCRIOM-Ratio-1a)
@@ -45,10 +45,10 @@ This isn't a linear program because we are dividing functions of variables by fu
 $$
 \begin{split}
  \begin{aligned}
-    \text {max } \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
-    \text{s.t.:  } & \sum_{r=1}^{N^Y} u_r y_{r,k} - \sum_{i=1}^{N^X} v_i x_{i,k} 
-                          \leq 0 \forall \; j\\
-                       u_r, v_i\geq 0  \; \forall \; r,i
+    \text {max } & \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
+    \text{s.t.:  } & \sum_{r=1}^{N^Y} u_r y_{r,j} - \sum_{i=1}^{N^X} v_i x_{i,j} 
+                          \leq 0 \; \forall \; j\\
+                   & u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
 \end{split}
 (\#eq:Ch6LPCCRIOM-Ratio-2a)
@@ -61,11 +61,11 @@ There are an infinite number of possible combinations of numerators and denomina
 $$
 \begin{split}
  \begin{aligned}
-    \text {max }  \sum_{r=1}^{N^Y} u_r y_{r,k} \\
+    \text {max } & \sum_{r=1}^{N^Y} u_r y_{r,k} \\
     \text{s.t.:  } & \sum_{i=1}^{N^X} v_i x_{i,k} \\
-    & \sum_{r=1}^{N^Y} u_r y_{r,k} - \sum_{i=1}^{N^X} v_i x_{i,k} 
-                          \leq 0 \forall \; j\\
-                       u_r, v_i\geq 0  \; \forall \; r,i
+    & \sum_{r=1}^{N^Y} u_r y_{r,j} - \sum_{i=1}^{N^X} v_i x_{i,j} 
+                          \leq 0 \; \forall \; j\\
+                  &  u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
 \end{split}
 (\#eq:Ch6LPCCRIOM-NoSlack)  
@@ -77,14 +77,29 @@ We will implement this using the `ompr` package again.
 
 We're going to use our data from earlier. For this example, we will use the dataset from Kenneth Baker's third edition of *Optimization Modeling with Spreadsheets*, pages 175-178, Example 5.3 titled "Hope Valley Health Care Association." In this case, a health care organization wants to benchmark six nursing homes against each other.
 
+```{r, eval=FALSE}
+library(kableExtra)           
+library(dplyr)            
+library(ROI)         
+library(ROI.plugin.glpk)  
+library(ompr)             
+library(ompr.roi) 
+```
+
+```{r, echo=FALSE}
+# This code chunk loads the above listed packages without
+#     disruptive warnings and messages.
+suppressPackageStartupMessages(library(kableExtra))           
+suppressPackageStartupMessages(library(dplyr)) 
+suppressPackageStartupMessages(library(ROI))
+suppressPackageStartupMessages(library(ROI.plugin.glpk))
+suppressPackageStartupMessages(library(ompr))
+suppressPackageStartupMessages(library(ompr.roi))
+```
+
 ```{r multiplier-model }
 
-library(kableExtra, quietly=TRUE)           
-library(dplyr, quietly=TRUE)            
-library(ROI, quietly=TRUE)              
-library(ROI.plugin.glpk, quietly=TRUE)  
-library(ompr, quietly=TRUE)             
-library(ompr.roi, quietly=TRUE)         
+        
 
 XBaker1 <- matrix(c(150, 400, 320, 520, 350, 320, 
                       0.2, 0.7, 1.2, 2.0, 1.2, 0.7),
@@ -132,14 +147,11 @@ results.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX)
 results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
 ```
 
-We are now ready to do the analysis. In Baker, the analysis was done using the multiplier model. In chapter 2 we used the envelopment model to examine this case. Now we will use the multiplier model using the DEAMultiplerModel package by Aurobindh Kalathil Puthanpura.
+We are now ready to do the analysis. In Baker, the analysis was done using the multiplier model. In chapter 2 we used the envelopment model to examine this case. Now we will use the multiplier model using the `DEAMultiplerModel` package by Aurobindh Kalathil Puthanpura.
 
 ```{r}
 library (MultiplierDEA)
-library (kableExtra)
-
-# Example from Kenneth R. Baker,
-#      Optimization Modeling with Spreadsheets, 
+# Example from Kenneth R. Baker, Optimization Modeling with Spreadsheets, 
 #    Third Edition, p. 176, John Wiley & Sons, Inc.
 dmu <- c("A", "B", "C", "D", "E", "F")
 x <- data.frame(c(150,400,320,520,350,320),
@@ -194,7 +206,6 @@ Let's revisit the Baker model again.
 
 multiplierIO <- function (x,y) 
   { 
-
   ND <- nrow(x); NX <- ncol(y); NY <- ncol(y); # Define data size
   
   results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
@@ -260,10 +271,10 @@ You can think of the cross-efficiency by going back to revisit the original rati
 $$
 \begin{split}
 \begin{aligned}
-    \text {max } \; \theta_{k,k}=\frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,k}} {\sum_{i=1}^{N^X} v_i,k x_{i,k} } \\
+    \text {max } & \theta_{k,k}=\frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,k}} {\sum_{i=1}^{N^X} v_i,k x_{i,k} } \\
     \text{s.t.:  } & \theta_{j,k}=\frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,j}} {\sum_{i=1}^{N^X} v_{i,k} x_{i,j} }
                           \leq 1 \; \forall \; j\\
-                       u_{r,k}, v_{i,k}\geq 0  \; \forall \; r,i
+            & u_{r,k}, v_{i,k}\geq 0  \; \forall \; r,i
   \end{aligned}
 \end{split}
 (\#eq:Ch6LPCCRIO-Cross1)
@@ -469,11 +480,11 @@ kbl (cbind(XTT03, YTT03), booktabs = T,
         caption = "Input-Output Data for Takamura and Tone, 2003")
 ```
 
-Comments about cross-efficiency functions from DEAmultiplier package.
+Comments about cross-efficiency functions from `DEAmultiplier` package.
 
 -   Mal_and_Ben is not defined as a function.
--   CrossEfficiency function should allow secondary objective function choice of "Malevolent" or "Benevolent"
--   Results from CrossEfficiency do not Takamura and Tone.\
+-   `CrossEfficiency` function should allow secondary objective function choice of "Malevolent" or "Benevolent"
+-   Results from `CrossEfficiency` do not match Takamura and Tone.
 -   Naming convention from results of analysis. Would be good if column names follow convention like my "helper file"-For example lambdas could use L\_ as a prefix.
 -   data validation. Ex. allow "Ben", "ben" "benevolent", "Benevolent". Also, RTS could do "CRS" or "crs"
 

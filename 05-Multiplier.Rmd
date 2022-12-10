@@ -282,7 +282,7 @@ $$
 \begin{split}
 \begin{aligned}
     \text {max } & \frac{\sum_{r=1}^{2} u_r y_{r,k}} {\sum_{i=1}^{2} v_i x_{i,k} } \\
-    \text{s.t.:   } & \frac{\sum_{r=1}^{2} u_r y_{r,k}} {\sum_{i=1}^{2} v_i x_{i,k} }
+    \text{s.t.:   } & \frac{\sum_{r=1}^{2} u_r y_{r,j}} {\sum_{i=1}^{2} v_i x_{i,j} }
                           \leq 1 \; \forall \; j\\
                     & u_r, v_i\geq 0  \; \forall \; r,\; i
   \end{aligned}
