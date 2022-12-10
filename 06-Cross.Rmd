@@ -8,39 +8,23 @@ output:
 library(bookdown); library(rmarkdown); rmarkdown::render("06-Cross.Rmd", "pdf_book")
 ```
 
-
 # Cross-Efficiency-DRAFT
 
 ## Introduction
 
 ## The Ratio Model
 
-Put yourself as a competitor trying to argue that you are the best in converting inputs into outputs among a set of other units.
-You have data on what the competitors' inputs and outputs.
-You can
+Put yourself as a competitor trying to argue that you are the best in converting inputs into outputs among a set of other units. You have data on what the competitors' inputs and outputs. You can
 
 ## The Linear Programs for DEA
 
-On the other hand, what if it allowed for blending of units.
-There are a few assumptions that we could make.
-Let's start by saying that we can compare any particular products by rescaling (up or down) any other product as well as any combination of units.
+On the other hand, what if it allowed for blending of units. There are a few assumptions that we could make. Let's start by saying that we can compare any particular products by rescaling (up or down) any other product as well as any combination of units.
 
-We'll start by creating a mathematical framework.
-Can you find a combination of units that produces at least as much output using less input?
-Let's define the proportion of input needed as $\theta$.
-A value of $\theta=1$ then means no input reduction can be found in order to produce that unit's level of output.
-The blend of other units is described by a vector $\lambda$.
-Another way to denote this is $\lambda_j$ is the specific amount of a unit *j* used in setting the target for for performance for unit *k*.
-Similarly, $x_j$ is the amount of input used by unit *j* and $y_j$ is the amount of output produced by unit *j*.
+We'll start by creating a mathematical framework. Can you find a combination of units that produces at least as much output using less input? Let's define the proportion of input needed as $\theta$. A value of $\theta=1$ then means no input reduction can be found in order to produce that unit's level of output. The blend of other units is described by a vector $\lambda$. Another way to denote this is $\lambda_j$ is the specific amount of a unit *j* used in setting the target for for performance for unit *k*. Similarly, $x_j$ is the amount of input used by unit *j* and $y_j$ is the amount of output produced by unit *j*.
 
-This can be easily expanded to the multiple input and multiple output case by defining $x_i,j$ to be the amount of the *i*'th input used by unit *j* and $y_r,j$ to be the amount of the *r*'th output produced by unit *j*.
-For simplicity, this example will focus on the one input and one output case rather than the *m* input and *s* output case but the R code explicitly allows for $m,s>1$.
-To make the code more readable, I will use which corresponds to *NX* instead of *m* to refer to the number of inputs (x's) and *NY* to be the number of ouputs (y's) instead of *s*.
-Also, *n* is used to denote the number of Decision Making Units (DMUs) and therefore I'll use *ND* to indicate that in the R code.
+This can be easily expanded to the multiple input and multiple output case by defining $x_i,j$ to be the amount of the *i*'th input used by unit *j* and $y_r,j$ to be the amount of the *r*'th output produced by unit *j*. For simplicity, this example will focus on the one input and one output case rather than the *m* input and *s* output case but the R code explicitly allows for $m,s>1$. To make the code more readable, I will use which corresponds to *NX* instead of *m* to refer to the number of inputs (x's) and *NY* to be the number of outputs (y's) instead of *s*. Also, *n* is used to denote the number of Decision Making Units (DMUs) and therefore I'll use *ND* to indicate that in the R code.
 
-We have two important sets of variables now.
-The first is $u_r$ which is the weight on the *r*'th output.
-The second is $v_i$ which is the weight on the *i*'th input.
+We have two important sets of variables now. The first is $u_r$ which is the weight on the *r*'th output. The second is $v_i$ which is the weight on the *i*'th input.
 
 The multiplier model can be thought of as finding a weighting scheme for outputs over inputs that give you the best possible score while giving no one better than *1.0.*
 
@@ -56,9 +40,7 @@ $$
 (\#eq:Ch6LPCCRIOM-Ratio-1a)
 $$
 
-This isn't a linear program because we are dividing functions of variables by functions of variables.
-We need to make a few transformations.
-First, we clear the denominator of each of the constraints resulting in the following formulation.
+This isn't a linear program because we are dividing functions of variables by functions of variables. We need to make a few transformations. First, we clear the denominator of each of the constraints resulting in the following formulation.
 
 $$
 \begin{split}
@@ -74,10 +56,7 @@ $$
 
 Now we will convert the problem input and output constraints from inequalities into equalities by explicitly defining slack variables.
 
-There are an infinite number of possible combinations of numerators and denominators that can give the same ratio.
-The next step is to select normalizing value for the objective function.
-Let's set the denominator equal to one.
-In this case, we simply add a constraint, $\sum_{i=1}^{N^X} v_i x_{i,k}$, to the linear program.
+There are an infinite number of possible combinations of numerators and denominators that can give the same ratio. The next step is to select normalizing value for the objective function. Let's set the denominator equal to one. In this case, we simply add a constraint, $\sum_{i=1}^{N^X} v_i x_{i,k}$, to the linear program.
 
 $$
 \begin{split}
@@ -94,10 +73,9 @@ $$
 
 ## Creating the LP - The Algebraic Approach
 
-We will implement this using the ompr package again.
+We will implement this using the `ompr` package again.
 
-We're going to use our data from earlier.
-For this example, we will use the dataset from Kenneth Baker's third edition of *Optimization Modeling with Spreadsheets*, pages 175-178, Example 5.3 titled "Hope Valley Health Care Association." In this case, a health care organization wants to benchmark six nursing homes against each other.
+We're going to use our data from earlier. For this example, we will use the dataset from Kenneth Baker's third edition of *Optimization Modeling with Spreadsheets*, pages 175-178, Example 5.3 titled "Hope Valley Health Care Association." In this case, a health care organization wants to benchmark six nursing homes against each other.
 
 ```{r multiplier-model }
 
@@ -128,8 +106,7 @@ dim(ydata) <-c(ND,NY)
   
 ```
 
-Remember the inputs are hard coded as "x1" and"x2" to represent the *staff hours per day* and the *supplies per day* respectively.
-The two outputs of *reimbursed patient-days* and *privately paid patient-days* are named "y1" and "y2".
+Remember the inputs are hard coded as "x1" and"x2" to represent the *staff hours per day* and the *supplies per day* respectively. The two outputs of *reimbursed patient-days* and *privately paid patient-days* are named "y1" and "y2".
 
 ```{r}
 YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 
@@ -155,10 +132,7 @@ results.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX)
 results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
 ```
 
-We are now ready to do the analysis.
-In Baker, the analysis was done using the multiplier model.
-In chapter 2 we used the envelopment model to examine this case.
-Now we will use the multiplier model using the DEAMultiplerModel package by Aurobindh Kalathil Puthanpura.
+We are now ready to do the analysis. In Baker, the analysis was done using the multiplier model. In chapter 2 we used the envelopment model to examine this case. Now we will use the multiplier model using the DEAMultiplerModel package by Aurobindh Kalathil Puthanpura.
 
 ```{r}
 library (MultiplierDEA)
@@ -186,10 +160,7 @@ kbl (result$Efficiency, caption="CCR Efficiency Scores", booktabs = T, digits = 
 
 The efficiency scores match the earlier results and that of Baker.
 
-The package also includes a cross-efficiency calculation function so as to find the cross-efficiencies given the multiplier model.
-Cross-efficiency calculated in this way tends to suffer from frequent cases of multiple optima.
-Later in this chapter, we will explore how to handle these issues.
-For now, let's apply cross-efficiency to the same data set.
+The package also includes a cross-efficiency calculation function so as to find the cross-efficiencies given the multiplier model. Cross-efficiency calculated in this way tends to suffer from frequent cases of multiple optima. Later in this chapter, we will explore how to handle these issues. For now, let's apply cross-efficiency to the same data set.
 
 ```{r}
 # Example from Kenneth R. Baker: Optimization Modeling with Spreadsheets, 
@@ -213,10 +184,7 @@ kbl (result$ce_ave, align = "c", booktabs = T, digits = 4,
 
 ```
 
-As might be expected, the cross-efficiency values are all significantly lower than the original efficiency scores.
-In cross-efficiency, no nursing home is able to pick an extreme and unique weighting scheme to their advantage.
-It also tends to break the ties at 1.0 that frequently occur in DEA so it usually gives a unique ranking.
-These features come at a significant cost though which will be discussed in more detail in the future.
+As might be expected, the cross-efficiency values are all significantly lower than the original efficiency scores. In cross-efficiency, no nursing home is able to pick an extreme and unique weighting scheme to their advantage. It also tends to break the ties at 1.0 that frequently occur in DEA so it usually gives a unique ranking. These features come at a significant cost though which will be discussed in more detail in the future.
 
 ## Implementing Cross-Efficiency
 
@@ -287,9 +255,7 @@ kbl (cbind(resfunc$efficiency,resfunc$vweight,resfunc$uweight),
         caption="Efficiency Scores and Weights", booktabs = T)
 ```
 
-You can think of the cross-efficiency by going back to revisit the original ratio model of the multiplier model.
-Let's extend the definition of the input and output weights to reflect for which unit the weights were determined.
-For example, $u_{r,k}$ is then the weight on output *r* when analyzed from the perspective of DMU *k* and a similar interpretation applies to input weight.
+You can think of the cross-efficiency by going back to revisit the original ratio model of the multiplier model. Let's extend the definition of the input and output weights to reflect for which unit the weights were determined. For example, $u_{r,k}$ is then the weight on output *r* when analyzed from the perspective of DMU *k* and a similar interpretation applies to input weight.
 
 $$
 \begin{split}
@@ -303,8 +269,7 @@ $$
 (\#eq:Ch6LPCCRIO-Cross1)
 $$
 
-Now the cross-efficiency for a unit j can be calculated as the following.
-I refer to the value $\theta_{k,j}$ as the cross-evaluation score for unit *j* from the perspective of the evaluation of unit *k*.
+Now the cross-efficiency for a unit j can be calculated as the following. I refer to the value $\theta_{k,j}$ as the cross-evaluation score for unit *j* from the perspective of the evaluation of unit *k*.
 
 The cross-efficiency score for unit *j* is simply the average of all of the cross-evaluation scores given to *j* by the other units when they do their analysis.
 
@@ -388,8 +353,7 @@ kbl (rbind(rescross$crosseval,t(rescross$crosseff)), booktabs = T,
 
 ## Dealing with Cross-Efficiency's Multiple Optima
 
-As discussed in the chapter on the Multiplier model, DEA often has multiple optima, particularly for efficient DMUs.
-While this doesn't affect the efficiency scores, it can have a major impact on the cross-evaluation scores and therefore the cross-efficiency scores.
+As discussed in the chapter on the Multiplier model, DEA often has multiple optima, particularly for efficient DMUs. While this doesn't affect the efficiency scores, it can have a major impact on the cross-evaluation scores and therefore the cross-efficiency scores.
 
 To examine this issue, we need to invoke a secondary objective function again in the same manner as we did for the envelopment model.
 
@@ -466,9 +430,7 @@ multiplierIOSec <- function (x, y)
 
 ```
 
-Let's explore the impact of the secondary objective function.
-The `MultiplierDEA`package has a cross-efficiency function but the`Mal_Ben` is a specialized version of the cross-efficiency function that implements the secondary goal of either malevolently trying to minimize other people's scores or benevolently trying to maximize other people's scores.
-Let's compare these to this to the arbitrary cross-efficiency function which does neither.
+Let's explore the impact of the secondary objective function. The `MultiplierDEA`package has a cross-efficiency function but the`Mal_Ben` is a specialized version of the cross-efficiency function that implements the secondary goal of either malevolently trying to minimize other people's scores or benevolently trying to maximize other people's scores. Let's compare these to this to the arbitrary cross-efficiency function which does neither.
 
 ```{r}
 kbl (cbind(x,y),caption="Data Passed to function", booktabs = T)
@@ -490,8 +452,7 @@ kbl (rbind(resfunc$ce_ave, resfuncmal$ce_ave, resfuncben$ce_ave), booktabs = T )
 
 ```
 
-Next, let's review the implementation of multiple optima in Auro's multiplier model.
-To test it, we'll load data from Takamura and Tone's 2003 paper on sites for relocating the capital of Japan.
+Next, let's review the implementation of multiple optima in Auro's multiplier model. To test it, we'll load data from Takamura and Tone's 2003 paper on sites for relocating the capital of Japan.
 
 ```{r}
 

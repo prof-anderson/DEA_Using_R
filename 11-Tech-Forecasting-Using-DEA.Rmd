@@ -22,29 +22,19 @@ suppressPackageStartupMessages(library(TFDEA))
 
 ## Introduction
 
-In the previous chapter, we examined how organizations or decision making units change in performance over time.
-In this chapter, we will change gears and consider how we can use DEA and Malmquist Productivity Index like techniques to consider how the performance of products change over time.
+In the previous chapter, we examined how organizations or decision making units change in performance over time. In this chapter, we will change gears and consider how we can use DEA and Malmquist Productivity Index like techniques to consider how the performance of products change over time.
 
-We are looking at how new generations of products are developed over time in order to achieve better performance and/or lower cost.
-We are assuming that the product itself, once released, does not change in performance.
-It may have updates or degradation from being used but the initial specifications are considered unchanged.
+We are looking at how new generations of products are developed over time in order to achieve better performance and/or lower cost. We are assuming that the product itself, once released, does not change in performance. It may have updates or degradation from being used but the initial specifications are considered unchanged.
 
 ## History
 
-In 2001, a National Science Foundation workshop on engineering applications of DEA invited DEA experts to work with engineering faculty from Union College to explore novel opportunities for collaboration.
-Breakout sessions were organized by engineering discipline.
-While industrial engineering was well represented, I was one of the few electrical engineers using DEA at the time and joined that group.
-These discussions included Dr. Shawna Grosskopf, one of the co-inventors of the Malmquist Productivity Index, MPI. Discussions prompted me to think about would there be a way to apply the inherently multidimensional nature of DEA to technology forecasting?
+In 2001, a National Science Foundation workshop on engineering applications of DEA invited DEA experts to work with engineering faculty from Union College to explore novel opportunities for collaboration. Breakout sessions were organized by engineering discipline. While industrial engineering was well represented, I was one of the few electrical engineers using DEA at the time and joined that group. These discussions included Dr. Shawna Grosskopf, one of the co-inventors of the Malmquist Productivity Index, MPI. Discussions prompted me to think about would there be a way to apply the inherently multidimensional nature of DEA to technology forecasting?
 
-Over the following weeks, these thoughts percolated, including a day long visit with two of the top experts in MPI, Dr. Rolf Fare and Dr. Shawna Grosskopf, and a lot of time at a whiteboard.
-In the end, we decided that the mathematics and restrictions of product forecasting were different enough that MPI was not the right approach.
-Over the ensuing months, with a PhD student, Oliver (Lane) Inman, the approach took shape and we started calling it Technology Forecasting Using DEA or TFDEA.
+Over the following weeks, these thoughts percolated, including a day long visit with two of the top experts in MPI, Dr. Rolf Fare and Dr. Shawna Grosskopf, and a lot of time at a whiteboard. In the end, we decided that the mathematics and restrictions of product forecasting were different enough that MPI was not the right approach. Over the ensuing months, with a PhD student, Oliver (Lane) Inman, the approach took shape and we started calling it Technology Forecasting Using DEA or TFDEA.
 
-The first application was revisiting microprocessor benchmarking in line with Moore's Law \[@AndersonFurtherexaminationMoore2002\]. Later work examined fighter jets \[@InmanImprovingtimemarket2005; @InmanPredictingjetfighter2006\] and other products.
+The first application was revisiting microprocessor benchmarking in line with Moore's Law $$@AndersonFurtherexaminationMoore2002$$. Later work examined fighter jets $$@InmanImprovingtimemarket2005; @InmanPredictingjetfighter2006$$ and other products.
 
-Dr. Inman's thesis formalized and significantly extended the approach of TFDEA.
-An interesting case study included enterprise database system and their changing performance over time by identifying a key disruptive innovation has rippled through industry after industry including most phones used around the world.
-Another important linkage was examining hard disk drives and providing additional insights to the classic case by Clayton Christensen made famous in the book, *The Innovator's Dilemma* [@christensen2011].
+Dr. Inman's thesis formalized and significantly extended the approach of TFDEA. An interesting case study included enterprise database system and their changing performance over time by identifying a key disruptive innovation has rippled through industry after industry including most phones used around the world. Another important linkage was examining hard disk drives and providing additional insights to the classic case by Clayton Christensen made famous in the book, *The Innovator's Dilemma* [@christensen2011].
 
 Later, we revisited a classic technology forecasting application of US fighter jets from 1944 to 1992 to examine how TFDEA performed relative to other techniques, whether it could be applied to large systems outside of the high technology industry, and the usage over a long time horizon [@InmanPredictingjetfighter2006].
 
@@ -66,30 +56,146 @@ source('Helperfiles.R')
 
 The core idea of TFDEA is to examine how the *state of the art* products change over time by using the rich, multidimensional tool of DEA.
 
-To do this, we sequentially run DEA for each product against all products that have been released to date.
-If a product is *efficient* at time of release, it is considered, state of the art.
-It if is state of the art, we then examine how the efficiency score changes with the introduction of new products over time.
-The changing efficiency over time can be used to estimate a *rate_of_change* for the product category.
+To do this, we sequentially run DEA for each product against all products that have been released to date. If a product is *efficient* at time of release, it is considered, state of the art. It if is state of the art, we then examine how the efficiency score changes with the introduction of new products over time. The changing efficiency over time can be used to estimate a *rate_of_change* for the product category.
 
 ## A Two-Dimensional Example of TFDEA
 
-To Be Added
+### Introduction
+
+To explain TFDEA, let's examine the illustrative case of the USB flash drive case from Dr. Lane Inman. This is a case of a cost-benefit ratio. From this perspective, let's walk through the data, analysis, results, and their interpretation.
+
+Dr. Dong-Joon Lim wrote a package, `DJL`, that also implements TFDEA and other functions.
+
+As the input, is retail cost in dollars and the output is storage size in megabytes.
+
+This gives a simple input-output model. For the sake of visualization, we can use the IO Diagram function from the TRA package.
+
+```{r DEA-IO-Plot1, out.width="50%", fig.align='center', fig.cap="TFDEA Model for USB Flash Drives"}
+library (TRA) # Note, may need to install directly from github
+              # remotes::install_github("prof-anderson/TRA")
+library (DiagrammeRsvg, quietly=TRUE) 
+library (rsvg, quietly=TRUE) 
+
+
+Figure <- DrawIOdiagram (c("Cost\n(Dollars)" ), 
+                         c("Capacity\n(Megabytes)"), 
+                         '"\nUSB\nFlash\nDrive\n\n"')
+tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),
+                             'FlashIO.PNG')) 
+knitr::include_graphics("FlashIO.PNG")
+
+```
+
+### Flash Storage Data
+
+```{r}
+library(TFDEA)
+drive <- c("A", "B", "C", "D", "E", "F", "G")
+
+x           <- data.frame(c(16, 14, 8, 25, 40, 30, 40))
+rownames(x) <- drive
+colnames(x) <- c("Cost")
+
+y           <- data.frame(c(16, 32, 32, 128, 32, 64, 256))
+rownames(y) <- drive
+colnames(y) <- c("Capacity")
+
+z           <- data.frame(c(2001, 2002, 2003, 2004, 2001, 2002, 2004))
+rownames(z) <- drive
+colnames(z) <- c("Date_Intro")
+
+```
+
+Let's examine our data.
+
+```{r}
+cbind(z,x,y)
+```
+
+### TFDEA
+
+Let's call the function for doing a Rate of Change, RoC, calculation.
+
+In this case, note that the planning period specified is 2003. This means that data up to and including 2003 is used in forecasting the following data which in this dataset means products released in 2004. The returns to scale is set to variable returns to scale (VRS). The orientation of the underlying DEA model is output-oriented as compared to input-oriented which suggests a primary goal of driving increased output (storage capacity) rather than cost (input) reduction. The frontier type selected is "d" which refers to a dynamic frontier where the frontier's year is a weighted blend of the year of the constituent units.
+
+```{r}
+library(DJL)
+# Calc intro date for products using forecast year 2003
+res2 <- roc.dea(xdata=x, ydata=y, date=z, 2003, 
+                rts="vrs", orientation="o", 
+                ftype="d", cv="convex")
+
+# Examine what dates are forecast for DMU D & G
+#print(results$dmu_date_for)
+```
+
+Let's combine the results.
+
+```{r}
+res2c <- cbind(res2$eff_r, res2$eff_t, res2$eft_date,
+               res2$roc_past, res2$roc_local)
+colnames(res2c)<-c("Eff at Rel", "Eff at t", "Effective Time",
+                   "RoC Past", "RoC Local")
+rownames(res2c)<-c("A", "B", "C", "D", "E", "F", "G")
+```
+
+These results are consistent with those obtained from the `TFDEA` package. The key difference is that output-oriented efficiency, $\phi$ is measured with values larger than 1 indicating inefficiency. The calculations are similar except for inverting efficiency. In the end, the rate of change was the same, `r res2$roc_avg`.
+
+This function does not calculate release dates but we showed how they could be calculated as done using the results of the `TFDEA` package.
+
+The `DJL` package also provides a function that directly calculates arrival dates of future products using two approaches. The first is using average RoC the way that we did in the in the earlier example. The second approach is using what is called a segmented approach. Let's examine these results.
+
+```{r}
+res3 <- target.arrival.dea (xdata=x, ydata=y, date=z, 2003, 
+                rts="vrs", orientation="o", 
+                ftype="d", cv="convex")
+
+res3c <- cbind(res3$eff_t, res3$eft_date,
+               res3$roc_local, res3$roc_ind,
+               res3$arrival_avg, res3$arrival_seg)
+colnames(res3c)<-c("Eff at t", "Effective Time",
+                   "RoC Past", "RoC Local", 
+                   "Arrival Avg RoC", "Arrival Segmented RoC")
+rownames(res3c)<-c("A", "B", "C", "D", "E", "F", "G")
+
+res3c
+```
+
+This shows the rate of change to applied for predicting time of release for each future product.
+
+## Exploring Calculations
+
+Let's go through the calculations now for forecasting future products.
+
+$$t_{D,expected}=t_{eff,D}+\frac{\ln(\theta^{2003,SE}_D)}{\ln(\gamma)}$$ Let's substitute in values for unit D.
+
+$$
+\begin {split}
+\begin {aligned}
+t_{D,expected}&=2002.227+\frac{\ln(2.25641)}{\ln(1.746464)}\\
+&=2002.227+\frac{0.8137751}{0.5576939}\\
+&=2003.686\\
+\end {aligned}
+\end {split}
+$$
+
+These results then match those for `res3$arrival_avg` as shown earlier where the forecasted release date for unit D is `r res3$arrival_avg[4]`.
+
+A similar calculation can be done for unit G.
+
+Note that these calculations are based on using efficiency scores where values of less than one corresponds to inefficiency and greater than one for super-efficiency. An output-oriented analysis often uses $/phi$ to denote efficiency and is typically used to describe the opportunity for radial expansion as a path to efficiency and therefore has values of $\phi$ greater than indicating efficiency and a super-efficient unit has $\phi<1$. Sometimes output-oriented scores are reported as the inverse of $\phi$. As long as care is taken for consistency, TFDEA can be conducted in either manner.
+
+The calculations can be used with the output results.
+
+Calculations can be repeated for unit G.
 
 ## Using TFDEA in a Complex Product
 
-Let's explore an application from a previously published paper about an intensely competitive industry - United States fighter jet aircraft.
-The time period studied was from the late stages of World War II to just before stealth technology had a big impact.
-The fighter jets were drawn from 1944 to 1982.
+Let's explore an application from a previously published paper about an intensely competitive industry - United States fighter jet aircraft. The time period studied was from the late stages of World War II to just before stealth technology had a big impact. The fighter jets were drawn from 1944 to 1982.
 
-First, let's start with a background.
-Colonel Joseph Martino of the US Air Force examined trends for US fighter jets from 1944 to 1992.
-He compared an expert scoring model and a regression model.
-This application was revisited using TFDEA.
-The full data set is included in the TFDEA package.
-For more detailed information on the application, the interested reader is referred to the PICMET paper or the later journal paper.
+First, let's start with a background. Colonel Joseph Martino of the US Air Force examined trends for US fighter jets from 1944 to 1992. He compared an expert scoring model and a regression model. This application was revisited using TFDEA. The full data set is included in the TFDEA package. For more detailed information on the application, the interested reader is referred to the PICMET paper or the later journal paper.
 
-Let's start by examining the full dataset.
-Note that the names of the variables are rather long making their display quite awkward.
+Let's start by examining the full dataset. Note that the names of the variables are rather long making their display quite awkward.
 
 ```{r display-full-fighter-jet-data}
 data(fighter_jet)
@@ -121,11 +227,7 @@ kbl (fj_full_data_ex, booktabs= T, digits = 4,
     caption="Columns of Fighter Jet Data")
 ```
 
-Let's do a few things.
-First, let's grab only the columns of data of data that we will be using.
-The regression study was limited to just four columns of specifications due to the high correlations among variables.
-In order to make a fair comparison, TFDEA was limited to using the same four columns.
-Also, we'll abbreviate the names of the columns for better display.
+Let's do a few things. First, let's grab only the columns of data of data that we will be using. The regression study was limited to just four columns of specifications due to the high correlations among variables. In order to make a fair comparison, TFDEA was limited to using the same four columns. Also, we'll abbreviate the names of the columns for better display.
 
 Now, let's start by examining what the results would look like for just a simple DEA model of all of the fighter jets.
 
@@ -149,8 +251,7 @@ kbl (head(fj_data), booktabs = T, digits = 4, align = 'c',
      caption = "Data for Regression and TFDEA Study")
 ```
 
-Note that for TFDEA, there is no input specified for this application.
-We will use a constant value of one as the input for each aircraft.
+Note that for TFDEA, there is no input specified for this application. We will use a constant value of one as the input for each aircraft.
 
 ```{r prepare-data-for-dea}
 fj_x <-  matrix (rep(1.0,nrow(fj_data)), 
@@ -174,19 +275,15 @@ kbl (cbind(fj_data,res1$eff),
        caption="Variable Returns to Scale, Output-Orientation Results", booktabs = T, digits = 4)
 ```
 
-These results indicate that the earlier aircraft or greatly surpassed in performance by more modern aircraft, as would be expected.
-More specifically, this indicates that the first US fighter jet, the F80, was outperformed by a factor of `res1$eff[1]` versus the best products released after it had its first flight.
+These results indicate that the earlier aircraft or greatly surpassed in performance by more modern aircraft, as would be expected. More specifically, this indicates that the first US fighter jet, the F80, was outperformed by a factor of `res1$eff[1]` versus the best products released after it had its first flight.
 
-Next, we can look at the envelopment variables that describe which aircraft(s) the F80 was compared against.
-Note that again we will use the `poscol` function to filter out the columns that are not used as peers for any other units (or fighter jets.)
+Next, we can look at the envelopment variables that describe which aircraft(s) the F80 was compared against. Note that again we will use the `poscol` function to filter out the columns that are not used as peers for any other units (or fighter jets.)
 
 ```{r dea-results-of-fighter-jet}
 kbl (poscol(cbind(res1$eff, res1$lambda)), booktabs = T, digits = 3)
 ```
 
-We can then go on to calculate the *peer year* of each fighter jet.
-This is the average year of the fighter jets that each fighter jet is compared against along with the original year of first flight.
-We refer to the use of the *peer year* as a dynamic frontier year model since the year of the efficiency frontier will vary depending on the mix of aircraft at each point.
+We can then go on to calculate the *peer year* of each fighter jet. This is the average year of the fighter jets that each fighter jet is compared against along with the original year of first flight. We refer to the use of the *peer year* as a dynamic frontier year model since the year of the efficiency frontier will vary depending on the mix of aircraft at each point.
 
 ```{r combined-results-from-dea}
 combined_res1 <- cbind (res1$eff,
@@ -211,8 +308,7 @@ combined_res1 <- cbind(combined_res1, fj_gamma)
 kbl (head(combined_res1), booktabs = T,  align = 'c')
 ```
 
-This value of gamma gives us then the annualized rate of change that compounds to give us far higher performance of the newer products.
-The value of gamma can be different for each fighter jet for a variety of reasons including:
+This value of gamma gives us then the annualized rate of change that compounds to give us far higher performance of the newer products. The value of gamma can be different for each fighter jet for a variety of reasons including:
 
 -   They varied in their own technical excellence.\
 -   They may have been in different market niches experiencing their own rates of progress.\
@@ -222,18 +318,11 @@ The approach of TFDEA has been both formalized extended in later works but this 
 
 ## Reproducing Fighter Jet Technology Forecasting
 
-Now, let's use the `TFDEA` to reexamine the fighter jet research and enhance the situation.
-Consider yourself to be a military analyst in 1960.
-You know the past fighter jets that the US has put into service and you know the specifications of the upcoming fighter jets being developed by Boeing, Lockheed, and others.
-Alas, you don't know when these *future* fighter jets will actually be put into service by having their first flights.
-After all, fighter jets and other large, complex projects are notorious for running late.
-Your mission is to try to predict, based upon trends up to 1960, when the post 1960 fighter jets will be released.
+Now, let's use the `TFDEA` to reexamine the fighter jet research and enhance the situation. Consider yourself to be a military analyst in 1960. You know the past fighter jets that the US has put into service and you know the specifications of the upcoming fighter jets being developed by Boeing, Lockheed, and others. Alas, you don't know when these *future* fighter jets will actually be put into service by having their first flights. After all, fighter jets and other large, complex projects are notorious for running late. Your mission is to try to predict, based upon trends up to 1960, when the post 1960 fighter jets will be released.
 
 This is a particularly challenging scenarios, we are using 16 years of data (1944 to 1960) to forecast out 22 years through 1982.
 
-We will be using options that did not exist at the time the original fighter jet work was first published.
-Let's explore these options by way of the function call.
-Notice the parameters passed:
+We will be using options that did not exist at the time the original fighter jet work was first published. Let's explore these options by way of the function call. Notice the parameters passed:
 
 -   Specifying `x`, `y`, `rts`, and `orientation` are similar to standard DEA applications and packages.\
 -   `dmu_date_rel` is the date of product release or in our case, the first flight of the fighter jet.
@@ -252,12 +341,7 @@ res2 <- TFDEA(x=fj_x, y=fj_y,        # Use the same data
               mode="dynamic")        # Uses peer year rather than 1960
 ```
 
-The TFDEA package has an abundance of caution and gives a warning about the fighter jets with zeros in outputs (Range of Beyond Visual Range Missiles).
-This is not a problem though.
-The second message is more subtle and requires an explanation.
-The eighth fighter jet, the `fighter_jet[8,1]`, had a peer year that was earlier than its actual first flight.
-This occurs because it is using a blended average with earlier planes, yet it was considered state of the art.
-The result is that it is dropped from the analysis.
+The TFDEA package has an abundance of caution and gives a warning about the fighter jets with zeros in outputs (Range of Beyond Visual Range Missiles). This is not a problem though. The second message is more subtle and requires an explanation. The eighth fighter jet, the `fighter_jet[8,1]`, had a peer year that was earlier than its actual first flight. This occurs because it is using a blended average with earlier planes, yet it was considered state of the art. The result is that it is dropped from the analysis.
 
 Let's examine the pieces of information that we receive for results.
 
@@ -274,8 +358,7 @@ These results require a careful look.
 -   Each of the fighter jets from 1960 and earlier were deemed efficient at time of release (Efficiency=1.0)
 -   The efficiency scores are inverted relative to the earlier results (scores smaller than indicate inefficiency)
 
-These results give us an annual rate of change of `res2$roc`.
-We can use this then to try to predict the post 1960 fighter jet's release dates.
+These results give us an annual rate of change of `res2$roc`. We can use this then to try to predict the post 1960 fighter jet's release dates.
 
 ```{r examine-post1960-results}
 res2eff <- cbind(fj_data$FirstFlight, 
@@ -285,4 +368,3 @@ colnames (res2eff) <- c("FirstFlight",
 kbl (filter(data.frame(res2eff), FirstFlight > 1960),
        caption="Forecasted Release Dates", booktabs = T, digits = 4)
 ```
-

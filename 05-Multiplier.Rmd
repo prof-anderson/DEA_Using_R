@@ -381,8 +381,9 @@ dim(ydata) <- c(ND,NY)
 
 Remember the inputs are named as "x1" and"x2" to represent the staff
 (full-time equivalent employees) and the store size ($m^2$)
-respectively. The output is sales are named "y1". As usual, I'm copying
-the source data into objects, `xdata` and `ydata`, for actual operation.
+respectively. The output is sales and is named "y1". As usual, I'm
+copying the source data into objects, `xdata` and `ydata`, for actual
+operation.
 
 ```{r Structure-Results}
 

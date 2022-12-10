@@ -32,7 +32,7 @@ $$
   \end{aligned}
 $$
 
-The value $\phi$ is a radial expansion that unit *k* is expected to make on every output whereas in the input-oriented model, $\theta$ was a radial reduction for every input. A very inefficient unit that received an input-oriented, constant returns to scale efficiency score of $\theta=0.5$ indicates that it should be able to achieve the same output it is currently producing using no more than half of any input. If the same analysis were done using an output-orientation, the unit would get a score of $\phi=2.0$ indicating that using the current input, the unit should at least double each output. In the case of constant returns to scale, the efficiency scores will be consistent ($\theta$=$\frac{1}{\phi}$) but targets will be different. Under other returns to scale assumptions, this relationship between $\theta$ and $\phi$ generally does not hold.  The result is that the orientation can have a significant impact on efficiency scores, targets of performance, and who is used to in the developing performance targets for inefficient units.  
+The value $\phi$ is a radial expansion that unit *k* is expected to make on every output whereas in the input-oriented model, $\theta$ was a radial reduction for every input. A very inefficient unit that received an input-oriented, constant returns to scale efficiency score of $\theta=0.5$ indicates that it should be able to achieve the same output it is currently producing using no more than half of any input. If the same analysis were done using an output-orientation, the unit would get a score of $\phi=2.0$ indicating that using the current input, the unit should at least double each output. In the case of constant returns to scale, the efficiency scores will be consistent ($\theta$=$\frac{1}{\phi}$) but targets will be different. Under other returns to scale assumptions, this relationship between $\theta$ and $\phi$ generally does not hold. The result is that the orientation can have a significant impact on efficiency scores, targets of performance, and who is used to in the developing performance targets for inefficient units.
 
 Just as we did in chapter 2 for the input-oriented model, we will transform it to standard form by moving all terms with variables to the left-hand side.
 
@@ -167,7 +167,6 @@ for (k in 1:ND) {
 }  # Repeat for each unit, k
 ```
 
-
 ```{r}
 temp <- cbind(res4_1.efficiency, 1/res4_1.efficiency,
               res4_2.efficiency)
@@ -258,17 +257,17 @@ kbl(cbind(temp),
 
 Key takeaways about the impact of orientation:
 
-- Changing a model from input-orientation to output-orientation will not change which units are efficient.  
-- Changing a model from input-orientation to output-orientation under CRS results in consistent results but different projections.
-- Changing a model from input-orientation to output-orientation under other returns scale may change the relative rankings of inefficient units.
+-   Changing a model from input-orientation to output-orientation will not change which units are efficient.
+-   Changing a model from input-orientation to output-orientation under CRS results in consistent results but different projections.
+-   Changing a model from input-orientation to output-orientation under other returns scale may change the relative rankings of inefficient units.
 
 ## Slack Based Models
 
 We have focused on radial efficiency scores up to this point. The primary emphasis is on proportionally decreasing the inputs (input-orientation) or increasing the outputs (output-orientation). The decision of input versus output-orientation is then very important. Also, radial models generally use a second phase of slack maximization to form targets of best practices.
 
-Rather than dealing with slacks at the end and in a second phase, another approach is to use it directly at the beginning.  It is called the slack-based model.
+Rather than dealing with slacks at the end and in a second phase, another approach is to use it directly at the beginning. It is called the slack-based model.
 
-The simplest slack based model would be to simply use a variation of the second phase of the two phase model presented in Chapter 2.  Let's use a CRS case.  
+The simplest slack based model would be to simply use a variation of the second phase of the two phase model presented in Chapter 2. Let's use a CRS case.
 
 $$
 \begin{split}
@@ -413,18 +412,18 @@ kbl (cbind(CRS2PhaseIO.Res,Slack1.Res), booktabs=T, escape=F, digits=3,
   kable_styling (latex_options = c("hold_position", "scale_down"))
 ```
 
-Some important takeaways from these results.  
+Some important takeaways from these results.
 
-- First, note that stores C and E are strongly efficient in both models.  In the slack based model, C and E are compared only against themselves and have zero slack in all three slack variables.  
-- The slack based model's objective function would simply be the sum of slack in FTE, square meters of floor space, and sales in thousands of dollars.
-- The target for the weakly efficient store, G, is the same for in both analyses.
-- The target is different for the four radially inefficient stores:  A, B, D, and F.  This corresponds to a different projection.
-- The slack on the second input ($s^x_2$) for store D is almost twenty times higher than that of the slack for any input on any other store. 
-- A reminder that the values of input 2 are on the order the order ten times that of the first input.  This means that in adding slacks, the second input will tend to have more pull in the objective function.
+-   First, note that stores C and E are strongly efficient in both models. In the slack based model, C and E are compared only against themselves and have zero slack in all three slack variables.\
+-   The slack based model's objective function would simply be the sum of slack in FTE, square meters of floor space, and sales in thousands of dollars.
+-   The target for the weakly efficient store, G, is the same for in both analyses.
+-   The target is different for the four radially inefficient stores: A, B, D, and F. This corresponds to a different projection.
+-   The slack on the second input ($s^x_2$) for store D is almost twenty times higher than that of the slack for any input on any other store.
+-   A reminder that the values of input 2 are on the order the order ten times that of the first input. This means that in adding slacks, the second input will tend to have more pull in the objective function.
 
 ### Slack Percentages
 
-These observations lead us to consider a couple of options.  First, we can convert the sum of slacks to a sum of slack percentages by dividing by each store's actual inputs or outputs.
+These observations lead us to consider a couple of options. First, we can convert the sum of slacks to a sum of slack percentages by dividing by each store's actual inputs or outputs.
 
 $$
 \begin{split}
@@ -437,16 +436,15 @@ $$
 \end{split}
 $$
 
-The $\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}$ is the sum of all input slacks by percentage.  We could convert this to an average slack percentage by dividing by the number of inputs, $N^x$.  A value 0% would mean no slacks in any input.  Similar things could be done on the output side.  
+The $\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}$ is the sum of all input slacks by percentage. We could convert this to an average slack percentage by dividing by the number of inputs, $N^x$. A value 0% would mean no slacks in any input. Similar things could be done on the output side.
 
 We can use a single metric $\rho$, that can serve as an efficiency score by combining both the average input slack and the output slack.
 
 $$
 \rho = \frac {1- \frac {1}{N^x}\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}}  {1+\frac {1}{N^y}\sum_{r=1}^{N^Y} \frac{s^y_r}{y_{r,k}}}
-$$
-While it doesn't have the same radial interpretation of both $\theta$ or $\phi$ from the input or output-oriented model, it provides a nice holistic metric that captures inefficiency on both inputs and outputs.  A value of $\rho=1.0$ represents an efficient unit.  A value of $\rho=0.5$ might be due to an average input slack of 50% on the inputs in a unit that is output efficient.  On the other hand, it might also represent a unit that only produces half of what an efficient target produces despite being input efficient.  In either case, an overall efficiency of 50% seems warranted.  Unfortunately the function for calculating $\rho$ involves dividing functions of variables, $s^x_i$  by functions of other variables, $x^y_r$.  This makes it a nonlinear function which is more difficult to optimize.    
+$$ While it doesn't have the same radial interpretation of both $\theta$ or $\phi$ from the input or output-oriented model, it provides a nice holistic metric that captures inefficiency on both inputs and outputs. A value of $\rho=1.0$ represents an efficient unit. A value of $\rho=0.5$ might be due to an average input slack of 50% on the inputs in a unit that is output efficient. On the other hand, it might also represent a unit that only produces half of what an efficient target produces despite being input efficient. In either case, an overall efficiency of 50% seems warranted. Unfortunately the function for calculating $\rho$ involves dividing functions of variables, $s^x_i$ by functions of other variables, $x^y_r$. This makes it a nonlinear function which is more difficult to optimize.
 
-Let's calculate $\rho$ for each of the stores using the slack based model.  
+Let's calculate $\rho$ for each of the stores using the slack based model.
 
 ```{r}
 rho_numerator1 <- 1 - rowMeans(Slack1.xslack/x)
@@ -527,11 +525,11 @@ kbl (cbind(rho_numerator1, rho_numerator2,
 
 ```
 
-The results in the table are interesting:  
+The results in the table are interesting:
 
-- The measures of $\rho$ are relatively robust and consistent with the efficiency scores $\theta$ and $1/\phi$.  
-- For the slack based models, changing the measures from maximizing slacks to slack percentages changed the targets ($\lambda$ values) but  not the holistic overall score of $\rho$.  This is unlikely to persist in more complex models.
-- The `poscol` function from the `TRA` package was used with a `cutoff` value to eliminate columns of $\lambda$ for inefficient units.
-- The `add_header_above` function from `kableExtra` was used to provide groupings of columns.  
+-   The measures of $\rho$ are relatively robust and consistent with the efficiency scores $\theta$ and $1/\phi$.\
+-   For the slack based models, changing the measures from maximizing slacks to slack percentages changed the targets ($\lambda$ values) but not the holistic overall score of $\rho$. This is unlikely to persist in more complex models.
+-   The `poscol` function from the `TRA` package was used with a `cutoff` value to eliminate columns of $\lambda$ for inefficient units.
+-   The `add_header_above` function from `kableExtra` was used to provide groupings of columns.
 
-A variety of slack-based models have been developed over the years.  Returns to scale can be incorporated in the same manner as in traditional input and output-oriented models.
+A variety of slack-based models have been developed over the years. Returns to scale can be incorporated in the same manner as in traditional input and output-oriented models.

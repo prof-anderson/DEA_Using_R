@@ -8,7 +8,7 @@ library(bookdown); library(rmarkdown); rmarkdown::render("08-App_Baseball.Rmd", 
 
 Now that we have covered an introduction to benchmarking using data envelopment analysis, let's look at a variety of models applied to sports - in particular, baseball.
 
-Sports has a long history in operations research and management science, well before the idea of sports analytics was popularized by Michael Lewis' *Moneyball* [@lewis2004]. While it doesn't have the life and death significance of emergency relief or health care applications, it provides quite a few benefits for explaining complex analytical methods:
+Sports has a long history in operations research and management science, well before the idea of sports analytics was popularized by Michael Lewis' *Moneyball* [@lewis2004]. While it doesn't have the life and death significance of emergency relief or health care applications, it provides quite a few benefits for explaining complex analysis methods:
 
 -   Accurate and well curated historical data
 -   Easy to understand models
@@ -558,7 +558,7 @@ Most studies that do cross-efficiency do not take a careful look at the weights.
 Examining baseball batters is interesting but let's change our perspective the team. A baseball general manager tries to construct the best team. Players have different salaries and the Lahman baseball dataset includes salary information. An interesting statistical analysis of the relationship between team salary and wins can be found at <https://rpubs.com/grigory/MLBSalaryPerfLR> by Gregory Kanevsky. We will draw inspiration from Gregory Kanevsky's analysis and data wrestling to get us started. Instead of his regression model, we will use a benchmarking approach to demonstrate the use of DEA for examining organizations.
 
 ```{r}
-library(data.table, quietly=TRUE)
+suppressPackageStartupMessages(library (data.table))
 teams = as.data.table(Teams)
 teams = teams[, .(yearID, 
                   lgID = as.character(lgID), 

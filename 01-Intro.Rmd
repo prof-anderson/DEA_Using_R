@@ -4,17 +4,17 @@
 
 ## Why Benchmark?
 
-As industries become ever more global and more competitive, it is critical to do things in the best way possible. Even organizations that have been successful for decades need to keep their competitive edge and avoid getting complacent. Furthermore This results in a search for best practices. What was a best practice ten years ago, may no longer be best practice.
+As industries become ever more global and more competitive, it is critical to do things in the best way possible. Even organizations that have been successful for decades need to keep their competitive edge and avoid getting complacent. This results in a search for best practices. What was a best practice ten years ago, may no longer be best practice. Quantitative benchmarking can be done to provide objective targets and narrow the realm of possibilities from whom to learn about best practices.
 
 ## Purpose of this Book
 
 R is a powerful analytics tool and Data Envelopment Analysis or DEA is a widely adopted methodology for providing insights to applications on performance improvement. This naturally makes the combination a good option.
 
-This book is intended to help use other people's DEA packages for R, how to write R code for doing DEA, and conducting DEA applications. Using existing packages is relatively straightforward and this is demonstrated multiple times. Writing R code allows one to dig deeper into how things work and means that a researcher could then implement appropriate variations or extensions to DEA rather than only relying on the functions written by others. Lastly, a variety of applications are provided based on both published and unpublished work that show how to wrestle with data, interpret results, and dig deeper into where models breakdown.
+This book is intended to help use other people's DEA packages for R, how to write R code for doing DEA, and in conducting DEA applications. Using existing packages is relatively straightforward and this is demonstrated multiple times. Writing R code allows one to dig deeper into how things work and means that a researcher could then implement appropriate variations or extensions to DEA rather than only relying on the functions written by others. Lastly, a variety of applications are provided based on both published and unpublished work that show how to wrestle with data, interpret results, and dig deeper into where models breakdown.
 
 This book does not try to be a full introduction to R or a comprehensive theoretical coverage of DEA. Instead, the emphasis is on how to build working DEA implementations and use DEA on applications. While this book does not attempt the impossible task of all possible DEA models, it provides a foundation for readily implementing existing and new models as needed.
 
-People familiar with optimization or taking an operations research course should be able to digest the material as long as they were willing to roll up their sleeves and get their hands dirty. Everything presented here should run with a current version of R and appropriate packages. Feel free to copy and paste code into your R instance and run it alongside me. I strongly recommend using RStudio as an integrated development environment, IDE, in order to simplify the workflow. This book was written using RStudio, rmarkdown, and bookdown to demonstrate reproducible research practices.
+People familiar with optimization or taking an operations research course should be able to digest the material as long as they are willing to roll up their sleeves and get their hands dirty. Everything presented here should run with a current version of R and appropriate packages. Feel free to copy and paste code into your R instance and run it alongside me. I strongly recommend using RStudio as an integrated development environment, IDE, in order to simplify the workflow. This book was written using RStudio, rmarkdown, and bookdown to demonstrate reproducible research practices.
 
 While all R code used in this book runs, it is written from the perspective of demonstration and documentation. DEA problems are generally not very computationally demanding unless thousands or tens of thousands of units are being analyzed so computational efficiency is not emphasized.
 
@@ -24,11 +24,11 @@ It builds upon materials developed in *Optimization Modeling Using R*. Readers n
 
 ## Resources
 
-R has rapidly become a standard tool for analytics due to its open source nature, extensability, and being built with statistical analysis in mind. Like every powerful tool, it has a bit of a learning curve but getting started may be more approachable than in general purpose programming languages. There are many excellent books on R. Two of my favorite classics are: *R in Action* [@AdlerNutshell2012] and *The Art of R Programming* [@MatloffArtprogramming2011].
+R has rapidly become a standard tool for analytics due to its open source nature, extensability, and being built with statistical analysis in mind. Like other powerful tools, it has a bit of a learning curve but getting started may be more approachable than in general purpose programming languages. There are many excellent books on R. Two of my favorite classics are: *R in Action* [@AdlerNutshell2012] and *The Art of R Programming* [@MatloffArtprogramming2011].
 
 *R in Action* provides a comprehensive coverage of R discussing how to use it for statistics progressing through a variety of deeper topics including programming. The second edition of *R in Action* adds important topics such as package development and interactive documentation using knitr. It is available as a paperback or ebook.
 
-Peter Bogetoft and Lars Otto have written a very thorough book on DEA and other econometric methods, *Benchmarking with DEA, SFA, and R* [@BogetoftBenchmarkingDEASFA2011]. It is equal parts a mathematical book on frontier estimation and a manual for their R DEA package, Benchmarking. It is an excellent book . We will revisit this and other packages later book presumes some basic familiarity with R.
+Peter Bogetoft and Lars Otto have written a very thorough book on DEA and other econometric methods, *Benchmarking with DEA, SFA, and R* [@BogetoftBenchmarkingDEASFA2011]. It is equal parts a mathematical book on frontier estimation and a manual for their R DEA package, `Benchmarking`. It is an excellent book . We will revisit this and other packages later book presumes some basic familiarity with R.
 
 *The Art of R Programming* takes a different perspective on R by emphasizing it as a programming environment. People with experience in software development in some other language may find this eases the transition to using R as a rich computational environment. It was [published](http://shop.oreilly.com/product/9781593273842.do) in 2011 so it is getting a little dated but still a nice resource along with Grolemund's *Hands-On Programming with R: Write Your Own Functions and Simulations*[@grolemund2014].
 
@@ -38,9 +38,9 @@ In addition to R, be sure to download RStudio. There are a lot of other ways to 
 
 I've adopted the following conventions \index{Conventions} in this book.
 
--   R code fragments, including packages are denoted using monospaced text such as adding two R data objects `a+b`.
 -   Mathematical symbols and equations are italicized. For example, if two variables are mathematical symbols and being added, then it would be *a+b*.
+-   R code fragments, objects, and packages are denoted using monospaced text. For example adding two R data objects `a+b`.
 -   Tables of information and code fragments are provided liberally and at times erring on the side of being repetitious to assist in interpretation and reproducing analyses.
 -   There may be more efficient ways of performing operations but the focus is on readability rather than computational efficiency.
 -   When formatting piping \index{Piping} operators such as `|>`, an intent is made to line them up for readability.
--   Linear programming variables in R have a `v` prefix to differentiate them from other R objects. For example, a mathematical variable $\lambda$ may be implemented in the linear programming routine as `vlambda`. This is done to avoid name conflicts between the larger R environment and `ompr`.
+-   Linear programming variables in R have a `V` prefix to differentiate them from other R objects. For example, a mathematical variable $\lambda$ may be implemented in the linear programming routine as `Vlambda`. This is done to avoid name conflicts between the larger R environment and the optimization model in `ompr`.

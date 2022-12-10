@@ -1,9 +1,8 @@
-# (APPENDIX) Appendix {-}
+# (APPENDIX) Appendix {.unnumbered}
 
 # DEA Helper Functions
 
-Introduction
------------------------------
+## Introduction
 
 ```{r, include=FALSE, eval=FALSE}
 library(bookdown); library(rmarkdown); rmarkdown::render("90-MiscHelper.Rmd", "pdf_book")
@@ -17,13 +16,13 @@ This chapter explains some functions or commands that may be helpful to the DEA 
 
 ## Filtering Nonpositive Columns
 
-This function is a quick and dirty shortcut that will eliminate columns that do not contain a positive value.  The primary use for this in a DEA setting is to eliminate columns of DMUs from a lambda matrix that are never used for comparison.  In traditional DEA models, this would mean eliminating the columns of inefficient DMUs so that only the efficient ones are shown.  
+This function is a quick and dirty shortcut that will eliminate columns that do not contain a positive value. The primary use for this in a DEA setting is to eliminate columns of DMUs from a lambda matrix that are never used for comparison. In traditional DEA models, this would mean eliminating the columns of inefficient DMUs so that only the efficient ones are shown.
 
 This can be incorporated as a single line of code but is tricky enough, we will also make it into a function.
 
 Let's revisit the Baker Hughes Corporation Directional Drilling example from Chapter 9.
 
-Let's start by looking at the full envelopment results of the Baker Hughes example from earlier in the book.  This table shows both the efficiency score and every value of the matrix of $\lambda$ values.
+Let's start by looking at the full envelopment results of the Baker Hughes example from earlier in the book. This table shows both the efficiency score and every value of the matrix of $\lambda$ values.
 
 ```{r BHCorp, echo=FALSE, warning=FALSE}
 library (MultiplierDEA)
@@ -65,9 +64,9 @@ kbl (cbind(resBH$Efficiency,resBH$Lambda),
   kable_styling (latex_options = c("hold_position", "scale_down"))
 ```
 
-Notice that the data table is messy.  In particular, an inefficient unit such as J is never used for creating a target for any other unit.  Therefore the entire column (L_J) is zero.  We want to be careful about simply removing columns since the full matrix makes further analysis simpler but for viewing, we don't need to include that data.  Chester Ismay contributed an elegant line of code based on testing to see if the column sum is zero and if so, remove the column.  The following line of code modifies this idea to add every column and then only pass columns that are larger than a cutoff value.
+Notice that the data table is messy. In particular, an inefficient unit such as J is never used for creating a target for any other unit. Therefore the entire column (L_J) is zero. We want to be careful about simply removing columns since the full matrix makes further analysis simpler but for viewing, we don't need to include that data. Chester Ismay contributed an elegant line of code based on testing to see if the column sum is zero and if so, remove the column. The following line of code modifies this idea to add every column and then only pass columns that are larger than a cutoff value.
 
-In theory, a cutoff could be set to exactly zero but there can be very small floating point arithmetic will sometimes result in very small positive or negative values where the result should actually be zero.  
+In theory, a cutoff could be set to exactly zero but there can be very small floating point arithmetic will sometimes result in very small positive or negative values where the result should actually be zero.
 
 ```{r displaysmallertable1}
 df <- cbind(resBH$Efficiency,resBH$Lambda)
@@ -81,19 +80,19 @@ kbl (tempdf <- df[, colSums(df) > cutoff],
 
 ```
 
-Notice that the second table is much easier to interpret.  Simply removing unused columns that cause the table to be broken up allows the table to fit much better on a screen or page.
+Notice that the second table is much easier to interpret. Simply removing unused columns that cause the table to be broken up allows the table to fit much better on a screen or page.
 
-While the code is elegant, it does decrease readability of the code.  Given that lambda matrices are frequently examined, let's make it easier for the reader by compartmentalizing this as a function.  This is a good chance to review the use of function.  
+While the code is elegant, it does decrease readability of the code. Given that lambda matrices are frequently examined, let's make it easier for the reader by compartmentalizing this as a function. This is a good chance to review the use of function.
 
 The `TRA` package contains a function named `poscol` that takes a dataframe and drops the non-positive columns. It can optionally take a `cutoff` parameter that can be more robust than the default value of 0.
 
 ## Define Names
 
-For many datasets, we simply want to have DMUs named with sequential letters, numbered inputs, and numbered outputs.  Defining lists of names every time for these items and the resulting items results can become time consuming. Instead, the `TRA` package has a function `DEAnames` that will create common DEA object names.  
+For many datasets, we simply want to have DMUs named with sequential letters, numbered inputs, and numbered outputs. Defining lists of names every time for these items and the resulting items results can become time consuming. Instead, the `TRA` package has a function `DEAnames` that will create common DEA object names.
 
 This function simply needs the number of DMUs, inputs, and outputs.
 
-Let's see what the function does. 
+Let's see what the function does.
 
 ```{r nameexample}
 NX <- 2; NY <- 3; ND <- 4
@@ -101,7 +100,7 @@ modelnames <-TRA::DEAnames(2,2,4)
 modelnames
 ```
 
-These are names that can be used as row names or column names.  They categorized as regular text names. Names that end with an `LX` suffix are structured in the format needed for LaTeX rendering of tables in RMarkdown and Kable.  
+These are names that can be used as row names or column names. They categorized as regular text names. Names that end with an `LX` suffix are structured in the format needed for LaTeX rendering of tables in RMarkdown and `kable`.
 
 ```{r}
 x <- matrix(c(10,20,30,50,60,70,80,90),ncol=2)
@@ -135,12 +134,11 @@ kbl(t3, booktabs=TRUE, escape=FALSE,
 
 ```
 
-
 ## Function for Drawing Input-Output Diagram
 
-I find visual models sometimes clarify the model.  Let's draw an input-output diagram DEA models.  This diagram has inputs feeding into a box and outputs coming out.  I used the very rich DiagrammeR package for this function.  For a comprehensive description of options in the package, this site is very useful.  http://rich-iannone.github.io/DiagrammeR/graphviz_and_mermaid.html 
+I find visual models sometimes clarify the model. Let's draw an input-output diagram DEA models. This diagram has inputs feeding into a box and outputs coming out. I used the very rich `DiagrammeR` package for this function. For a comprehensive description of options in the package, this site is very useful. <http://rich-iannone.github.io/DiagrammeR/graphviz_and_mermaid.html>
 
-Let's start by hard coding a one-input, four-output CCR input-oriented model.  We will retain the Xnames and Ynames list of input and output names respectively from the previous section.
+Let's start by hard coding a one-input, four-output CCR input-oriented model. We will retain the `Xnames` and `Ynames` list of input and output names respectively from the previous section.
 
 ```{r TryingIODiagram1, warning = FALSE, message = FALSE}
 library(DiagrammeR)
@@ -197,8 +195,8 @@ tmp<-capture.output(rsvg_png(charToRaw(export_svg(demoIOdiagram)),
 
 ```
 
-![Demo IO Diagram](demoIOdiagram.png){#fig:demoIOdiagram width=25% }  
-Okay.  Now let's generalize it for an arbitrary number of inputs and outputs.
+![Demo IO Diagram](demoIOdiagram.png){#fig:demoIOdiagram width="25%"}\
+Okay. Now let's generalize it for an arbitrary number of inputs and outputs.
 
 ```{r TryingIODiagram2, dpi=144}
 library(DiagrammeR)
@@ -273,7 +271,7 @@ Now let's try loading it from Rmarkdown.
 
 In the future, these might be nice features to add:
 
-* Optional: to generate a table listing inputs and outputs. This actually should be easy.
-* Optional: parenthetical information (abbreviation, units, or comments)
-* Optional text to include in the box
-* Long-term optional network diagramming where outputs from one stage serve as inputs to other stage(s)
+-   Optional: to generate a table listing inputs and outputs. This actually should be easy.
+-   Optional: parenthetical information (abbreviation, units, or comments)
+-   Optional text to include in the box
+-   Long-term optional network diagramming where outputs from one stage serve as inputs to other stage(s)
