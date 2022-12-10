@@ -186,7 +186,8 @@ res3_1.solution <- as.matrix(res3_1$solution)
 rownames (res3_1.solution) <- c("L_A", "L_B", "L_C", "L_D", "theta", 
                                  "s_x", "s_y")
 kbl (t(res3_1.solution), booktabs=T, 
-        caption="Optimal solution values for DMU A (CCR-IO")
+        caption="Optimal solution values for DMU A (CCR-IO") |>
+  kable_styling(latex_options = "hold_position")
 ```
 
 Let's demonstrate the use of LaTeX in table captions. There are several things to bear in mind when using LaTeX rendered in column labels.
@@ -202,9 +203,10 @@ rownames (res3_1.solution) <- c("$\\lambda_A$", "$\\lambda_B$",
                                 "$\\lambda_C$", "$\\lambda_D$", 
                                 "$\\theta$", 
                                 "$s^x_1$", "$s^y_1$")
-kbl (t(res3_1.solution), booktabs=T, 
+kbl (t(res3_1.solution), booktabs=T, escape=F,
         caption=
-  "Optimal solution values for DMU A with LaTeX column labels")
+  "Optimal solution values for DMU A with LaTeX column labels")|>
+  kable_styling(latex_options = "hold_position")
 ```
 
 ## Creating the LP Incrementally
@@ -429,11 +431,17 @@ results.efficiency [k]  # Display efficiency score for unit k
 results.lambda  [k,]    # Display lambda variables
 results.vweight [k,]    # Display input weights
 results.uweight [k,]    # Display output weights
+```
 
-kbl (cbind(results.efficiency [k],t(results.lambda  [k,])),
-     booktabs=T, caption="DEA Efficiency Scores and Lambdas")
-kbl (cbind(results.vweight [k,],results.uweight [k,]),
-     booktabs=T, caption="DEA Multiplier Weights" )
+```{r, echo=FALSE}
+kbl (cbind(results.efficiency [k],t(results.lambda  [k,]),
+           results.vweight [k,],results.uweight [k,]),
+     booktabs=T, escape=F,digits=4, 
+     caption="DEA Efficiency Scores and Lambdas", 
+     col.names =  c("$\\theta^{CRS}$","$\\lambda_A$", "$\\lambda_B$", 
+                                "$\\lambda_C$", "$\\lambda_D$", 
+                                "$v_1$", "$u_1$") )|>
+  kable_styling(latex_options = "hold_position")
 ```
 
 ## Slack Maximization
@@ -442,7 +450,7 @@ This is a little more advanced. In analyses where our only purpose is to find th
 
 As long as you are still reading, let's explain a little bit of slack maximization. Phase 1 gives simple radial efficiency scores but does not necessarily give a best target for efficiency. The purpose here is to ensure that the $\lambda$ values actually point to the best possible target of performance.
 
-Now we need to do a step that is called slack maximization. We will need to add constraint that the efficiency variable ($\theta$) is held constant at the value found in Phase 1.
+Now we need to do a step that is called slack maximization. We will need to add a constraint that the efficiency variable ($\theta$) is held fixed to the value found in Phase 1.
 
 The linear program is modified in the following manner. We now want to maximize the sum of both input slack(s) and output slack(s).
 

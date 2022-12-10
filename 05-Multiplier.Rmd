@@ -47,10 +47,12 @@ library(kableExtra)
                                   "Don", "Ed","Fran"),
                                 c("y1", "y2")))
 
-ND <- nrow(YRest1); NY <- ncol(YRest1); # Define data size
+ND <- nrow(YRest1); NY <- ncol(YRest1) # Define data size
+```
 
-kbl (YRest1, caption="Restaurant Data", booktabs = T)  
-
+```{r, echo=TRUE}
+kbl (YRest1, caption="Restaurant Data", booktabs = T)  |>
+  kable_styling(latex_options = "hold_position")
 ```
 
 You can select any way of weighting the two outputs with just two
@@ -112,9 +114,14 @@ u1_result <- get_solution(result, u1)
 u2_result <- get_solution(result, u2) 
 alfred_score <- 25 * u1_result + 3500 * u2_result
 names(alfred_score)<-""
+```
 
+```{r, echo=FALSE}
 kbl (cbind(alfred_score, u1_result, u2_result), 
-       caption="Alfred's Score and Results", booktabs = T)
+     escape=F, booktabs = T,
+     col.names = c("Score", "$u_1$", "u_2"),
+     caption="Alfred's Score and Results")|>
+  kable_styling(latex_options = "hold_position")
 ```
 
 We could repeat the process for each person, by simply changing the
@@ -137,9 +144,14 @@ u1_result <- get_solution(result, u1)
 u2_result <- get_solution(result, u2) 
 barb_score <- 14 * u1_result + 2100 * u2_result
 names(barb_score)<-""
+```
 
+```{r, echo=FALSE}
 kbl (cbind(barb_score, u1_result, u2_result), 
-       caption="Barb's Score and Weights", booktabs = T, digits = 6)
+     escape=F, booktabs = T, digits = 5,
+     col.names = c("Score", "$u_1$", "u_2"),
+     caption="Barb's Score and Results")|>
+  kable_styling(latex_options = "hold_position")
 ```
 
 Let's do it for Chris.
@@ -161,9 +173,14 @@ u1_result <- get_solution(result, u1)
 u2_result <- get_solution(result, u2) 
 chris_score <- 42 * u1_result + 1050 * u2_result
 names(chris_score)<-""
+```
 
+```{r, echo=FALSE}
 kbl (cbind(chris_score, u1_result, u2_result), 
-       caption="Chris's Score and Weights", booktabs = T, digits = 6)
+     escape=F, booktabs = T, digits=5,
+     col.names = c("Score", "$u_1$", "u_2"),
+     caption="Chris's Score and Results")|>
+  kable_styling(latex_options = "hold_position")
 ```
 
 This process of building the model for each person individually and hard
@@ -291,7 +308,7 @@ $$
 \begin{split}
 \begin{aligned}
     \text {max } & \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
-    \text{s.t.: } & \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} }
+    \text{s.t.: } & \frac{\sum_{r=1}^{N^Y} u_r y_{r,j}} {\sum_{i=1}^{N^X} v_i x_{i,j} }
                           \leq 1 \; \forall \; j\\
                   &   u_r, \;v_i\geq 0  \; \forall \; r,i
   \end{aligned}
@@ -308,7 +325,7 @@ $$
 \begin{split}
  \begin{aligned}
     \text {max }   & \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
-    \text{s.t.:  } & \sum_{r=1}^{N^Y} u_r y_{r,k} - \sum_{i=1}^{N^X} v_i x_{i,k} 
+    \text{s.t.:  } & \sum_{r=1}^{N^Y} u_r y_{r,j} - \sum_{i=1}^{N^X} v_i x_{i,k} 
                           \leq 0 \; \forall \; j\\
                    & u_r, \; v_i\geq 0  \; \forall \; r,i
   \end{aligned}
@@ -335,7 +352,7 @@ $$
  \begin{aligned}
     \text {max   } & \sum_{r=1}^{N^Y} u_r y_{r,k} \\
     \text{s.t.:  } & \sum_{i=1}^{N^X} v_i x_{i,k} = 1 \\
-    & \sum_{r=1}^{N^Y} u_r y_{r,k} - \sum_{i=1}^{N^X} v_i x_{i,k} 
+    & \sum_{r=1}^{N^Y} u_r y_{r,j} - \sum_{i=1}^{N^X} v_i x_{i,j} 
                           \leq 0 \; \forall \; j\\
                    &  u_r, \; v_i\geq 0  \; \forall \; r,i
   \end{aligned}
@@ -376,7 +393,6 @@ xdata      <- x [1:ND,]  # Call it xdata
 dim(xdata) <- c(ND,NX)  # structure data correctly
 ydata      <- y [1:ND,]
 dim(ydata) <- c(ND,NY)
-
 ```
 
 Remember the inputs are named as "x1" and"x2" to represent the staff

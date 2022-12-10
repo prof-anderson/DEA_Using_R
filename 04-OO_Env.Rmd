@@ -14,7 +14,7 @@ The input and output-oriented models are the most commonly used for DEA applicat
 
 Think of selecting the model orientation by looking at a simple model of say, a set of restaurants where the input the input is labor and the output is customers served. The question than is what do the managers have more control over. If managers of restaurants have the opportunity to serve more customers and have many customers trying to get reservations but are unable to be accommodated, perhaps an output-oriented model is best. On the other hand, they have may have weak influence over the number of customers served, perhaps due to advertising being done at a regional level. In this case, perhaps cost control is the primary goal which means that an input-oriented model should be applied to emphasize reducing labor.
 
-```{r Fig-Orientation-Projections, echo=FALSE, out.width="45%", fig.show='hold', fig.align='center',fig.cap="Input vs. Output Orientations", fig.show='hold'}
+```{r Fig-Orientation-Projections, echo=FALSE, out.width="49%", fig.show='hold', fig.align='center',fig.cap="Input vs. Output Orientations", fig.show='hold'}
 knitr::include_graphics("images/Fig-4StoreIO-CRS.png")
 knitr::include_graphics("images/Fig-4StoreOO-CRS.png")
 ```
@@ -176,7 +176,7 @@ kbl(cbind(temp),
     booktabs=T, digits=3, escape=F, 
     col.names=c("$\\phi^{CRS}$", "$\\frac{1}{\\phi^{CRS}}$",
                 "$\\theta^{CRS}$"),
-    caption= 'Input vs. Output Orientation Under CRS') |>
+    caption= 'Input vs. Output-Orientation Under CRS') |>
   kable_styling(latex_options = "hold_position")
 ```
 
@@ -402,19 +402,19 @@ rownames(Slack1.Res) <- store7names$DMUnamesbyletter
 
 Let's compare the results of our slack based model to the two-phase results from chapter 2.
 
-```{r}
+```{r, echo=FALSE}
 kbl (cbind(CRS2PhaseIO.Res,Slack1.Res), booktabs=T, escape=F, digits=3,
      col.names=c("$\\theta^{CRS}$", store7names$LambdanamesbyletterLX, 
                  store7names$SXnamesLX, store7names$SYnamesLX,
                  store7names$LambdanamesbyletterLX, 
                  store7names$SXnamesLX, store7names$SYnamesLX),
-        caption="Slack Maximizing Results from Seven Store")            |>
+        caption="Slack Maximizing Results from Seven Store Example")            |>
   kable_styling (latex_options = c("hold_position", "scale_down"))
 ```
 
 Some important takeaways from these results.
 
--   First, note that stores C and E are strongly efficient in both models. In the slack based model, C and E are compared only against themselves and have zero slack in all three slack variables.\
+-   First, note that stores C and E are strongly efficient in both models. In the slack based model, C and E are compared only against themselves and have zero slack in all three slack variables.
 -   The slack based model's objective function would simply be the sum of slack in FTE, square meters of floor space, and sales in thousands of dollars.
 -   The target for the weakly efficient store, G, is the same for in both analyses.
 -   The target is different for the four radially inefficient stores: A, B, D, and F. This corresponds to a different projection.
@@ -527,7 +527,7 @@ kbl (cbind(rho_numerator1, rho_numerator2,
 
 The results in the table are interesting:
 
--   The measures of $\rho$ are relatively robust and consistent with the efficiency scores $\theta$ and $1/\phi$.\
+-   The measures of $\rho$ are relatively robust and consistent with the efficiency scores $\theta$ and $1/\phi$.
 -   For the slack based models, changing the measures from maximizing slacks to slack percentages changed the targets ($\lambda$ values) but not the holistic overall score of $\rho$. This is unlikely to persist in more complex models.
 -   The `poscol` function from the `TRA` package was used with a `cutoff` value to eliminate columns of $\lambda$ for inefficient units.
 -   The `add_header_above` function from `kableExtra` was used to provide groupings of columns.
