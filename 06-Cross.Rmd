@@ -10,8 +10,6 @@ library(bookdown); library(rmarkdown); rmarkdown::render("06-Cross.Rmd", "pdf_bo
 
 # Cross-Efficiency-DRAFT
 
-## Introduction
-
 ## The Ratio Model
 
 Put yourself as a competitor trying to argue that you are the best in converting inputs into outputs among a set of other units. You have data on what the competitors' inputs and outputs. You can
@@ -98,9 +96,6 @@ suppressPackageStartupMessages(library(ompr.roi))
 ```
 
 ```{r multiplier-model }
-
-        
-
 XBaker1 <- matrix(c(150, 400, 320, 520, 350, 320, 
                       0.2, 0.7, 1.2, 2.0, 1.2, 0.7),
                   ncol=2,dimnames=list(LETTERS[1:6],
@@ -167,7 +162,8 @@ colnames(y)[2] <- c("Private")
 # Calculate the efficiency score
 result <- DeaMultiplierModel(x,y,"crs", "input")
 # Examine the efficiency score for DMUs
-kbl (result$Efficiency, caption="CCR Efficiency Scores", booktabs = T, digits = 3, align = 'c')
+kbl (result$Efficiency, caption="CCR Efficiency Scores", booktabs = T, digits = 3, align = 'c') |>
+    kable_styling(latex_options = c("hold_position"))
 ```
 
 The efficiency scores match the earlier results and that of Baker.
@@ -191,9 +187,10 @@ colnames(y)[2] <- c("Private")
 # Calculate the efficiency score
 result <- CrossEfficiency(x,y,"crs", "input")
 # Examine the cross efficiency score for DMUs
-kbl (result$ce_ave, align = "c", booktabs = T, digits = 4,
-     caption="Cross-Efficiency Scores")
-
+kbl (result$ce_ave, 
+     align = "c", booktabs = T, digits = 4,
+     caption="Cross-Efficiency Scores")    |>
+    kable_styling(latex_options = c("hold_position"))
 ```
 
 As might be expected, the cross-efficiency values are all significantly lower than the original efficiency scores. In cross-efficiency, no nursing home is able to pick an extreme and unique weighting scheme to their advantage. It also tends to break the ties at 1.0 that frequently occur in DEA so it usually gives a unique ranking. These features come at a significant cost though which will be discussed in more detail in the future.
@@ -261,9 +258,12 @@ Unames<- lapply(list(rep("u",NY)),paste0,1:NY)
 dimnames(resfunc$efficiency) <- c(DMUnames,"CCR-IO")
 dimnames(resfunc$vweight)    <- c(DMUnames,Vnames)
 dimnames(resfunc$uweight)    <- c(DMUnames,Unames)
+```
 
+```{r}
 kbl (cbind(resfunc$efficiency,resfunc$vweight,resfunc$uweight), 
-        caption="Efficiency Scores and Weights", booktabs = T)
+        caption="Efficiency Scores and Weights", booktabs = T) |>
+    kable_styling(latex_options = c("hold_position"))
 ```
 
 You can think of the cross-efficiency by going back to revisit the original ratio model of the multiplier model. Let's extend the definition of the input and output weights to reflect for which unit the weights were determined. For example, $u_{r,k}$ is then the weight on output *r* when analyzed from the perspective of DMU *k* and a similar interpretation applies to input weight.
@@ -309,25 +309,17 @@ for (k in 1:ND) {
 for (k in 1:ND) {
   results.crosseff[k]<-mean(results.crosseval[,k])
 }
-
 dimnames(results.crosseval) <- c(DMUnames,DMUnames)
 dimnames(results.crosseff) <- c(DMUnames)
-kbl (results.crosseval, booktabs = T, 
-     caption = "Cross-evaluation Matrix")
-
-#for (j in 1:ND) {results.crosseff[j]<-sum(results.crosseval[,j])/ND}
-kbl (results.crosseff, booktabs = T, 
-     caption = "Cross-Efficiency Results")
-
 ```
 
-```{r}
+```{r, echo=FALSE}
 colnames(results.crosseff)<-c("Cross-Eff")
 kbl (rbind(results.crosseval,t(results.crosseff)), 
      booktabs = T, digits=5,
      caption="Cross-Evaluation Matrix and Cross-Efficiency Scores from Direct Calculation") |>
     row_spec (7, bold=TRUE) |>
-    kable_styling(latex_options = c("hold_position", "scale_down"))
+    kable_styling(latex_options = c("hold_position"))
 ```
 
 Notice that the values on the diagonal, $\theta_{k,k}$ are the same as the original efficiency scores.
@@ -360,7 +352,6 @@ calccrosseff <- function (x,y,vmatrix,umatrix) {
  
   return(resultlist)
 }
-
 ```
 
 ```{r, echo=FALSE}
@@ -488,7 +479,7 @@ $$
 (\#eq:Ch6LPCCRIO-2Phase)
 $$
 
-Let's compare these to this to the arbitrary cross-efficiency function which does neither.
+Let's compare these to this to the arbitrary cross-efficiency function which does neither. Note that this does not guarantee the existence of a unique optimal solution in terms of input and output weights, it does greatly decrease the potential.
 
 ```{r}
 resfunc    <- CrossEfficiency (x, y, rts="crs", 
@@ -514,6 +505,8 @@ kbl (rbind(t(cbind(x,y)),
      pack_rows ("Cross-Efficiency Results", 5, 7) |>
     kable_styling(latex_options = c("hold_position", "scale_down"))
 ```
+
+The cross-efficiency results are very different numerically but the relative ranking is similar. In this case, nursing home A stays the top scoring unit in all three cross-efficiency models but is joined by D in the Benevolent model. Also, G is the lowest ranked in all three models.
 
 Next, let's review the implementation of multiple optima in Auro's multiplier model. To test it, we'll load data from Takamura and Tone's 2003 paper on sites for relocating the capital of Japan.
 
@@ -552,6 +545,8 @@ kbl (rbind(as.data.frame(t(cbind(XTT03, YTT03)),digits=1),
      pack_rows ("Cross-Efficiency Results", 5, 7) |>
     kable_styling(latex_options = c("hold_position", "scale_down"))
 ```
+
+In this case, site location B, is highest ranked in all three cross-efficiency models.
 
 Comments about cross-efficiency functions from `DEAmultiplier` package.
 
@@ -595,4 +590,6 @@ Issues to consider in the future for this chapter or other chapters:
 
 -   Multiple Optima
 -   Secondary Objective Functions
--   Fixed Weighting nature of certain model dimensions
+-   Fixed Weighting nature of certain model dimensions (no-wait to talk about it in baseball chapter?)
+-   Check to see if Auro is using population with or without k in mal_ben code.
+-   Add reference to Doyle and Green.
