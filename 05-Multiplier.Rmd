@@ -493,13 +493,22 @@ $$
    \end{split}
 $$
 
-A linear program can be converted to its dual by: - Creating a variable
-for every constraint in the original LP - Creating a constraint for
-every variable in the original LP - Transposing the *A* matrix,
-sometimes denoted as $A^{\tau}$ - Using the *B* vector as the objective
-function coefficients - Using the *C* vector as the right hand side
-values of the constraints. - Changing the objective function from a
-*min* to a *max* - Reverse the directions of the constraint inequalities
+A linear program can be converted to its dual by:
+
+-   Creating a variable for every constraint in the original LP
+
+-   Creating a constraint for every variable in the original LP
+
+-   Transposing the *A* matrix, sometimes denoted as $A^{\tau}$
+
+-   Using the *B* vector as the objective function coefficients
+
+-   Using the *C* vector as the right hand side values of the
+    constraints.
+
+-   Changing the objective function from a *min* to a *max*
+
+-   Reverse the directions of the constraint inequalities
 
 $$
 \begin{split}

@@ -321,6 +321,15 @@ kbl (results.crosseff, booktabs = T,
 
 ```
 
+```{r}
+colnames(results.crosseff)<-c("Cross-Eff")
+kbl (rbind(results.crosseval,t(results.crosseff)), 
+     booktabs = T, digits=5,
+     caption="Cross-Evaluation Matrix and Cross-Efficiency Scores from Direct Calculation") |>
+    row_spec (7, bold=TRUE) |>
+    kable_styling(latex_options = c("hold_position", "scale_down"))
+```
+
 Notice that the values on the diagonal, $\theta_{k,k}$ are the same as the original efficiency scores.
 
 We are going to be doing the cross-efficiency calculations often so let's convert this to a function.
@@ -359,13 +368,14 @@ rescross <- calccrosseff (x, y, resfunc$vweight, resfunc$uweight)
 
 kbl (rbind(rescross$crosseval,t(rescross$crosseff)), 
      booktabs = T, digits=5,
-     caption="Cross-Evaluation Matrix and Cross-Evaluation Scores")
-
+     caption="Cross-Evaluation Matrix and Cross-Efficiency Scores from Our Function") |>
+    row_spec (7, bold=TRUE) |>
+    kable_styling(latex_options = c("hold_position", "scale_down"))
 ```
 
 ## Dealing with Cross-Efficiency's Multiple Optima
 
-As discussed in the chapter on the Multiplier model, DEA often has multiple optima, particularly for efficient DMUs. While this doesn't affect the efficiency scores, it can have a major impact on the cross-evaluation scores and therefore the cross-efficiency scores.
+As discussed in the chapter on the Multiplier model, DEA often has multiple optima, particularly for efficient DMUs. While this doesn't affect the efficiency scores in either the envelopment or the multiplier model, it can have a major impact on the cross-evaluation scores and therefore the cross-efficiency scores.
 
 To examine this issue, we need to invoke a secondary objective function again in the same manner as we did for the envelopment model.
 
@@ -442,7 +452,43 @@ multiplierIOSec <- function (x, y)
 
 ```
 
-Let's explore the impact of the secondary objective function. The `MultiplierDEA`package has a cross-efficiency function but the `Mal_Ben` is a specialized version of the cross-efficiency function that implements the secondary goal of either malevolently trying to minimize other people's scores or benevolently trying to maximize other people's scores. Let's compare these to this to the arbitrary cross-efficiency function which does neither.
+Let's explore the impact of the secondary objective function. The `MultiplierDEA`package has a cross-efficiency function but the `Mal_Ben` is a specialized version of the cross-efficiency function that implements the secondary goal of either malevolently trying to minimize other people's scores or benevolently trying to maximize other people's scores based on the work of Doyle and Green.
+
+This can be framed as a two-phase model in the same way as the envelopment model slack maximization model.
+
+The first phase is still the standard DEA multiplier model as discussed earlier. In the second phase, we try to either minimize or maximize the collective population's score. Note that in this case, we can define the population input (or output) either including the unit being studied by summing over all of j or all of j excluding the unit studied, k.
+
+$$
+\begin{split}
+\begin{aligned}
+    \text {min/max } & \frac{\sum_{r=1}^{N^Y} u_{r,k} \sum_{j=1}^{N^D} y_{r,j}} {\sum_{i=1}^{N^X} v_{i,k} \sum_{j=1}^{N^D}x_{i,j} } \\
+    \text{s.t.:  } & \theta_{j,k}=\frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,j}} {\sum_{i=1}^{N^X} v_{i,k} x_{i,j} }
+                          \leq 1 \; \forall \; j\\
+& \theta_{k,k}=\frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,k}} {\sum_{i=1}^{N^X} v_{i,k} x_{i,k} }
+= \theta^*_{k,k}\\            
+& u_{r,k}, v_{i,k}\geq 0  \; \forall \; r,i
+  \end{aligned}
+\end{split}
+(\#eq:Ch6LPCCRIO-2Phase)
+$$
+
+This ratio model can be linearized in the same way as the original ratio DEA model.
+
+$$
+\begin{split}
+\begin{aligned}
+    \text {min/max } & \sum_{r=1}^{N^Y} u_{r,k} \sum_{j=1}^{N^D} y_{r,j}\\ &   \text{s.t.:  } \sum_{i=1}^{N^X} v_{i,k} \sum_{j=1}^{N^D}x_{i,j} = 1 \\
+& \sum_{r=1}^{N^Y} u_{r,k} y_{r,j} - \sum_{i=1}^{N^X} v_{i,k} x_{i,j} 
+                          \leq 0 \; \forall \; j\\
+& \sum_{r=1}^{N^Y} u_{r,k} y_{r,k}-  \theta^*_{k,k} \cdot\sum_{i=1}^{N^X} v_{i,k} x_{i,k} \leq 0
+\\            
+& u_{r,k}, v_{i,k}\geq 0  \; \forall \; r,i
+  \end{aligned}
+\end{split}
+(\#eq:Ch6LPCCRIO-2Phase)
+$$
+
+Let's compare these to this to the arbitrary cross-efficiency function which does neither.
 
 ```{r}
 resfunc    <- CrossEfficiency (x, y, rts="crs", 
@@ -454,15 +500,19 @@ resfuncben <- Mal_Ben (x, y, rts="crs",
 ```
 
 ```{r, echo=FALSE}
-rownames(resfunc$ce_ave)<-"Single-Phase Cross-Efficiency"
-rownames(resfuncmal$ce_ave)<-"Malevolent Cross-Efficiency"
-rownames(resfuncben$ce_ave)<-"Benevolent Cross-Efficiency"
+rownames(resfunc$ce_ave)<-"Single-Phase"
+rownames(resfuncmal$ce_ave)<-"Malevolent"
+rownames(resfuncben$ce_ave)<-"Benevolent"
 
 kbl (rbind(t(cbind(x,y)), 
            resfunc$ce_ave, resfuncmal$ce_ave, resfuncben$ce_ave),
-     booktabs = T, digits=4, 
+     booktabs = T, digits=4, drop0trailing = TRUE,
      caption = "Cross-Efficiency Data and Results for Baker" )  |>
-    kable_styling(latex_options = c("hold_position"))
+     row_spec (5:7, bold=TRUE) |>
+     pack_rows ("Inputs", 1, 2) |>
+     pack_rows ("Outputs", 3, 4) |>
+     pack_rows ("Cross-Efficiency Results", 5, 7) |>
+    kable_styling(latex_options = c("hold_position", "scale_down"))
 ```
 
 Next, let's review the implementation of multiple optima in Auro's multiplier model. To test it, we'll load data from Takamura and Tone's 2003 paper on sites for relocating the capital of Japan.
@@ -487,15 +537,20 @@ ceTT03ben <- Mal_Ben (XTT03, YTT03, rts="crs",
 ```
 
 ```{r, echo=FALSE}
-rownames(ceTT03$ce_ave)<-"Single-Phase Cross-Efficiency"
-rownames(ceTT03mal$ce_ave)<-"Malevolent Cross-Efficiency"
-rownames(ceTT03ben$ce_ave)<-"Benevolent Cross-Efficiency"
+rownames(ceTT03$ce_ave)<-"Single-Phase"
+rownames(ceTT03mal$ce_ave)<-"Malevolent"
+rownames(ceTT03ben$ce_ave)<-"Benevolent"
 
-kbl (rbind(t(cbind(XTT03, YTT03)),
-             ceTT03$ce_ave, ceTT03mal$ce_ave, ceTT03ben$ce_ave), 
-           booktabs = T, digits=5,
+kbl (rbind(as.data.frame(t(cbind(XTT03, YTT03)),digits=1),
+           as.data.frame(rbind(ceTT03$ce_ave, ceTT03mal$ce_ave, 
+                               ceTT03ben$ce_ave), digits=5)), 
+           booktabs = T, digits=4,
         caption = "Data and Cross-Efficiency Results for Takamura and Tone, 2003") |>
-    kable_styling(latex_options = c("hold_position"))
+     row_spec (5:7, bold=TRUE) |>
+     pack_rows ("Inputs", 1, 1) |>
+     pack_rows ("Outputs", 2, 4) |>
+     pack_rows ("Cross-Efficiency Results", 5, 7) |>
+    kable_styling(latex_options = c("hold_position", "scale_down"))
 ```
 
 Comments about cross-efficiency functions from `DEAmultiplier` package.
@@ -519,6 +574,19 @@ YSpringL <- matrix(c(77,10,88,13,6,35,75,3,
                    dimnames=list(LETTERS[1:8],
                                  c("HW","MQ","Proj", "Exam")))
 SpringLres <- CrossEfficiency(XSpringL, YSpringL)
+```
+
+```{r}
+res <- rbind (SpringLres$ceva_matrix, SpringLres$ceva_max, SpringLres$ce_ave)
+resrows <-cbind (c("A", "B", "C", "D", "E", "F", "G", "H", 
+         "Efficiency", "Cross-Efficiency"))
+kbl (cbind(resrows, as.data.frame(res,digits=5)), 
+     row.names=F, booktabs = T, digits=5, escape=F,
+        caption = "Results from Class Grading Example") |>
+     row_spec (9:10, bold=TRUE) |>
+     pack_rows ("Cross-Evaluation Matrix", 1, 8) |>
+     pack_rows ("Results", 9, 10) |>
+         kable_styling(latex_options = c("hold_position", "scale_down"))
 ```
 
 ## Future Issues for Cross-Efficiency Chapter
