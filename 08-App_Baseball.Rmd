@@ -67,9 +67,8 @@ Now we need to work on getting the data for different players.
 ```{r display-batting-data}
 library(kableExtra)
 kbl (head(Lahman::Batting), booktabs = T,
-       caption="Sample of Lahman Baseball Data")|>
-kable_styling(latex_options =
-c("hold_position", "scale_down"))
+       caption="Sample of Lahman Baseball Data") |> 
+  kable_styling(latex_options =  c("hold_position", "scale_down"))
 ```
 
 What does this all mean? The first column, `playerID`, is a uniquely coded ID for each player consisting of the first six letters of the last name, first two letters of the first name, and which instance of that eight letter combination the player is. For example, row 5 is `ansonca01,` which corresponds to the Hall of Famer, Cap Anson. Each row gives the statistics for a year that he had with a particular team. If the player plays for multiple teams in a year, they will have multiple rows. Also, if their career lasts more than one year, they will have more than one row.
@@ -89,7 +88,8 @@ batting<-Lahman::Batting
 batting <- dplyr::select(batting, playerID, yearID,
                          teamID, lgID, AB, H, X2B, X3B, HR, BB)
 kbl (head(batting), booktabs = T, 
-       caption="Batting Data Used for Analysis")
+       caption="Batting Data Used for Analysis") |>
+  kable_styling(latex_options = c("hold_position"))
 ```
 
 Through the 2015 season, this dataset has 101,332 rows or player seasons. The game of baseball went through a lot of change in teams, rules, and other development and so it may be more useful to focus our attention on the after 1900. We've got plenty of data, let's filter the rows to only to only include years after 1900.
@@ -108,7 +108,7 @@ batting<-dplyr::mutate(batting,X1B=H-HR-X3B-X2B)
 batting<-dplyr::mutate(batting,PA=AB+BB)
 kbl (head(batting), booktabs = T, 
        caption="Calculate Singles and Plate Appearances")|>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("hold_position", "scale_down"))
 ```
 
 Lastly, now that we feel confident that our data transformation for calculating singles and plate appearances work, let's drop the old columns for hits and at-bats as well as reordering them.
@@ -124,7 +124,8 @@ kbl (head(batting), booktabs = T,
 ```{r selecting-fulltime-players}
 MinPA <- 400
 batting <- dplyr::filter(batting,PA>MinPA)
-kbl (head(batting), booktabs = T, caption="Limit to Full-time Players") |>
+kbl (head(batting), booktabs = T, 
+     caption="Limit to Full-time Players") |>
   kable_styling(latex_options = c("hold_position"))
 ```
 
@@ -188,7 +189,8 @@ batting1920AL <- batting   |>
 x <- batting1920AL |> select( PA)
 row.names(x)<-batting1920AL[,1]
 kbl (head (x), booktabs=T,
-        caption="Inputs for the 1920AL")
+        caption="Inputs for the 1920AL") |>
+  kable_styling(latex_options = c("hold_position"))
 
 y <- batting1920AL |> select(BB, X1B, X2B, X3B, HR)
 row.names(y)<-batting1920AL[,1]
@@ -308,7 +310,7 @@ BattingWR<-data.frame(lower = c(1.0,1.0,1.0,1.0),
 
 kbl(BattingWR, booktabs=T, 
     caption=
-         "Data Structure for Batting Weight Restrictions")|>
+         "Data Structure for Batting Weight Restrictions") |>
   kable_styling(latex_options = c("hold_position"))
 
 res1920ALmultWR<-DeaMultiplierModel(x,y,rts = "crs", 
@@ -353,29 +355,43 @@ res1920ALCEWR<-CrossEfficiency(x, y, rts = "crs",
                                orientation="output", 
                                weightRestriction = BattingWR)
 
-kbl(head (t(res1920ALcross$ce_ave)), booktabs=T, digits=4,
-       caption="Cross-efficiency scores for 1920AL")
-kbl(head (res1920ALmult$Efficiency), booktabs=T, digits=4,
-       caption="CCR Efficiency Scores")
-kbl(head (t(res1920ALcross$ceva_max)), booktabs=T, digits=4,
-       caption="Maximum Cross-Evaluation Score for Each Player")
 
+
+```
+
+```{r}
+temp <- data.frame(cbind(res1920ALmult$Efficiency,
+                         t(res1920ALcross$ce_ave),
+                         t(res1920ALcross$ceva_max))) 
+
+colnames(temp)<-c("Efficiency", "Cross-Efficiency", "Max Cross-Evaluation")
+
+kbl(head (temp,10), booktabs=T, digits=5,
+       caption="Cross-Efficiency Scores for First Ten 1920 AL Batters") |>
+  kable_styling(latex_options = c("hold_position"))
+```
+
+This table of batters is simply in alphabetical order but illustrates that the maximum cross-evaluation score is the same as the efficiency score.
+
+Let's now examine the top ten most efficient hitters sorted by efficiency and their cross-efficiency scores with and without weight restrictions imposed.
+
+```{r}
 collectedeff1 <- data.frame(cbind(res1920ALmult$Efficiency,
                                   res1920ALmultWR$Efficiency,
                                   t(res1920ALcross$ce_ave),
                                   t(res1920ALCEWR$ce_ave))) 
 
-colnames(collectedeff1)<-c("CCRIO", "CCRIOWR", "CE", "CEWR")
+colnames(collectedeff1)<-c("Efficiency", "Efficiency/WR", 
+                           "Cross-Efficiency", "Cross-Efficiency/WR")
 
 kbl(head(collectedeff1 
            [order(collectedeff1[,1], decreasing = TRUE),
              1:4], # Display first four columns
           10), # Display top 10 rows
-       booktabs=T, digits=4, 
+       booktabs=T, digits=5, 
        caption=
-         "1920 AL Top Ten CCR Input-Oriented Efficient Players"
-       )
-
+         "1920 AL Top Ten Input-Oriented CRS Efficient Players") |>
+  kable_styling(latex_options = c("hold_position", "scale_down"))
 ```
 
 Baseball fans may recognize some of the names:
@@ -386,81 +402,96 @@ Baseball fans may recognize some of the names:
 -   Harry Hooper (`hoopeha01`) and Sam Rice (`ricesa01`) were star players and made the Hall of Fame but was a big step below Speaker and Collins.
 -   George Herman "Babe" Ruth (`ruthba01`) has already been discussed at length.
 -   Eddie Collins, like Tris Speaker, was among the very best players of all time.
--   Bob Meusel (`meusebo01`), Joe Judge (`judgejo01`), and Joe Dugan (`duganjo01`) had good careers but are never thought of as all-time greats.
+-   Bob Meusel (`meusebo01`), Joe Judge (`judgejo01`), and Joe Dugan (`duganjo01`) had good careers but have never been thought of as all-time great batters.
 
-```{r}
 
-kbl(cor(collectedeff1[,1:4]), booktabs=T, digits=4,
-       caption="Correlation of DEA Models for the 1920 AL")
+```{r, echo=FALSE}
+temp<-as.matrix(cbind(res1920ALmult$Efficiency,
+                      res1920ALmultWR$Efficiency,
+                      t(res1920ALcross$ce_ave),
+                      t(res1920ALCEWR$ce_ave)))
+colnames(temp)<-c("Efficiency", "Efficiency/WR", "Cross-Efficiency", "Cross-Efficiency/WR")
 
-collectedeff1$name <- row.names(collectedeff1)
-    # Add column for player names to make labels in ggplot
-colnames(res1920ALmult$Efficiency)<-"Efficiency"
-colnames(res1920ALmultWR$Efficiency)<-"Efficiency w WR"
-#rownames(res1920ALcross$ce_ave)<-"Cross-Efficiency"
+corrtemp <- rbind( cor(temp, method="pearson"), cor(temp, method="spearman"))
 
-kbl(cor(
-  cbind(res1920ALmult$Efficiency, t(res1920ALcross$ce_ave),
-        res1920ALmultWR$Efficiency)), booktabs=T, digits=4,
-  caption="Correlation of DEA Models for the 1920 AL")|>
-  kable_styling(latex_options = c("hold_position"))
-
+kbl(corrtemp, booktabs=T,
+    caption="Correlations between Efficiency, Cross-Efficiency, and Weight Restricted Results") |>
+       pack_rows ("Pearson Correlation", 1, 4) |>
+       pack_rows ("Spearman Rank Correlation", 5, 8)  |>
+    kable_styling(latex_options = c("hold_position", "scale_down"))
 ```
 
-The cross-efficiency and the regular efficiency scores are related - they have a correlation of 0.870 but the cross-efficiency has a 0.910 correlation with the weight restricted DEA results. This suggests that perhaps cross-efficiency can help deal with decreasing the impact of unrealistic weight schemes but let's take a closer look at the results.
+Both the simple Pearson's correlation matrix and the Spearman's rank correlation matrix give similar scores but the Spearman rank correlations are generally higher. This indicates that the scores for the `r nrow(res1920ALmult$Efficiency)` players are numerically related and their relative ranking is a little more similar.  
 
-First, let's examine one hitter in particular. In 1920, Babe Ruth had one of the best seasons ever by a baseball hitter. Various statistics demonstrate his dominance but home runs really highlight the impact. His 54 home runs nearly doubled the previous record of 29 in a season he had set the previous year. Alone, he hit more home runs than 14 of the 16 teams in the leagues. Until the recent steroid era, Babe Ruth's 1920 and 1921 seasons are generally considered to be the two best offensive seasons in baseball.
+The cross-efficiency and the regular efficiency scores are related - they have a correlation of `r  round(corrtemp[1,2], 3)`  but the cross-efficiency has a 0.910 correlation with the weight restricted DEA results. This suggests that perhaps cross-efficiency can help deal with decreasing the impact of unrealistic weight schemes but let's take a closer look at the results.
+
+While all of the correlations are strong, they are being done over the entire population of `r nrow(res1920ALmult$Efficiency)` batters but DEA is about benchmarking against the best. Let's dig into the results more deeply by examining one hitter in particular. In 1920, Babe Ruth had one of the best seasons ever by a baseball hitter. Various statistics demonstrate his dominance but home runs really highlight the impact. His 54 home runs in 1920 nearly doubled the previous major league baseball record of 29 in a season he had set the previous year. Alone, he hit more home runs than 14 of the 16 teams in the leagues. Until the recent steroid era, Babe Ruth's 1920 and 1921 seasons are generally considered to be the two best offensive seasons in baseball.
 
 Babe's cross-efficiency score was `r round(res1920ALcross$ce_ave[1,"ruthba01"],6)`. Coincidentally, his cross-efficiency score was nearly identical to the average cross-efficiency of other regular baseball batters of `r round(mean(res1920ALcross$ce_ave),6)`. In other words, what may have been one of the best batting performances in a century of baseball was wrongly misclassified as being just average by cross-efficiency.
 
 The reason for this can be seen by the cross-efficiency matrix of weights.
 
-```{r}
-ggplot (collectedeff1, aes(x=CCRIO, y=CCRIOWR)) +
-        xlab("CCR-IO Efficiency") + 
-        ylab("CCR-IO Efficiency with Weight Restrictions") +
-        ggtitle("Impact of Weight Restrictions on 1920 AL CC Efficiency") +
-        geom_point(shape=1) +
-        geom_abline(slope=1, color="red") +
-        geom_text(data=subset(collectedeff1, CCRIO > 0.999 ),
-                  nudge_x = 0.03,
-                   aes(CCRIO,CCRIOWR,label=name))
+```{r, fig.show='hold', fig.align='center', fig.cap="Impact of Weight Restrictions on Efficiency"}
+collectedeff1 <- data.frame(cbind(res1920ALmult$Efficiency, 
+                                  res1920ALmultWR$Efficiency,
+                                  t(res1920ALcross$ce_ave),
+                                  t(res1920ALCEWR$ce_ave),
+                                  rownames(collectedeff1)))
+colnames(collectedeff1)<-c("CCRIO", "CCRIOWR", "CE", "CEWR", "nameID")
+
+CRSvsCRSWR <- ggplot (collectedeff1, aes(x=as.numeric(CCRIO), y=as.numeric(CCRIOWR))) +
+  xlab("Input-Oriented CRS Efficiency") +
+  ylab("Input-Oriented CRS Efficiency with Weight Restrictions") +
+  ggtitle("1920 American League Input-Oriented Constant Returns to Scale Model") +
+  geom_point(shape=1) +
+  geom_abline(slope=1, color="red") +
+  geom_text(data=subset(collectedeff1, as.numeric(CCRIO) > 0.999 ), 
+            nudge_x = 0.03, aes(x=as.numeric(CCRIO), y=as.numeric(CCRIOWR), 
+                                label=nameID))
+
+CRSvsCRSWR 
 ```
 
-This chart of efficiency vs. efficiency with weight restrictions clearly shows that no one has their efficiency improved by the imposition of weight restrictions. In fact, only two players have the same score in both models: `sislege01` (George Sisler) and `ruthba01` (Babe Ruth). Both Sisler and Ruth are efficient in both models.
+This chart of efficiency vs. efficiency with weight restrictions clearly shows that no one has their efficiency improved by the imposition of weight restrictions. In fact, only two players have the same score in both models: `sislege01` (George Sisler) and `ruthba01` (Babe Ruth). Sisler and Ruth are efficient in both models. Let's examine similar plots to examine cross-efficiency. The code for plot generation is not displayed for the sake of readability (i.e. a code chunk option of `echo=FALSE` is used.)
 
-```{r}
-ggplot (collectedeff1, aes(x=CCRIO, y=CE)) +
-      xlab ("CCR-IO Efficiency") + 
-      ylab ("Cross-Efficiency") +
-      ggtitle ("Cross-Efficiency vs. CCR-IO Efficiency for 1920 AL") +
-      geom_point (shape=1) +
-      geom_abline (slope=1, color="red") + 
-      geom_text (data=subset(collectedeff1, CCRIO > 0.999 ),
-                 nudge_x = 0.03,
-                 aes(CCRIO,CE,label=name))
+```{r, echo=FALSE, fig.show='hold', fig.align='center', fig.cap="Cross-Efficiency vs. Efficiency"}
+
+CRSvsCE <- ggplot (collectedeff1, aes(x=as.numeric(CCRIO), y=as.numeric(CE))) +
+  xlab("Input-Oriented CRS Efficiency") +
+  ylab("Cross-Efficiency") +
+  ggtitle("1920 American League Input-Oriented Constant Returns to Scale Model") +
+  geom_point(shape=1) +
+  geom_abline(slope=1, color="red") +
+  geom_text(data=subset(collectedeff1, as.numeric(CCRIO) > 0.999 ), 
+            nudge_x = 0.03, aes(x=as.numeric(CCRIO), y=as.numeric(CE), 
+                                label=nameID))
+
+CRSvsCE
+
 ```
 
 Now, let's move on to examine the story of cross-efficiency vs. regular CCR Input-Oriented Efficiency. This chart makes it clear that while they are correlated, the nine players that were originally deemed CCR-IO Efficient are treated quite differently by cross-efficiency. George Sisler is rated highest but is closely followed by Tris Speaker, Eddie Collins, and "Shoeless" Joe Jackson. These four are clearly separated from all of the other players. The next two formerly efficient players, Sam Rice and Joe Judge, still receive cross-efficiency scores over 0.85 but are now even surpassed by one CCR-IO inefficient player.
 
 This brings us to the last three of the formerly efficient players: Harry Hooper, Bob Meusel, and Babe Ruth. All three of these players are outscored in cross-efficiency by many other players. Their cross-efficiency scores are all approximately the league average. All of this despite the fact that as discussed earlier, Babe Ruth was not just inarguably the *best* batter in 1920 but arguably the best of the century.
 
-```{r}
-ggplot (collectedeff1, aes(x=CE, y=CEWR)) +
-      xlab("Cross-Efficiency") + 
-      ylab("Cross-Efficiency with Weight Restrictions") +
-      ggtitle(
-        "Impact of Weight Restrictions on 1920 AL Cross-Efficiency") +
-      geom_point(shape=1) +
-      geom_abline(slope=1, color="red")+
-      geom_text(data=subset(collectedeff1, CEWR > 0.85 ),
-                  nudge_x = -0.03,
-                   aes(CE,CEWR,label=name))
+```{r, echo=FALSE, fig.show='hold', fig.align='center', fig.cap="Impact of Weight Restrictions on Cross-Efficiency"}
+CEvsCEWR <- ggplot (collectedeff1, aes(x=as.numeric(CE), y=as.numeric(CEWR))) +
+  xlab("Cross-Efficiency") +
+  ylab("Cross-Efficiency with Weight Restrictions") +
+  ggtitle("1920 American League Input-Oriented Constant Returns to Scale Model") +
+  geom_point(shape=1) +
+  geom_abline(slope=1, color="red") +
+  geom_text(data=subset(collectedeff1, as.numeric(CEWR) > 0.85 ), 
+            nudge_x = -0.03, aes(x=as.numeric(CE), y=as.numeric(CEWR), 
+                                label=nameID))
+
+CEvsCEWR
+
 ```
 
 While cross-efficiency is sometimes used as a crutch to improve discrimination without needing to use application area-expertise, weight restrictions can be used just as readily in cross-efficiency as in regular DEA studies. This chart highlights shows that unlike regular DEA, adding weight restrictions helps some players' scores and hurts others'. The biggest beneficiary of weight restrictions is Babe Ruth. While his weight-restricted cross-efficiency score still trails George Sisler by a small margin, he is no longer considered a mere "average" batter.
 
-Most DEA applications do not have the benefit of a historically transcendent performance such as that of Babe Ruth to highlight a modeling error of using cross-efficiency to easily improve discrimination among DMUs. Cross-efficiency sacrifices DEA's conservative or generous assumption of weight flexibility to opaquely create an alternate scoring model. While it does typically create a unique ranking of all of the DMUs, this does not necessarily make it valid.
+Most DEA applications do not have the benefit of a historically transcendent performance such as that of Babe Ruth to highlight a modeling error of using cross-efficiency to increase improve discrimination among DMUs. Cross-efficiency sacrifices DEA's conservative or generous assumption of weight flexibility to opaquely create an alternate scoring model. While it does typically create a unique ranking of all of the DMUs, this does not necessarily make it valid.
 
 This analysis demonstrates that cross-efficiency is not a substitute for the hard work of good modeling.
 
@@ -474,21 +505,21 @@ The result is that the only way that Babe Ruth could get a cross-efficiency scor
 
 Let's look at the calculations for Babe Ruth using his own weighting scheme.
 
-```{r}
+```{r, echo=FALSE}
 
 ybabe  <- y["ruthba01", ]
 uybabe <- as.data.frame(t(res1920ALcross$uy["ruthba01",]))
 xbabe  <- x["ruthba01", ]
 vxbabe <- as.data.frame(t(res1920ALcross$vx["ruthba01",]))
 rownames(uybabe) <- "output weights"
-kbl (rbind(ybabe, uybabe), booktabs=T, digits=4,
+kbl (rbind(ybabe, uybabe), booktabs=T, digits=5,
         caption = 
           "Ruth's Outputs and Ruth's Cross-Efficiency Output Weights")|>
   kable_styling(latex_options = c("hold_position"))
 
 ```
 
-Now, we can multiply each output by the corresponding output weight and then add these products together. The result is `r as.matrix(ybabe) %*% t(as.matrix(uybabe))`. The input weight for Babe was `r vxbabe` while his input (Plate Appearances) was `r xbabe`. Simply multiplying them together gives us `r as.matrix(xbabe) %*% t(as.matrix(vxbabe))`. The final result is taking the weighted output divided by the weighted output which gives us `r as.matrix(ybabe) %*% t(as.matrix(uybabe))/as.matrix(xbabe) %*% t(as.matrix(vxbabe))`. Not surprisingly, Babe Ruth's cross-evaluation score based on his own weights is the same as his CCR output-oriented efficiency score. In this case, simply 1.0.
+Now, we can multiply each output by the corresponding output weight and then add these products together. The result is `r as.matrix(ybabe) %*% t(as.matrix(uybabe))`. The input weight for Babe was `r round(vxbabe,5)` while his input (Plate Appearances) was `r xbabe`. Simply multiplying them together gives us `r as.matrix(xbabe) %*% t(as.matrix(vxbabe))`. The final result is taking the weighted output divided by the weighted output which gives us `r as.matrix(ybabe) %*% t(as.matrix(uybabe))/as.matrix(xbabe) %*% t(as.matrix(vxbabe))`. Not surprisingly, Babe Ruth's cross-evaluation score based on his own weights is the same as his CCR output-oriented efficiency score. In this case, simply 1.0.
 
 Now, let's go through the process of seeing the calculation of Babe Ruth's cross-evaluation score using the weights of George Sisler.
 
@@ -502,7 +533,7 @@ kbl (rbind(ybabe, uysisl), booktabs=T, digits=6,
   kable_styling(latex_options = c("hold_position"))
 ```
 
-Now, we again multiply each output by the corresponding output weight and then add these products together. The result is `r as.matrix(ybabe) %*% t(as.matrix(uysisl))`.The input weight for Sisler was `r vxsisl` while Babe's input (Plate Appearances) was `r xbabe`. Simply multiplying them together gives us `r as.matrix(xbabe) %*% t(as.matrix(vxsisl))` The final result is taking the weighted output divided by the weighted output which gives us `r (as.matrix(ybabe) %*% t(as.matrix(uysisl)))/(as.matrix(xbabe) %*% t(as.matrix(vxsisl)))`. Babe Ruth's cross-evaluation score based on George Sisler's weights results in a much lower score than his own score.
+Now, we again multiply each output by the corresponding output weight and then add these products together. The result is `r round(as.matrix(ybabe) %*% t(as.matrix(uysisl)),5)`.The input weight for Sisler was `r round(vxsisl,5)` while Babe's input (Plate Appearances) was `r xbabe`. Simply multiplying them together gives us `r round(as.matrix(xbabe) %*% t(as.matrix(vxsisl)),5)` The final result is taking the weighted output divided by the weighted output which gives us `r round((as.matrix(ybabe) %*% t(as.matrix(uysisl)))/(as.matrix(xbabe) %*% t(as.matrix(vxsisl))),5)`. Babe Ruth's cross-evaluation score based on George Sisler's weights results in a much lower score than his own score.
 
 Both George Sisler's and Babe Ruth's output weights violate the pattern of increasing (or more precisely, non-decreasing) values as you move to the right. In the case of Babe Ruth's efficiency score, it does not hurt him to have this unrealistic scheme because he gave himself a *1.0*. On the other hand, in cross-efficiency, this unrealistic weighting scheme used by George Sisler *hurt* the final cross-efficiency score of Babe Ruth.
 
@@ -543,9 +574,9 @@ kbl (rbind(ybabe, uymean), booktabs=T, digits=4,
   kable_styling(latex_options = c("hold_position"))
 ```
 
-Once again we multiply each output by the corresponding output weight and then add these products together. The result is `r as.matrix(ybabe) %*% t(as.matrix(uymean))`. The mean input weight was `r vxmean` while his input (Plate Appearances) was `r xbabe`. Simply multiplying them together gives us `r as.matrix(xbabe) %*% t(as.matrix(vxmean))`. The final result is taking the weighted output divided by the weighted output which gives us `r as.matrix(ybabe) %*% t(as.matrix(uymean))/as.matrix(xbabe) %*% t(as.matrix(vxmean))`. Babe Ruth's cross-evaluation score based on the league-wide mean weights results in a higher score score than what Sisler gave him but far below his own efficiency score.
+Once again we multiply each output by the corresponding output weight and then add these products together. The result is `r round(as.matrix(ybabe) %*% t(as.matrix(uymean)),4)`. The mean input weight was `r round(vxmean,4)` while his input (Plate Appearances) was `r xbabe`. Simply multiplying them together gives us `r round(as.matrix(xbabe) %*% t(as.matrix(vxmean)),4)`. The final result is taking the weighted output divided by the weighted output which gives us `r round(as.matrix(ybabe) %*% t(as.matrix(uymean))/as.matrix(xbabe) %*% t(as.matrix(vxmean)),4)`. Babe Ruth's cross-evaluation score based on the league-wide mean weights results in a higher score score than what Sisler gave him but far below his own efficiency score.
 
-Note, this calculated value matches the original cross-efficiency score for Babe Ruth of `r round(res1920ALcross$ce_ave[1, "ruthba01"],6)` calculated as simply the column average of the cross-evaluation matrix.
+Note, this calculated value matches the original cross-efficiency score for Babe Ruth of `r round(res1920ALcross$ce_ave[1, "ruthba01"],4)` calculated as simply the column average of the cross-evaluation matrix.
 
 The same mean cross-efficiency weights can be used for calculating the cross-efficiency score for each of the other players. This is not a matter of some (or most) players occasionally violating the relationship in some way but a systematic error. What this means is that *every* player is now being assessed against the same fixed and in this case, implausible weighting scheme. If you look carefully at the mean output weights, the mean weight for Home Runs is just half that of the next lowest output weight (base on balls). Singles, doubles, and triples are all given four or fives times as much weight as home runs.
 
@@ -607,16 +638,22 @@ colnames(res1991MLB$lambda)<-t(MLB1991AL$teamID)
 kbl(poscol(cbind(res1991MLB$eff,res1991MLB$lambda)), 
     booktabs=T, digits=4, 
        caption=
-         "BCC Efficiency and Lambda Values of 1991 AL Teams") |>
-kable_styling(latex_options =
-c("hold_position", "scale_down"))
-
+         "VRS Efficiency and Lambda Values of 1991 AL Teams") |>
+kable_styling(latex_options = c("hold_position", "scale_down"))
 ```
 
 These results show that only four teams were efficient: Chicago White Sox (CHA), Minnesota Twins (MIN), Seattle Mariners (SEA), and Toronto Blue Jays (TOR). All other teams were compared to a combination of these these teams. Since this is a simple, one-input, one-output model, it is easy to show graphically. The `Benchmarking`package from Bogetoft and Otto does a great job of drawing 2 dimensional DEA plots so we will again use this package.
 
-```{r}
+```{r, include=FALSE}
 library (Benchmarking)
+# Done with include=FALSE so as to not give message about loading packages
+```
+
+```{r, eval=FALSE}
+library (Benchmarking)
+```
+
+```{r}
 dea.plot.frontier (MLB1991AL$payroll, MLB1991AL$W, RTS="vrs", 
                    txt=MLB1991AL$teamID,
                    fex = 0.7, # Scales data text label size 

@@ -186,7 +186,7 @@ colnames(y)[1] <- c("Reimbursed")
 colnames(y)[2] <- c("Private")
 # Calculate the efficiency score
 result <- CrossEfficiency(x,y,"crs", "input")
-# Examine the cross efficiency score for DMUs
+# Examine the cross-efficiency score for DMUs
 kbl (result$ce_ave, 
      align = "c", booktabs = T, digits = 4,
      caption="Cross-Efficiency Scores")    |>
@@ -497,7 +497,7 @@ rownames(resfuncben$ce_ave)<-"Benevolent"
 
 kbl (rbind(t(cbind(x,y)), 
            resfunc$ce_ave, resfuncmal$ce_ave, resfuncben$ce_ave),
-     booktabs = T, digits=4, drop0trailing = TRUE,
+     booktabs = T, digits=4, 
      caption = "Cross-Efficiency Data and Results for Baker" )  |>
      row_spec (5:7, bold=TRUE) |>
      pack_rows ("Inputs", 1, 2) |>

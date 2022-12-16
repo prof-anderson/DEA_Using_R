@@ -296,7 +296,7 @@ In this case, the "1" corresponds to the column for the $\theta$ variable of the
 lpcontrol <- lp.control(lpe, sense="min") 
               # Set to a minimize function
 
-set.objfn(lpe, c(rep(0, ND),1,rep(0,NX+NY)))  
+set.objfn(lpe, c(rep(0, ND), 1, rep(0,NX+NY)))  
               # Minimize the theta variable.
 ```
 
@@ -436,7 +436,7 @@ results.uweight [k,]    # Display output weights
 ```{r, echo=FALSE}
 kbl (cbind(results.efficiency [k],t(results.lambda  [k,]),
            results.vweight [k,],results.uweight [k,]),
-     booktabs=T, escape=F,digits=4, 
+     booktabs=T, escape=F, digits=4, 
      caption="DEA Efficiency Scores and Lambdas", 
      col.names =  c("$\\theta^{CRS}$","$\\lambda_A$", "$\\lambda_B$", 
                                 "$\\lambda_C$", "$\\lambda_D$", 
