@@ -149,12 +149,12 @@ kbl (malm_gr_data, caption="Data for graphical example of the Malmquist Producti
 
 ```
 
-This table is a pretty simple and compact format but MPI requires more organization. Specifically, even a simple dataset requires us to specify inputs and outputs just like in other DEA applications but it also needs time periods and a way to match each DMU from period to period. The `deaR` package has a function, `read_malmquist` to convert a dataset into the appropriate format.
+This table is a pretty simple and compact format but MPI requires more organization. Specifically, even a simple dataset requires us to specify inputs and outputs just like in other DEA applications but it also needs time periods and a way to match each DMU from period to period. The `deaR` package has a function, `make_malmquist` to convert a dataset into the appropriate format.
 
 ```{r}
 #Process data into the format required by deaR
 malm_gr_data_pro <- 
-  read_malmquist(malm_gr_data,
+  make_malmquist(malm_gr_data,
                  percol = 1,   # Use Col1 for period (year)
                  dmus = 2,     # Col2 has DMU identifier
                  inputs = 3,   # Col3 has the input
@@ -213,7 +213,7 @@ Let's revisit an example from the literature using the `deaR` package.
 data("Grifell_Lovell_1999")
 kbl (Grifell_Lovell_1999, booktabs=T)
 
-data_example <- read_malmquist(Grifell_Lovell_1999,
+data_example <- make_malmquist(Grifell_Lovell_1999,
                                percol = 1,
                                dmus = 2,
                                inputs = 3,
@@ -374,7 +374,7 @@ mID <-rownames (mt)
 # Convert data into to deaR's format
 
 mdata_19_20 <- cbind (mID, mt, mx, my)
-mdata_19_20_pre <- deaR::read_malmquist(mdata_19_20,
+mdata_19_20_pre <- deaR::make_malmquist(mdata_19_20,
                                 percol = 2, 
                                 arrangement = "vertical",
                                 inputs = 3, 

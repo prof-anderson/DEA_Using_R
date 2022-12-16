@@ -427,9 +427,7 @@ The cross-efficiency and the regular efficiency scores are related - they have a
 
 While all of the correlations are strong, they are being done over the entire population of `r nrow(res1920ALmult$Efficiency)` batters but DEA is about benchmarking against the best. Let's dig into the results more deeply by examining one hitter in particular. In 1920, Babe Ruth had one of the best seasons ever by a baseball hitter. Various statistics demonstrate his dominance but home runs really highlight the impact. His 54 home runs in 1920 nearly doubled the previous major league baseball record of 29 in a season he had set the previous year. Alone, he hit more home runs than 14 of the 16 teams in the leagues. Until the recent steroid era, Babe Ruth's 1920 and 1921 seasons are generally considered to be the two best offensive seasons in baseball.
 
-Babe's cross-efficiency score was `r round(res1920ALcross$ce_ave[1,"ruthba01"],6)`. Coincidentally, his cross-efficiency score was nearly identical to the average cross-efficiency of other regular baseball batters of `r round(mean(res1920ALcross$ce_ave),6)`. In other words, what may have been one of the best batting performances in a century of baseball was wrongly misclassified as being just average by cross-efficiency.
-
-The reason for this can be seen by the cross-efficiency matrix of weights.
+Babe's cross-efficiency score was `r round(res1920ALcross$ce_ave[1,"ruthba01"],6)`. Coincidentally, his cross-efficiency score was nearly identical to the average cross-efficiency of other regular baseball batters of `r round(mean(res1920ALcross$ce_ave),6)`. In other words, what may have been one of the best batting performances in a century of baseball was wrongly misclassified as being just average by cross-efficiency. The reason for this can be seen by the cross-efficiency matrix of weights presented earlier that showed many batters put zero weight on home runs because they paled in comparison to the best performer on home runs, Babe Ruth.
 
 ```{r, fig.show='hold', fig.align='center', fig.cap="Impact of Weight Restrictions on Efficiency"}
 collectedeff1 <- data.frame(cbind(res1920ALmult$Efficiency, 
@@ -452,7 +450,9 @@ CRSvsCRSWR <- ggplot (collectedeff1, aes(x=as.numeric(CCRIO), y=as.numeric(CCRIO
 CRSvsCRSWR 
 ```
 
-This chart of efficiency vs. efficiency with weight restrictions clearly shows that no one has their efficiency improved by the imposition of weight restrictions. In fact, only two players have the same score in both models: `sislege01` (George Sisler) and `ruthba01` (Babe Ruth). Sisler and Ruth are efficient in both models. Let's examine similar plots to examine cross-efficiency. The code for plot generation is not displayed for the sake of readability (i.e. a code chunk option of `echo=FALSE` is used.)
+This chart of efficiency vs. efficiency with weight restrictions clearly shows that no one has their efficiency improved by the imposition of weight restrictions as no one is above the diagonal line of equal scores in both models. All but two players are below the line indicating that their efficiencies went down. The only two players with the same score in both models: `sislege01` (George Sisler) and `ruthba01` (Babe Ruth). Sisler and Ruth are efficient in both models. The other formerly efficient batters are now inefficient when unrealistic weighting schemes are disallowed.  Their IDs can be read down the right hand side of the chart.
+
+Let's examine similar plots to examine cross-efficiency. The code for plot generation is not displayed for the sake of readability (i.e. a code chunk option of `echo=FALSE` is used.)
 
 ```{r, echo=FALSE, fig.show='hold', fig.align='center', fig.cap="Cross-Efficiency vs. Efficiency"}
 
@@ -470,9 +470,11 @@ CRSvsCE
 
 ```
 
-Now, let's move on to examine the story of cross-efficiency vs. regular CCR Input-Oriented Efficiency. This chart makes it clear that while they are correlated, the nine players that were originally deemed CCR-IO Efficient are treated quite differently by cross-efficiency. George Sisler is rated highest but is closely followed by Tris Speaker, Eddie Collins, and "Shoeless" Joe Jackson. These four are clearly separated from all of the other players. The next two formerly efficient players, Sam Rice and Joe Judge, still receive cross-efficiency scores over 0.85 but are now even surpassed by one CCR-IO inefficient player.
+At first glance, the story of cross-efficiency vs. efficiency. This chart makes it clear that while they are correlated, the nine players that were originally deemed CCR-IO Efficient are treated quite differently by cross-efficiency. No one receives a score of 1.0 in the cross-efficiency analysis as this would require that everyone uses weights that score that player with a 1.0. George Sisler is rated highest but is closely followed by Tris Speaker, Eddie Collins, and "Shoeless" Joe Jackson. These four are clearly separated from all of the other players. The next two formerly efficient players, Sam Rice and Joe Judge, still receive cross-efficiency scores over 0.85 but are now even surpassed by one CCR-IO inefficient player.
 
 This brings us to the last three of the formerly efficient players: Harry Hooper, Bob Meusel, and Babe Ruth. All three of these players are outscored in cross-efficiency by many other players. Their cross-efficiency scores are all approximately the league average. All of this despite the fact that as discussed earlier, Babe Ruth was not just inarguably the *best* batter in 1920 but arguably the best of the century.
+
+Now let's see if weight restrictions can solve the problem of cross-efficiencies' incorrect evaluation of Babe Ruth.
 
 ```{r, echo=FALSE, fig.show='hold', fig.align='center', fig.cap="Impact of Weight Restrictions on Cross-Efficiency"}
 CEvsCEWR <- ggplot (collectedeff1, aes(x=as.numeric(CE), y=as.numeric(CEWR))) +
