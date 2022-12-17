@@ -10,7 +10,7 @@ library(bookdown); library(rmarkdown); rmarkdown::render("03-IO_Env_Matrix.Rmd",
 
 # Matrix Implementations of DEA
 
-```{r Install-support-libraries, echo= FALSE}
+```{r Install-support-libraries, include=FALSE}
 library (kableExtra)
 ```
 
@@ -31,7 +31,7 @@ $$
    \end{split}
 $$
 
-Note that in this form, *X* is a vector of variables. This is a little confusing for people doing DEA since in DEA *x* represents inputs. The vector *X* has length equal to the number of units examined plus one more for theta and the number of inputs and the number of outputs. *C* is a vector of data with the same number of elements as the *X* vector. *A* is a matrix of data and *B* is a vector describing the constraint right hand sides.
+In this formulation, *X* is a vector of variables. This is a little confusing for people doing DEA since in DEA *x* represents inputs. The vector *X* has length equal to the number of units examined plus one more for theta and the number of inputs and the number of outputs to cover slack variables. *C* is a vector of data with the same number of elements as the *X* vector. *A* is a matrix of data and *B* is a vector describing the constraint right hand sides.
 
 Recall that in the previous chapter we had presented the standard LP model of the input-oriented envelopment model.
 
@@ -156,7 +156,7 @@ $$
 \end{split}
 $$
 
-The bulk of the LP is then defined by passing along the numerical A matrix and the vectors of B and C.
+The bulk of the LP is then defined by passing along the numerical A matrix and the vectors of B and C. We then just need to indicate the sense of the the objective function (min or max) and the directions of the constraints.
 
 As models get larger, the full numerical representation becomes difficult for humans to read even if it is a very good format for computers. If you stare at that too long, you may go "bug-eyed." Personally I really like the algebraic representations. The `lpSolve`package in R is capable of taking an LP model in this form and solving it. Now we just need to structure the data in R to put it in the same format.
 
@@ -485,39 +485,29 @@ We are now ready to solve phase 2. We can then extract the values of the $\lambd
 ```{r}
 solve.lpExtPtr (lpe)                                        
 results.lambda[k,] <- get.variables(lpe)[1:(ND)]            
+results.efficiency[k] <- get.variables(lpe)[ND+1]
 results.xslack[k,] <- get.variables(lpe)[(ND+2):(ND+1+NX)]  
-results.yslack[k,] <- get.variables(lpe)[(ND+2+NX):(ND+1+NX+NY)]    
+results.yslack[k,] <- get.variables(lpe)[(ND+2+NX):(ND+1+NX+NY)] 
 ```
 
-Again, let's look over the results.
+Again, let's look over the results. We will arrange them in the order used for building the vector of decision variables.
 
 ```{r}
-Xnames<- lapply(list(rep("X",NX)),paste0,1:NX)
-Ynames<- lapply(list(rep("Y",NY)),paste0,1:NY)
-Vnames<- lapply(list(rep("v",NX)),paste0,1:NX)
-Unames<- lapply(list(rep("u",NY)),paste0,1:NY)
-SXnames<- lapply(list(rep("sx",NX)),paste0,1:NX)
-SYnames<- lapply(list(rep("sy",NY)),paste0,1:NY)
-dimnames(results.lambda)<-c(DMUnames,DMUnames)
-dimnames(results.uweight)<-c(DMUnames,Unames)
-dimnames(results.vweight)<-c(DMUnames,Vnames)
-dimnames(results.xslack)<-c(DMUnames,SXnames)
-dimnames(results.yslack)<-c(DMUnames,SYnames)
-
-#    results.lambda[k,]         
-#    results.xslack[k,]
-#    results.yslack[k,]
-##     pander(cbind(t(results.lambda[k,]),
-  ##     results.yslack[k,]), 
-    ##   caption="Envelopment variables and slacks for DMU B")
-kbl(cbind(t(results.lambda[k,]),
-     results.yslack[k,]), booktabs = T, digits = 2,
-     caption="Envelopment variables and slacks for DMU B")
+kbl(cbind(t(results.lambda[k,]), results.efficiency[k], 
+    results.xslack[k,], results.yslack[k,]), 
+    booktabs = T, digits = 2,
+     caption="Analysis results for DMU B",
+    col.names =  c("$\\lambda_A$", "$\\lambda_B$", 
+                   "$\\lambda_C$", "$\\lambda_D$", 
+                   "$\\theta$","$v_1$", "$u_1$") )|>
+  kable_styling(latex_options = "hold_position")
 ```
 
 Now, let's put it all together to summarize the results.
 
 What does this mean? We are saying that unit `r k` (B) has an efficiency of `r results.efficiency[k]`. This is obtained by using a vector $\lambda$=`r results.lambda[k,]`. Also, the weights on input(s) that correspond to this score was `r results.vweight[k,]` and for outputs `r results.uweight[k,]`.
+
+In this case there was no slack among the inputs or outputs to be maximized but the same approach could be used for other applications.
 
 ## Exercises
 
