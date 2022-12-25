@@ -345,6 +345,8 @@ kbl (t(as.matrix(res2_0$solution)),
      col.names=c("$\\lambda_A$", "$\\lambda_B$", "$\\lambda_C$", 
                  "$\\lambda_D$", "$\\theta$"),
      caption="Initial Input-Oriented Envelopment Analysis for DMU B") |>
+  add_header_above(c("Envelopment Variables" = 4, 
+                     "Efficiency" = 1))|>
   kable_styling(latex_options = "hold_position")
 ```
 
@@ -635,6 +637,7 @@ kbl(cbind(res2_2.efficiency, res2_2.lambda),
     booktabs=T, digits=3, escape=F, 
     col.names=c("$\\theta^{CRS}$", res2_1.names$LambdanamesbyletterLX),
     caption= 'Input-Oriented Envelopment Analysis for DMU A') |>
+  add_header_above(c(" " = 1, "Efficiency" = 1, "Envelopment Variables" = 4)) |>
   kable_styling(latex_options = "hold_position")
 ```
 
@@ -677,6 +680,7 @@ temp <- cbind(res2_1.names$DMUnamesbyletter, # Add letters as column
 kbl(temp, booktabs=T, digits=3, escape=F, row.names=F,
     col.names=c("DMU", "$\\theta^{CRS}$", res2_1.names$LambdanamesbyletterLX),
     caption= 'Input-Oriented Envelopment Efficiency Results') |>
+  add_header_above(c(" " = 1, "Efficiency" = 1, "Envelopment Variables" = 4))  |>
   kable_styling(latex_options = "hold_position")
 ```
 
@@ -750,7 +754,8 @@ temp <- cbind(res2_1.names$DMUnamesbyletter, # Add letters as column
 kbl(temp, 
     booktabs=T, digits=3, escape=F, row.names=F,
     col.names=c("DMU", "$\\theta^{VRS}$", res2_1.names$LambdanamesbyletterLX),
-    caption= "Input-Oriented VRS Envelopment Results (BCC-IO)") |>
+    caption= "Input-Oriented VRS Envelopment Results") |>
+  add_header_above(c(" " = 1, "Efficiency" = 1, "Envelopment Variables" = 4))  |>
   kable_styling(latex_options = "hold_position")
 ```
 
@@ -841,6 +846,8 @@ colnames(temp)<-c("Store Name", "Employees (x1)", "Floor Space (x2)", "Sales (y)
 kbl(temp, 
     booktabs=T, escape=F, row.names=T,
     caption= "Two Input, Single Output Grocery Store Example") |>
+    add_header_above(c(" " = 2, "Inputs" = 2, 
+                     "Ouptut" = 1))                            |>
   kable_styling(latex_options = "hold_position")
 ```
 
@@ -902,7 +909,9 @@ rownames(Store6CRS.Res) <- store6names$DMUnamesbyletter
 kbl (Store6CRS.Res, booktabs=T, escape=F, digits=5,
      col.names=c("$\\theta^{CRS}$", store6names$LambdanamesbyletterLX),
         caption="Results from Six Store Example (CRS)")               |>
-  kable_styling(latex_options = "hold_position")
+  add_header_above(c(" " = 1, "Efficiency" = 1, 
+                     "Envelopment Variables" = 6))          |>
+  kable_styling(latex_options = c("hold_position"))
 ```
 
 The small, nearly zero, values that may appear in DEA calculations can cause some computational difficulty. For example, testing for zero lambda values could miss cases where the value is approximately but not exactly zero.
@@ -993,7 +1002,10 @@ kbl (temp,booktabs=T, digits=6, escape=F,
      col.names=c("$\\theta^{CRS}$", store6names$LambdanamesbyletterLX,
                  store6names$VnamesLX, store6names$UnamesLX),
         caption="Results from Six Store Example")                       |>
-kable_styling(protect_latex = TRUE)
+  add_header_above(c(" "=1, "Efficiency" = 1, "Envelopment Variables" = 6, 
+                     "Weights" = 3))|>
+kable_styling(protect_latex = TRUE, 
+              latex_options = c("hold_position", "scale_down"))
 ```
 
 A few things should be noticed with respect the the multiplier weights:
@@ -1029,6 +1041,8 @@ colnames(temp)<-c("Store Name", "Employees (x1)", "Floor Space (x2)", "Sales (y)
 kbl(temp, 
     booktabs=T, escape=F, row.names=T,
     caption= "Two Input, Single Output Grocery Store Example") |>
+    add_header_above(c(" " = 2, "Inputs" = 2, 
+                     "Output" = 1))|>
   kable_styling(latex_options = "hold_position")
 ```
 
@@ -1080,7 +1094,8 @@ rownames(Store7CRS.Res) <- store7names$DMUnamesbyletter
 kbl (Store7CRS.Res, booktabs=T, escape=F, digits=4,
      col.names=c("$\\theta^{CRS}$", store7names$LambdanamesbyletterLX),
         caption="Results from Seven Store Example (CRS)")               |>
-kable_styling("hold_position")
+  add_header_above(c(" " = 1, "Efficiency" = 1, "Envelopment Variables" = 7)) |>
+  kable_styling(latex_options ="hold_position")
 ```
 
 In this case, Gary's Grocery had an efficiency score, $\theta^{CRS}=1.0$ and was deemed efficient. Interestingly it did not use itself for comparison $\lambda_G=0.0$ and had its target formed based on Trader Carrie's, $\lambda_C=1.0$. This indicates that Gary's Grocery is radially efficient as no target can be made that allows for improving on *all* inputs. The radial efficiency scores may not reflect fully efficient operation.
@@ -1114,7 +1129,8 @@ rownames(Store7CRS.Res) <- store7names$DMUnamesbyletter
 kbl (Store7CRS.Res, booktabs=T, escape=F, digits=4,
      col.names=c("$\\theta^{CRS}$", store7names$LambdanamesbyletterLX),
         caption="Alternate Optimal Solution for Gary's")               |>
-kable_styling("hold_position")
+   add_header_above(c(" " = 1, "Efficiency" = 1, "Envelopment Variables" = 7)) |>
+kable_styling(latex_option="hold_position")
 ```
 
 Notice that this is an instance *multiple optimal solutions* or *multiple optima*. We can demonstrate this by simply adding a constraint that prevents at iteration 7 (Gary's Grocery) from having Trader Carrie's used in target setting ($\lambda_C=0$) will result in exactly the same efficiency score and thereby objective function value. We were lucky in this case to find a target that pointed initially to Trader Carrie's. In the case of multiple optima, finding a solution by luck is not a reliable procedure. We could have just as readily easily found Gary's Grocery to use itself as the comparator setting target using five extra workers than Trader Carrie's.
@@ -1242,7 +1258,9 @@ kbl (Store7SlackMax.Res, booktabs=T, escape=F, digits=3,
      col.names=c("$\\theta^{CRS}$", store7names$LambdanamesbyletterLX, 
                  store7names$SXnamesLX, store7names$SYnamesLX),
         caption="Slack Maximizing Results from Seven Store")          |>
-kable_styling("hold_position")
+   add_header_above(c(" " = 1, "Efficiency" = 1, 
+                      "Envelopment Variables" = 7, "Slacks"=3))         |>
+kable_styling(latex_options="hold_position")
 ```
 
 The results indicate the presence of non-radial slacks in Stores B, F, and G. Not only can B's efficiency be improved by using 16.7% less of every input, the first input can be further reduced by 4.667. A simple focus on just radial efficiency score, $\theta$ will understate the potential for improved operations.

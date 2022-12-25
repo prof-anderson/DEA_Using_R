@@ -185,7 +185,7 @@ The solver in this case knew nothing of our model's structure so the results in 
 res3_1.solution <- as.matrix(res3_1$solution)
 rownames (res3_1.solution) <- c("L_A", "L_B", "L_C", "L_D", "theta", 
                                  "s_x", "s_y")
-kbl (t(res3_1.solution), booktabs=T, 
+kbl (t(res3_1.solution), booktabs=T, digits=3,
         caption="Optimal solution values for DMU A (CCR-IO") |>
   kable_styling(latex_options = "hold_position")
 ```
@@ -203,7 +203,7 @@ rownames (res3_1.solution) <- c("$\\lambda_A$", "$\\lambda_B$",
                                 "$\\lambda_C$", "$\\lambda_D$", 
                                 "$\\theta$", 
                                 "$s^x_1$", "$s^y_1$")
-kbl (t(res3_1.solution), booktabs=T, escape=F,
+kbl (t(res3_1.solution), booktabs=T, escape=F, digits=3,
         caption=
   "Optimal solution values for DMU A with LaTeX column labels")|>
   kable_styling(latex_options = "hold_position")
@@ -441,6 +441,8 @@ kbl (cbind(results.efficiency [k],t(results.lambda  [k,]),
      col.names =  c("$\\theta^{CRS}$","$\\lambda_A$", "$\\lambda_B$", 
                                 "$\\lambda_C$", "$\\lambda_D$", 
                                 "$v_1$", "$u_1$") )|>
+  add_header_above(c("Efficiency" = 1, "Envelopment Variables" = 4, 
+                     "Weights" = 2))|>
   kable_styling(latex_options = "hold_position")
 ```
 
@@ -495,11 +497,13 @@ Again, let's look over the results. We will arrange them in the order used for b
 ```{r}
 kbl(cbind(t(results.lambda[k,]), results.efficiency[k], 
     results.xslack[k,], results.yslack[k,]), 
-    booktabs = T, digits = 2,
+    booktabs = T, digits = 2, escape=F,
      caption="Analysis results for DMU B",
     col.names =  c("$\\lambda_A$", "$\\lambda_B$", 
                    "$\\lambda_C$", "$\\lambda_D$", 
-                   "$\\theta$","$v_1$", "$u_1$") )|>
+                   "$\\theta$","$s_x$", "$s_y$") )|>
+  add_header_above(c("Envelopment Variables" = 4, 
+                     "Efficiency" = 1, "Slacks" = 2))|>
   kable_styling(latex_options = "hold_position")
 ```
 
