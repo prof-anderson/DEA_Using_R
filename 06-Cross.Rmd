@@ -20,7 +20,7 @@ On the other hand, what if it allowed for blending of units. There are a few ass
 
 We'll start by creating a mathematical framework. Can you find a combination of units that produces at least as much output using less input? Let's define the proportion of input needed as $\theta$. A value of $\theta=1$ then means no input reduction can be found in order to produce that unit's level of output. The blend of other units is described by a vector $\lambda$. Another way to denote this is $\lambda_j$ is the specific amount of a unit *j* used in setting the target for for performance for unit *k*. Similarly, $x_j$ is the amount of input used by unit *j* and $y_j$ is the amount of output produced by unit *j*.
 
-This can be easily expanded to the multiple input and multiple output case by defining $x_i,j$ to be the amount of the *i*'th input used by unit *j* and $y_r,j$ to be the amount of the *r*'th output produced by unit *j*. For simplicity, this example will focus on the one input and one output case rather than the *m* input and *s* output case but the R code explicitly allows for $m,s>1$. To make the code more readable, I will use which corresponds to *NX* instead of *m* to refer to the number of inputs (x's) and *NY* to be the number of outputs (y's) instead of *s*. Also, *n* is used to denote the number of Decision Making Units (DMUs) and therefore I'll use *ND* to indicate that in the R code.
+This can be easily expanded to the multiple input and multiple output case by defining $x_i,j$ to be the amount of the *i*'th input used by unit *j* and $y_r,j$ to be the amount of the *r*'th output produced by unit *j*. For simplicity, this example will focus on the one input and one output case rather than the *m* input and *s* output case but the R code explicitly allows for $m,s>1$. To make the code more readable, I will use which corresponds to `NX` instead of *m* to refer to the number of inputs (x's) and `NY` to be the number of outputs (y's) instead of *s*. Also, *n* is used to denote the number of Decision Making Units (DMUs) and therefore I'll use `ND` to indicate that in the R code.
 
 We have two important sets of variables now. The first is $u_r$ which is the weight on the *r*'th output. The second is $v_i$ which is the weight on the *i*'th input.
 
@@ -97,12 +97,12 @@ suppressPackageStartupMessages(library(ompr.roi))
 
 ```{r multiplier-model }
 XBaker1 <- matrix(c(150, 400, 320, 520, 350, 320, 
-                      0.2, 0.7, 1.2, 2.0, 1.2, 0.7),
+                    0.2, 0.7, 1.2, 2.0, 1.2, 0.7),
                   ncol=2,dimnames=list(LETTERS[1:6],
                                        c("x1", "x2")))
 
 YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 
-                      3500, 21000, 10500, 42000, 25000, 15000),
+                    3500, 21000, 10500, 42000, 25000, 15000),
                   ncol=2,dimnames=list(LETTERS[1:6],
                                        c("y1", "y2")))
 
@@ -144,6 +144,10 @@ results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY)
 
 We are now ready to do the analysis. In Baker, the analysis was done using the multiplier model. In chapter 2 we used the envelopment model to examine this case. Now we will use the multiplier model using the `DEAMultiplerModel` package by Aurobindh Kalathil Puthanpura.
 
+```{r, include=FALSE}
+library (MultiplierDEA)
+```
+
 ```{r}
 library (MultiplierDEA)
 # Example from Kenneth R. Baker, Optimization Modeling with Spreadsheets, 
@@ -162,7 +166,11 @@ colnames(y)[2] <- c("Private")
 # Calculate the efficiency score
 result <- DeaMultiplierModel(x,y,"crs", "input")
 # Examine the efficiency score for DMUs
-kbl (result$Efficiency, caption="CCR Efficiency Scores", booktabs = T, digits = 3, align = 'c') |>
+```
+
+```{r, echo=FALSE}
+kbl (result$Efficiency, caption="CRS Efficiency Scores", 
+     booktabs = T, digits = 3, align = 'c') |>
     kable_styling(latex_options = c("hold_position"))
 ```
 
@@ -212,16 +220,12 @@ multiplierIO <- function (x,y)
 
     for (k in 1:ND) {
 
-    result <- MIPModel()                                     |>
-    add_variable(vweight[i], i = 1:NX, type = "continuous", 
-                 lb = 0)                                     |>
-    add_variable(uweight[r], r = 1:NY, type = "continuous", 
-                 lb = 0)                                     |>
-    set_objective(sum_expr(uweight[r] * y[k,r], r = 1:NY), 
-                  "max")                                     |>
-    add_constraint(sum_expr(vweight[i] * x[k,i], i = 1:NX) 
-                   == 1)                                     |>
-    add_constraint((sum_expr(uweight[r] * y[j,r], r = 1:NY)-
+    result <- MIPModel()                                              |>
+    add_variable(vweight[i], i = 1:NX, type = "continuous", lb = 0)   |>
+      add_variable(uweight[r], r = 1:NY, type = "continuous", lb = 0) |>
+    set_objective(sum_expr(uweight[r] * y[k,r], r = 1:NY), "max")     |>
+    add_constraint(sum_expr(vweight[i] * x[k,i], i = 1:NX) == 1)      |>
+    add_constraint((sum_expr(uweight[r] * y[j,r], r = 1:NY) -
                     sum_expr(vweight[i] * x[j,i], i = 1:NX)) 
                   <= 0, j = 1:ND)
     result
@@ -260,7 +264,7 @@ dimnames(resfunc$vweight)    <- c(DMUnames,Vnames)
 dimnames(resfunc$uweight)    <- c(DMUnames,Unames)
 ```
 
-```{r}
+```{r, echo=FALSE}
 kbl (cbind(resfunc$efficiency,resfunc$vweight,resfunc$uweight), 
         caption="Efficiency Scores and Weights", booktabs = T) |>
     kable_styling(latex_options = c("hold_position"))
@@ -559,24 +563,25 @@ Comments about cross-efficiency functions from `DEAmultiplier` package.
 Let's try the Spring case
 
 ```{r}
-XSpringL <- matrix(c(1,1,1,1,1,1,1,1),ncol=1,dimnames=list(LETTERS[1:8],"x"))
+XSpringL <- matrix(c(1,1,1,1,1,1,1,1), ncol=1,
+                   dimnames=list(LETTERS[1:8],"x"))
 
 YSpringL <- matrix(c(77,10,88,13,6,35,75,3,
                      75,4,34,33,10,55,61,2,
                      80,60,2,44,27,33,50,90,
                      39,44,81,69,88,77,33,8),
-                   ncol=4,
-                   dimnames=list(LETTERS[1:8],
-                                 c("HW","MQ","Proj", "Exam")))
+                   ncol=4, dimnames=list(LETTERS[1:8],
+                                         c("HW","MQ","Proj", "Exam")))
 SpringLres <- CrossEfficiency(XSpringL, YSpringL)
 ```
 
-```{r}
-res <- rbind (SpringLres$ceva_matrix, SpringLres$ceva_max, SpringLres$ce_ave)
+```{r, echo=FALSE}
+res <- rbind (SpringLres$ceva_matrix, SpringLres$ceva_max, 
+              SpringLres$ce_ave)
 resrows <-cbind (c("A", "B", "C", "D", "E", "F", "G", "H", 
          "Efficiency", "Cross-Efficiency"))
-kbl (cbind(resrows, as.data.frame(res,digits=5)), 
-     row.names=F, booktabs = T, digits=5, escape=F,
+kbl (cbind(resrows, as.data.frame(res,digits=4)), 
+     row.names=F, booktabs = T, digits=4, escape=F,
         caption = "Results from Class Grading Example") |>
      row_spec (9:10, bold=TRUE) |>
      pack_rows ("Cross-Evaluation Matrix", 1, 8) |>
@@ -588,8 +593,6 @@ kbl (cbind(resrows, as.data.frame(res,digits=5)),
 
 Issues to consider in the future for this chapter or other chapters:
 
--   Multiple Optima
--   Secondary Objective Functions
 -   Fixed Weighting nature of certain model dimensions (no-wait to talk about it in baseball chapter?)
 -   Check to see if Auro is using population with or without k in mal_ben code.
 -   Add reference to Doyle and Green.

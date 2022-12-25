@@ -131,6 +131,7 @@ kbl(res4_1.combined,
     booktabs=T, digits=3, escape=F, 
     col.names=c("$\\phi^{CRS}$", res4_1.names$LambdanamesbyletterLX),
     caption= 'Output-Oriented Envelopment Analysis for Stores') |>
+  add_header_above(c(" " = 1, "Efficiency" = 1, "Envelopment Variables" = 4))|>
   kable_styling(latex_options = "hold_position")
 ```
 
@@ -295,7 +296,9 @@ storenames<- c("Al\'s Pantry", "Bob\'s Mill",
                "Ed\'s Eggshop", "Flo\'s Farmacopia", "Gary\'s Grocery")
 temp<-cbind(storenames,x,y)
 colnames(temp)<-c("Store Name", "Employees (x1)", "Floor Space (x2)", "Sales (y)")
-kbl (temp, booktabs=TRUE)
+kbl (temp, booktabs=TRUE, caption="Seven Store Grocery Store Data") |>
+  add_header_above(c(" " = 2, "Inputs" = 2, "Output" = 1))|>
+  kable_styling (latex_options="hold_position")
 NX <- ncol(x); NY <- ncol(y); ND <- nrow(x)
 store7names <- TRA::DEAnames(NX, NY, ND)
 ```
@@ -303,8 +306,8 @@ store7names <- TRA::DEAnames(NX, NY, ND)
 ```{r CRS2PhaseIO}
 CRS2PhaseIO.efficiency <- matrix(rep(-1.0, ND), nrow=ND)
 CRS2PhaseIO.lambda     <- matrix(rep(-1.0, ND*ND), nrow=ND,ncol=ND)
-CRS2PhaseIO.xslack    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
-CRS2PhaseIO.yslack    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
+CRS2PhaseIO.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
+CRS2PhaseIO.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
 xdata<-x
 ydata<-y
 
@@ -407,7 +410,9 @@ kbl (cbind(CRS2PhaseIO.Res,Slack1.Res), booktabs=T, escape=F, digits=3,
                  store7names$SXnamesLX, store7names$SYnamesLX,
                  store7names$LambdanamesbyletterLX, 
                  store7names$SXnamesLX, store7names$SYnamesLX),
-        caption="Slack Maximizing Results from Seven Store Example")            |>
+        caption="Slack Maximizing Results from Seven Store Example")      |>
+  add_header_above(c(" "=1, "Efficiency" = 1, "First Phase Results" = 10, 
+                     "Second Phase Results" = 10))                        |>
   kable_styling (latex_options = c("hold_position", "scale_down"))
 ```
 
