@@ -30,13 +30,13 @@ In the past, batters weren't given much "recognition" for walks and a batter's r
 
 Over the course of the current 162 game season, most full-time players will have over 500 plate appearances.
 
-```{r load_ch8_packages, echo = TRUE, message = FALSE}
-library ("Lahman", quietly=TRUE)
-library ("dplyr", quietly=TRUE)
-library(DiagrammeRsvg, quietly=TRUE)
-library(DiagrammeR, quietly=TRUE)
-library(rsvg, quietly=TRUE)
-library(htmltools, quietly=TRUE)
+```{r load_ch8_packages, echo = TRUE, message = FALSE, warning=FALSE}
+library (Lahman)
+library (dplyr)
+library(DiagrammeRsvg)
+library(DiagrammeR)
+library(rsvg)
+library(htmltools)
 library(TRA)
 ```
 
@@ -64,7 +64,7 @@ Now, let's wrestle with data sources. Sean Lahman's baseball database has been m
 
 Now we need to work on getting the data for different players.
 
-```{r display-batting-data}
+```{r display-batting-data, echo=FALSE}
 library(kableExtra)
 kbl (head(Lahman::Batting), booktabs = T,
        caption="Sample of Lahman Baseball Data") |> 
@@ -87,8 +87,10 @@ Let's start by subsetting the data in terms of including only the columns that w
 batting<-Lahman::Batting
 batting <- dplyr::select(batting, playerID, yearID,
                          teamID, lgID, AB, H, X2B, X3B, HR, BB)
+```
+```{r, include=FALSE}
 kbl (head(batting), booktabs = T, 
-       caption="Batting Data Used for Analysis") |>
+       caption="Batting Data Used for Analysis")        |>
   kable_styling(latex_options = c("hold_position"))
 ```
 
@@ -96,6 +98,9 @@ Through the 2015 season, this dataset has 101,332 rows or player seasons. The ga
 
 ```{r filtering-data}
 batting<-dplyr::filter(batting,yearID>1900)
+```
+
+```{r, include=FALSE}
 kbl (head(batting), booktabs = T, 
        caption="Batting Statistics for Players after 1900")|>
   kable_styling(latex_options = c("hold_position"))
@@ -116,6 +121,9 @@ Lastly, now that we feel confident that our data transformation for calculating 
 ```{r selecting-columns}
 batting <- dplyr::select(batting, playerID, yearID, teamID, 
                          lgID, PA, BB, X1B, X2B, X3B, HR)
+```
+
+```{r}
 kbl (head(batting), booktabs = T, 
        caption="Batting Statistics Converted into Inputs and Outputs") |>
   kable_styling(latex_options = c("hold_position"))
@@ -229,7 +237,7 @@ In Anderson and Sharp's 1997 paper, ordinal weight restrictions were incorporate
 
 Another approach is to analyze the data set using the multiplier model and directly incorporating weight restrictions. For this, we will make use of the `DEAMultiplier`package written by Aurobindh Kalathil Puthanpura.
 
-```{r}
+```{r, warning=FALSE}
 library(MultiplierDEA)
 
 res1920ALmult<-DeaMultiplierModel(x, y, rts = "crs", 
@@ -244,7 +252,7 @@ Notice that the scores are up to 1.0 rather than 1.0 and higher as in the TFDEA 
 
 Now, let's look at the results.
 
-```{r}
+```{r, warning=FALSE}
 library(ggplot2)
  
 qplot (res1920ALmult$Efficiency, 
@@ -302,26 +310,29 @@ $$
 We can now specify these ratios in a data frame that will be passed to `multiplierDEA`package by defining a lower bound, numerator, denominator, and upper bound for each weight restriction ratio relationship. Note that rather than specifying the upper limit of infinity, we declare it as `NaN`to indicate that it is not a number.
 
 ```{r}
-
-BattingWR<-data.frame(lower = c(1.0,1.0,1.0,1.0), 
+BattingWR<-data.frame(lower = c(1.0, 1.0, 1.0, 1.0), 
                       numerator = c("X1B", "X2B","X3B", "HR"), 
                       denominator = c("BB", "X1B", "X2B","X3B"), 
                       upper = c(NaN, NaN, NaN, NaN))
+```
 
+```{r, include=FALSE}
 kbl(BattingWR, booktabs=T, 
     caption=
          "Data Structure for Batting Weight Restrictions") |>
   kable_styling(latex_options = c("hold_position"))
+```
 
+
+```{r}
 res1920ALmultWR<-DeaMultiplierModel(x,y,rts = "crs", 
                                     orientation="output",
                                     weightRestriction = BattingWR)
-
 ```
 
 Let's talk about a particular hitter, Eddie Collins. Without weight restrictions, he was efficient. With weight restrictions, his efficiency was `r res1920ALmultWR$Efficiency["collied01",]`. In fact, the histogram of efficiency scores is more telling.
 
-```{r}
+```{r, include=FALSE}
 qplot (res1920ALmultWR$Efficiency, 
        geom="dotplot",
        main = "1920 American League Batter Efficiency",
@@ -348,15 +359,12 @@ The weight restrictions have dropped the number of efficient players from seven 
 
 Now, let's turn our attention to a variation of DEA called cross-efficiency. Cross-efficiency was discussed in an earlier chapter. Proponents of Cross-efficiency contend that it can differentiate between players (DMUs) that are DEA efficient. Simple CCR DEA finds nine out of 54 players to be efficient. We will focus on the ten players with the top CCR efficiency scores.
 
-```{r}
+```{r, warning = FALSE}
 res1920ALcross<-CrossEfficiency(x, y, rts = "crs", 
                                 orientation="output")
 res1920ALCEWR<-CrossEfficiency(x, y, rts = "crs", 
                                orientation="output", 
                                weightRestriction = BattingWR)
-
-
-
 ```
 
 ```{r}
@@ -380,7 +388,9 @@ collectedeff1 <- data.frame(cbind(res1920ALmult$Efficiency,
                                   res1920ALmultWR$Efficiency,
                                   t(res1920ALcross$ce_ave),
                                   t(res1920ALCEWR$ce_ave))) 
+```
 
+```{r}
 colnames(collectedeff1)<-c("Efficiency", "Efficiency/WR", 
                            "Cross-Efficiency", "Cross-Efficiency/WR")
 
@@ -413,13 +423,16 @@ temp<-as.matrix(cbind(res1920ALmult$Efficiency,
 colnames(temp)<-c("Efficiency", "Efficiency/WR", "Cross-Efficiency", "Cross-Efficiency/WR")
 
 corrtemp <- rbind( cor(temp, method="pearson"), cor(temp, method="spearman"))
+```
 
+```{r}
 kbl(corrtemp, booktabs=T,
     caption="Correlations between Efficiency, Cross-Efficiency, and Weight Restricted Results") |>
        pack_rows ("Pearson Correlation", 1, 4) |>
        pack_rows ("Spearman Rank Correlation", 5, 8)  |>
     kable_styling(latex_options = c("hold_position", "scale_down"))
 ```
+
 
 Both the simple Pearson's correlation matrix and the Spearman's rank correlation matrix give similar scores but the Spearman rank correlations are generally higher. This indicates that the scores for the `r nrow(res1920ALmult$Efficiency)` players are numerically related and their relative ranking is a little more similar.  
 
@@ -514,11 +527,12 @@ uybabe <- as.data.frame(t(res1920ALcross$uy["ruthba01",]))
 xbabe  <- x["ruthba01", ]
 vxbabe <- as.data.frame(t(res1920ALcross$vx["ruthba01",]))
 rownames(uybabe) <- "output weights"
+```
+```{r, echo=FALSE}
 kbl (rbind(ybabe, uybabe), booktabs=T, digits=5,
         caption = 
           "Ruth's Outputs and Ruth's Cross-Efficiency Output Weights")|>
   kable_styling(latex_options = c("hold_position"))
-
 ```
 
 Now, we can multiply each output by the corresponding output weight and then add these products together. The result is `r as.matrix(ybabe) %*% t(as.matrix(uybabe))`. The input weight for Babe was `r round(vxbabe,5)` while his input (Plate Appearances) was `r xbabe`. Simply multiplying them together gives us `r as.matrix(xbabe) %*% t(as.matrix(vxbabe))`. The final result is taking the weighted output divided by the weighted output which gives us `r as.matrix(ybabe) %*% t(as.matrix(uybabe))/as.matrix(xbabe) %*% t(as.matrix(vxbabe))`. Not surprisingly, Babe Ruth's cross-evaluation score based on his own weights is the same as his CCR output-oriented efficiency score. In this case, simply 1.0.
@@ -529,6 +543,9 @@ Now, let's go through the process of seeing the calculation of Babe Ruth's cross
 uysisl <- as.data.frame(t(res1920ALcross$uy["sislege01",]))
 vxsisl <- as.data.frame(t(res1920ALcross$vx["sislege01",]))
 rownames(uysisl) <- "output weights"
+```
+
+```{r}
 kbl (rbind(ybabe, uysisl), booktabs=T, digits=6,
         caption = 
           "Ruth's Outputs and Sisler's Cross-Efficiency Output Weights")|>
@@ -570,6 +587,9 @@ vxmean <- 1
       #    and input weight of ND
 
 rownames(uymean) <- "output weights"
+```
+
+```{r, echo=FALSE}
 kbl (rbind(ybabe, uymean), booktabs=T, digits=4,
         caption = 
           "Ruth's Outputs and Mean Cross-Efficiency Output Weights")|>
@@ -637,6 +657,8 @@ Note that we could use an input or an output orientation.
 res1991MLB<-DEA(MLB1991AL$payroll, MLB1991AL$W, rts="vrs")
 rownames(res1991MLB$eff)<-MLB1991AL$teamID
 colnames(res1991MLB$lambda)<-t(MLB1991AL$teamID)
+```
+```{r, echo=FALSE}
 kbl(poscol(cbind(res1991MLB$eff,res1991MLB$lambda)), 
     booktabs=T, digits=4, 
        caption=
@@ -712,23 +734,20 @@ Now, let's plot the data.
 ```{r}
 library(ggplot2)
 
-#ggplot (subset (teampayroll2, yearID==1991 & lgID=="AL"), 
 ggplot (subset (teampayroll2,  lgID=="AL"), 
         aes (x=payroll, y=W))+geom_point() +
         xlab("Payroll ($Millions") + ylab("Regular Season Wins") +
         ggtitle("Salary and Wins: American League (1991-2016)")  
+```
 
-# teampayroll2 <- rbind(cbind (subset (teamPayroll, 
-#                              yearID==year & lgID=="AL"),
-#                              resMLB$eff))
-
+```{r, echo=FALSE}
 kbl(head(subset (teampayroll2, yearID==1991 & lgID=="AL")), 
     booktabs=T, digits=2, 
     caption="Sample of 1991 AL Team Payrolls") |>
   kable_styling (latex_options = c("hold_position", "scale_down"))
 ```
 
-```{r}
+```{r, echo=FALSE}
 ggplot (subset (teampayroll2,  lgID=="AL"), 
         aes (x=payroll, y=W, color=yearID)) + geom_point() +
         scale_color_gradient(low="blue", high="red") +
@@ -746,15 +765,15 @@ moneyballplot2 <- ggplot (
   geom_point(data=teampayroll2[teampayroll2$teamID %in% 
                                  c("NYA"),],
              aes(x=payroll, y=W, group=teamID, color=yearID, 
-                 shape="b")) +
+                 shape="Yankees")) +
   geom_point(data=teampayroll2[teampayroll2$teamID %in% 
                                  c("OAK"),],
              aes(x=payroll, y=W, group=teamID, color=yearID, 
-                 shape="a")) + 
-        scale_color_gradient(low="blue", high="red") +
-        xlab("Payroll ($Millions") + ylab("Regular Season Wins") +
-        ggtitle(
-          "Salary and Wins: Oakland and New York Yankees (1991-2016)")  
+                 shape="Athletics")) + 
+  scale_color_gradient(low="blue", high="red") +
+  xlab("Payroll ($Millions") + ylab("Regular Season Wins") +
+  ggtitle("Salary and Wins: Oakland and New York Yankees (1991-2016)")  +
+  labs (shape="Team", col="Year")
 
 # Moneyballplot <- Moneyballplot + 
 moneyballplot2
@@ -765,15 +784,19 @@ moneyballplot2 <- ggplot (
   data=teampayroll2) +
   geom_point(data=teampayroll2[teampayroll2$teamID %in% 
                                  c("NYA"),],
-             aes(x=yearID, y=Efficiency, shape="b")) + 
+             aes(x=yearID, y=Efficiency, shape="New York")) + 
   geom_point(data=teampayroll2[teampayroll2$teamID %in% 
                                  c("OAK"),],
-             aes(x=yearID, y=Efficiency, shape="a")) +
+             aes(x=yearID, y=Efficiency, shape="Oakland")) +
   xlab("Year") + ylab("Team Efficiency") +
   ggtitle("Team Efficiency Oakland and New York Yankees (1991-2016)") +
-  scale_shape_discrete(name="Team",
-                       breaks=c("NYA", "OAK"),
-                       labels=c("Yankees", "Athletics"))
+#  scale_shape_discrete(name="Team",
+#                       breaks=c("NYA", "OAK"),
+#                       labels=c("Yankees", "Athletics")) +
+  xlab("Payroll ($Millions)") + ylab("Regular Season Wins") +
+  ggtitle(
+          "Salary and Wins: Oakland Athletics and New York Yankees (1991-2016)")  +
+  labs (shape="Team")
 
 
 #Moneyballplot <- Moneyballplot + 
