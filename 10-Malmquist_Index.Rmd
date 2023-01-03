@@ -338,7 +338,7 @@ kbl (head (cbind(x20,y20)),
 
 ```
 
-```{r ch10-doing-DEA}
+```{r ch10-doing-DEA, eval=FALSE}
 
 #res1920AL<-dm.dea(x20,y20, rts="crs", orientation="i", sg="ssm")
 
@@ -393,3 +393,75 @@ kbl (mres0_19_20, booktab= T, digits = 4, align='c',
 # Says "Error '==' only defined for equally-sized data frames
 
 ```
+
+
+```{r}
+# From Auro's help file for Malmquist function (MPI)
+da_f <- data.frame(x= c(11, 29, 31, 61, 13, 27, 17, 61), 
+                   y=c(6, 8, 11, 16, 7, 9, 10, 16),
+                   d= c(1,2,3,4, 1,2,3,4), 
+                   p=c(1,1,1,1,2,2,2,2))
+
+mpi_r <- MPI(Dataset = da_f, DMU_colName = "d", 
+             IP_colNames = "x", OP_ColNames = "y",
+             Period_ColName = "p", Periods = c(1,2),
+             rts = "vrs", orientation = "input", scale = TRUE)
+
+# Examine the MPI for DMUs
+mpi_r$m.vrs
+```
+
+```{r}
+# Now let's run it on our baseball data for 1919 and 1920.
+
+da_bb19 <- cbind(x19, y19, rownames(x19), rep(1919,nrow(x19)))
+colnames(da_bb19) <- c("PA", "BB", "X1B", "X2B", "X3B", "HR","Player", "Year")
+
+da_bb20 <- cbind(x20, y20, rownames(x20), rep(1920,nrow(x20)))
+colnames(da_bb20) <- c("PA", "BB", "X1B", "X2B", "X3B", "HR","Player", "Year")
+
+da_bb19_20 <- rbind (da_bb19,da_bb20)   # stack together the two years
+
+kbl(head( da_bb19_20), caption="Example of Batting Data")
+
+mpi_bb <- MPI(Dataset = da_bb19_20, DMU_colName = "Player", 
+             IP_colNames = "PA", 
+             OP_ColNames = c( "BB", "X1B", "X2B", "X3B", "HR"),
+             Period_ColName = "Year", Periods = c(1919, 1920),
+             rts = "crs", orientation = "output", scale = TRUE)
+
+# Note that running MPI on this requires a little time.
+# Essentially does DEA 4 times for each player
+```
+
+```{r}
+res_bb <- cbind(as.numeric(mpi_bb$et1t1.crs), 
+                as.numeric(mpi_bb$et1t2.crs), 
+                as.numeric(mpi_bb$et2t2.crs), 
+                as.numeric(mpi_bb$et2t1.crs), 
+                as.numeric(mpi_bb$tec),
+                as.numeric(mpi_bb$tc))
+colnames(res_bb) <- c("E19-T19", "E19-T20", 
+                      "E20-T20", "E20-T19", "TEC", "TC")
+
+rownames(res_bb)<-mpi_bb$DMU
+
+kbl(head(res_bb, 20), digits = 4)
+
+```
+** I want to dig into the numbers in more detail but this is my first pass at interpretation!**
+
+Some observations, the `NA` indicates that a player does not have data in one of the two years.  For example, `ainsmed01` is efficient in year 1919 using his batting statistics from 1919 since the E19-T19 column is 1.0.  His 1919 batting statistics are below the efficiency frontier in 1920 though since E20-T19 is less than 1.0 (0.9817). In other words, the efficiency frontier has expanded in 1920 such that his 1919 performance would be slightly inefficient.  He does not have data from 1920 though and therefore the two columns that would use 1920 data are filled with `NA`.
+
+Interesting that the `NA` seems to only cover players that played in 1919 and not 1920.  I'll need to doublecheck in the full dataset as there should be a roughly equal number of `NA` values in both sides.
+
+Let's shift attention to talk about specific players.
+
+```{r}
+# Now let's grab just a few rows of specific players to discuss
+
+kbl(res_bb[c("cobbty01", "collied01", "ruthba01"),], digits=4)
+```
+
+Ty Cobb's values are interesting.  E19-T19 is one and therefore he was efficient in 1919 using his 1919 batting statistics. He is no longer efficient in 1920 as his as denoted by E20-T20 being 0.9165. The TEC 
+
