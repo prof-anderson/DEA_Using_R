@@ -2,7 +2,7 @@
 library(bookdown); library(rmarkdown); rmarkdown::render("10-Malmquist_Index.Rmd", "pdf_book")
 ```
 
-# Changing Performance over Time
+#  Changing Performance over Time
 
 ## Introduction[^10-malmquist_index-1]
 
@@ -154,7 +154,7 @@ This table is a pretty simple and compact format but MPI requires more organizat
 ```{r}
 #Process data into the format required by deaR
 malm_gr_data_pro <- 
-  make_malmquist(malm_gr_data,
+  deaR::make_malmquist(malm_gr_data,
                  percol = 1,   # Use Col1 for period (year)
                  dmus = 2,     # Col2 has DMU identifier
                  inputs = 3,   # Col3 has the input
@@ -180,17 +180,17 @@ pander(malm_gr_data_pro,
 ```
 
 ```{r}
-result_gr <- malmquist_index(malm_gr_data_pro,
-                               orientation = "io",
-                               rts = "crs",
+result_gr <- deaR::malmquist_index(malm_gr_data_pro,
+                               orientation = "oo",
+                               rts = "vrs",
                                type1 = "cont",
                                type2 = "fgnz")
 
 mi_gr <- result_gr$mi 
 
-res_mi_gr <- t(rbind(result_gr$mi, result_gr$ec, 
-                       result_gr$tc ))
-colnames(res_mi_gr) <- c("MPI", "PEch",  "TC")
+res_mi_gr <- t(rbind(result_gr$mi, result_gr$pech, 
+                       result_gr$tc, result_gr$sech ))
+colnames(res_mi_gr) <- c("MPI", "PEch",  "TC", "SEch")
 
 kbl (res_mi_gr, booktabs = T, digits = 4, align = 'c', 
      caption="Malmquist Productivity Analysis results using deaR")  |>
@@ -264,8 +264,7 @@ tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),
                              'BaseballBatting.png'))
 ```
 
-```{r ch10-preparing-bb-data-with-dplyr}
-
+```{r}
 batting<-Lahman::Batting
 
 MinPA <- 400  # Minimum number of plate appearances
@@ -338,71 +337,14 @@ kbl (head (cbind(x20,y20)),
 
 ```
 
-```{r ch10-doing-DEA, eval=FALSE}
-
-#res1920AL<-dm.dea(x20,y20, rts="crs", orientation="i", sg="ssm")
-
-#phi <- res1920AL$eff
-#theta <- 1/phi
-
-#pander (cbind(head(phi),head(theta)), 
-  # caption="CCR-OO Scores for 1920AL (Phi and Theta)")
-```
-
-This includes code chunks for doing Malmquist Productivity Index analysis of baseball batters using several packages. A key challenge though is that most DEA packages seem to have a problem with mismatched DMUs from period to period.
-
-```{r ch10-doing-second-MPI, eval=FALSE}
-
-# Eval set to FALSE due to packages not working with missing 
-#   DMUs from one period to the next.
-
-#mx <- rbind (head(x19,10), head(x20,10))
-#my <- rbind (head(y19,10), head(y20,10))
-#mt <- rbind (head(t19,10), head(t20,10))
-#mID <-rownames(head(mt,10))
-
-mx <- rbind (x19,x20)
-my <- rbind (y19,y20)
-mt <- rbind (t19,t20)
-mID <-rownames (mt)
-
-# Using Benchmarking package
-# MQ <- Benchmarking::malmquist(X=mx, Y=my, ID=mID, TIME=mt)
-# Says "Error '==' only defined for equally-sized data frames
-
-# Using deaR package
-# Convert data into to deaR's format
-
-mdata_19_20 <- cbind (mID, mt, mx, my)
-mdata_19_20_pre <- deaR::make_malmquist(mdata_19_20,
-                                percol = 2, 
-                                arrangement = "vertical",
-                                inputs = 3, 
-                                outputs = 4:8)
-
-mres0 <- deaR::malmquist_index(mdata_19_20_pre, orientation = "oo")
-
-mres0_19_20 <- t(rbind( mres0$mi, mres0$ec, mres0$tc))
-colnames(mres0_19_20) <- c("MPI", "EC", "TC")
-kbl (mres0_19_20, booktab= T, digits = 4, align='c', 
-     caption="Malmquist using `dear`")   |>
-  kable_styling(latex_options = c("hold_position"))
-
-# Using Benchmarking package
-# MQ <- Benchmarking::malmquist(X=mx, Y=my, ID=mID, TIME=mt)
-# Says "Error '==' only defined for equally-sized data frames
-
-```
-
-
 ```{r}
 # From Auro's help file for Malmquist function (MPI)
-da_f <- data.frame(x= c(11, 29, 31, 61, 13, 27, 17, 61), 
-                   y=c(6, 8, 11, 16, 7, 9, 10, 16),
-                   d= c(1,2,3,4, 1,2,3,4), 
-                   p=c(1,1,1,1,2,2,2,2))
+da_f <- data.frame(x= c(11, 29, 31, 61, 13, 27, 17, 61), # Inputs
+                   y= c( 6, 8,  11, 16,  7,  9, 10, 16), # Outputs
+                   d= c( 1, 2,   3,  4,  1,  2,  3,  4), # DMU 
+                   p= c( 1, 1,   1,  1,  2,  2,  2,  2)) # Period
 
-mpi_r <- MPI(Dataset = da_f, DMU_colName = "d", 
+mpi_r <- MultiplierDEA::MPI(Dataset = da_f, DMU_colName = "d", 
              IP_colNames = "x", OP_ColNames = "y",
              Period_ColName = "p", Periods = c(1,2),
              rts = "vrs", orientation = "input", scale = TRUE)
@@ -422,9 +364,9 @@ colnames(da_bb20) <- c("PA", "BB", "X1B", "X2B", "X3B", "HR","Player", "Year")
 
 da_bb19_20 <- rbind (da_bb19,da_bb20)   # stack together the two years
 
-kbl(head( da_bb19_20), caption="Example of Batting Data")
+kbl(head( da_bb19_20), booktabs=T, caption="Example of Batting Data")
 
-mpi_bb <- MPI(Dataset = da_bb19_20, DMU_colName = "Player", 
+mpi_bb <- MultiplierDEA::MPI(Dataset = da_bb19_20, DMU_colName = "Player", 
              IP_colNames = "PA", 
              OP_ColNames = c( "BB", "X1B", "X2B", "X3B", "HR"),
              Period_ColName = "Year", Periods = c(1919, 1920),
@@ -440,28 +382,130 @@ res_bb <- cbind(as.numeric(mpi_bb$et1t1.crs),
                 as.numeric(mpi_bb$et2t2.crs), 
                 as.numeric(mpi_bb$et2t1.crs), 
                 as.numeric(mpi_bb$tec),
-                as.numeric(mpi_bb$tc))
+                as.numeric(mpi_bb$tc),
+                as.numeric(mpi_bb$m.crs))
 colnames(res_bb) <- c("E19-T19", "E19-T20", 
-                      "E20-T20", "E20-T19", "TEC", "TC")
+                      "E20-T20", "E20-T19", "TEC", "TC", "MPI")
 
 rownames(res_bb)<-mpi_bb$DMU
 
-kbl(head(res_bb, 20), digits = 4)
+kbl(head(res_bb, 20), digits = 4,  booktabs=T, 
+    caption="Malmquist Productivity Index Results from MultiplierDEA Package")
 
 ```
-** I want to dig into the numbers in more detail but this is my first pass at interpretation!**
 
-Some observations, the `NA` indicates that a player does not have data in one of the two years.  For example, `ainsmed01` is efficient in year 1919 using his batting statistics from 1919 since the E19-T19 column is 1.0.  His 1919 batting statistics are below the efficiency frontier in 1920 though since E20-T19 is less than 1.0 (0.9817). In other words, the efficiency frontier has expanded in 1920 such that his 1919 performance would be slightly inefficient.  He does not have data from 1920 though and therefore the two columns that would use 1920 data are filled with `NA`.
+\*\* I want to dig into the numbers in more detail but this is my first pass at interpretation!\*\*
 
-Interesting that the `NA` seems to only cover players that played in 1919 and not 1920.  I'll need to doublecheck in the full dataset as there should be a roughly equal number of `NA` values in both sides.
+Some observations, the `NA` indicates that a player does not have data in one of the two years. For example, `ainsmed01` is efficient in year 1919 using his batting statistics from 1919 since the E19-T19 column is 1.0. His 1919 batting statistics are below the efficiency frontier in 1920 though since E20-T19 is less than 1.0 (0.9817). In other words, the efficiency frontier has expanded in 1920 such that his 1919 performance would be slightly inefficient. He does not have data from 1920 though and therefore the two columns that would use 1920 data are filled with `NA`.
 
-Let's shift attention to talk about specific players.
+Interesting that the `NA` seems to only cover players that played in 1919 and not 1920. I'll need to doublecheck in the full dataset as there should be a roughly equal number of `NA` values in both sides.
+
+Let's shift attention to talk about the best players by sorting by efficiency in 1919 and using the head function to display the top 20 batters.
 
 ```{r}
 # Now let's grab just a few rows of specific players to discuss
 
-kbl(res_bb[c("cobbty01", "collied01", "ruthba01"),], digits=4)
+#kbl(res_bb[c("cobbty01", "collied01", "ruthba01"),], digits=4,  booktabs=T,
+#    caption="MPI results for Selected Batters")
+
+kbl(head(res_bb 
+         [order(res_bb[,3], decreasing=TRUE),],20), digits=5, booktabs=T,
+    caption="Malmquist Productivity Index Results for Baseball Batting, 1919-1920") |>
+ kable_styling(latex_options = c("hold_position", "scale_down")) |>
+  footnote (general="Top 20 Efficient 1920 American League Batters")
 ```
 
-Ty Cobb's values are interesting.  E19-T19 is one and therefore he was efficient in 1919 using his 1919 batting statistics. He is no longer efficient in 1920 as his as denoted by E20-T20 being 0.9165. The TEC 
+Ty Cobb's values are interesting. His value for E19-T19 is one and therefore he was efficient in 1919 using his 1919 batting statistics. He is no longer efficient in 1920 as his as denoted by E20-T20 being 0.9165. While his 1919 performance was efficient relative to 1919, it would not have been efficient against the frontier in 1920 (E19-T20 \< 1.0). The TC value indicates that his efficiency declined relative to their respective efficiency frontiers. The TEC value though is larger than 1 indicating that the efficiency frontier expanded relative to the regions of the frontier that Ty Cobb was producing. If we had been looking at managerial performance of DMUs instead of batting performance of hitters, we would say that Ty Cobb was not as efficient in using his input to produce outputs relative to the changing efficiency frontier. The efficiency frontier expanded and Ty Cobb fell off the efficiency frontier.
 
+In contrast, Babe Ruth was efficient in both 1919 and 1920. His efficiency score in 1919 relative to the 1920 frontier was much larger than 1 indicating that he far exceeded the frontier in his area of the 1920. His 1920 performance also exceeded the 1919 frontier. His values indicate that the efficiency frontier is rising by 26% in his area of the frontiers (TC=1.26).
+
+### MPI with Ordinal Weight Restrictions
+
+Now let's try examining this with weight restrictions. Recall that in chapter 8 we indicated that Home Runs should be at least valuable as triples, triples are at least as valuable as doubles, etc. The `MultiplierDEA` package's MPI function does not include a parameter to pass weight restrictions. Fortunately we can accommodate ordinal weight restrictions by making a simple data transformation on the outputs. Each output is converted into the sum of that output and "better" outputs. Home Runs are unchanged but Triples are redefined as the number of Triples + Home Runs. Doubles are converted to be Doubles+Triples+Home Runs. Specifically, we have the following:
+
+-   Home Runs or longer: (Home Runs+Triples+Doubles+Singles)
+-   Triples or longer: (Triples)
+-   Doubles or longer: (Doubles+Triples+Home Runs)
+-   Singles or longer: (Singles+Doubles+Triples+Home Runs)
+-   Walks or longer: (Walks+Doubles+Triples+Home Runs)
+
+Note that we don't specify a relationship between singles and walks (or base on balls) as they are similar but different. A single has more potential for advancing other runners while a walk typically has a higher pitch count which may help wear out the opposing pitcher.
+
+We'll use the `m` prefix to represent the modified data and results. Let's use a new object, `my19` to reflect these modified (accumulated) outputs.
+
+```{r}
+my19 <- y19
+my19 <- my19 |> dplyr::mutate(X3B=X3B+HR) |> 
+  dplyr::mutate(X2B=X2B+X3B)              |> 
+  dplyr::mutate(X1B=X1B+X2B)              |> 
+  dplyr::mutate(BB=BB+X2B)
+```
+
+```{r}
+kbl(head(cbind(y19, my19)), booktabs=T,
+    caption="Modified Outputs for Ordinal Weight Restrictions") |>
+  add_header_above( c(" " = 1, "Original Outputs" = 5, "Modified Outputs" = 5)) |>
+ kable_styling(latex_options = c("hold_position")) |>
+  footnote (general="First six batters from 1919 American League")
+```
+
+We repeat the same process to create `my20`.
+
+```{r, echo=FALSE}
+my20 <- y20
+my20 <- my20 |> dplyr::mutate(X3B=X3B+HR) |> 
+  dplyr::mutate(X2B=X2B+X3B)              |> 
+  dplyr::mutate(X1B=X1B+X2B)              |> 
+  dplyr::mutate(BB=BB+X2B)
+```
+
+```{r}
+
+mda_bb19 <- cbind(x19, my19, rownames(x19), rep(1919,nrow(x19)))
+colnames(mda_bb19) <- c("PA", "BB", "X1B", "X2B", "X3B", "HR", 
+                        "Player", "Year")
+
+mda_bb20 <- cbind(x20, my20, rownames(x20), rep(1920,nrow(x20)))
+colnames(mda_bb20) <- c("PA", "BB", "X1B", "X2B", "X3B", "HR", 
+                        "Player", "Year")
+
+mda_bb19_20 <- rbind (mda_bb19,mda_bb20)   # stack together the two years
+
+mmpi_bb <- MultiplierDEA::MPI(Dataset = mda_bb19_20, DMU_colName = "Player", 
+             IP_colNames = "PA", 
+             OP_ColNames = c( "BB", "X1B", "X2B", "X3B", "HR"),
+             Period_ColName = "Year", Periods = c(1919, 1920),
+             rts = "crs", orientation = "output", scale = TRUE)
+```
+
+```{r}
+mres_bb <- cbind(as.numeric(mmpi_bb$et1t1.crs), 
+                as.numeric(mmpi_bb$et1t2.crs), 
+                as.numeric(mmpi_bb$et2t2.crs), 
+                as.numeric(mmpi_bb$et2t1.crs), 
+                as.numeric(mmpi_bb$tec),
+                as.numeric(mmpi_bb$tc),
+                as.numeric(mmpi_bb$m.crs))
+colnames(mres_bb) <- c("E19-T19", "E19-T20", 
+                      "E20-T20", "E20-T19", "TEC", "TC", "MPI")
+
+rownames(mres_bb)<-mmpi_bb$DMU
+kbl(head(mres_bb [order(mres_bb[,1], decreasing=TRUE),],20), 
+    digits=5, booktabs=T, 
+    caption="Malmquist Productivity Index Results with Ordinal Weight Restrictions") |>
+ kable_styling(latex_options = c("hold_position", "scale_down")) |>
+  footnote (general="Top 20 Efficient 1919 American League Batters")
+
+```
+
+Note that in this case there are only four efficient batters in 1919 (Ty Cobb, Babe Ruth, George Sisler, and Bobby Veach). In 1920, only two batters are efficient (Babe Ruth and George Sisler)
+
+**Results do not appear to match the weight restriction model results from chapter 8!**
+
+-   Take a look at Tris Speaker. His 1920 efficiency score with ordinal weight restrictions is 0.95140 but in chapter 8 with weight restrictions it is 0.9853.
+
+-   On the other hand, Joe Dugan gets the same score of 0.81610 in both analyses.
+
+-   The weight restriction results appear to be consistent for both Speaker and Dugan.
+
+-   The accumulation of outputs appears to be correct here so as to incorporate ordinal weight restrictions.

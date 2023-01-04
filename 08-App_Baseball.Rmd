@@ -232,8 +232,10 @@ Success. We have now run DEA using the `TFDEA` package, principally developed by
 Let's dig a little deeper now. Let's start by reviewing the output weights for the first few players. We'll display the table in two ways.
 
 ```{r display-weights}
-kbl(head(res1920AL$uy), booktabs=T, digits=6,
-       caption = "Output Weights for 1920 AL")|>
+kbl(head(cbind(res1920AL$vx, res1920AL$uy)), 
+         booktabs=T, digits=6,
+       caption = "Weights for Selected 1920 AL Players") |>
+  add_header_above(c(" " = 1, "Input Weight" = 1, "Output Weights" = 5)) |>
   kable_styling(latex_options = c("hold_position"))
 ```
 
@@ -250,7 +252,7 @@ res1920ALmult<-DeaMultiplierModel(x, y, rts = "crs",
                                   orientation="output")
 
 kbl(head (res1920ALmult$Efficiency), booktabs=T,
-       caption="DEA Output Weights")|>
+       caption="DEA CRS Efficiency Scores")|>
   kable_styling(latex_options = c("hold_position"))
 ```
 
@@ -272,12 +274,10 @@ qplot (res1920ALmult$Efficiency,
 Next, let's review the output weights.
 
 ```{r}
-kbl(head(res1920ALmult$uy), booktabs=T, digits=6,
-       caption="Output Weights from Multiplier Model")|>
-  kable_styling(latex_options = c("hold_position"))
 
-kbl(head (res1920AL$uy), booktabs=T, digits=6, 
-       caption="Output Weights from Envelopment Model")|>
+kbl(head (cbind(res1920AL$eff,res1920AL$vx, res1920AL$uy)), booktabs=T, digits=6, 
+       caption="Output-Oriented CRS Multipier Model Results")|>
+  add_header_above(c(" " = 1, "Efficiency"=1, "Input Weight" = 1, "Output Weights" = 5)) |>
   kable_styling(latex_options = c("hold_position"))
 ```
 
@@ -290,7 +290,7 @@ We want to enforce the following restrictions on our output weights, *u*.
 $$
  \begin{split}
  \begin{aligned}
-    \ & u_{singles} \geq u_{walks}\\
+    \ & u_{doubles} \geq u_{walks}\\
     \ & u_{doubles} \geq u_{singles}\\
     \ & u_{triples} \geq u_{doubles}\\
     \ & u_{home runs} \geq u_{triples}\\
@@ -304,7 +304,7 @@ A more generalized data structure for the weight restrictions looks at these as 
 $$
  \begin{split}
  \begin{aligned}
-    \ & 1 \leq \frac{u_{singles}} {u_{walks}} \leq \infty \\
+    \ & 1 \leq \frac{u_{doubles}} {u_{walks}} \leq \infty \\
     \ & 1 \leq \frac{u_{doubles}} {u_{singles}} \leq \infty \\
     \ & 1 \leq \frac{u_{triples}} {u_{doubles}} \leq \infty \\
     \ & 1 \leq \frac{u_{home runs}} {u_{triples}} \leq \infty \\
@@ -317,7 +317,7 @@ We can now specify these ratios in a data frame that will be passed to `multipli
 
 ```{r}
 BattingWR<-data.frame(lower = c(1.0, 1.0, 1.0, 1.0), 
-                      numerator = c("X1B", "X2B","X3B", "HR"), 
+                      numerator = c("X2B", "X2B","X3B", "HR"), 
                       denominator = c("BB", "X1B", "X2B","X3B"), 
                       upper = c(NaN, NaN, NaN, NaN))
 ```
@@ -330,11 +330,28 @@ kbl(BattingWR, booktabs=T,
 ```
 
 
-```{r}
+```{r, warning=FALSE}
 res1920ALmultWR<-DeaMultiplierModel(x,y,rts = "crs", 
                                     orientation="output",
                                     weightRestriction = BattingWR)
 ```
+
+Let's examine the relative output weights given with and without weight restrictions.
+
+```{r, echo=FALSE}
+weights <- data.frame(cbind( res1920ALmult$Efficiency,res1920ALmult$uy,
+                             res1920ALmultWR$Efficiency,res1920ALmultWR$uy))
+
+kbl(head(weights 
+         [order(weights[,1], decreasing=TRUE),],20), digits=6, booktabs=T,
+    caption="Output Weights",
+    col.names=c("Eff", "BB", "X1B", "X2B", "X3B", "HR", "Eff", "BB", "X1B", "X2B", "X3B", "HR")) |>
+    add_header_above( c(" " = 1, "Standard Input-Oriented CRS" = 6, "With Weight Restrictions Added" = 6)) |>
+ kable_styling(latex_options = c("hold_position", "scale_down")) |>
+  footnote (general="Top 20 Efficient 1920 American League Batters")
+
+```
+
 
 Let's talk about a particular hitter, Eddie Collins. Without weight restrictions, he was efficient. With weight restrictions, his efficiency was `r res1920ALmultWR$Efficiency["collied01",]`. In fact, the histogram of efficiency scores is more telling.
 
@@ -397,17 +414,17 @@ collectedeff1 <- data.frame(cbind(res1920ALmult$Efficiency,
 ```
 
 ```{r}
-colnames(collectedeff1)<-c("Efficiency", "Efficiency/WR", 
-                           "Cross-Efficiency", "Cross-Efficiency/WR")
-
 kbl(head(collectedeff1 
            [order(collectedeff1[,1], decreasing = TRUE),
              1:4], # Display first four columns
           10), # Display top 10 rows
        booktabs=T, digits=5, 
-       caption=
+    col.names=c("Standard", "Weight Restricted", 
+                "Standard", "Weight Restricted"),
+    caption=
          "1920 AL Top Ten Input-Oriented CRS Efficient Players") |>
-  kable_styling(latex_options = c("hold_position", "scale_down"))
+  add_header_above(c(" " = 1, "Efficiency" = 2, "Cross-Efficiency" = 2)) |>
+  kable_styling(latex_options = c("hold_position"))
 ```
 
 Baseball fans may recognize some of the names:
@@ -431,7 +448,7 @@ colnames(temp)<-c("Efficiency", "Efficiency/WR", "Cross-Efficiency", "Cross-Effi
 corrtemp <- rbind( cor(temp, method="pearson"), cor(temp, method="spearman"))
 ```
 
-```{r}
+```{r, echo=FALSE}
 kbl(corrtemp, booktabs=T,
     caption="Correlations between Efficiency, Cross-Efficiency, and Weight Restricted Results") |>
        pack_rows ("Pearson Correlation", 1, 4) |>
@@ -440,11 +457,11 @@ kbl(corrtemp, booktabs=T,
 ```
 
 
-Both the simple Pearson's correlation matrix and the Spearman's rank correlation matrix give similar scores but the Spearman rank correlations are generally higher. This indicates that the scores for the `r nrow(res1920ALmult$Efficiency)` players are numerically related and their relative ranking is a little more similar.  
+Both  simple Pearson's correlation and the Spearman's rank correlation give similar scores but the Spearman rank correlations are generally higher. This indicates that the scores for the `r nrow(res1920ALmult$Efficiency)` players are numerically related and their relative ranking is a little more similar.  
 
 The cross-efficiency and the regular efficiency scores are related - they have a correlation of `r  round(corrtemp[1,2], 3)`  but the cross-efficiency has a 0.910 correlation with the weight restricted DEA results. This suggests that perhaps cross-efficiency can help deal with decreasing the impact of unrealistic weight schemes but let's take a closer look at the results.
 
-While all of the correlations are strong, they are being done over the entire population of `r nrow(res1920ALmult$Efficiency)` batters but DEA is about benchmarking against the best. Let's dig into the results more deeply by examining one hitter in particular. In 1920, Babe Ruth had one of the best seasons ever by a baseball hitter. Various statistics demonstrate his dominance but home runs really highlight the impact. His 54 home runs in 1920 nearly doubled the previous major league baseball record of 29 in a season he had set the previous year. Alone, he hit more home runs than 14 of the 16 teams in the leagues. Until the recent steroid era, Babe Ruth's 1920 and 1921 seasons are generally considered to be the two best offensive seasons in baseball.
+While all of the correlations are strong, they are being done over the entire population of `r nrow(res1920ALmult$Efficiency)` batters but DEA is about benchmarking against the best. Let's dig into the results more deeply by examining one hitter in particular. In 1920, Babe Ruth had one of the best seasons ever by a baseball hitter. Various statistics demonstrate his dominance but home runs really highlight the impact. His 54 home runs in 1920 nearly doubled the previous major league baseball record of 29 in a season he had set the previous year. Alone, he hit more home runs than 14 of the 16 teams in the leagues. Until the recent steroid era, Babe Ruth's 1920 and 1921 seasons are often considered to be the two best offensive seasons in baseball.
 
 Babe's cross-efficiency score was `r round(res1920ALcross$ce_ave[1,"ruthba01"],6)`. Coincidentally, his cross-efficiency score was nearly identical to the average cross-efficiency of other regular baseball batters of `r round(mean(res1920ALcross$ce_ave),6)`. In other words, what may have been one of the best batting performances in a century of baseball was wrongly misclassified as being just average by cross-efficiency. The reason for this can be seen by the cross-efficiency matrix of weights presented earlier that showed many batters put zero weight on home runs because they paled in comparison to the best performer on home runs, Babe Ruth.
 
@@ -534,6 +551,7 @@ xbabe  <- x["ruthba01", ]
 vxbabe <- as.data.frame(t(res1920ALcross$vx["ruthba01",]))
 rownames(uybabe) <- "output weights"
 ```
+
 ```{r, echo=FALSE}
 kbl (rbind(ybabe, uybabe), booktabs=T, digits=5,
         caption = 
@@ -641,7 +659,6 @@ payroll = MLBSalaries[, .(payroll = sum(salary1M)),
 teamPayroll = merge(teams, payroll, by=c("teamID","yearID"))
 
 MLB1991AL <- subset (teamPayroll, yearID==1991 & lgID=="AL")
-
 ```
 
 Our DEA input-output model will be salary used to create regular season wins.
@@ -664,6 +681,7 @@ res1991MLB<-DEA(MLB1991AL$payroll, MLB1991AL$W, rts="vrs")
 rownames(res1991MLB$eff)<-MLB1991AL$teamID
 colnames(res1991MLB$lambda)<-t(MLB1991AL$teamID)
 ```
+
 ```{r, echo=FALSE}
 kbl(poscol(cbind(res1991MLB$eff,res1991MLB$lambda)), 
     booktabs=T, digits=4, 
