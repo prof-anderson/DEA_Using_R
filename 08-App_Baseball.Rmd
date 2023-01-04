@@ -38,6 +38,7 @@ library(DiagrammeR)
 library(rsvg)
 library(htmltools)
 library(TRA)
+library(kableExtra)
 ```
 
 Our exploration will also serve as a review of data preparation in R. There are many ways of doing this. Feel free to explore further.
@@ -65,7 +66,6 @@ Now, let's wrestle with data sources. Sean Lahman's baseball database has been m
 Now we need to work on getting the data for different players.
 
 ```{r display-batting-data, echo=FALSE}
-library(kableExtra)
 kbl (head(Lahman::Batting), booktabs = T,
        caption="Sample of Lahman Baseball Data") |> 
   kable_styling(latex_options =  c("hold_position", "scale_down"))
@@ -112,7 +112,7 @@ As we discussed earlier, At-Bats (AB) is good but let's convert that to plate ap
 batting<-dplyr::mutate(batting,X1B=H-HR-X3B-X2B)
 batting<-dplyr::mutate(batting,PA=AB+BB)
 kbl (head(batting), booktabs = T, 
-       caption="Calculate Singles and Plate Appearances")|>
+       caption="Calculate Singles and Plate Appearances")  |>
   kable_styling(latex_options = c("hold_position", "scale_down"))
 ```
 
@@ -133,7 +133,7 @@ kbl (head(batting), booktabs = T,
 MinPA <- 400
 batting <- dplyr::filter(batting,PA>MinPA)
 kbl (head(batting), booktabs = T, 
-     caption="Limit to Full-time Players") |>
+     caption="Limit to Full-time Players")            |>
   kable_styling(latex_options = c("hold_position"))
 ```
 
@@ -145,22 +145,22 @@ Part of the beauty of dplyr is the ability to consolidate all of this into a sin
 
 batting<-Lahman::Batting
 
-batting <- batting                                       |>
-  select(playerID,yearID,teamID,lgID,AB,H,X2B,X3B,HR,BB) |>
-  mutate(PA=as.numeric(AB+BB))                           |>
-  mutate(X1B=as.numeric(H-HR-X3B-X2B))                   |>
-  transform(BB=as.numeric(BB))                           |>
-  transform(X2B=as.numeric(X2B))                         |>
-  transform(X3B=as.numeric(X3B))                         |>
-  transform(HR=as.numeric(HR))                           |>
+batting <- batting                                         |>
+  select(playerID,yearID,teamID,lgID,AB,H,X2B,X3B,HR,BB)   |>
+  mutate(PA=as.numeric(AB+BB))                             |>
+  mutate(X1B=as.numeric(H-HR-X3B-X2B))                     |>
+  transform(BB=as.numeric(BB))                             |>
+  transform(X2B=as.numeric(X2B))                           |>
+  transform(X3B=as.numeric(X3B))                           |>
+  transform(HR=as.numeric(HR))                             |>
   
-  filter(yearID>1900, PA>MinPA)                          |>
+  filter(yearID>1900, PA>MinPA)                            |>
   select(playerID,yearID,teamID,lgID,PA,BB,X1B,X2B,X3B,HR)
 ```
 
 ```{r, include=FALSE}
 kbl (head(batting), booktabs = T,
-     caption="Results of Preparing Data using dplyr")|>
+     caption="Results of Preparing Data using dplyr")      |>
   kable_styling(latex_options = c("hold_position"))
 ```
 
@@ -174,7 +174,6 @@ Our basic input-output model for baseball batting consists of plate appearances 
 In 1920, the American League featured a batter so dominant that he transformed the "industry" of baseball. Let's focus on this year for now. The core model for analysis is described in the following figure. We are going to use an output-oriented, constant returns to scale model. Output orientation is a better fit than an input-orientation because the batter is trying to create more hits rather than reducing plate appearances. The constant returns to scale was selected because increasing plate appearances should have a proportional increase in hits. Recall the earlier diagram illustrating the input-output model used.
 
 ```{r redrawbattingfig, echo=FALSE}
-
 XFigNames <- "PA (Plate Appearances)"
 YFigNames <- c("BB (Base on Balls or Walks)", 
                "1B (Singles)", 
@@ -191,7 +190,6 @@ tmp<-capture.output(rsvg_png(
 ![Basic DEA Model of Baseball Batting](BaseballCCRIO.png){#fig:BaseballCCRIO}
 
 ```{r preparing-IO-data}
-
 inputs <- c("PA")
 outputs <- c("BB", "X1B", "X2B", "X3B", "HR")
 batting1920AL <- batting   |> 
@@ -223,7 +221,7 @@ phi <- res1920AL$eff
 theta <- 1/phi
 
 kbl (cbind(head(phi),head(theta)), booktabs=T,
-        caption="CCR-OO Scores for 1920AL (Phi and Theta)")|>
+        caption="CCR-OO Scores for 1920AL (Phi and Theta)") |>
   kable_styling(latex_options = c("hold_position"))
 ```
 
@@ -264,7 +262,7 @@ Now, let's look at the results.
 library(ggplot2)
  
 qplot (res1920ALmult$Efficiency, 
-       geom="dotplot",
+       geom="dotplot", binwidth=0.01,
        main = "1920 American League Batter Efficiency",
        xlab = "Efficiency Score",
        fill = I("blue")
@@ -380,7 +378,7 @@ The weight restrictions have dropped the number of efficient players from seven 
 
 ### Cross-Efficiency of Baseball Batters
 
-Now, let's turn our attention to a variation of DEA called cross-efficiency. Cross-efficiency was discussed in an earlier chapter. Proponents of Cross-efficiency contend that it can differentiate between players (DMUs) that are DEA efficient. Simple CCR DEA finds nine out of 54 players to be efficient. We will focus on the ten players with the top CCR efficiency scores.
+Now, let's turn our attention to a variation of DEA called cross-efficiency. Cross-efficiency was discussed in an earlier chapter. Proponents of Cross-efficiency contend that it can differentiate between players (DMUs) that are DEA efficient. Simple CRS DEA finds nine out of 54 players to be efficient. We will focus on the ten players with the top CRS efficiency scores.
 
 ```{r, warning = FALSE}
 res1920ALcross<-CrossEfficiency(x, y, rts = "crs", 
@@ -683,11 +681,11 @@ colnames(res1991MLB$lambda)<-t(MLB1991AL$teamID)
 ```
 
 ```{r, echo=FALSE}
-kbl(poscol(cbind(res1991MLB$eff,res1991MLB$lambda)), 
+kbl(TRA::poscol(cbind(res1991MLB$eff,res1991MLB$lambda), cutoff=0.00001), 
     booktabs=T, digits=4, 
        caption=
-         "VRS Efficiency and Lambda Values of 1991 AL Teams") |>
-kable_styling(latex_options = c("hold_position", "scale_down"))
+         "VRS Efficiency and Non-Zero Lambda Columns of 1991 AL Teams") |>
+kable_styling(latex_options = c("hold_position"))
 ```
 
 These results show that only four teams were efficient: Chicago White Sox (CHA), Minnesota Twins (MIN), Seattle Mariners (SEA), and Toronto Blue Jays (TOR). All other teams were compared to a combination of these these teams. Since this is a simple, one-input, one-output model, it is easy to show graphically. The `Benchmarking`package from Bogetoft and Otto does a great job of drawing 2 dimensional DEA plots so we will again use this package.
@@ -754,15 +752,6 @@ teampayroll2 <- teampayroll2[-1,]
 ```
 
 Now, let's plot the data.
-
-```{r}
-library(ggplot2)
-
-ggplot (subset (teampayroll2,  lgID=="AL"), 
-        aes (x=payroll, y=W))+geom_point() +
-        xlab("Payroll ($Millions") + ylab("Regular Season Wins") +
-        ggtitle("Salary and Wins: American League (1991-2016)")  
-```
 
 ```{r, echo=FALSE}
 kbl(head(subset (teampayroll2, yearID==1991 & lgID=="AL")), 
@@ -927,13 +916,19 @@ class(teamPayrollByPositions$yearID)<-"numeric"
 
 colnames(teampayroll3)<-c(colnames(
   teamPayrollByPositions),"V2")
-# Above feels like a kludge to aggregate reesults
+# Above feels like a kludge to aggregate results
 #   Feel free to come up with cleaner alternatives
 
-#class(teampayroll3$payroll)<-"numeric"
 class(teampayroll3$W)<-"numeric"
 class(teampayroll3$yearID)<-"numeric"
 class(teampayroll3$V2)<-"numeric"
+class(teampayroll3$batter)<-"numeric"
+class(teampayroll3$catcher)<-"numeric"
+class(teampayroll3$firstBase)<-"numeric"
+class(teampayroll3$secondBase)<-"numeric"
+class(teampayroll3$thirdBase)<-"numeric"
+class(teampayroll3$shortstop)<-"numeric"
+class(teampayroll3$outfielder)<-"numeric"
 
 lastyear <- 2016  
 
@@ -959,19 +954,22 @@ class(teampayroll3$Efficiency) <- "numeric"
 class(teampayroll3$WinPercent) <- "numeric"
 
 teampayroll3 <- teampayroll3[-1,]
-#pander(poscol(cbind(resMLB$eff,resMLB$lambda)), 
-#      caption="BCC Efficiency and Lambda Values of AL Teams")
 
 kbl (head(teampayroll3), booktabs=T, digits=2,
      caption="Team Information") |>
   kable_styling (latex_options = c("hold_position", "scale_down"))
-                 
-kbl (head(cbind(teampayroll2$Efficiency, 
-                  teampayroll3$Efficiency)), booktabs=T, digits=2, 
-       caption=
-         "Sample of BCC-Efficiency vs. Allocative Efficiency") |>
+```
+
+```{r}
+kbl (head(cbind(teampayroll2$teamID, 
+                as.numeric(teampayroll2$Efficiency), 
+                as.numeric(teampayroll3$Efficiency))), 
+     booktabs=T, digits=4, caption=
+         "Sample of BCC-Efficiency vs. Allocative Efficiency",
+     col.names=c("Team ID", "VRS", "Allocative")) |>
   kable_styling (latex_options = c("hold_position"))
 ```
+
 
 ### Future Research Opportunities on Team Management
 
