@@ -409,7 +409,8 @@ Let's shift attention to talk about the best players by sorting by efficiency in
 #    caption="MPI results for Selected Batters")
 
 kbl(head(res_bb 
-         [order(res_bb[,3], decreasing=TRUE),],20), digits=5, booktabs=T,
+         [order(res_bb[,3], decreasing=TRUE),],20), 
+    digits=5, booktabs=T,
     caption="Malmquist Productivity Index Results for Baseball Batting, 1919-1920") |>
  kable_styling(latex_options = c("hold_position", "scale_down")) |>
   footnote (general="Top 20 Efficient 1920 American League Batters")
