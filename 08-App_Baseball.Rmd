@@ -407,10 +407,10 @@ This table of batters is simply in alphabetical order but illustrates that the m
 Let's now examine the top ten most efficient hitters sorted by efficiency and their cross-efficiency scores with and without weight restrictions imposed.
 
 ```{r}
-collectedeff1 <- data.frame(cbind(res1920ALmult$Efficiency,
-                                  res1920ALmultWR$Efficiency,
-                                  t(res1920ALcross$ce_ave),
-                                  t(res1920ALCEWR$ce_ave))) 
+collectedeff1 <- data.frame(cbind(as.numeric(res1920ALmult$Efficiency),
+                                  as.numeric(res1920ALmultWR$Efficiency),
+                                  as.numeric(t(res1920ALcross$ce_ave)),
+                                  as.numeric(t(res1920ALCEWR$ce_ave)))) 
 ```
 
 ```{r}
