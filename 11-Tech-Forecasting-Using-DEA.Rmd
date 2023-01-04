@@ -287,7 +287,7 @@ res1 <- DEA(fj_x, fj_y, rts="VRS", orientation="output")
 kbl (cbind(fj_data,res1$eff), 
        caption="Output-Oriented Variable Returns to Scale Results", 
      booktabs = T, digits = 4)   |>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("hold_position", "scale_down"))
 ```
 
 These results indicate that the earlier aircraft or greatly surpassed in performance by more modern aircraft, as would be expected. More specifically, this indicates that the first US fighter jet, the F80, was outperformed by a factor of `res1$eff[1]` versus the best products released after it had its first flight.
