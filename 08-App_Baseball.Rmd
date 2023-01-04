@@ -955,7 +955,7 @@ class(teampayroll3$WinPercent) <- "numeric"
 
 teampayroll3 <- teampayroll3[-1,]
 
-kbl (head(teampayroll3), booktabs=T, digits=2,
+kbl (head(teampayroll3), booktabs=T, digits=2, row.names=F, 
      caption="Team Information") |>
   kable_styling (latex_options = c("hold_position", "scale_down"))
 ```

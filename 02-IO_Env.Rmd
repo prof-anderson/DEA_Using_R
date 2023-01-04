@@ -676,7 +676,8 @@ Success! This indicates each of the four linear programs was solved to optimalit
 
 ```{r, echo=FALSE}
 temp <- cbind(res2_1.names$DMUnamesbyletter, # Add letters as column
-              res2_3.efficiency, res2_3.lambda) 
+              res2_3.efficiency,
+              format (res2_3.lambda, digits=3, drop0trailing = TRUE)) 
 kbl(temp, booktabs=T, digits=3, escape=F, row.names=F,
     col.names=c("DMU", "$\\theta^{CRS}$", res2_1.names$LambdanamesbyletterLX),
     caption= 'Input-Oriented Envelopment Efficiency Results') |>
@@ -750,7 +751,8 @@ res2_4 <-   solve_model(mod2_4, with_ROI(solver = "glpk"))
 
 ```{r, echo=FALSE}
 temp <- cbind(res2_1.names$DMUnamesbyletter, # Add letters as column
-              res2_4.efficiency, res2_4.lambda) 
+              res2_4.efficiency, 
+              format (res2_4.lambda, digits=3, drop0trailing = TRUE)) 
 kbl(temp, 
     booktabs=T, digits=3, escape=F, row.names=F,
     col.names=c("DMU", "$\\theta^{VRS}$", res2_1.names$LambdanamesbyletterLX),
@@ -816,7 +818,8 @@ for (k in 1:ND) {
 
 ```{r, echo=FALSE}
 temp <- cbind(res2_1.names$DMUnamesbyletter, # Add letters as column
-              res2_5.efficiency, res2_5.lambda) 
+              res2_5.efficiency, 
+              format (res2_5.lambda, digits=3, drop0trailing = TRUE)) 
 kbl(temp, 
     booktabs=T, digits=3, escape=F, row.names=F,
     col.names=c("DMU", "$\\theta^{DRS}$", res2_1.names$LambdanamesbyletterLX),
@@ -908,7 +911,7 @@ rownames(Store6CRS.Res) <- store6names$DMUnamesbyletter
 
 kbl (Store6CRS.Res, booktabs=T, escape=F, digits=5,
      col.names=c("$\\theta^{CRS}$", store6names$LambdanamesbyletterLX),
-        caption="Results from Six Store Example (CRS)")               |>
+        caption="Results from Six Store Example (CRS) with Input and Output Weights") |>
   add_header_above(c(" " = 1, "Efficiency" = 1, 
                      "Envelopment Variables" = 6))          |>
   kable_styling(latex_options = c("hold_position"))

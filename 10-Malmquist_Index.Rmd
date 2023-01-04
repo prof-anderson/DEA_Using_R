@@ -445,8 +445,9 @@ my19 <- my19 |> dplyr::mutate(X3B=X3B+HR) |>
 ```{r}
 kbl(head(cbind(y19, my19)), booktabs=T,
     caption="Modified Outputs for Ordinal Weight Restrictions") |>
-  add_header_above( c(" " = 1, "Original Outputs" = 5, "Modified Outputs" = 5)) |>
- kable_styling(latex_options = c("hold_position")) |>
+  add_header_above( c(" " = 1, "Original Outputs" = 5, 
+                      "Modified Outputs" = 5))                  |>
+  kable_styling(latex_options = c("hold_position"))            |>
   footnote (general="First six batters from 1919 American League")
 ```
 
