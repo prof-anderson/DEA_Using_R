@@ -2,7 +2,7 @@
 library(bookdown); library(rmarkdown); rmarkdown::render("10-Malmquist_Index.Rmd", "pdf_book")
 ```
 
-#  Changing Performance over Time
+# Changing Performance over Time
 
 ## Introduction[^10-malmquist_index-1]
 
