@@ -98,7 +98,7 @@ P & = \sqrt {\frac{D_k^{t}(x^{t+1},y^{t+1})}{D_k^{t+1}(x^{t+1},y^{t+1})}
 \end{split}
 $$
 
-This indicates that about 46% of the unit's improved perfmorance is due to the general progress of technology or improving operating conditions (rising tide effect).
+This indicates that about 46% of the unit's improved performance is due to the general progress of technology or improving operating conditions (rising tide effect).
 
 The Malmquist Productivity Index would be the geometric means of the ratios for the distance from each frontier to the respective points.
 
@@ -511,3 +511,35 @@ Note that in this case there are only four efficient batters in 1919 (Ty Cobb, B
 -   The weight restriction results appear to be consistent for both Speaker and Dugan.
 
 -   The accumulation of outputs appears to be correct here so as to incorporate ordinal weight restrictions.
+
+### Testing Weights from Accumulated (Ordinal) Approach
+
+```{r}
+res20test<-MultiplierDEA::DeaMultiplierModel(x20, my20, "crs", "output")
+res20tab <- cbind (res20test$Efficiency, 
+                   res20test$vx, res20test$uy)
+
+```
+
+```{r}
+
+kbl(t(format( res20tab["speaktr01",], digits=5)), 
+    booktabs=T, 
+    caption="Results from Multiplier DEA Using Ordinal (Accumulated) Weight Restrictions")
+```
+
+The results match those from those found along the way in the Malmquist analysis but do not agree with those from earlier. Let's unpack the weights given the structure of
+
+```{r}
+mres20uyBB <- res20tab[,3]
+mres20uy1B <- res20tab[,4]
+mres20uy2B <- res20tab[,5] +res20tab[,4] + res20tab[,3]
+mres20uy3B <- res20tab[,6] + res20tab[,5] + res20tab[,4] + res20tab[,3]
+mres20uyHR <- res20tab[,7] + res20tab[,6] + res20tab[,5] + res20tab[,4] + res20tab[,3]
+
+mres20uy <- cbind(mres20uyBB, mres20uy1B, mres20uy2B, mres20uy3B, mres20uyHR)
+
+mres20uy ["speaktr01",]
+```
+
+Perhaps there is an issue in the aggregation approach for single and walks.
