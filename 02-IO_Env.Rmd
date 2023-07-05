@@ -753,10 +753,11 @@ res2_4 <-   solve_model(mod2_4, with_ROI(solver = "glpk"))
 
 ```{r, echo=FALSE}
 temp <- cbind(res2_1.names$DMUnamesbyletter, # Add letters as column
-              res2_4.efficiency, 
-              format (res2_4.lambda, digits=3, drop0trailing = TRUE)) 
+              
+              format (cbind(res2_4.efficiency, res2_4.lambda), 
+                      digits=4, drop0trailing = TRUE)) 
 kbl(temp, 
-    booktabs=T, digits=3, escape=F, row.names=F,
+    booktabs=T,  escape=F, row.names=F,
     col.names=c("DMU", "$\\theta^{VRS}$", res2_1.names$LambdanamesbyletterLX),
     caption= "Input-Oriented VRS Envelopment Results") |>
   add_header_above(c(" " = 1, "Efficiency" = 1, "Envelopment Variables" = 4))  |>
