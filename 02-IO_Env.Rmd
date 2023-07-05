@@ -55,7 +55,7 @@ library (DiagrammeRsvg)
 library (rsvg)
 Figure <- DrawIOdiagram (c("Employees\n(FTE)" ), 
                          c("Sales\n($/week)"), 
-                         c("\nStore\n "))
+                         c("\nStore\n"))
 tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),
                              'generated-images/DEA_IO_stores.PNG')) 
 knitr::include_graphics("generated-images/DEA_IO_stores.PNG")
@@ -443,9 +443,9 @@ dim(ydata)<-c(ND,NY)
 DMUnames <- list(c(LETTERS[1:ND]))               
        # DMU names: A, B, ...
 Xnames <- lapply(list(rep("X",NX)),paste0,1:NX)   
-       # Input names: x1, ...
+       # Input names: X1, ...
 Ynames <- lapply(list(rep("Y",NY)),paste0,1:NY)   
-       # Output names: y1, ...
+       # Output names: Y1, ...
 Lambdanames <- lapply(list(rep("L_",ND)),paste0, 
                       LETTERS[1:ND])
 
@@ -1274,9 +1274,9 @@ The total slacks may be thought of as the difference between the best target and
 
 If you have followed along this far - you deserve a medal! If you work your way through by cutting and pasting code fragments, you should be able to reproduce my exact results. At this point you are ready for a few challenges:
 
-1.  Add a fifth unit, E, that produces 400 units output using 30 units of input. Graphically evaluate all five units for their efficiency scores and lambda values.\
-2.  Interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom. *Difficulty: Cup of coffee*
-3.  Examine the new unit, E, using R *Difficulty: Decaf cup of coffee*
+1.  Add a fifth unit, E, that produces 400 units output using 30 units of input. Graphically evaluate all five units for their efficiency scores and lambda values. *Difficulty: Decaf cup of coffee*
+2.  Using the graphical approach, interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom. *Difficulty: Cup of coffee*
+3.  Examine the new unit, E, using `R` and `ompr`. *Difficulty: Decaf cup of coffee*
 4.  Interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom. *Difficulty: Cup of coffee*
 5.  Wrap a for loop around the model to examine every unit. Discuss results. *Difficulty: Cup of coffee*
 6.  Use a bigger data set and conduct an analysis & interpretation (more inputs, outputs, and units.) *Difficulty: Cup of coffee*
