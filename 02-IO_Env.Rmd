@@ -72,7 +72,7 @@ This follows three steps to work for both HTML & PDF:
 
 A few other things to note from reading the previous code chunk:
 
-1.  It assumes that there is a subdirectory for images - if there isn't a subdirectory for images, you can create one or edit the path in the code. I created a subdirectory `generated-images` to highlight that these are images that I am creating through R and do not need to be permanenently stored in the github repository.
+1.  It assumes that there is a subdirectory for images - if there isn't a subdirectory for images, you can create one or edit the path in the code. I created a subdirectory `generated-images` to highlight that these are images that I am creating through R and do not need to be permanently stored in the github repository.
 2.  The text passed to the function such as `"Sales\n($/week)"` allows for a line return character such as `"\n"`. This allows the name of the output and the unit to be on separate line. The line return is also used to provide a taller box by being placed above and below the label for the box.
 
 Let's get started now with creating our data.
@@ -386,6 +386,8 @@ $$
   (\#eq:Ch2ConstructingTargets)
   \end{split}
 $$
+
+The symbol $\forall$ should be read as "for all". This means that the first input constraint with $\forall \; i$ is repeated for all values of *i*. In this case, it would mean that we repeat this constraint for values of *i* from *1* to $N^X$. In our single-input case ( $N^X=1$ ), we would only have one input constraint. Similarly, $\forall \; r$ indicates that we are repeating this constraint for each possible value of *r* from *1* to $N^Y$. Lastly, we will often use $\forall$ *j* to indicate for all decision making units from 1 to $N^D$. For the sake of brevity in our linear programming formulations, we will use the $\forall$ *i*, *r*, or *j* when it is for all the possible inputs, or outputs, or decision making units respectively.
 
 This is not yet a linear program because it is missing an objective function. It defines what is an acceptable target of performance that is at least as good as DMU *k* but does not try to find a *best* target.
 
