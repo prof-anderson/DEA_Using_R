@@ -1275,18 +1275,18 @@ The total slacks may be thought of as the difference between the best target and
 
 ## Exercises
 
-If you have followed along this far - you deserve a medal! If you work your way through by cutting and pasting code fragments, you should be able to reproduce my exact results. At this point you are ready for a few challenges:
+If you have followed along this far - you deserve a medal! If you work your way through by cutting and pasting code fragments, you should be able to reproduce my exact results. At this point you are ready for a few challenges. Difficulty is measured in cups of coffee or a whole pot for something that might require extra effort and creativity.
 
-1.  Add a fifth unit, E, that produces 400 units output using 30 units of input. Graphically evaluate all five units for their efficiency scores and lambda values. *Difficulty: Decaf cup of coffee*
-2.  Using the graphical approach, interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom. *Difficulty: Cup of coffee*
-3.  Examine the new unit, E, using `R` and `ompr`. *Difficulty: Decaf cup of coffee*
-4.  Interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom. *Difficulty: Cup of coffee*
-5.  Wrap a for loop around the model to examine every unit. Discuss results. *Difficulty: Cup of coffee*
-6.  Use a bigger data set and conduct an analysis & interpretation (more inputs, outputs, and units.) *Difficulty: Cup of coffee*
-7.  Validate results against a DEA package (ex. `DEAMultiplier`, `TFDEA`, `Benchmarking`, `DJL`, `nonparaeff`) *Difficulty: Pot of coffee*
-8.  Construct an example where Phase 2 increases positive slacks from Phase 1. *Difficulty: Pot of coffee*
-9.  Create "cool" graphs or plots of results. *Difficulty: It depends...*
+1.  Add a fifth unit, E, that produces 400 units output using 30 units of input. Graphically evaluate all five units for their efficiency scores and lambda values. ![](images/coffee-cup.png){width="2%"}
+2.  Using the graphical approach, interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom. ![](images/coffee-cup.png){width="2%"}
+3.  Examine the new unit, E, using `R` and `ompr`. ![](images/coffee-cup.png){width="2%"}
+4.  Interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom. ![](images/coffee-cup.png){width="2%"}
+5.  Wrap a for loop around the model to examine every unit. Discuss results. ![](images/coffee-cup.png){width="2%"}
+6.  Use a bigger data set and conduct an analysis & interpretation (more inputs, outputs, and units.) ![](images/coffee-cup.png){width="2%"}
+7.  Validate results against a DEA package (ex. `DEAMultiplier`, `TFDEA`, `Benchmarking`, `DJL`, `nonparaeff`) ![](images/coffee-pot.png){width="2%"}
+8.  Construct an example where Phase 2 increases positive slacks from Phase 1. ![](images/coffee-pot.png){width="2%"}
+9.  Create "cool" graphs or plots of results. ![](images/coffee-pot.png){width="2%"}
 
-To pass the challenges, work on extending my RMarkdown file or using a similar script. You can use my \*.rmd file as a starting point. Others might prefer to create a well documented R script instead of using RMarkdown. Others might even prefer using LaTeX. If you use RMarkdown or LaTeX, please use section headings to indicate each challenge solved.
+To do the challenges, work on extending my RMarkdown file or using a similar script. You can use my file as a starting point. You can access it from the github repository, [Chapter 2 Rmd from github](https://github.com/prof-anderson/DEA_Using_R/blob/master/02-IO_Env.Rmd). Note that running this file may require subdirectories such as `images` or `generated-images` to display graphics.
 
 You can use other packages for graphics or data manipulation but don't use a DEA package. (Don't worry, we'll get there later.)
