@@ -211,7 +211,7 @@ Let's revisit the Baker model again.
 
 multiplierIO <- function (x,y) 
   { 
-  ND <- nrow(x); NX <- ncol(y); NY <- ncol(y); # Define data size
+  ND <- nrow(x); NX <- ncol(x); NY <- ncol(y); # Define data size
   
   results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
   results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
