@@ -13,7 +13,7 @@ library(bookdown); library(rmarkdown); rmarkdown::render("12-Software-Comp.Rmd",
 
 # Benchmarking the Benchmarkers
 
-```{r setup, include=FALSE}
+```{r setupch12, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(kableExtra)
 library(DiagrammeRsvg, quietly=TRUE)
@@ -385,7 +385,7 @@ Computational performance could be further compared in many ways such as the fol
 Let's explore another view of DEA packages by examining the packages that they depend upon.
 A key aspect is what optimization engine each package uses.
 
-```{r DEA_package_dependencies}
+```{r DEA-package-dependencies, eval=FALSE}
 
 library("miniCRAN")
 
@@ -403,7 +403,7 @@ set.seed(1)
 plot(dg, legendPosition = c(-1, -1), vertex.size = 10, cex = 0.7)
 ```
 
-This graph seems to indicate that Benchmarking is relatively indpendent of other packages despite being a powerful and well accepted tool.
+This graph seems to indicate that Benchmarking is relatively independent of other packages despite being a powerful and well accepted tool.
 Other packages appear to rely on a complex web of packages unrelated to DEA.
 Interestingly, it appears that `lpsolveAPI` is only used by `DJL` and `Benchmarking` while the other packages depend on other solvers.
 

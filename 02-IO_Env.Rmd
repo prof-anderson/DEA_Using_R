@@ -1269,7 +1269,9 @@ kbl (Store7SlackMax.Res, booktabs=T, escape=F, digits=3,
 kable_styling(latex_options="hold_position")
 ```
 
-The results indicate the presence of non-radial slacks in Stores B, F, and G. Not only can B's efficiency be improved by using 16.7% less of every input, the first input can be further reduced by 4.667. A simple focus on just radial efficiency score, $\theta$ will understate the potential for improved operations.
+The results indicate the presence of non-radial slacks in stores B, F, and G. Not only can B's efficiency be improved by using 16.7% less of every input, the first input can be further reduced by 4.667. A simple focus on just radial efficiency score, $\theta$ will understate the potential for improved operations.
+
+These results that store G (Gary's Grocery) is radially efficient, $\theta=1$, and therefore can't make a reduction in all inputs simultaneously while still producing the same level of output. On the other hand, the value $s_1^x=5$ indicates a reduction of the first input can still be done.
 
 The total slacks may be thought of as the difference between the best target and the actual inputs and outputs of the units studied.
 
@@ -1281,7 +1283,7 @@ If you have followed along this far - you deserve a medal! If you work your way 
 2.  Using the graphical approach, interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom. ![](images/coffee-cup.png){width="2%"}
 3.  Examine the new unit, E, using `R` and `ompr`. ![](images/coffee-cup.png){width="2%"}
 4.  Interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom. ![](images/coffee-cup.png){width="2%"}
-5.  Wrap a for loop around the model to examine every unit. Discuss results. ![](images/coffee-cup.png){width="2%"}
+5.  Wrap a for loop around the model to examine every unit. Discuss results. ![](images/coffee-cup.png){width="2%"} ![](images/coffee-cup.png){width="2%"}
 6.  Use a bigger data set and conduct an analysis & interpretation (more inputs, outputs, and units.) ![](images/coffee-cup.png){width="2%"}
 7.  Validate results against a DEA package (ex. `DEAMultiplier`, `TFDEA`, `Benchmarking`, `DJL`, `nonparaeff`) ![](images/coffee-pot.png){width="2%"}
 8.  Construct an example where Phase 2 increases positive slacks from Phase 1. ![](images/coffee-pot.png){width="2%"}
