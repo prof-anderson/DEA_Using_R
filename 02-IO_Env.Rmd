@@ -24,7 +24,7 @@ Recently, my research group at PSU adopted the R platform based on the following
 -   Freely available so it does not strain research budgets
 -   Extensive collection of numerical add-in packages (over 15,000 at CRAN) to build upon
 -   Robust distribution of add-in packages helps improve distribution of our own contributions
--   Multiple linear programming packages to choose from among
+-   Multiple linear programming packages to choose from
 -   Widespread usage and acceptance in the research and analytics communities
 -   No arbitrary capacity limits
 -   One platform that combines optimization and statistical analysis
