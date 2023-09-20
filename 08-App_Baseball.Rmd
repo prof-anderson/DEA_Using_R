@@ -6,7 +6,7 @@
 library(bookdown); library(rmarkdown); rmarkdown::render("08-App_Baseball.Rmd", "pdf_book")
 ```
 
-Now that we have covered an introduction to benchmarking using data envelopment analysis, let's look at a variety of models applied to sports - in particular, baseball.
+Now that we have covered an introduction to \index{Benchmarking} benchmarking using \index{Data envelopment analysis} data envelopment analysis, let's look at a variety of models applied to sports - in particular, baseball.
 
 Sports has a long history in operations research and management science, well before the idea of sports analytics was popularized by Michael Lewis' *Moneyball* [@lewis2004]. While it doesn't have the life and death significance of emergency relief or health care applications, it provides quite a few benefits for explaining complex analysis methods:
 
@@ -16,9 +16,9 @@ Sports has a long history in operations research and management science, well be
 -   Clear, quantifiable, and objective metrics
 -   Input-output models can be agreed upon
 
-The range of applications can cover benchmarking individual players, managers, general managers, and teams. Analyzing individual players is the most common type of baseball application and will be the bulk of this chapter. Each baseball player typically plays a role as a batter, a fielder, and/or a pitcher. The analysis of baseball batters is an updated version of an earlier paper [@Andersonnewmeasurebaseball1997a].
+The range of applications can cover \index{Benchmarking} benchmarking individual players, managers, general managers, and teams. Analyzing individual players is the most common type of baseball application and will be the bulk of this chapter. Each baseball player typically plays a role as a batter, a fielder, and/or a pitcher. The analysis of baseball batters is an updated version of an earlier paper [@Andersonnewmeasurebaseball1997a].
 
-For those readers not interested in baseball, this can be viewed as a set of case studies examining individual performance and organizational performance from a variety of perspectives. It also provides a rich example of data preparation for doing a benchmarking study.
+For those readers not interested in baseball, this can be viewed as a set of case studies examining individual performance and organizational performance from a variety of perspectives. It also provides a rich example of data preparation for doing a \index{Benchmarking} benchmarking study.
 
 ## Baseball Data, R, and dplyr
 
@@ -225,7 +225,7 @@ kbl (cbind(head(phi),head(theta)), booktabs=T,
   kable_styling(latex_options = c("hold_position"))
 ```
 
-Success. We have now run DEA using the `TFDEA` package, principally developed by Tom Shott with important contributions from Dong-Joon Lim, Kevin van Blommestein, and others. Notice that this is an output-oriented model so the values greater than 1.0 indicate that decreasing radial efficiency (increasing inefficiency), and describe the amount of additional outputs that should be achieved at the same level of input usage. In other words, how much more walks, singles, doubles, triples, and home runs the player should be producing in the same number of plate appearances if he was batting *efficiently*. As discussed in the chapter on the output-oriented model, under constant returns to scale, the input and output-oriented models are reciprocals of each other ($\theta=\frac{1}{\phi}$)
+Success. We have now run DEA using the \index{TFDEA} `TFDEA` package, principally developed by Tom Shott with important contributions from Dong-Joon Lim, Kevin van Blommestein, and others. Notice that this is an output-oriented model so the values greater than 1.0 indicate that decreasing radial efficiency (increasing inefficiency), and describe the amount of additional outputs that should be achieved at the same level of input usage. In other words, how much more walks, singles, doubles, triples, and home runs the player should be producing in the same number of plate appearances if he was batting *efficiently*. As discussed in the chapter on the output-oriented model, under constant returns to scale, the input and output-oriented models are reciprocals of each other ($\theta=\frac{1}{\phi}$)
 
 Let's dig a little deeper now. Let's start by reviewing the output weights for the first few players. We'll display the table in two ways.
 
@@ -241,7 +241,7 @@ A few things stand out. First, only one of the first six players puts any weight
 
 In Anderson and Sharp's 1997 paper, ordinal weight restrictions were incorporated into the envelopment model for examining baseball batters by accumulating hits [@anderson1997]. This created new outputs of Singles or better (BB+X1B), doubles or better (BB+X1B+X2B), *etc.* This ordinal approach to weight restrictions can be done as a simple preprocessing step.
 
-Another approach is to analyze the data set using the multiplier model and directly incorporating weight restrictions. For this, we will make use of the `DEAMultiplier`package written by Aurobindh Kalathil Puthanpura.
+Another approach is to analyze the data set using the \index{Data envelopment analysis!multiplier model} multiplier model and directly incorporating weight restrictions. For this, we will make use of the `DEAMultiplier`package written by Aurobindh Kalathil Puthanpura.
 
 ```{r, warning=FALSE}
 library(MultiplierDEA)
@@ -254,7 +254,7 @@ kbl(head (res1920ALmult$Efficiency), booktabs=T,
   kable_styling(latex_options = c("hold_position"))
 ```
 
-Notice that the scores are up to 1.0 rather than 1.0 and higher as in the TFDEA package. This is because the TFDEA package reports efficiency as $\phi$ whereas the `DEAMultiplier` package reports $\frac{1}{\phi}$. The results are consistent and reciprocals. The value of $\phi$ is consistent with the formulation of the output-oriented model. The value of $\frac{1}{\phi}$ has the same interpretation $\theta$ where a value less than 1.0 indicates inefficiency. In fact, for the case of constant returns to scale (CRS), the orientation does not make a difference in the value of inefficiency found, in other words, $\theta=\frac{1}{\phi}$ For the sake of this discussion, we will interpret the results as $\frac{1}{\phi}$.
+Notice that the scores are up to 1.0 rather than 1.0 and higher as in the \index{TFDEA} TFDEA package. This is because the TFDEA package reports efficiency as $\phi$ whereas the `DEAMultiplier` package reports $\frac{1}{\phi}$. The results are consistent and reciprocals. The value of $\phi$ is consistent with the formulation of the \index{Data envelopment analysis!output-oriented} output-oriented model. The value of $\frac{1}{\phi}$ has the same interpretation $\theta$ where a value less than 1.0 indicates inefficiency. In fact, for the case of constant returns to scale (CRS), the orientation does not make a difference in the value of inefficiency found, in other words, $\theta=\frac{1}{\phi}$ For the sake of this discussion, we will interpret the results as $\frac{1}{\phi}$.
 
 Now, let's look at the results.
 
@@ -378,7 +378,7 @@ The weight restrictions have dropped the number of efficient players from seven 
 
 ### Cross-Efficiency of Baseball Batters
 
-Now, let's turn our attention to a variation of DEA called cross-efficiency. Cross-efficiency was discussed in an earlier chapter. Proponents of Cross-efficiency contend that it can differentiate between players (DMUs) that are DEA efficient. Simple CRS DEA finds nine out of 54 players to be efficient. We will focus on the ten players with the top CRS efficiency scores.
+Now, let's turn our attention to a variation of DEA called \index{cross-efficiency} cross-efficiency. Cross-efficiency was discussed in an earlier chapter. Proponents of Cross-efficiency contend that it can differentiate between players (DMUs) that are DEA efficient. Simple CRS DEA finds nine out of 54 players to be efficient. We will focus on the ten players with the top CRS efficiency scores.
 
 ```{r, warning = FALSE}
 res1920ALcross<-CrossEfficiency(x, y, rts = "crs", 
@@ -457,11 +457,11 @@ kbl(corrtemp, booktabs=T,
 
 Both  simple Pearson's correlation and the Spearman's rank correlation give similar scores but the Spearman rank correlations are generally higher. This indicates that the scores for the `r nrow(res1920ALmult$Efficiency)` players are numerically related and their relative ranking is a little more similar.  
 
-The cross-efficiency and the regular efficiency scores are related - they have a correlation of `r  round(corrtemp[1,2], 3)`  but the cross-efficiency has a 0.910 correlation with the weight restricted DEA results. This suggests that perhaps cross-efficiency can help deal with decreasing the impact of unrealistic weight schemes but let's take a closer look at the results.
+The \index{cross-efficiency} cross-efficiency and the regular efficiency scores are related - they have a correlation of `r  round(corrtemp[1,2], 3)`  but the cross-efficiency has a 0.910 correlation with the weight restricted DEA results. This suggests that perhaps cross-efficiency can help deal with decreasing the impact of unrealistic weight schemes but let's take a closer look at the results.
 
-While all of the correlations are strong, they are being done over the entire population of `r nrow(res1920ALmult$Efficiency)` batters but DEA is about benchmarking against the best. Let's dig into the results more deeply by examining one hitter in particular. In 1920, Babe Ruth had one of the best seasons ever by a baseball hitter. Various statistics demonstrate his dominance but home runs really highlight the impact. His 54 home runs in 1920 nearly doubled the previous major league baseball record of 29 in a season he had set the previous year. Alone, he hit more home runs than 14 of the 16 teams in the leagues. Until the recent steroid era, Babe Ruth's 1920 and 1921 seasons are often considered to be the two best offensive seasons in baseball.
+While all of the correlations are strong, they are being done over the entire population of `r nrow(res1920ALmult$Efficiency)` batters but DEA is about \index{Benchmarking} benchmarking against the best. Let's dig into the results more deeply by examining one hitter in particular. In 1920, Babe Ruth had one of the best seasons ever by a baseball hitter. Various statistics demonstrate his dominance but home runs really highlight the impact. His 54 home runs in 1920 nearly doubled the previous major league baseball record of 29 in a season he had set the previous year. Alone, he hit more home runs than 14 of the 16 teams in the leagues. Until the recent steroid era, Babe Ruth's 1920 and 1921 seasons are often considered to be the two best offensive seasons in baseball.
 
-Babe's cross-efficiency score was `r round(res1920ALcross$ce_ave[1,"ruthba01"],6)`. Coincidentally, his cross-efficiency score was nearly identical to the average cross-efficiency of other regular baseball batters of `r round(mean(res1920ALcross$ce_ave),6)`. In other words, what may have been one of the best batting performances in a century of baseball was wrongly misclassified as being just average by cross-efficiency. The reason for this can be seen by the cross-efficiency matrix of weights presented earlier that showed many batters put zero weight on home runs because they paled in comparison to the best performer on home runs, Babe Ruth.
+Babe's \index{cross-efficiency} cross-efficiency score was `r round(res1920ALcross$ce_ave[1,"ruthba01"],6)`. Coincidentally, his cross-efficiency score was nearly identical to the average cross-efficiency of other regular baseball batters of `r round(mean(res1920ALcross$ce_ave),6)`. In other words, what may have been one of the best batting performances in a century of baseball was wrongly misclassified as being just average by cross-efficiency. The reason for this can be seen by the cross-efficiency matrix of weights presented earlier that showed many batters put zero weight on home runs because they paled in comparison to the best performer on home runs, Babe Ruth.
 
 ```{r, fig.show='hold', fig.align='center', fig.cap="Impact of Weight Restrictions on Efficiency"}
 collectedeff1 <- data.frame(cbind(res1920ALmult$Efficiency, 
@@ -525,7 +525,7 @@ CEvsCEWR
 
 ```
 
-While cross-efficiency is sometimes used as a crutch to improve discrimination without needing to use application area-expertise, weight restrictions can be used just as readily in cross-efficiency as in regular DEA studies. This chart highlights shows that unlike regular DEA, adding weight restrictions helps some players' scores and hurts others'. The biggest beneficiary of weight restrictions is Babe Ruth. While his weight-restricted cross-efficiency score still trails George Sisler by a small margin, he is no longer considered a mere "average" batter.
+While \index{cross-efficiency} cross-efficiency is sometimes used as a crutch to improve discrimination without needing to use application area-expertise, weight restrictions can be used just as readily in cross-efficiency as in regular DEA studies. This chart highlights shows that unlike regular DEA, adding weight restrictions helps some players' scores and hurts others'. The biggest beneficiary of weight restrictions is Babe Ruth. While his weight-restricted cross-efficiency score still trails George Sisler by a small margin, he is no longer considered a mere "average" batter.
 
 Most DEA applications do not have the benefit of a historically transcendent performance such as that of Babe Ruth to highlight a modeling error of using cross-efficiency to increase improve discrimination among DMUs. Cross-efficiency sacrifices DEA's conservative or generous assumption of weight flexibility to opaquely create an alternate scoring model. While it does typically create a unique ranking of all of the DMUs, this does not necessarily make it valid.
 
@@ -630,7 +630,7 @@ Most studies that do cross-efficiency do not take a careful look at the weights.
 
 ## Baseball Team Management
 
-Examining baseball batters is interesting but let's change our perspective the team. A baseball general manager tries to construct the best team. Players have different salaries and the Lahman baseball dataset includes salary information. An interesting statistical analysis of the relationship between team salary and wins can be found at <https://rpubs.com/grigory/MLBSalaryPerfLR> by Gregory Kanevsky. We will draw inspiration from Gregory Kanevsky's analysis and data wrestling to get us started. Instead of his regression model, we will use a benchmarking approach to demonstrate the use of DEA for examining organizations.
+Examining baseball batters is interesting but let's change our perspective the team. A baseball general manager tries to construct the best team. Players have different salaries and the Lahman baseball dataset includes salary information. An interesting statistical analysis of the relationship between team salary and wins can be found at <https://rpubs.com/grigory/MLBSalaryPerfLR> by Gregory Kanevsky. We will draw inspiration from Gregory Kanevsky's analysis and data wrestling to get us started. Instead of his regression model, we will use a \index{Benchmarking} benchmarking approach to demonstrate the use of DEA for examining organizations.
 
 ```{r}
 suppressPackageStartupMessages(library (data.table))
@@ -659,7 +659,7 @@ teamPayroll = merge(teams, payroll, by=c("teamID","yearID"))
 MLB1991AL <- subset (teamPayroll, yearID==1991 & lgID=="AL")
 ```
 
-Our DEA input-output model will be salary used to create regular season wins.
+Our \index{Data envelopment analysis} DEA input-output model will be salary used to create regular season wins.
 
 ```{r MLBSalaryIODiagram, echo=FALSE}
 
@@ -688,7 +688,7 @@ kbl(TRA::poscol(cbind(res1991MLB$eff,res1991MLB$lambda), cutoff=0.00001),
 kable_styling(latex_options = c("hold_position"))
 ```
 
-These results show that only four teams were efficient: Chicago White Sox (CHA), Minnesota Twins (MIN), Seattle Mariners (SEA), and Toronto Blue Jays (TOR). All other teams were compared to a combination of these these teams. Since this is a simple, one-input, one-output model, it is easy to show graphically. The `Benchmarking`package from Bogetoft and Otto does a great job of drawing 2 dimensional DEA plots so we will again use this package.
+These results show that only four teams were efficient: Chicago White Sox (CHA), Minnesota Twins (MIN), Seattle Mariners (SEA), and Toronto Blue Jays (TOR). All other teams were compared to a combination of these these teams. Since this is a simple, one-input, one-output model, it is easy to show graphically. The \index{Benchmarking!package} `Benchmarking`package from Bogetoft and Otto does a great job of drawing 2 dimensional DEA plots so we will again use this package.
 
 ```{r, include=FALSE}
 library (Benchmarking)
@@ -986,6 +986,6 @@ kbl (head(cbind(teampayroll2$teamID,
 
 -   Examine allocative efficiency by way of spending on different positions
 -   Validate results with previous papers
--   Malmquist Productivity Index application in baseball
+-   \index{Malmquist Productivity Index} Malmquist Productivity Index application in baseball
 -   Salary and team information benchmarking
 -   Discuss modeling issues from previous chapter

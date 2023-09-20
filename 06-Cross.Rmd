@@ -16,11 +16,11 @@ Put yourself as a competitor trying to argue that you are the best in converting
 
 ## The Linear Programs for DEA
 
-On the other hand, what if it allowed for blending of units. There are a few assumptions that we could make. Let's start by saying that we can compare any particular products by rescaling (up or down) any other product as well as any combination of units.
+On the other hand, what if it allowed for \index{Blending} blending of units. There are a few assumptions that we could make. Let's start by saying that we can compare any particular products by rescaling (up or down) any other product as well as any combination of units.
 
 We'll start by creating a mathematical framework. Can you find a combination of units that produces at least as much output using less input? Let's define the proportion of input needed as $\theta$. A value of $\theta=1$ then means no input reduction can be found in order to produce that unit's level of output. The blend of other units is described by a vector $\lambda$. Another way to denote this is $\lambda_j$ is the specific amount of a unit *j* used in setting the target for for performance for unit *k*. Similarly, $x_j$ is the amount of input used by unit *j* and $y_j$ is the amount of output produced by unit *j*.
 
-This can be easily expanded to the multiple input and multiple output case by defining $x_i,j$ to be the amount of the *i*'th input used by unit *j* and $y_r,j$ to be the amount of the *r*'th output produced by unit *j*. For simplicity, this example will focus on the one input and one output case rather than the *m* input and *s* output case but the R code explicitly allows for $m,s>1$. To make the code more readable, I will use which corresponds to `NX` instead of *m* to refer to the number of inputs (x's) and `NY` to be the number of outputs (y's) instead of *s*. Also, *n* is used to denote the number of Decision Making Units (DMUs) and therefore I'll use `ND` to indicate that in the R code.
+This can be easily expanded to the multiple input and multiple output case by defining $x_i,j$ to be the amount of the *i*'th input used by unit *j* and $y_r,j$ to be the amount of the *r*'th output produced by unit *j*. For simplicity, this example will focus on the one input and one output case rather than the *m* input and *s* output case but the R code explicitly allows for $m,s>1$. To make the code more readable, I will use which corresponds to `NX` instead of *m* to refer to the number of inputs (x's) and `NY` to be the number of outputs (y's) instead of *s*. Also, *n* is used to denote the number of \index{Decision making unit} Decision Making Units (DMUs) and therefore I'll use `ND` to indicate that in the R code.
 
 We have two important sets of variables now. The first is $u_r$ which is the weight on the *r*'th output. The second is $v_i$ which is the weight on the *i*'th input.
 
@@ -38,7 +38,7 @@ $$
 (\#eq:Ch6LPCCRIOM-Ratio-1a)
 $$
 
-This isn't a linear program because we are dividing functions of variables by functions of variables. We need to make a few transformations. First, we clear the denominator of each of the constraints resulting in the following formulation.
+This isn't a linear program because we are dividing functions of variables by functions of variables. We need to make a few transformations. First, we clear the denominator of each of the \index{Constraints} constraints resulting in the following formulation.
 
 $$
 \begin{split}
@@ -52,9 +52,9 @@ $$
 (\#eq:Ch6LPCCRIOM-Ratio-2a)
 $$
 
-Now we will convert the problem input and output constraints from inequalities into equalities by explicitly defining slack variables.
+Now we will convert the problem \index{Constraints!input} input and \index{Constraints!output} output constraints from inequalities into equalities by explicitly defining slack variables.
 
-There are an infinite number of possible combinations of numerators and denominators that can give the same ratio. The next step is to select normalizing value for the objective function. Let's set the denominator equal to one. In this case, we simply add a constraint, $\sum_{i=1}^{N^X} v_i x_{i,k}$, to the linear program.
+There are an infinite number of possible combinations of numerators and denominators that can give the same ratio. The next step is to select normalizing value for the objective function. Let's set the denominator equal to one. In this case, we simply add a \index{Constraints} constraint, $\sum_{i=1}^{N^X} v_i x_{i,k}$, to the linear program.
 
 $$
 \begin{split}
@@ -142,7 +142,7 @@ results.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX)
 results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
 ```
 
-We are now ready to do the analysis. In Baker, the analysis was done using the multiplier model. In chapter 2 we used the envelopment model to examine this case. Now we will use the multiplier model using the `DEAMultiplerModel` package by Aurobindh Kalathil Puthanpura.
+We are now ready to do the analysis. In Baker, the analysis was done using the \index{Data envelopment analysis!multiplier model} multiplier model. In chapter 2 we used the \index{Data envelopment analysis!envelopment model} envelopment model to examine this case. Now we will use the multiplier model using the `DEAMultiplerModel` package by Aurobindh Kalathil Puthanpura.
 
 ```{r, include=FALSE}
 library (MultiplierDEA)
@@ -201,7 +201,7 @@ kbl (result$ce_ave,
     kable_styling(latex_options = c("hold_position"))
 ```
 
-As might be expected, the cross-efficiency values are all significantly lower than the original efficiency scores. In cross-efficiency, no nursing home is able to pick an extreme and unique weighting scheme to their advantage. It also tends to break the ties at 1.0 that frequently occur in DEA so it usually gives a unique ranking. These features come at a significant cost though which will be discussed in more detail in the future.
+As might be expected, the \index{cross-efficiency} cross-efficiency values are all significantly lower than the original efficiency scores. In cross-efficiency, no nursing home is able to pick an extreme and unique weighting scheme to their advantage. It also tends to break the ties at 1.0 that frequently occur in DEA so it usually gives a unique ranking. These features come at a significant cost though which will be discussed in more detail in the future.
 
 ## Implementing Cross-Efficiency
 
@@ -370,7 +370,7 @@ kbl (rbind(rescross$crosseval,t(rescross$crosseff)),
 
 ## Dealing with Cross-Efficiency's Multiple Optima
 
-As discussed in the chapter on the Multiplier model, DEA often has multiple optima, particularly for efficient DMUs. While this doesn't affect the efficiency scores in either the envelopment or the multiplier model, it can have a major impact on the cross-evaluation scores and therefore the cross-efficiency scores.
+As discussed in the chapter on the \index{Data envelopment analysis!multiplier model} Multiplier model, DEA often has \index{multiple optima} multiple optima, particularly for efficient DMUs. While this doesn't affect the efficiency scores in either the envelopment or the multiplier model, it can have a major impact on the cross-evaluation scores and therefore the \index{cross-efficiency} cross-efficiency scores.
 
 To examine this issue, we need to invoke a secondary objective function again in the same manner as we did for the envelopment model.
 
@@ -451,7 +451,7 @@ Let's explore the impact of the secondary objective function. The `MultiplierDEA
 
 This can be framed as a two-phase model in the same way as the envelopment model slack maximization model.
 
-The first phase is still the standard DEA multiplier model as discussed earlier. In the second phase, we try to either minimize or maximize the collective population's score. Note that in this case, we can define the population input (or output) either including the unit being studied by summing over all of j or all of j excluding the unit studied, k.
+The first phase is still the standard \index{Data envelopment analysis!multiplier model} DEA multiplier model as discussed earlier. In the second phase, we try to either minimize or maximize the collective population's score. Note that in this case, we can define the population input (or output) either including the unit being studied by summing over all of j or all of j excluding the unit studied, k.
 
 $$
 \begin{split}

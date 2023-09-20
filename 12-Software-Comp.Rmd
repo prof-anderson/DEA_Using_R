@@ -29,9 +29,9 @@ library(bookdown); library(rmarkdown); rmarkdown::render("12-Software-Comp.Rmd",
 
 ## Introduction
 
-Over the years, a variety of software packages have been developed for doing Data Envelopment Analysis.
-The Benchmarking package was one of the earliest and most full-featured packages available.
-It continues to be the most downloaded R package for doing DEA to this day.=
+Over the years, a variety of software packages have been developed for doing \index{Data envelopment analysis} Data Envelopment Analysis.
+The \index{Benchmarking!package} Benchmarking package was one of the earliest and most full-featured packages available.
+It continues to be the most downloaded R package for doing \index{Data envelopment analysis!packages} DEA to this day.=
 
 Let's review data on current frequency of download for DEA packages.
 
@@ -56,7 +56,7 @@ ggplot(pkg_dl_data, aes(end, downloads, group=package, color=package)) +
 
 ```
 
-The chapter "Computational Aspects of DEA" by Iqbal Ali in Data Envelopment Analysis\_, edited by Charnes, Cooper, Lewin, and Seiford does an interesting job with exploring computational issues in early DEA implementations.
+The chapter "Computational Aspects of DEA" by Iqbal Ali in \index{Data envelopment analysis} Data Envelopment Analysis\_, edited by Charnes, Cooper, Lewin, and Seiford does an interesting job with exploring computational issues in early DEA implementations.
 Among the key insights is that a finite approximation for $\epsilon$ should not be used to maximize slacks.
 Iqbal Ali tests $\epsilon =10^{-5}$ to $\epsilon=10^{-8}$ demonstrating how DEA implementations can return incorrect values or even unbounded solutions.
 
@@ -165,8 +165,8 @@ Results are summarized at the end after all analyses to illustrate the efficienc
 A few things to take note of:
 
 -   `suppressPackageStartupMessages` is useful to cut down on warnings about duplicated functions among other items. After all, it isn't surprising that most of the packages have a function named `dea`.
--   Functions are called from specific packages using the `::` such as `Benchmarking::dea` to call the `dea` from the `Benchmarking` package.
--   Parameters are passed by name into the DEA function to avoid ambiguity and to clarify the different naming conventions used in each package.
+-   Functions are called from specific packages using the `::` such as `Benchmarking::dea` to call the `dea` from the \index{Benchmarking!package} `Benchmarking` package.
+-   Parameters are passed by name into the DEA function to avoid ambiguity and to clarify the different naming \index{Conventions!naming} conventions used in each package.
 
 ## The Benchmarking Package
 
@@ -184,7 +184,7 @@ kbl (cbind(res_benchmarking$eff,poscol(res_benchmarking$lambda)),
                   c("hold_position"))
 ```
 
-The results from Benchmarking are simple and straightforward.
+The results from \index{Benchmarking} Benchmarking are simple and straightforward.
 
 -   DMU names are used for column names in the efficiency scores but in the lambda (envelopment variables), they are numbered as L1, L2, etc. and names are not used in rows.
 
@@ -278,7 +278,7 @@ kable_styling (latex_options = c("hold_position", "scale_down"))
 The `deaR` package has a rich collection of data sets included in the package.
 It also includes a broader collection of DEA variants than most of the other packages including:
 
--   Malmquist Productivity Index,
+-   \index{Malmquist Productivity Index} Malmquist Productivity Index,
 -   Undesirable input and output models,
 -   Fuzzy DEA,
 -   Cross-Efficiency,
@@ -354,7 +354,7 @@ kbl (combined_eff2, digits=16, booktabs=T,
   kable_styling(latex_options=c("hold_position"))
 ```
 
-The result is that the largest magnitude differences between Benchmarking's results and that of the other packages tested was a positive `r max(combined_eff2)` and the most negative (smaller than Benchmarking's efficiency scores) was `r min(combined_eff2)`.
+The result is that the largest magnitude differences between \index{Benchmarking!results} Benchmarking's results and that of the other packages tested was a positive `r max(combined_eff2)` and the most negative (smaller than Benchmarking's efficiency scores) was `r min(combined_eff2)`.
 These values are quite well behaved and more precise than most data used for analyses.
 
 ```{r, echo=FALSE}
@@ -403,11 +403,13 @@ set.seed(1)
 plot(dg, legendPosition = c(-1, -1), vertex.size = 10, cex = 0.7)
 ```
 
-This graph seems to indicate that Benchmarking is relatively independent of other packages despite being a powerful and well accepted tool.
+This graph seems to indicate that \index{Benchmarking} Benchmarking is relatively independent of other packages despite being a powerful and well accepted tool.
 Other packages appear to rely on a complex web of packages unrelated to DEA.
-Interestingly, it appears that `lpsolveAPI` is only used by `DJL` and `Benchmarking` while the other packages depend on other solvers.
+Interestingly, it appears that `lpsolveAPI` is only used by `DJL` and \index{Benchmarking!package} `Benchmarking` while the other packages depend on other solvers.
 
-It would be more interesting to filter this to only include solver engines such as `lpsolveAPI`, `lpsolve`, `glpk`, and `symphony` along with the DEA packages.
+It would be more interesting to filter this to only include solver engines such as 
+\index{lpsolveAPI} `lpsolveAPI`, \index{lpSolve} `lpsolve`, \index{glpk} `glpk`, 
+and \index{symphony} `symphony` along with the DEA packages.
 
 ## Summary of Package Features
 

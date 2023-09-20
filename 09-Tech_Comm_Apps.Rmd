@@ -14,7 +14,7 @@ library(kableExtra)
 
 ## Introduction
 
-In 2002, Sten Thore edited a book, *Technology Commercialization: DEA and Related Analytical Methods for Evaluating the Use and Implementation of Technological Innovation* This book compiled a series of cases applying Data Envelopment Analysis to real-world technology management situations.
+In 2002, Sten Thore edited a book, *Technology Commercialization: DEA and Related Analytical Methods for Evaluating the Use and Implementation of Technological Innovation* This book compiled a series of cases applying \index{Data envelopment analysis} Data Envelopment Analysis to real-world technology management situations.
 This chapter revisits some of those cases.
 We will provide a snapshot of the cases and the interested reader is referred to Thore's book for more details.
 

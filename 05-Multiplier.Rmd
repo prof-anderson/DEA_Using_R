@@ -17,13 +17,13 @@ library(bookdown); library(rmarkdown); rmarkdown::render("05-Multiplier.Rmd", "p
 
 Every linear program has a related alter ego referred to as the dual. By
 duality, the two models have the same optimal objective function values.
-In DEA, the multiplier models are simply the dual of the envelopment
-models. In terms of the matrix representations of DEA given in chapter
-3, the A matrix is transposed, rows give way to columns and columns
-become rows. The right hand side values appear in the objective function
-while the previous objective function coefficients become right hand
-side values. More could be said about this but this will be deferred for
-people interested in duality or more algorithmic aspects of linear
+In \index{Data envelopment analysis!multiplier model} DEA, the multiplier 
+models are simply the dual of the envelopment models. In terms of the matrix 
+representations of DEA given in chapter 3, the A matrix is transposed, rows give 
+way to columns and columns become rows. The right hand side values appear in the 
+objective function while the previous objective function coefficients become 
+right hand side values. More could be said about this but this will be deferred 
+for people interested in duality or more algorithmic aspects of linear
 programming.
 
 Let's turn our attention instead to intuitively developing the DEA
@@ -214,7 +214,7 @@ $$
 (\#eq:Ch5NLP6PeopleHArdCode)
 $$
 
-Now we will extend this further to reflect that the constraint of being
+Now we will extend this further to reflect that the \index{Constraints} constraint of being
 less than or equal to 1.0 is the same for every manager. A key notation
 to learn is the $\forall$ symbol which means to repeat for all possible
 values of the index.
@@ -230,7 +230,7 @@ $$
 \end{split}
 $$
 
-The $\forall\;j$ in the constraints indicates that the constraint should
+The $\forall\;j$ in the \index{Constraints} constraints indicates that the constraint should
 be repeated for all possible values of j. In our case it would have a
 constraint for $j=1$, (Alfred), then another constraint with $j=2$
 (Barb), etc. The $\forall\;r$ in variable lower bounds is used to repeat
@@ -295,12 +295,12 @@ We have two sets of variables now. The first is $u_r$ which is the
 weight on the *r*'th output. The second is $v_i$ which is the weight on
 the *i*'th input.
 
-For clarification, we make a small variation from traditional DEA
+For clarification, we make a small variation from traditional \index{Data envelopment analysis!notation} DEA
 notation. Normally the number of inputs is *m* and the number of outputs
 is *s*. To make the code more readable, I will use a convention of *NX*
 instead of *m* to refer to the number of inputs (x's) and *NY* to be the
 number of outputs (y's) instead of *s*. Also, *n* is used to denote the
-number of Decision Making Units (DMUs) and therefore I'll use *ND* to
+number of \index{Decision making unit} Decision Making Units (DMUs) and therefore I'll use *ND* to
 indicate that in the R code. In the mathematical formulations,
 superscripts are used to differentiate the the different N's resulting
 in $N^X$, $N^Y$, and $N^D$ for `NX`, `NY`, and `ND` or *m*, *s*, and *n*
@@ -320,7 +320,7 @@ $$
 This isn't a linear program because we are dividing functions of
 variables by functions of variables. We need to make a few
 transformations. First, we clear the denominator of each of the
-constraints and collect the terms on resulting in the following
+\index{Constraints} constraints and collect the terms on resulting in the following
 formulation.
 
 $$
@@ -340,11 +340,11 @@ number of possible combinations of numerators and denominators that can
 give the same ratio. For example, if a unit were to receive a 90%
 efficiency score, this could be with a numerator of nine and a
 denominator of 10 or a numerator of 90 and a denominator of 100. Each of
-these pairs satisfies the constraints and is therefore equally valid.
+these pairs satisfies the \index{Constraints} constraints and is therefore equally valid.
 One clever trick solves the non-linearity by setting the denominator to
 be a constant. The next step is to select normalizing value for the
 objective function. Let's set the denominator equal to one. In this
-case, we simply add a constraint, $\sum_{i=1}^{N^X} v_i x_{i,k}$, to the
+case, we simply add a \index{Constraints} constraint, $\sum_{i=1}^{N^X} v_i x_{i,k}$, to the
 linear program and replace the denominator in the objective function to
 one means that we can rewrite the objective function using only the
 numerator.
@@ -464,20 +464,21 @@ kbl (mm1.combined , booktabs=T, escape=F, digits=4,
 ```
 
 The weights from the multiplier model often have multiple alternative
-solutions-in other words, different values for decision variables that
+solutions-in other words, different values for \index{Decision variables} decision variables that
 give the same objective function value. In optimization, this situation
-is called multiple optima. In DEA this means that the weights may be
-different depending upon the particular settings used for solving the
-linear program. The result is that you should be careful in over
-interpreting the weights as well as in how you interpret results when
-trying to reproduce analyses.
+is called multiple optima. In \index{Data envelopment analysis!multiplier weights} 
+DEA this means that the weights may bevdifferent depending upon the particular 
+settings used for solving the linear program. The result is that you should be 
+careful in over interpreting the weights as well as in how you interpret results 
+when trying to reproduce analyses.
 
 ### Envelopment Multiplier Model Duality Relationship
 
 Duality is a fundamental characteristic of linear programming. Every
 linear program has a dual program that is a bit of mirror image of the
-original. The multiplier model and the envelopment models are
-fundamentally connected by duality. The multiplier model of DEA is
+original. The \index{Data envelopment analysis!multiplier model} multiplier model 
+and the \index{Data envelopment analysis!envelopment model} envelopment models 
+are fundamentally connected by duality. The multiplier model of DEA is
 considered the dual of the envelopment model and the reverse is also
 true.
 
@@ -495,9 +496,9 @@ $$
 
 A linear program can be converted to its dual by:
 
--   Creating a variable for every constraint in the original LP
+-   Creating a variable for every \index{Constraints} constraint in the original LP
 
--   Creating a constraint for every variable in the original LP
+-   Creating a \index{Constraints} constraint for every variable in the original LP
 
 -   Transposing the *A* matrix, sometimes denoted as $A^{\tau}$
 
@@ -508,7 +509,7 @@ A linear program can be converted to its dual by:
 
 -   Changing the objective function from a *min* to a *max*
 
--   Reverse the directions of the constraint inequalities
+-   Reverse the directions of the \index{Constraints} constraint inequalities
 
 $$
 \begin{split}

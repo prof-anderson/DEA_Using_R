@@ -2,18 +2,18 @@
 title: "Data Envelopment Analysis Using R"
 author: "Timothy R. Anderson"
 date: "`r Sys.Date()`"
-documentclass: krantz
-bibliography: ["book.bib"]
+output: pdf_document
+bibliography: book.bib
 biblio-style: apalike
 link-citations: yes
 colorlinks: yes
 lot: yes
 lof: yes
 site: bookdown::bookdown_site
-description: "An introduction to data envelopment analysis using R."
-github-repo: prof-anderson/DEA_Using_R
+description: An introduction to data envelopment analysis using R.
+github-repo: "prof-anderson/DEA_Using_R"
 graphics: yes
-#cover-image: images/cover.jpg
+documentclass: krantz
 ---
 
 ```{r setup1, include=FALSE}
