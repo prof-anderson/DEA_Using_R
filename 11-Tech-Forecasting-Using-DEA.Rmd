@@ -22,17 +22,17 @@ suppressPackageStartupMessages(library(TFDEA))
 
 ## Introduction
 
-In the previous chapter, we examined how organizations or \index{Decision making unit} decision making units change in performance over time. In this chapter, we will change gears and consider how we can use DEA and \index{Malmquist Productivity Index} Malmquist Productivity Index like techniques to consider how the performance of products change over time.
+In the previous chapter, we examined how organizations or decision making units change in performance over time. In this chapter, we will change gears and consider how we can use DEA and \index{Malmquist productivity index} Malmquist Productivity Index like techniques to consider how the performance of products change over time.
 
 We are looking at how new generations of products are developed over time in order to achieve better performance and/or lower cost. We are assuming that the product itself, once released, does not change in performance. It may have updates or degradation from being used but the initial specifications are considered unchanged.
 
 ## History
 
-In 2001, a National Science Foundation workshop on engineering applications of DEA invited DEA experts to work with engineering faculty from Union College to explore novel opportunities for collaboration. Breakout sessions were organized by engineering discipline. While industrial engineering was well represented, I was one of the few electrical engineers using DEA at the time and joined that group. These discussions included Dr. Shawna Grosskopf, one of the co-inventors of the \index{Malmquist Productivity Index} Malmquist Productivity Index, MPI. Discussions prompted me to think about would there be a way to apply the inherently multidimensional nature of DEA to technology forecasting?
+In 2001, a National Science Foundation workshop on engineering applications of DEA invited DEA experts to work with engineering faculty from Union College to explore novel opportunities for collaboration. Breakout sessions were organized by engineering discipline. While industrial engineering was well represented, I was one of the few electrical engineers using DEA at the time and joined that group. These discussions included Dr. Shawna Grosskopf, one of the co-inventors of the \index{Malmquist productivity index} Malmquist Productivity Index, MPI. Discussions prompted me to think about would there be a way to apply the inherently multidimensional nature of DEA to technology forecasting?
 
 Over the following weeks, these thoughts percolated, including a day long visit with two of the top experts in MPI, Dr. Rolf Fare and Dr. Shawna Grosskopf, and a lot of time at a whiteboard. In the end, we decided that the mathematics and restrictions of product forecasting were different enough that MPI was not the right approach. Over the ensuing months, with a PhD student, Oliver (Lane) Inman, the approach took shape and we started calling it Technology Forecasting Using DEA or TFDEA.
 
-The first application was revisiting microprocessor \index{Benchmarking} benchmarking in line with Moore's Law $$@AndersonFurtherexaminationMoore2002$$. Later work examined fighter jets $$@InmanImprovingtimemarket2005; @InmanPredictingjetfighter2006$$ and other products.
+The first application was revisiting microprocessor benchmarking in line with Moore's Law $$@AndersonFurtherexaminationMoore2002$$. Later work examined fighter jets $$@InmanImprovingtimemarket2005; @InmanPredictingjetfighter2006$$ and other products.
 
 Dr. Inman's thesis formalized and significantly extended the approach of TFDEA. An interesting case study included enterprise database system and their changing performance over time by identifying a key disruptive innovation has rippled through industry after industry including most phones used around the world. Another important linkage was examining hard disk drives and providing additional insights to the classic case by Clayton Christensen made famous in the book, *The Innovator's Dilemma* [@christensen2011].
 
@@ -54,7 +54,9 @@ source('Helperfiles.R')
 
 ## How TFDEA Works
 
-The core idea of \index{TFDEA} TFDEA is to examine how the *state of the art* products change over time by using the rich, multidimensional tool of DEA.
+\index{TFDEA|(}
+
+The core idea of TFDEA is to examine how the *state of the art* products change over time by using the rich, multidimensional tool of DEA.
 
 To do this, we sequentially run DEA for each product against all products that have been released to date. If a product is *efficient* at time of release, it is considered, state of the art. It if is state of the art, we then examine how the efficiency score changes with the introduction of new products over time. The changing efficiency over time can be used to estimate a *rate_of_change* for the product category.
 
@@ -68,7 +70,7 @@ Dr. Dong-Joon Lim wrote a package, `DJL`, that also implements TFDEA and other f
 
 As the input, is retail cost in dollars and the output is storage size in megabytes.
 
-This gives a simple input-output model. For the sake of visualization, we can use the IO Diagram function from the \index{TRA} TRA package.
+This gives a simple input-output model. For the sake of visualization, we can use the IO Diagram function from the TRA package.
 
 ```{r DEA-IO-Plot1, out.width="50%", fig.align='center', fig.cap="TFDEA Model for USB Flash Drives"}
 library (TRA) # Note, may need to install directly from github
@@ -116,7 +118,7 @@ cbind(z,x,y)
 
 Let's call the function for doing a Rate of Change, RoC, calculation.
 
-In this case, note that the planning period specified is 2003. This means that data up to and including 2003 is used in forecasting the following data which in this dataset means products released in 2004. The returns to scale is set to variable returns to scale (VRS). The orientation of the underlying DEA model is \index{Data envelopment analysis!output-oriented} output-oriented as compared to \index{Data envelopment analysis!input-oriented} input-oriented which suggests a primary goal of driving increased output (storage capacity) rather than cost (input) reduction. The frontier type selected is "d" which refers to a dynamic frontier where the frontier's year is a weighted blend of the year of the constituent units.
+In this case, note that the planning period specified is 2003. This means that data up to and including 2003 is used in forecasting the following data which in this dataset means products released in 2004. The returns to scale is set to variable returns to scale (VRS). The orientation of the underlying DEA model is \index{Output-oriented} output-oriented as compared to \index{Input-oriented} input-oriented which suggests a primary goal of driving increased output (storage capacity) rather than cost (input) reduction. The frontier type selected is "d" which refers to a dynamic frontier where the frontier's year is a weighted blend of the year of the constituent units.
 
 ```{r, include=FALSE}
 library(DJL)
@@ -146,7 +148,7 @@ colnames(res2c)<-c("Eff at Rel", "Eff at t", "Effective Time",
 rownames(res2c)<-c("A", "B", "C", "D", "E", "F", "G")
 ```
 
-These results are consistent with those obtained from the \index{TFDEA} `TFDEA` package. The key difference is that output-oriented efficiency, $\phi$ is measured with values larger than 1 indicating inefficiency. The calculations are similar except for inverting efficiency. In the end, the rate of change was the same, `r res2$roc_avg`.
+These results are consistent with those obtained from the `TFDEA` package. The key difference is that output-oriented efficiency, $\phi$ is measured with values larger than 1 indicating inefficiency. The calculations are similar except for inverting efficiency. In the end, the rate of change was the same, `r res2$roc_avg`.
 
 This function does not calculate release dates but we showed how they could be calculated as done using the results of the `TFDEA` package.
 
@@ -196,7 +198,7 @@ These results then match those for `res3$arrival_avg` as shown earlier where the
 
 A similar calculation can be done for unit G.
 
-Note that these calculations are based on using efficiency scores where values of less than one corresponds to inefficiency and greater than one for super-efficiency. An output-oriented analysis often uses $/phi$ to denote efficiency and is typically used to describe the opportunity for radial expansion as a path to efficiency and therefore has values of $\phi$ greater than indicating efficiency and a super-efficient unit has $\phi<1$. Sometimes output-oriented scores are reported as the inverse of $\phi$. As long as care is taken for consistency, TFDEA can be conducted in either manner.
+Note that these calculations are based on using efficiency scores where values of less than one corresponds to inefficiency and greater than one for \index{Super-efficiency} super-efficiency. An output-oriented analysis often uses $/phi$ to denote efficiency and is typically used to describe the opportunity for radial expansion as a path to efficiency and therefore has values of $\phi$ greater than indicating efficiency and a super-efficient unit has $\phi<1$. Sometimes output-oriented scores are reported as the inverse of $\phi$. As long as care is taken for consistency, TFDEA can be conducted in either manner.
 
 The calculations can be used with the output results.
 
@@ -340,7 +342,7 @@ The approach of TFDEA has been both formalized extended in later works but this 
 
 ## Reproducing Fighter Jet Technology Forecasting
 
-Now, let's use the \index{TFDEA} `TFDEA` to reexamine the fighter jet research and enhance the situation. Consider yourself to be a military analyst in 1960. You know the past fighter jets that the US has put into service and you know the specifications of the upcoming fighter jets being developed by Boeing, Lockheed, and others. Alas, you don't know when these *future* fighter jets will actually be put into service by having their first flights. After all, fighter jets and other large, complex projects are notorious for running late. Your mission is to try to predict, based upon trends up to 1960, when the post 1960 fighter jets will be released.
+Now, let's use the `TFDEA` to reexamine the fighter jet research and enhance the situation. Consider yourself to be a military analyst in 1960. You know the past fighter jets that the US has put into service and you know the specifications of the upcoming fighter jets being developed by Boeing, Lockheed, and others. Alas, you don't know when these *future* fighter jets will actually be put into service by having their first flights. After all, fighter jets and other large, complex projects are notorious for running late. Your mission is to try to predict, based upon trends up to 1960, when the post 1960 fighter jets will be released.
 
 This is a particularly challenging scenarios, we are using 16 years of data (1944 to 1960) to forecast out 22 years through 1982.
 
@@ -383,6 +385,8 @@ These results require a careful look.
 -   The efficiency scores are inverted relative to the earlier results (scores smaller than indicate inefficiency)
 
 These results give us an annual rate of change of `res2$roc`. We can use this then to try to predict the post 1960 fighter jet's release dates.
+
+\index{TFDEA|)}
 
 ```{r examine-post1960-results}
 res2eff <- cbind(fj_data$FirstFlight, 

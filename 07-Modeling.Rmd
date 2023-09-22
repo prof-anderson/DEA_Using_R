@@ -6,13 +6,13 @@ library(bookdown); library(rmarkdown); rmarkdown::render("07-Modeling.Rmd", "pdf
 
 ## Introduction
 
-This section gives some general guidelines in developing \index{Data envelopment analysis!modeling} DEA models. There is no single recipe for developing a model or diagnostic tool for evaluating the quality of an analysis. Therefore it is still about as much of an art as it is a science.
+This section gives some general guidelines in developing DEA models. There is no single recipe for developing a model or diagnostic tool for evaluating the quality of an analysis. Therefore it is still about as much of an art as it is a science.
 
 ## Model Scope
 
-One way to approach \index{Data envelopment analysis!modeling}  DEA modeling is to examine a series of questions. "What is the goal of the analysis?" A \index{Data envelopment analysis!evaluation}  DEA evaluation can be used in a variety of ways but it is important decide on a goal to lead the rest of the modeling. Goals include but are not limited to evaluating management, setting targets, and determining best practices.
+One way to approach DEA modeling is to examine a series of questions. "What is the goal of the analysis?" A DEA evaluation can be used in a variety of ways but it is important decide on a goal to lead the rest of the modeling. Goals include but are not limited to evaluating management, setting targets, and determining best practices.
 
-*"How do you measure the goal of the analysis?"* There are a variety of possible measures in a \index{Data envelopment analysis!evaluation} DEA evaluation. One measurement may be to determine estimates of efficiency scores for each DMU. In other cases, ranking the DMUs to differentiate the most inefficient DMUs from the most efficient ones may suffice. An advantage to ranking is that it generally requires less DMUs than estimating efficiency scores for a given model size.
+*"How do you measure the goal of the analysis?"* There are a variety of possible measures in a DEA evaluation. One measurement may be to determine estimates of efficiency scores for each DMU. In other cases, ranking the DMUs to differentiate the most inefficient DMUs from the most efficient ones may suffice. An advantage to ranking is that it generally requires less DMUs than estimating efficiency scores for a given model size.
 
 *"What are the decision making units?"* Deciding on which items to compare may be relatively straightforward after determining the goal.
 

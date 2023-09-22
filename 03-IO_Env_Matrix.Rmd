@@ -14,11 +14,12 @@ library(bookdown); library(rmarkdown); rmarkdown::render("03-IO_Env_Matrix.Rmd",
 library (kableExtra)
 ```
 
-In the previous chapter we created the \index{Data envelopment analysis!linear program} DEA linear program algebraically using the `ompr`package. Before `ompr`was available, we needed to use another approach for most \index{Data envelopment analysis!packages} DEA packages such as \index{TFDEA!package} `TFDEA` and \index{MultiplierDEA!package} `MultiplierDEA`, which consisted of using matrices. This approach requires more "bookkeeping". Both approaches work but I think the algebraic approach is likely to be easier to write, debug, and extend in the future. For solving, we will use the widely adopted \index{lpsolveapi} `lpsolveapi` package but this same matrix-based approach holds other LP solver engines such as C-Plex, Gurobi, and CBC.
+
+In the previous chapter we created the DEA linear program algebraically using the `ompr`package. Before `ompr`was available, we needed to use another approach for most DEA packages such as \index{TFDEA} `TFDEA` and \index{MultiplierDEA} `MultiplierDEA`, which consisted of using matrices. This approach requires more "bookkeeping". Both approaches work but I think the algebraic approach is likely to be easier to write, debug, and extend in the future. For solving, we will use the widely adopted \index{lpSolveAPI} `lpSolveAPI` package but this same matrix-based approach holds other LP solver engines such as C-Plex, Gurobi, and CBC.
 
 People interested in working on the `TFDEA`package should read this chapter carefully. We will be returning to these topics algebraically as well later since it is conceptually similar to the structure of the package. For people that want to stick to the algebraic implementation and using \index{ompr} `ompr`, you can skip this chapter.
 
-To get it ready for matrix formulating, we need to put it in the standard form of linear programs which means that only numbers can be on the right hand side of the inequalities.\
+To get it ready for matrix formulating, we need to put it in the standard form of linear programs which means that only numbers can be on the right hand side of the inequalities.
 The standard form of linear programming can be described as the following.
 
 $$
@@ -31,7 +32,7 @@ $$
    \end{split}
 $$
 
-In this formulation, *X* is a vector of variables. This is a little confusing for people doing DEA since in \index{Data envelopment analysis!inputs} DEA *x* represents inputs. The vector *X* has length equal to the number of units examined plus one more for theta and the number of inputs and the number of outputs to cover slack variables. *C* is a vector of data with the same number of elements as the *X* vector. *A* is a matrix of data and *B* is a vector describing the \index{Constraints} constraint right hand sides.
+In this formulation, *X* is a vector of variables. This is a little confusing for people doing DEA since in DEA *x* represents \index{Inputs} inputs. The vector *X* has length equal to the number of units examined plus one more for theta and the number of inputs and the number of outputs to cover slack variables. *C* is a vector of data with the same number of elements as the *X* vector. *A* is a matrix of data and *B* is a vector describing the constraint right hand sides.
 
 Recall that in the previous chapter we had presented the standard LP model of the input-oriented envelopment model.
 
@@ -59,7 +60,7 @@ $$
    \end{split}
 $$
 
-Now we will convert the model's \index{Constraints!input} input and \index{Constraints!output} output constraints from inequalities into equalities by explicitly defining slack variables. This isn't necessary just yet but will be used later in the chapter. Note that when we do so, we will be adding more variable to the *X* vector.
+Now we will convert the model's \index{Constraints!Input} input and \index{Constraints!Output} output constraints from inequalities into equalities by explicitly defining slack variables. This isn't necessary just yet but will be used later in the chapter. Note that when we do so, we will be adding more variable to the *X* vector.
 
 $$
 \begin{split}
@@ -86,7 +87,7 @@ Now, let's populate the information for our example from the beginning of chapte
       caption="Input-Output Data")
 ```
 
-The next step is to incorporate the data into the model. Since there is only one input and one output, there are only two \index{Constraints} constraints and two slack variables. To keep a close connection to the application, we will refer to the specific envelopment variables by DMU name rather than number. For example, this lists $\lambda_A$ rather than $\lambda_1$.
+The next step is to incorporate the data into the model. Since there is only one input and one output, there are only two constraints and two slack variables. To keep a close connection to the application, we will refer to the specific envelopment variables by DMU name rather than number. For example, this lists $\lambda_A$ rather than $\lambda_1$.
 
 $$
 \begin{split}
@@ -134,7 +135,7 @@ $$
 \end{split}
 $$
 
-The *A* matrix contains the variable's coefficients from the \index{Constraints} constraints.
+The *A* matrix contains the variable's coefficients from the constraints.
 
 $$
 \begin{split}
@@ -145,7 +146,7 @@ $$
 \end{split}
 $$
 
-Lastly, the *B* vector contains the right hand sides of the \index{Constraints} constraints.
+Lastly, the *B* vector contains the right hand sides of the constraints.
 
 $$
 \begin{split}
@@ -156,7 +157,7 @@ $$
 \end{split}
 $$
 
-The bulk of the LP is then defined by passing along the numerical A matrix and the vectors of B and C. We then just need to indicate the sense of the the objective function (min or max) and the directions of the \index{Constraints} constraints.
+The bulk of the LP is then defined by passing along the numerical A matrix and the vectors of B and C. We then just need to indicate the sense of the the objective function (min or max) and the directions of the constraints.
 
 As models get larger, the full numerical representation becomes difficult for humans to read even if it is a very good format for computers. If you stare at that too long, you may go "bug-eyed." Personally I really like the algebraic representations. The \index{lpSolve} `lpSolve`package in R is capable of taking an LP model in this form and solving it. Now we just need to structure the data in R to put it in the same format.
 
@@ -211,13 +212,13 @@ kbl (t(res3_1.solution), booktabs=T, escape=F, digits=3,
 
 ## Creating the LP Incrementally
 
-Another approach is to incrementally build up the model. Let's use the `lpSolveAPI`package to demonstrate this way of doing the analysis.
+Another approach is to incrementally build up the model. Let's use the \index{lpSolveAPI} `lpSolveAPI`package to demonstrate this way of doing the analysis.
 
 ```{r}
 library(lpSolveAPI)
 ```
 
-Now it it gets more involved. We are defining a function for calculating \index{Data envelopment analysis!returns to scale} DEA with options for returns to scale, \index{Data envelopment analysis!orientation} orientation, and two different options for \index{Data envelopment analysis!super-efficiency} super-efficiency.
+Now it it gets more involved. We are defining a function for calculating DEA with options for \index{Returns to scale} returns to scale, \index{Orientation}, and two different options for \index{Super-efficiency} super-efficiency.
 
 For this walk through, we will focus on running the LP for calculating DEA for only one unit. We typically would do a loop for every unit but the entire for loop would need to be inside a single R chunk of this document. Instead, we will walk through how the data structure works. If you understand this, extending it to other units with a for loop is straightforward.
 
@@ -260,16 +261,16 @@ results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY)
 
 Now it is time for more model options.
 
-This is where we start creating the populating the linear programming model. This model declaration creates a problem with the needed number of \index{Data envelopment analysis!variables} columns (variables) for standard DEA envelopment models.
+This is where we start creating the populating the linear programming model. This model declaration creates a problem with the needed number of \index{Variables} columns (variables) for standard DEA envelopment models.
 
 ```{r Create-lp-opject}
 # This creates an empty LP object that we will later populate
     lpe <- make.lp(0,(ND+1+NX+NY))   
 ```
 
-The name `lpe` is meant to indicate a linear programming object for the envelopment model. There are two basic DEA models: the \index{Data envelopment analysis!envelopment model} envelopment model and the \index{Data envelopment analysis!multiplier model} multiplier model. They generate the same results but are structured very differently. We'll return to the multiplier model at a later time.
+The name `lpe` is meant to indicate a linear programming object for the envelopment model. There are two basic DEA models: the \index{Envelopment model} envelopment model and the \index{Multiplier model} multiplier model. They generate the same results but are structured very differently. We'll return to the multiplier model at a later time.
 
-We easily display what our empty `lpe` object looks like. We are initializing it without any \index{Constraints} constraints but columns for each variable that we expect to use:
+We easily display what our empty `lpe` object looks like. We are initializing it without any constraints but columns for each variable that we expect to use:
 
 -   Columns for each lambda, *i.e.* $\lambda_1$, $\lambda_2$, ..., $\lambda_{N^D}$\
 -   A column for the efficiency, $\theta$
@@ -330,7 +331,7 @@ RowNames <- NULL
  
 ```
 
-The following step is more complicated but the core idea is to populate a data matrix to describe the \index{Constraints} constraints for a DEA model. The first `for` loop create the row(s) corresponding to input constraints.
+The following step is more complicated but the core idea is to populate a data matrix to describe the constraints for a DEA model. The first `for` loop create the row(s) corresponding to input constraints.
 
 ```{r Build-lp-x-constraints}
 for (i in 1:NX) {
@@ -346,7 +347,7 @@ dimnames(lpe) <- list(RowNames, ColNames)
 lpe 
 ```
 
-Now the rows \index{Constraints!rows} (constraints) are created for the outputs.
+Now the rows \index{Constraints!Rows} (constraints) are created for the outputs.
 
 ```{r Build-lp-y-constraints}
 
@@ -390,9 +391,9 @@ We have four separate steps. In the input-oriented model, we read out the object
 
 The following step sets *Phase1* equal to the same efficiency score. We will use this value in a second LP that we creatively refer to as *Phase2* in order to make sure that we have an optimal target. This is consistent with the two-phase approach discussed in Chapter 2.
 
-Next we get input dual weights and place them in `results.vweight`. These are useful because the dual weights are essentially the solution the \index{Data envelopment analysis!multiplier model} DEA multiplier model. We can also thing of them roughly as the "prices" or "values" placed on inputs and outputs that make the unit appear as good as possible. (It is tricky that all rows are offset from how you might count them because row 1 is considered to be the objective function.)
+Next we get \index{Dual values!Weights} input dual weights and place them in `results.vweight`. These are useful because the dual weights are essentially the solution the DEA multiplier model. We can also thing of them roughly as the "prices" or "values" placed on inputs and outputs that make the unit appear as good as possible. (It is tricky that all rows are offset from how you might count them because row 1 is considered to be the objective function.)
 
-The fourth item gets the dual weight from the returns to scale \index{Constraints} constraint. Notice that this is extracted from row 2 of the dual solution.
+The fourth item gets the dual weight from the returns to scale constraint. Notice that this is extracted from row 2 of the dual solution.
 
 The same steps are repeated for the output-oriented model but sign corrections may need to be made by multiplying these items by *-1*, you can check for yourself if this needs to be done.
 
@@ -448,11 +449,13 @@ kbl (cbind(results.efficiency [k],t(results.lambda  [k,]),
 
 ## Slack Maximization
 
+\index{Slack|(}
+
 This is a little more advanced. In analyses where our only purpose is to find the efficiency score, we could stop here. In cases where we want to find the *best* target for an inefficient unit, we need to go one step further and say that we want to also maximize the slack given that same level of efficiency. The simple one input, one output case with constant returns to scale won't demonstrate a problem so it is only shown here at this time for completeness and the particularly adventurous reader.
 
 As long as you are still reading, let's explain a little bit of slack maximization. Phase 1 gives simple radial efficiency scores but does not necessarily give a best target for efficiency. The purpose here is to ensure that the $\lambda$ values actually point to the best possible target of performance.
 
-Now we need to do a step that is called slack maximization. We will need to add a \index{Constraints} constraint that the efficiency variable ($\theta$) is held fixed to the value found in Phase 1.
+Now we need to do a step that is called slack maximization. We will need to add a constraint that the efficiency variable ($\theta$) is held fixed to the value found in Phase 1.
 
 The linear program is modified in the following manner. We now want to maximize the sum of both input slack(s) and output slack(s).
 
@@ -512,6 +515,8 @@ Now, let's put it all together to summarize the results.
 What does this mean? We are saying that unit `r k` (B) has an efficiency of `r results.efficiency[k]`. This is obtained by using a vector $\lambda$=`r results.lambda[k,]`. Also, the weights on input(s) that correspond to this score was `r results.vweight[k,]` and for outputs `r results.uweight[k,]`.
 
 In this case there was no slack among the inputs or outputs to be maximized but the same approach could be used for other applications.
+
+\index{Slack|)}
 
 ## Exercises
 

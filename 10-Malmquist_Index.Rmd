@@ -37,11 +37,11 @@ Performance may be improved by simply getting bigger and achieving economies of 
 
 A third, key way of changing performance might be by adopting new best practices. A store manager might glean a new innovation such as a better way to staff employees, run checkout operations, or manage inventory. This innovation would be a change that affects only this particular store and we would like to identify and reward such innovation. Identifying a new best practice early could help us spread this best practice more widely and quickly.
 
-Simply looking at efficiency scores on their own in a single year does not always give us sufficient richness for separating out these situations. The \index{Malmquist Productivity Index} Malmquist Productivity Index was developed for decomposing this changing performance over time.
+Simply looking at efficiency scores on their own in a single year does not always give us sufficient richness for separating out these situations. The \index{Malmquist productivity index|(} \index{MPI|see{Malmquist productivity index}} Malmquist Productivity Index was developed for decomposing this changing performance over time.
 
 ## A Two-Dimensional Example of MPI
 
-Let's use a straightforward single input, single output example of the\index{Malmquist Productivity Index}  Malmquist Productivity Index to illustrate conceptually what we are doing with the Malmquist Productivity Index. This is then followed with a numerical version of that example.
+Let's use a straightforward single input, single output example of the Malmquist Productivity Index to illustrate conceptually what we are doing with the Malmquist Productivity Index. This is then followed with a numerical version of that example.
 
 We will then follow this calculations using various packages.
 
@@ -49,15 +49,15 @@ We will then follow this calculations using various packages.
 knitr::include_graphics("images/ch10_malm1.PNG")
 ```
 
-The lower (orange) line corresponds to the efficiency frontier at a particular time period *t*. The higher (red) line is the efficiency frontier at the next time period, *t+1*. The blue circle with a *F* is a particular unit, *k* of interest at time period *t*, perhaps denoted as $k^t$. Similarly, in time period *t+1*, its performance has changed to the higher blue circle (*B*) or $k^{t+1}$.
+The lower (orange) line corresponds to the \index{Efficiency frontier} efficiency frontier at a particular time period *t*. The higher (red) line is the efficiency frontier at the next time period, *t+1*. The blue circle with a *F* is a particular unit, *k* of interest at time period *t*, perhaps denoted as $k^t$. Similarly, in time period *t+1*, its performance has changed to the higher blue circle (*B*) or $k^{t+1}$.
 
-Clearly the unit's performance has changed significantly. Our goal with the \index{Malmquist Productivity Index} Malmquist Productivity Index is to determine how much of the performance change can be attributed to improved operational performance (perhaps better managerial practices?) and how much can be attributed to an improved operating environment (the rising tide raising all boats.)
+Clearly the unit's performance has changed significantly. Our goal with the Malmquist Productivity Index is to determine how much of the performance change can be attributed to improved operational performance (perhaps better managerial practices?) and how much can be attributed to an improved operating environment (the rising tide raising all boats.)
 
 We will use an output-oriented perspective on this analysis but an input-oriented approach can be followed in the same manner.
 
 The technical efficiency change can be given as the ratio of the efficiency in the newest period to the previous period. Recall that for a particular unit, say, *k*, the output-oriented efficiency score could be denoted as $\phi_k$ but we need to incorporate time. We could extend this to be $\phi_{k,t_1}^{t_2}$ to reflect unit *k*'s efficiency using data from time period $t_1$ against a frontier from time $t_2$. When $t_1=t_2$ we would have the regular efficiency at time $t_1$.
 
-The \index{Malmquist Productivity Index} Malmquist literature uses the term distance function as a more generalized term rather than efficiency score. Let's modify this notation to be $D_k^t(x^{t+1},y^{t+1})$ to reflect the distance of DMU *k* from the efficiency frontier of time *t* using *k*'s input and output data from time *t+1*.
+The Malmquist literature uses the term distance function as a more generalized term rather than efficiency score. Let's modify this notation to be $D_k^t(x^{t+1},y^{t+1})$ to reflect the distance of DMU *k* from the efficiency frontier of time *t* using *k*'s input and output data from time *t+1*.
 
 We can now calculate the changing distance from the frontier from the respective distance functions.
 
@@ -105,7 +105,7 @@ $$
 
 This indicates that about 46% of the unit's improved performance is due to the general progress of technology or improving operating conditions (rising tide effect).
 
-The \index{Malmquist Productivity Index} Malmquist Productivity Index would be the geometric means of the ratios for the distance from each frontier to the respective points.
+The Malmquist Productivity Index would be the geometric means of the ratios for the distance from each frontier to the respective points.
 
 $$
 \begin{split}
@@ -154,7 +154,7 @@ kbl (malm_gr_data, caption="Data for graphical example of the Malmquist Producti
 
 ```
 
-This table is a pretty simple and compact format but MPI requires more organization. Specifically, even a simple dataset requires us to specify inputs and outputs just like in other DEA applications but it also needs time periods and a way to match each DMU from period to period. The `deaR` package has a function, `make_malmquist` to convert a dataset into the appropriate format.
+This table is a pretty simple and compact format but MPI requires more organization. Specifically, even a simple dataset requires us to specify inputs and outputs just like in other DEA applications but it also needs time periods and a way to match each DMU from period to period. The \index{deaR package} `deaR` package has a function, `make_malmquist` to convert a dataset into the appropriate format.
 
 ```{r}
 #Process data into the format required by deaR
@@ -167,7 +167,7 @@ malm_gr_data_pro <-
                  arrangement = "vertical")
 ```
 
-Let's look at the data structure that the `deaR` package is using. It creates two sets of DEA datasets ready for processing in the context of the `deaR` package marked by time periods 1 and 2 (`` malm_gr_data_pro$`1` `` and `` malm_gr_data_pro$`2` ``). They look similar except for the period and the data.
+Let's look at the data structure that the \index{deaR package} `deaR` package is using. It creates two sets of DEA datasets ready for processing in the context of the `deaR` package marked by time periods 1 and 2 (`` malm_gr_data_pro$`1` `` and `` malm_gr_data_pro$`2` ``). They look similar except for the period and the data.
 
 ```{r}
 malm_gr_data_pro$`1`
@@ -206,12 +206,12 @@ The results don't match what I expect for this example. I need to do a little mo
 
 -   characterizing efficiency as 0 to 1 vs, 1 and higher
 -   Returns to scale (VRS vs. CRS)
--   Particular variation of \index{Malmquist Productivity Index} Malmquist and decomposition
+-   Particular variation of Malmquist and decomposition
 -   Labeling of terms (TC for technological change vs. pure technical change)
 
 ## MPI for Griffell and Lovell 1999
 
-Let's revisit an example from the literature using the `deaR` package.
+Let's revisit an example from the literature using the \index{deaR package} `deaR` package.
 
 ```{r MPI-Griffell-Lovell-1999}
 
@@ -533,7 +533,7 @@ kbl(t(format( res20tab["speaktr01",], digits=5)),
     caption="Results from Multiplier DEA Using Ordinal (Accumulated) Weight Restrictions")
 ```
 
-The results match those from those found along the way in the \index{Malmquist Productivity Index} Malmquist analysis but do not agree with those from earlier. Let's unpack the weights given the structure of
+The results match those from those found along the way in the Malmquist analysis but do not agree with those from earlier. Let's unpack the weights given the structure of
 
 ```{r}
 mres20uyBB <- res20tab[,3]
@@ -548,3 +548,5 @@ mres20uy ["speaktr01",]
 ```
 
 Perhaps there is an issue in the aggregation approach for single and walks.
+
+\index{Malmquist productivity index|)}

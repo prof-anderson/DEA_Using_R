@@ -14,9 +14,7 @@ library(kableExtra)
 
 ## Introduction
 
-In 2002, Sten Thore edited a book, *Technology Commercialization: DEA and Related Analytical Methods for Evaluating the Use and Implementation of Technological Innovation* This book compiled a series of cases applying \index{Data envelopment analysis} Data Envelopment Analysis to real-world technology management situations.
-This chapter revisits some of those cases.
-We will provide a snapshot of the cases and the interested reader is referred to Thore's book for more details.
+In 2002, Sten Thore edited a book, *Technology Commercialization: DEA and Related Analytical Methods for Evaluating the Use and Implementation of Technological Innovation* This book compiled a series of cases applying Data Envelopment Analysis to real-world technology management situations. This chapter revisits some of those cases. We will provide a snapshot of the cases and the interested reader is referred to Thore's book for more details.
 
 Before we begin, let's install some small helper functions.
 These are described in more detail in an Appendix.
@@ -137,7 +135,7 @@ kbl (cbind(resBH$Efficiency,resBH$vx,resBH$uy),
        caption="Weights for Baker Hughes Corporation analysis.", booktabs = T, digits = 4)
 ```
 
-The envelopment and multiplier results are intricately related by duality.
+The envelopment and multiplier results are intricately related by \index{Dual values} duality.
 In this case, we can see that certain outputs are "ignored" by certain projects by placing a zero weight on that output.
 This is perfectly permissible in a DEA study when we don't know the relative value outputs and is why we refer to DEA scores as technical efficiency or relative efficiency.
 On the other hand, if we had more information on relative values of outputs that could or should be incorporated, this can be done.
