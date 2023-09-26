@@ -8,7 +8,7 @@ library(bookdown); library(rmarkdown); rmarkdown::render("04-OO_Env.Rmd", "pdf_b
 
 In chapters 2 and 3 we focused on the input-oriented envelopment model. This chapter will focus on the output-oriented model before moving on to a slack-based model sometimes referred to as a non-oriented model.
 
-The input and output-oriented models are the most commonly used for DEA applications. People can sometimes be confused over when to use an input-oriented or an output-oriented model. Think of input-oriented as *input-reducing* and output-oriented as *output increasing*. In an input-oriented model, the primary goal is to reduce the input while not sacrificing any output. In contrast, the primary goal for an output-oriented model is to increase the output while not increasing the usage of any input.
+The \index{Input-oriented} input and \index{Output-oriented} output-oriented models are the most commonly used for DEA applications. People can sometimes be confused over when to use an input-oriented or an output-oriented model. Think of input-oriented as *input-reducing* and output-oriented as *output increasing*. In an input-oriented model, the primary goal is to reduce the input while not sacrificing any output. In contrast, the primary goal for an output-oriented model is to increase the output while not increasing the usage of any input.
 
 ## Output-Oriented Model
 
@@ -45,7 +45,7 @@ $$
   \end{aligned}
 $$
 
-Now we will convert the problem input and output constraints from inequalities into equalities by explicitly defining slack variables.
+Now we will convert the problem \index{Constraints!Input} input and \index{Constraints!Output} output constraints from inequalities into equalities by explicitly defining slack variables.
 
 $$
  \begin{aligned}
@@ -93,7 +93,7 @@ kbl (temp, booktabs=T, escape=F,
 
 Let's refresh our memory with the input-output data for the example.
 
-Now the formulation is similar to the input-oriented model that we created in chapter 2. The three changes are that we will be using $\phi$ rather than $\theta$, a *max* rather than *min* objective function, and modifying the output-constraint(s) rather than the input-constraint(s).
+Now the formulation is similar to the input-oriented model that we created in chapter 2. The three changes are that we will be using $\phi$ rather than $\theta$, a *max* rather than *min* objective function, and modifying the \index{Constraints!Output} output-constraint(s) rather than the \index{Constraints!Input} input-constraint(s).
 
 ```{r OO-4Store-CRS}
 res4_1.efficiency <- matrix(rep(-1.0, 1), nrow=ND, ncol=1)
@@ -255,13 +255,15 @@ kbl(cbind(temp),
   kable_styling(latex_options = "hold_position")
 ```
 
-Key takeaways about the impact of orientation:
+Key takeaways about the impact of \index{Orientation} orientation:
 
 -   Changing a model from input-orientation to output-orientation will not change which units are efficient.
 -   Changing a model from input-orientation to output-orientation under CRS results in consistent results but different projections.
 -   Changing a model from input-orientation to output-orientation under other returns scale may change the relative rankings of inefficient units.
 
 ## Slack Based Models
+
+\index{Slack|(}
 
 We have focused on radial efficiency scores up to this point. The primary emphasis is on proportionally decreasing the inputs (input-orientation) or increasing the outputs (output-orientation). The decision of input versus output-orientation is then very important. Also, radial models generally use a second phase of slack maximization to form targets of best practices.
 
@@ -446,7 +448,9 @@ We can use a single metric $\rho$, that can serve as an efficiency score by comb
 
 $$
 \rho = \frac {1- \frac {1}{N^x}\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}}  {1+\frac {1}{N^y}\sum_{r=1}^{N^Y} \frac{s^y_r}{y_{r,k}}}
-$$ While it doesn't have the same radial interpretation of both $\theta$ or $\phi$ from the input or output-oriented model, it provides a nice holistic metric that captures inefficiency on both inputs and outputs. A value of $\rho=1.0$ represents an efficient unit. A value of $\rho=0.5$ might be due to an average input slack of 50% on the inputs in a unit that is output efficient. On the other hand, it might also represent a unit that only produces half of what an efficient target produces despite being input efficient. In either case, an overall efficiency of 50% seems warranted. Unfortunately the function for calculating $\rho$ involves dividing functions of variables, $s^x_i$ by functions of other variables, $x^y_r$. This makes it a nonlinear function which is more difficult to optimize.
+$$
+
+While it doesn't have the same radial interpretation of both $\theta$ or $\phi$ from the input or output-oriented model, it provides a nice holistic metric that captures inefficiency on both inputs and outputs. A value of $\rho=1.0$ represents an efficient unit. A value of $\rho=0.5$ might be due to an average input slack of 50% on the inputs in a unit that is output efficient. On the other hand, it might also represent a unit that only produces half of what an efficient target produces despite being input efficient. In either case, an overall efficiency of 50% seems warranted. Unfortunately the function for calculating $\rho$ involves dividing functions of variables, $s^x_i$ by functions of other variables, $x^y_r$. This makes it a \index{Nonlinear function} nonlinear function which is more difficult to optimize.
 
 Let's calculate $\rho$ for each of the stores using the slack based model.
 
@@ -533,7 +537,9 @@ The results in the table are interesting:
 
 -   The measures of $\rho$ are relatively robust and consistent with the efficiency scores $\theta$ and $1/\phi$.
 -   For the slack based models, changing the measures from maximizing slacks to slack percentages changed the targets ($\lambda$ values) but not the holistic overall score of $\rho$. This is unlikely to persist in more complex models.
--   The `poscol` function from the `TRA` package was used with a `cutoff` value to eliminate columns of $\lambda$ for inefficient units.
--   The `add_header_above` function from `kableExtra` was used to provide groupings of columns.
+-   The \index{TRA!poscol} `poscol` function from the `TRA` package was used with a `cutoff` value to eliminate columns of $\lambda$ for inefficient units.
+-   The `add_header_above` function from \index{kable!kableExtra} `kableExtra` was used to provide groupings of columns.
 
 A variety of slack-based models have been developed over the years. Returns to scale can be incorporated in the same manner as in traditional input and output-oriented models.
+
+\index{Slack|)}

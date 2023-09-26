@@ -16,7 +16,7 @@ Put yourself as a competitor trying to argue that you are the best in converting
 
 ## The Linear Programs for DEA
 
-On the other hand, what if it allowed for blending of units. There are a few assumptions that we could make. Let's start by saying that we can compare any particular products by rescaling (up or down) any other product as well as any combination of units.
+On the other hand, what if it allowed for \index{Blending} blending of units. There are a few assumptions that we could make. Let's start by saying that we can compare any particular products by rescaling (up or down) any other product as well as any combination of units.
 
 We'll start by creating a mathematical framework. Can you find a combination of units that produces at least as much output using less input? Let's define the proportion of input needed as $\theta$. A value of $\theta=1$ then means no input reduction can be found in order to produce that unit's level of output. The blend of other units is described by a vector $\lambda$. Another way to denote this is $\lambda_j$ is the specific amount of a unit *j* used in setting the target for for performance for unit *k*. Similarly, $x_j$ is the amount of input used by unit *j* and $y_j$ is the amount of output produced by unit *j*.
 
@@ -52,9 +52,9 @@ $$
 (\#eq:Ch6LPCCRIOM-Ratio-2a)
 $$
 
-Now we will convert the problem input and output constraints from inequalities into equalities by explicitly defining slack variables.
+Now we will convert the problem \index{Inputs} input and \index{Outputs} output constraints from inequalities into equalities by explicitly defining slack variables.
 
-There are an infinite number of possible combinations of numerators and denominators that can give the same ratio. The next step is to select normalizing value for the objective function. Let's set the denominator equal to one. In this case, we simply add a constraint, $\sum_{i=1}^{N^X} v_i x_{i,k}$, to the linear program.
+There are an infinite number of possible combinations of numerators and denominators that can give the same ratio. The next step is to select normalizing value for the objective function. Let's set the denominator equal to one. In this case, we simply add a \index{Constraints} constraint, $\sum_{i=1}^{N^X} v_i x_{i,k}$, to the linear program.
 
 $$
 \begin{split}
@@ -142,7 +142,7 @@ results.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX)
 results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
 ```
 
-We are now ready to do the analysis. In Baker, the analysis was done using the multiplier model. In chapter 2 we used the envelopment model to examine this case. Now we will use the multiplier model using the `DEAMultiplerModel` package by Aurobindh Kalathil Puthanpura.
+We are now ready to do the analysis. In Baker, the analysis was done using the \index{Multiplier model} multiplier model. In chapter 2 we used the \index{Envelopment model} envelopment model to examine this case. Now we will use the multiplier model using the \index{DEAMultiplierModel} `DEAMultiplerModel` package by Aurobindh Kalathil Puthanpura.
 
 ```{r, include=FALSE}
 library (MultiplierDEA)
@@ -176,7 +176,7 @@ kbl (result$Efficiency, caption="CRS Efficiency Scores",
 
 The efficiency scores match the earlier results and that of Baker.
 
-The package also includes a cross-efficiency calculation function so as to find the cross-efficiencies given the multiplier model. Cross-efficiency calculated in this way tends to suffer from frequent cases of multiple optima. Later in this chapter, we will explore how to handle these issues. For now, let's apply cross-efficiency to the same data set.
+The package also includes a cross-efficiency calculation function so as to find the cross-efficiencies given the multiplier model. Cross-efficiency calculated in this way tends to suffer from frequent cases of \index{Multiple optima} multiple optima. Later in this chapter, we will explore how to handle these issues. For now, let's apply cross-efficiency to the same data set.
 
 ```{r}
 # Example from Kenneth R. Baker: Optimization Modeling with Spreadsheets, 
@@ -201,7 +201,7 @@ kbl (result$ce_ave,
     kable_styling(latex_options = c("hold_position"))
 ```
 
-As might be expected, the cross-efficiency values are all significantly lower than the original efficiency scores. In cross-efficiency, no nursing home is able to pick an extreme and unique weighting scheme to their advantage. It also tends to break the ties at 1.0 that frequently occur in DEA so it usually gives a unique ranking. These features come at a significant cost though which will be discussed in more detail in the future.
+As might be expected, the \index{Cross-efficiency} cross-efficiency values are all significantly lower than the original efficiency scores. In cross-efficiency, no nursing home is able to pick an extreme and unique weighting scheme to their advantage. It also tends to break the ties at 1.0 that frequently occur in DEA so it usually gives a unique ranking. These features come at a significant cost though which will be discussed in more detail in the future.
 
 ## Implementing Cross-Efficiency
 
@@ -370,7 +370,8 @@ kbl (rbind(rescross$crosseval,t(rescross$crosseff)),
 
 ## Dealing with Cross-Efficiency's Multiple Optima
 
-As discussed in the chapter on the Multiplier model, DEA often has multiple optima, particularly for efficient DMUs. While this doesn't affect the efficiency scores in either the envelopment or the multiplier model, it can have a major impact on the cross-evaluation scores and therefore the cross-efficiency scores.
+\index{Multiple optima|(}
+As discussed in the chapter on the Multiplier model, DEA often has multiple optima, particularly for efficient DMUs. While this doesn't affect the efficiency scores in either the envelopment or the multiplier model, it can have a major impact on the cross-evaluation scores and therefore the \index{Cross-efficiency} cross-efficiency scores.
 
 To examine this issue, we need to invoke a secondary objective function again in the same manner as we did for the envelopment model.
 
@@ -447,7 +448,7 @@ multiplierIOSec <- function (x, y)
 
 ```
 
-Let's explore the impact of the secondary objective function. The `MultiplierDEA`package has a cross-efficiency function but the `Mal_Ben` is a specialized version of the cross-efficiency function that implements the secondary goal of either malevolently trying to minimize other people's scores or benevolently trying to maximize other people's scores based on the work of Doyle and Green.
+Let's explore the impact of the secondary objective function. The \index{MultiplierDEA} `MultiplierDEA`package has a cross-efficiency function but the `Mal_Ben` is a specialized version of the cross-efficiency function that implements the secondary goal of either malevolently trying to minimize other people's scores or benevolently trying to maximize other people's scores based on the work of Doyle and Green.
 
 This can be framed as a two-phase model in the same way as the envelopment model slack maximization model.
 
@@ -588,6 +589,8 @@ kbl (cbind(resrows, as.data.frame(res,digits=4)),
      pack_rows ("Results", 9, 10) |>
          kable_styling(latex_options = c("hold_position", "scale_down"))
 ```
+
+\index{Multiple optima|)}
 
 ## Future Issues for Cross-Efficiency Chapter
 

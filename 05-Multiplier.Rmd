@@ -15,15 +15,16 @@ library(bookdown); library(rmarkdown); rmarkdown::render("05-Multiplier.Rmd", "p
 
 ## Introduction
 
-Every linear program has a related alter ego referred to as the dual. By
+\index{Multiplier model|(}
+
+Every linear program has a related alter ego referred to as the \index{Dual values} dual. By
 duality, the two models have the same optimal objective function values.
-In DEA, the multiplier models are simply the dual of the envelopment
-models. In terms of the matrix representations of DEA given in chapter
-3, the A matrix is transposed, rows give way to columns and columns
-become rows. The right hand side values appear in the objective function
-while the previous objective function coefficients become right hand
-side values. More could be said about this but this will be deferred for
-people interested in duality or more algorithmic aspects of linear
+In DEA, the  multiplier models are simply the dual of the envelopment models. In terms of the matrix 
+representations of DEA given in chapter 3, the A matrix is transposed, rows give 
+way to columns and columns become rows. The right hand side values appear in the 
+objective function while the previous objective function coefficients become 
+right hand side values. More could be said about this but this will be deferred 
+for people interested in duality or more algorithmic aspects of linear
 programming.
 
 Let's turn our attention instead to intuitively developing the DEA
@@ -88,7 +89,7 @@ $$
 \end{split}
 $$
 
-Next let's implement this in `ompr` which may serve as a convenient
+Next let's implement this in \index{ompr} `ompr` which may serve as a convenient
 refresher as well. As usual, we will load the needed packages.
 
 ```{r, message=FALSE}
@@ -334,7 +335,7 @@ $$
  \end{split}
 $$
 
-Alas, it is still a nonlinear objective function. Fortunately, we can
+Alas, it is still a \index{Nonlinear function} nonlinear objective function. Fortunately, we can
 take advantage of the structure of the problem. There are an infinite
 number of possible combinations of numerators and denominators that can
 give the same ratio. For example, if a unit were to receive a 90%
@@ -464,20 +465,22 @@ kbl (mm1.combined , booktabs=T, escape=F, digits=4,
 ```
 
 The weights from the multiplier model often have multiple alternative
-solutions-in other words, different values for decision variables that
+solutions-in other words, different values for \index{Decision variables} decision variables that
 give the same objective function value. In optimization, this situation
-is called multiple optima. In DEA this means that the weights may be
-different depending upon the particular settings used for solving the
-linear program. The result is that you should be careful in over
-interpreting the weights as well as in how you interpret results when
-trying to reproduce analyses.
+is called \index{Multiple optima} multiple optima. In DEA this means that the 
+weights may be different depending upon the particular settings used for solving 
+the linear program. The result is that you should be careful in over 
+interpreting the weights as well as in how you interpret results when trying to 
+reproduce analyses.
+
+\index{Multiplier model|)}
 
 ### Envelopment Multiplier Model Duality Relationship
 
-Duality is a fundamental characteristic of linear programming. Every
+\index{Dual values} Duality is a fundamental characteristic of linear programming. Every
 linear program has a dual program that is a bit of mirror image of the
-original. The multiplier model and the envelopment models are
-fundamentally connected by duality. The multiplier model of DEA is
+original. The multiplier model and the \index{Envelopment model} envelopment models 
+are fundamentally connected by duality. The multiplier model of DEA is
 considered the dual of the envelopment model and the reverse is also
 true.
 

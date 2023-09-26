@@ -84,11 +84,11 @@ Notice that the second table is much easier to interpret. Simply removing unused
 
 While the code is elegant, it does decrease readability of the code. Given that lambda matrices are frequently examined, let's make it easier for the reader by compartmentalizing this as a function. This is a good chance to review the use of function.
 
-The `TRA` package contains a function named `poscol` that takes a dataframe and drops the non-positive columns. It can optionally take a `cutoff` parameter that can be more robust than the default value of 0.
+The `TRA` package contains a function named \index{TRA!poscol} `poscol` that takes a dataframe and drops the non-positive columns. It can optionally take a `cutoff` parameter that can be more robust than the default value of 0.
 
 ## Define Names
 
-For many datasets, we simply want to have DMUs named with sequential letters, numbered inputs, and numbered outputs. Defining lists of names every time for these items and the resulting items results can become time consuming. Instead, the `TRA` package has a function `DEAnames` that will create common DEA object names.
+For many datasets, we simply want to have DMUs named with sequential letters, numbered inputs, and numbered outputs. Defining lists of names every time for these items and the resulting items results can become time consuming. Instead, the `TRA` package has a function \index{TRA!DEAnames} `DEAnames` that will create common DEA object names.
 
 This function simply needs the number of DMUs, inputs, and outputs.
 
@@ -100,7 +100,7 @@ modelnames <-TRA::DEAnames(2,2,4)
 modelnames
 ```
 
-These are names that can be used as row names or column names. They categorized as regular text names. Names that end with an `LX` suffix are structured in the format needed for LaTeX rendering of tables in RMarkdown and `kable`.
+These are names that can be used as row names or column names. They categorized as regular text names. Names that end with an `LX` suffix are structured in the format needed for \index{LaTeX} LaTeX rendering of tables in RMarkdown and \index{kable} `kable`.
 
 ```{r}
 x <- matrix(c(10,20,30,50,60,70,80,90),ncol=2)
@@ -136,7 +136,7 @@ kbl(t3, booktabs=TRUE, escape=FALSE,
 
 ## Function for Drawing Input-Output Diagram
 
-I find visual models sometimes clarify the model. Let's draw an input-output diagram DEA models. This diagram has inputs feeding into a box and outputs coming out. I used the very rich `DiagrammeR` package for this function. For a comprehensive description of options in the package, this site is very useful. <http://rich-iannone.github.io/DiagrammeR/graphviz_and_mermaid.html>
+I find visual models sometimes clarify the model. Let's draw an input-output diagram \index{Input-output diagram} DEA models. This diagram has inputs feeding into a box and outputs coming out. I used the very rich \index{DiagrammeR} `DiagrammeR` package for this function. For a comprehensive description of options in the package, this site is very useful. <http://rich-iannone.github.io/DiagrammeR/graphviz_and_mermaid.html>
 
 Let's start by hard coding a one-input, four-output CCR input-oriented model. We will retain the `Xnames` and `Ynames` list of input and output names respectively from the previous section.
 

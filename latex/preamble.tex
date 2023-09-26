@@ -40,8 +40,13 @@
 
 \renewenvironment{Shaded}{\begin{kframe}}{\end{kframe}}
 
-\usepackage{makeidx}
-\makeindex
+% MOVED makeidx ENTRIES TO index.Rmd 'header-includes:' section
+% FIXED ISSUE WITH MULTPILE TOC REFERENCES AND BAD ANCHOR LINK
+%
+%\usepackage{makeidx}
+%\makeindex
+%
+% SEE after_body.tex FOR INDEX ENTRY OUTPUT FOR BOOKDOWN PDF DOC
 
 \urlstyle{tt}
 
