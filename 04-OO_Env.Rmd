@@ -12,7 +12,7 @@ The \index{Input-oriented} input and \index{Output-oriented} output-oriented mod
 
 ## Output-Oriented Model
 
-Think of selecting the model orientation by looking at a simple model of say, a set of restaurants where the input the input is labor and the output is customers served. The question than is what do the managers have more control over. If managers of restaurants have the opportunity to serve more customers and have many customers trying to get reservations but are unable to be accommodated, perhaps an output-oriented model is best. On the other hand, they have may have weak influence over the number of customers served, perhaps due to advertising being done at a regional level. In this case, perhaps cost control is the primary goal which means that an input-oriented model should be applied to emphasize reducing labor.
+Think of selecting the model orientation by looking at a simple model of say, a set of restaurants where the input is labor and the output is customers served. The question than is what do the managers have more control over. If managers of restaurants have the opportunity to serve more customers and have many customers trying to get reservations but are unable to be accommodated, perhaps an output-oriented model is best. On the other hand, they have weak influence over the number of customers served, perhaps due to advertising being done at a regional level. In this case, perhaps cost control is the primary goal which means that an input-oriented model should be applied to emphasize reducing labor.
 
 ```{r Fig-Orientation-Projections, echo=FALSE, out.width="49%", fig.show='hold', fig.align='center',fig.cap="Input vs. Output Orientations", fig.show='hold'}
 knitr::include_graphics("images/Fig-4StoreIO-CRS.png")
