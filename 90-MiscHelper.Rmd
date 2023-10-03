@@ -136,7 +136,7 @@ kbl(t3, booktabs=TRUE, escape=FALSE,
 
 ## Function for Drawing Input-Output Diagram
 
-I find visual models sometimes clarify the model. Let's draw an input-output diagram \index{Input-output diagram} DEA models. This diagram has inputs feeding into a box and outputs coming out. I used the very rich \index{DiagrammeR} `DiagrammeR` package for this function. For a comprehensive description of options in the package, this site is very useful. <http://rich-iannone.github.io/DiagrammeR/graphviz_and_mermaid.html>
+I find visual models sometimes clarify the model. Let's draw an input-output diagram \index{Input-output diagram} DEA model. This diagram has inputs feeding into a box and outputs coming out. I used the very rich \index{DiagrammeR} `DiagrammeR` package for this function. For a comprehensive description of options in the package, this site is very useful. <http://rich-iannone.github.io/DiagrammeR/graphviz_and_mermaid.html>
 
 Let's start by hard coding a one-input, four-output CCR input-oriented model. We will retain the `Xnames` and `Ynames` list of input and output names respectively from the previous section.
 

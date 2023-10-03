@@ -422,10 +422,10 @@ Some important takeaways from these results.
 
 -   First, note that stores C and E are strongly efficient in both models. In the slack based model, C and E are compared only against themselves and have zero slack in all three slack variables.
 -   The slack based model's objective function would simply be the sum of slack in FTE, square meters of floor space, and sales in thousands of dollars.
--   The target for the weakly efficient store, G, is the same for in both analyses.
+-   The target for the weakly efficient store, G, is the same in both analyses.
 -   The target is different for the four radially inefficient stores: A, B, D, and F. This corresponds to a different projection.
 -   The slack on the second input ($s^x_2$) for store D is almost twenty times higher than that of the slack for any input on any other store.
--   A reminder that the values of input 2 are on the order the order ten times that of the first input. This means that in adding slacks, the second input will tend to have more pull in the objective function.
+-   A reminder that the values of input 2 are on the order of ten times that of the first input. This means that in adding slacks, the second input will tend to have more pull in the objective function.
 
 ### Slack Percentages
 

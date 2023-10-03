@@ -28,7 +28,7 @@ library (deaR)
 Often it is important to assess the changing performance over time rather than just at a single snapshot. We did some explorations of the changing distribution of scores in the chapter on baseball but we didn't really explore how these scores change on a year by year basis. A unit's changing performance might be due to a number of reasons:
 
 -   General operating conditions have changed
--   Changing size of operations resulting
+-   Changing size of operations
 -   Incorporated best practices by single unit
 
 In the case of a store being benchmarked against similar stores in the same chain, changes due to general operating conditions might be due to inflation raising wages (or materials, end products, etc.), changing laws or regulations, etc. In this case, a change in the general operating conditions is like "...a rising tide raising all boats." It is good to identify and quantify these impacts but it isn't something that an individual store manager would be either blamed for performance loss due to this or praised for changes helping. (A similar example could be found for stock traders, making a 20% return when the market is also up 20% is not particularly impressive and getting a 15% return might be considered poor.)
@@ -43,7 +43,7 @@ Simply looking at efficiency scores on their own in a single year does not alway
 
 Let's use a straightforward single input, single output example of the Malmquist Productivity Index to illustrate conceptually what we are doing with the Malmquist Productivity Index. This is then followed with a numerical version of that example.
 
-We will then follow this calculations using various packages.
+We will then follow with calculations using various packages.
 
 ```{r displaymalm1, out.width="45%", fig.show='hold', fig.align='center', fig.cap="Malmquist Graphical Example"}
 knitr::include_graphics("images/ch10_malm1.PNG")
@@ -423,11 +423,11 @@ kbl(head(res_bb
 
 Ty Cobb's values are interesting. His value for E19-T19 is one and therefore he was efficient in 1919 using his 1919 batting statistics. He is no longer efficient in 1920 as his as denoted by E20-T20 being 0.9165. While his 1919 performance was efficient relative to 1919, it would not have been efficient against the frontier in 1920 (E19-T20 \< 1.0). The TC value indicates that his efficiency declined relative to their respective efficiency frontiers. The TEC value though is larger than 1 indicating that the efficiency frontier expanded relative to the regions of the frontier that Ty Cobb was producing. If we had been looking at managerial performance of DMUs instead of batting performance of hitters, we would say that Ty Cobb was not as efficient in using his input to produce outputs relative to the changing efficiency frontier. The efficiency frontier expanded and Ty Cobb fell off the efficiency frontier.
 
-In contrast, Babe Ruth was efficient in both 1919 and 1920. His efficiency score in 1919 relative to the 1920 frontier was much larger than 1 indicating that he far exceeded the frontier in his area of the 1920. His 1920 performance also exceeded the 1919 frontier. His values indicate that the efficiency frontier is rising by 26% in his area of the frontiers (TC=1.26).
+In contrast, Babe Ruth was efficient in both 1919 and 1920. His efficiency score in 1919 relative to the 1920 frontier was much larger than 1 indicating that he far exceeded the frontier in his area of 1920. His 1920 performance also exceeded the 1919 frontier. His values indicate that the efficiency frontier is rising by 26% in his area of the frontiers (TC=1.26).
 
 ### MPI with Ordinal Weight Restrictions
 
-Now let's try examining this with weight restrictions. Recall that in chapter 8 we indicated that Home Runs should be at least valuable as triples, triples are at least as valuable as doubles, etc. The `MultiplierDEA` package's MPI function does not include a parameter to pass weight restrictions. Fortunately we can accommodate ordinal weight restrictions by making a simple data transformation on the outputs. Each output is converted into the sum of that output and "better" outputs. Home Runs are unchanged but Triples are redefined as the number of Triples + Home Runs. Doubles are converted to be Doubles+Triples+Home Runs. Specifically, we have the following:
+Now let's try examining this with weight restrictions. Recall that in chapter 8 we indicated that Home Runs should be at least as valuable as triples, triples are at least as valuable as doubles, etc. The `MultiplierDEA` package's MPI function does not include a parameter to pass weight restrictions. Fortunately we can accommodate ordinal weight restrictions by making a simple data transformation on the outputs. Each output is converted into the sum of that output and "better" outputs. Home Runs are unchanged but Triples are redefined as the number of Triples + Home Runs. Doubles are converted to be Doubles+Triples+Home Runs. Specifically, we have the following:
 
 -   Home Runs or longer: (Home Runs+Triples+Doubles+Singles)
 -   Triples or longer: (Triples)
@@ -533,7 +533,7 @@ kbl(t(format( res20tab["speaktr01",], digits=5)),
     caption="Results from Multiplier DEA Using Ordinal (Accumulated) Weight Restrictions")
 ```
 
-The results match those from those found along the way in the Malmquist analysis but do not agree with those from earlier. Let's unpack the weights given the structure of
+The results match those found along the way in the Malmquist analysis but do not agree with those from earlier. Let's unpack the weights given the structure of
 
 ```{r}
 mres20uyBB <- res20tab[,3]

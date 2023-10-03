@@ -73,7 +73,7 @@ kbl (head(Lahman::Batting), booktabs = T,
 
 What does this all mean? The first column, `playerID`, is a uniquely coded ID for each player consisting of the first six letters of the last name, first two letters of the first name, and which instance of that eight letter combination the player is. For example, row 5 is `ansonca01,` which corresponds to the Hall of Famer, Cap Anson. Each row gives the statistics for a year that he had with a particular team. If the player plays for multiple teams in a year, they will have multiple rows. Also, if their career lasts more than one year, they will have more than one row.
 
-In this case, in 1871 Cap Anson played in 25 Games, had 120 at-bats, scored 29 runs, had 39 hits, and 11 doubles, 3 triples, and no home runs. He also had 16 runs-batted-in, 6 stolen bases while being caught stealing twice. He had 2 walks (base on balls) while striking out once. Note that values of of many items such as intentional base on balls, hit by pitches (`IBB`), sacrifice hits (`SH`), sacrifice flies (`SF`), and grounded into double plays (`GIDP`) are marked as `NA` or Not Applicable or Not Available. These were not official statistics at the time.
+In this case, in 1871 Cap Anson played in 25 Games, had 120 at-bats, scored 29 runs, had 39 hits, and 11 doubles, 3 triples, and no home runs. He also had 16 runs-batted-in, 6 stolen bases while being caught stealing twice. He had 2 walks (base on balls) while striking out once. Note that values of many items such as intentional base on balls, hit by pitches (`IBB`), sacrifice hits (`SH`), sacrifice flies (`SF`), and grounded into double plays (`GIDP`) are marked as `NA` or Not Applicable or Not Available. These were not official statistics at the time.
 
 This is pretty impressive to have such detailed and specific data going back over 150 years!
 
@@ -94,7 +94,7 @@ kbl (head(batting), booktabs = T,
   kable_styling(latex_options = c("hold_position"))
 ```
 
-Through the 2015 season, this dataset has 101,332 rows or player seasons. The game of baseball went through a lot of change in teams, rules, and other development and so it may be more useful to focus our attention on the after 1900. We've got plenty of data, let's filter the rows to only to only include years after 1900.
+Through the 2015 season, this dataset has 101,332 rows or player seasons. The game of baseball went through a lot of change in teams, rules, and other development and so it may be more useful to focus our attention on the after 1900. We've got plenty of data, let's filter the rows to only include years after 1900.
 
 ```{r filtering-data}
 batting<-dplyr::filter(batting,yearID>1900)
@@ -311,7 +311,7 @@ $$
   (\#eq:Ch8RatioWeightRestrictions)
 $$
 
-We can now specify these ratios in a data frame that will be passed to `multiplierDEA`package by defining a lower bound, numerator, denominator, and upper bound for each weight restriction ratio relationship. Note that rather than specifying the upper limit of infinity, we declare it as `NaN`to indicate that it is not a number.
+We can now specify these ratios in a data frame that will be passed to `multiplierDEA` package by defining a lower bound, numerator, denominator, and upper bound for each weight restriction ratio relationship. Note that rather than specifying the upper limit of infinity, we declare it as `NaN` to indicate that it is not a number.
 
 ```{r}
 BattingWR<-data.frame(lower = c(1.0, 1.0, 1.0, 1.0), 
@@ -624,13 +624,13 @@ Note, this calculated value matches the original cross-efficiency score for Babe
 
 The same mean cross-efficiency weights can be used for calculating the cross-efficiency score for each of the other players. This is not a matter of some (or most) players occasionally violating the relationship in some way but a systematic error. What this means is that *every* player is now being assessed against the same fixed and in this case, implausible weighting scheme. If you look carefully at the mean output weights, the mean weight for Home Runs is just half that of the next lowest output weight (base on balls). Singles, doubles, and triples are all given four or fives times as much weight as home runs.
 
-The low weighting of home runs is in effect caused by a *ganging up* phenomenon where most players do poorly on Home Runs relative to Babe Ruth so they choose to not put weight on that output. On the whole, the league then does not on average puts a low weight on Home Runs. Furthermore, outputs that tend to have low values (such as triples) will tend to have higher output weights than those with higher values such as home runs. Rightly or wrongly, these distributional characteristics of the data set will affect cross-efficiency scores.
+The low weighting of home runs is in effect caused by a *ganging up* phenomenon where most players do poorly on Home Runs relative to Babe Ruth so they choose to not put weight on that output. On the whole, the league then does not on average put a low weight on Home Runs. Furthermore, outputs that tend to have low values (such as triples) will tend to have higher output weights than those with higher values such as home runs. Rightly or wrongly, these distributional characteristics of the data set will affect cross-efficiency scores.
 
 Most studies that do cross-efficiency do not take a careful look at the weights.
 
 ## Baseball Team Management
 
-Examining baseball batters is interesting but let's change our perspective the team. A baseball general manager tries to construct the best team. Players have different salaries and the Lahman baseball dataset includes salary information. An interesting statistical analysis of the relationship between team salary and wins can be found at <https://rpubs.com/grigory/MLBSalaryPerfLR> by Gregory Kanevsky. We will draw inspiration from Gregory Kanevsky's analysis and data wrestling to get us started. Instead of his regression model, we will use a benchmarking approach to demonstrate the use of DEA for examining organizations.
+Examining baseball batters is interesting but let's change our perspective to the team. A baseball general manager tries to construct the best team. Players have different salaries and the Lahman baseball dataset includes salary information. An interesting statistical analysis of the relationship between team salary and wins can be found at <https://rpubs.com/grigory/MLBSalaryPerfLR> by Gregory Kanevsky. We will draw inspiration from Gregory Kanevsky's analysis and data wrestling to get us started. Instead of his regression model, we will use a benchmarking approach to demonstrate the use of DEA for examining organizations.
 
 ```{r}
 suppressPackageStartupMessages(library (data.table))
@@ -688,7 +688,7 @@ kbl(TRA::poscol(cbind(res1991MLB$eff,res1991MLB$lambda), cutoff=0.00001),
 kable_styling(latex_options = c("hold_position"))
 ```
 
-These results show that only four teams were efficient: Chicago White Sox (CHA), Minnesota Twins (MIN), Seattle Mariners (SEA), and Toronto Blue Jays (TOR). All other teams were compared to a combination of these these teams. Since this is a simple, one-input, one-output model, it is easy to show graphically. The \index{Benchmarking} `Benchmarking`package from Bogetoft and Otto does a great job of drawing 2 dimensional DEA plots so we will again use this package.
+These results show that only four teams were efficient: Chicago White Sox (CHA), Minnesota Twins (MIN), Seattle Mariners (SEA), and Toronto Blue Jays (TOR). All other teams were compared to a combination of these these teams. Since this is a simple, one-input, one-output model, it is easy to show graphically. The \index{Benchmarking} `Benchmarking` package from Bogetoft and Otto does a great job of drawing 2 dimensional DEA plots so we will again use this package.
 
 ```{r, include=FALSE}
 library (Benchmarking)
@@ -770,7 +770,7 @@ ggplot (subset (teampayroll2,  lgID=="AL"),
 
 This chart shows that salaries have been going up over time with the colors on the left being generally blue and the colors on the right being red.
 
-Now, let's look at changes for two specific teams over time that are featured in Michael Lewis' *Moneyball*: the New York Yankees and the Oakland Athletics [@lewis2004]. They Yankees are generally among the biggest highest spending of teams while the Oakland Athletics are among the lowest.
+Now, let's look at changes for two specific teams over time that are featured in Michael Lewis' *Moneyball*: the New York Yankees and the Oakland Athletics [@lewis2004]. The Yankees are generally among the biggest highest spending of teams while the Oakland Athletics are among the lowest.
 
 ```{r}
 moneyballplot2 <- ggplot (
