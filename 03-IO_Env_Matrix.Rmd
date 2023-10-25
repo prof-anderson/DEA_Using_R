@@ -15,9 +15,9 @@ library (kableExtra)
 ```
 
 
-In the previous chapter we created the DEA linear program algebraically using the `ompr`package. Before `ompr`was available, we needed to use another approach for most DEA packages such as \index{TFDEA} `TFDEA` and \index{MultiplierDEA} `MultiplierDEA`, which consisted of using matrices. This approach requires more "bookkeeping". Both approaches work but I think the algebraic approach is likely to be easier to write, debug, and extend in the future. For solving, we will use the widely adopted \index{lpSolveAPI} `lpSolveAPI` package but this same matrix-based approach holds other LP solver engines such as C-Plex, Gurobi, and CBC.
+In the previous chapter we created the DEA linear program algebraically using the `ompr` package. Before `ompr` was available, we needed to use another approach for most DEA packages such as \index{TFDEA} `TFDEA` and \index{MultiplierDEA} `MultiplierDEA`, which consisted of using matrices. This approach requires more "bookkeeping". Both approaches work but I think the algebraic approach is likely to be easier to write, debug, and extend in the future. For solving, we will use the widely adopted \index{lpSolveAPI} `lpSolveAPI` package but this same matrix-based approach holds other LP solver engines such as C-Plex, Gurobi, and CBC.
 
-People interested in working on the `TFDEA`package should read this chapter carefully. We will be returning to these topics algebraically as well later since it is conceptually similar to the structure of the package. For people that want to stick to the algebraic implementation and using \index{ompr} `ompr`, you can skip this chapter.
+People interested in working on the `TFDEA` package should read this chapter carefully. We will be returning to these topics algebraically as well later since it is conceptually similar to the structure of the package. For people that want to stick to the algebraic implementation and using \index{ompr} `ompr`, you can skip this chapter.
 
 To get it ready for matrix formulating, we need to put it in the standard form of linear programs which means that only numbers can be on the right hand side of the inequalities.
 The standard form of linear programming can be described as the following.

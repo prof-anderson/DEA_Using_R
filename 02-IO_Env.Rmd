@@ -202,7 +202,7 @@ $$
   \end{split}
 $$
 
-This is a linear program which we could then enter and run. If we do so, we would find that same of the values of $\lambda$ would be negative. Using negative values of a store to make a target for performance doesn't really make sense. A zero value makes sense but not a negative value so we add non-negativity \index{Constraints|(} constraints or bounds on the $\lambda$ values.
+This is a linear program which we could then enter and run. If we do so, we would find that some of the values of $\lambda$ would be negative. Using negative values of a store to make a target for performance doesn't really make sense. A zero value makes sense but not a negative value so we add non-negativity \index{Constraints|(} constraints or bounds on the $\lambda$ values.
 
 $$
 \begin{split}
@@ -369,19 +369,19 @@ There is a lot going on in this command. Let's unpack it step by step.
 
 -   The fifth line sets a \index{kable!caption} caption and then \index{Piping} pipes (or passes) the \index{kable} `kable` object to the next command using `|>` \index{Piping} piping operator.
 
--   The last statement, since it is connected by a pipe, take the previous table and gives it a latex option of `hold_position` that tells our LaTeX rendering system to try to place the table at the particular spot rather than allowing it to float and be placed in a position that favors nice typesetting.
+-   The last statement, since it is connected by a pipe, takes the previous table and gives it a latex option of `hold_position` that tells our LaTeX rendering system to try to place the table at the particular spot rather than allowing it to float and be placed in a position that favors nice typesetting.
 
 In general, we'll usually omit the details of this type of table formatting in most of the rest of the book to save on space.
 
 ## A More Formal and General Linear Program
 
-A key way to begin the mathematical development of the envelopment model is to ask, can you find a combination of units that produces a target with at least as much output using less input? The blend of other units is described by a vector $\lambda$. Another way to denote this is $\lambda_j$ is the specific amount of a unit *j* used in setting the target for for performance for unit *k*.
+A key way to begin the mathematical development of the envelopment model is to ask, can you find a combination of units that produces a target with at least as much output using less input? The blend of other units is described by a vector $\lambda$. Another way to denote this is that $\lambda_j$ is the specific amount of a unit *j* used in setting the target for performance for unit *k*.
 
 This can be easily expanded to the multiple input and multiple output case by defining $x_{i,j}$ to be the amount of the *i*'th input used by unit *j* and $y_{r,j}$ to be the amount of the *r*'th output produced by unit *j*.
 
 For simplicity, this example will focus on the one input and one output case rather than the *m* input and *s* output case but the R code explicitly allows for $m,s>1$. To make the code more readable, I will use a slightly different convention $N^X$ or `NX` instead of *m* to refer to the number of inputs (*x*'s) and $N^Y$ or `NY` to be the number of outputs (*y*'s) instead of *s*. Also, the normal mathematical convention is to use *n* to denote the number of \index{Decision making unit} \index{DMU|see{Decision making unit}} Decision Making Units (DMUs) so I will use $N^D$ or `ND` to indicate that in the R code.
 
-Let's connect these ideas together now using these mathematical building blocks. The core idea of the envelopment model of a DMU *k* can be thought of as to find a target constructed of a mix of the DMUs described by a vector $\lambda$ that uses no more input to achieve the same or more every output as DMU *k*. The amount of the *i'th* input used by the target is then $\sum_{j=1}^{N^D} x_{i,j}\lambda_j$. By the same token, the amount of the *r'th* output produced by the target is $\sum_{j=1}^{N^D} y_{r,j}\lambda_j$.
+Let's connect these ideas together now using these mathematical building blocks. The core idea of the envelopment model of a DMU *k* can be thought of as to find a target constructed of a mix of the DMUs described by a vector $\lambda$ that uses no more input to achieve the same or more of every output as DMU *k*. The amount of the *i'th* input used by the target is then $\sum_{j=1}^{N^D} x_{i,j}\lambda_j$. By the same token, the amount of the *r'th* output produced by the target is $\sum_{j=1}^{N^D} y_{r,j}\lambda_j$.
 
 This gives us two sets of constraints along with a restriction of non-negativity. These are shown in the following relationships that must all be satisfied simultaneously.
 
@@ -984,7 +984,7 @@ A few takeaways from these results:
 
 ## Extracting Multiplier Weights from Envelopment Results
 
-Recently, Dirk Schumacher added the option of \index{Dual values!Extraction} extraction dual results from glpk-solved linear programs. Let's now wrap this into the full series of linear programs so as to calculate the \index{Multiplier weights} multiplier weights for each unit in the CRS model.
+Recently, Dirk Schumacher added the option for the \index{Dual values!Extraction} extraction of dual results from glpk-solved linear programs. Let's now wrap this into the full series of linear programs so as to calculate the \index{Multiplier weights} multiplier weights for each unit in the CRS model.
 
 ```{r Store6-example-w-mult-weight}
 

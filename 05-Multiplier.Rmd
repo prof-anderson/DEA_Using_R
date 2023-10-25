@@ -62,7 +62,7 @@ You can select any way of weighting the two outputs with just two
 conditions:
 
 -   No weight can be negative
--   No one can received a weighted score above 100%
+-   No one can receive a weighted score above 100%
 
 Given these two limitations, your goal is to make your "Alfred score" as
 high as possible.
@@ -303,7 +303,7 @@ instead of *m* to refer to the number of inputs (x's) and *NY* to be the
 number of outputs (y's) instead of *s*. Also, *n* is used to denote the
 number of Decision Making Units (DMUs) and therefore I'll use *ND* to
 indicate that in the R code. In the mathematical formulations,
-superscripts are used to differentiate the the different N's resulting
+superscripts are used to differentiate the different N's resulting
 in $N^X$, $N^Y$, and $N^D$ for `NX`, `NY`, and `ND` or *m*, *s*, and *n*
 respectively.
 
@@ -343,7 +343,7 @@ efficiency score, this could be with a numerator of nine and a
 denominator of 10 or a numerator of 90 and a denominator of 100. Each of
 these pairs satisfies the constraints and is therefore equally valid.
 One clever trick solves the non-linearity by setting the denominator to
-be a constant. The next step is to select normalizing value for the
+be a constant. The next step is to select a normalizing value for the
 objective function. Let's set the denominator equal to one. In this
 case, we simply add a constraint, $\sum_{i=1}^{N^X} v_i x_{i,k}$, to the
 linear program and replace the denominator in the objective function to
@@ -524,7 +524,7 @@ $$
 $$
 
 We won't dwell further on this transformation and will leave it to the
-reader to explore further but this is is why we can extract dual values
+reader to explore further but this is why we can extract dual values
 of the envelopment model to get the multiplier weights from the
 multiplier model. Also, it is why we can extract the envelopment's
 $\lambda$ values from the multiplier model's results.

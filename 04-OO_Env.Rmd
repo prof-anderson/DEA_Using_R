@@ -12,7 +12,7 @@ The \index{Input-oriented} input and \index{Output-oriented} output-oriented mod
 
 ## Output-Oriented Model
 
-Think of selecting the model orientation by looking at a simple model of say, a set of restaurants where the input the input is labor and the output is customers served. The question than is what do the managers have more control over. If managers of restaurants have the opportunity to serve more customers and have many customers trying to get reservations but are unable to be accommodated, perhaps an output-oriented model is best. On the other hand, they have may have weak influence over the number of customers served, perhaps due to advertising being done at a regional level. In this case, perhaps cost control is the primary goal which means that an input-oriented model should be applied to emphasize reducing labor.
+Think of selecting the model orientation by looking at a simple model of say, a set of restaurants where the input is labor and the output is customers served. The question than is what do the managers have more control over. If managers of restaurants have the opportunity to serve more customers and have many customers trying to get reservations but are unable to be accommodated, perhaps an output-oriented model is best. On the other hand, they have weak influence over the number of customers served, perhaps due to advertising being done at a regional level. In this case, perhaps cost control is the primary goal which means that an input-oriented model should be applied to emphasize reducing labor.
 
 ```{r Fig-Orientation-Projections, echo=FALSE, out.width="49%", fig.show='hold', fig.align='center',fig.cap="Input vs. Output Orientations", fig.show='hold'}
 knitr::include_graphics("images/Fig-4StoreIO-CRS.png")
@@ -422,10 +422,10 @@ Some important takeaways from these results.
 
 -   First, note that stores C and E are strongly efficient in both models. In the slack based model, C and E are compared only against themselves and have zero slack in all three slack variables.
 -   The slack based model's objective function would simply be the sum of slack in FTE, square meters of floor space, and sales in thousands of dollars.
--   The target for the weakly efficient store, G, is the same for in both analyses.
+-   The target for the weakly efficient store, G, is the same in both analyses.
 -   The target is different for the four radially inefficient stores: A, B, D, and F. This corresponds to a different projection.
 -   The slack on the second input ($s^x_2$) for store D is almost twenty times higher than that of the slack for any input on any other store.
--   A reminder that the values of input 2 are on the order the order ten times that of the first input. This means that in adding slacks, the second input will tend to have more pull in the objective function.
+-   A reminder that the values of input 2 are on the order of ten times that of the first input. This means that in adding slacks, the second input will tend to have more pull in the objective function.
 
 ### Slack Percentages
 

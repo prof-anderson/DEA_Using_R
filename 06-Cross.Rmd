@@ -54,7 +54,7 @@ $$
 
 Now we will convert the problem \index{Inputs} input and \index{Outputs} output constraints from inequalities into equalities by explicitly defining slack variables.
 
-There are an infinite number of possible combinations of numerators and denominators that can give the same ratio. The next step is to select normalizing value for the objective function. Let's set the denominator equal to one. In this case, we simply add a \index{Constraints} constraint, $\sum_{i=1}^{N^X} v_i x_{i,k}$, to the linear program.
+There are an infinite number of possible combinations of numerators and denominators that can give the same ratio. The next step is to select a normalizing value for the objective function. Let's set the denominator equal to one. In this case, we simply add a \index{Constraints} constraint, $\sum_{i=1}^{N^X} v_i x_{i,k}$, to the linear program.
 
 $$
 \begin{split}
@@ -448,7 +448,7 @@ multiplierIOSec <- function (x, y)
 
 ```
 
-Let's explore the impact of the secondary objective function. The \index{MultiplierDEA} `MultiplierDEA`package has a cross-efficiency function but the `Mal_Ben` is a specialized version of the cross-efficiency function that implements the secondary goal of either malevolently trying to minimize other people's scores or benevolently trying to maximize other people's scores based on the work of Doyle and Green.
+Let's explore the impact of the secondary objective function. The \index{MultiplierDEA} `MultiplierDEA` package has a cross-efficiency function but the `Mal_Ben` is a specialized version of the cross-efficiency function that implements the secondary goal of either malevolently trying to minimize other people's scores or benevolently trying to maximize other people's scores based on the work of Doyle and Green.
 
 This can be framed as a two-phase model in the same way as the envelopment model slack maximization model.
 
@@ -484,7 +484,7 @@ $$
 (\#eq:Ch6LPCCRIO-2Phase)
 $$
 
-Let's compare these to this to the arbitrary cross-efficiency function which does neither. Note that this does not guarantee the existence of a unique optimal solution in terms of input and output weights, it does greatly decrease the potential.
+Let's compare these to the arbitrary cross-efficiency function which does neither. Note that this does not guarantee the existence of a unique optimal solution in terms of input and output weights, it does greatly decrease the potential.
 
 ```{r}
 resfunc    <- CrossEfficiency (x, y, rts="crs", 

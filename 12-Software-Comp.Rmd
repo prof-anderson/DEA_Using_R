@@ -31,9 +31,9 @@ library(bookdown); library(rmarkdown); rmarkdown::render("12-Software-Comp.Rmd",
 
 Over the years, a variety of software packages have been developed for doing Data Envelopment Analysis.
 The \index{Benchmarking} Benchmarking package was one of the earliest and most full-featured packages available.
-It continues to be the most downloaded R package for doing DEA to this day.=
+It continues to be the most downloaded R package for doing DEA to this day.
 
-Let's review data on current frequency of download for DEA packages.
+Let's review data on the current frequency of downloads for DEA packages.
 
 ```{r package_download_stats, echo=FALSE}
 library("ggplot2")
@@ -211,7 +211,7 @@ kbl (cbind(res_nonparaeff$eff,poscol(res_lambda_nonparaeff)),
                   c("hold_position", "scale_down"))
 ```
 
-Some items to note about `nonparaeff` .
+Some items to note about `nonparaeff`.
 
 -   The input and outputs are passed together with outputs first, then inputs and the number of outputs specified.
 -   The $\lambda$ variables are returned separately for each DMU.
@@ -257,7 +257,7 @@ kable_styling (latex_options = c("hold_position", "scale_down"))
 ## The `multiplierDEA` Package
 
 The `multiplierDEA` package was developed by Aurobindh Kalathil Puthanpura.
-It was developed based on an interest in the multiplier DEA model, applying weight restrictions during in the multiplier model, and revisiting cross-efficiency.
+It was developed based on an interest in the multiplier DEA model, applying weight restrictions in the multiplier model, and revisiting cross-efficiency.
 
 ```{r run-MultiplierDEA}
 
