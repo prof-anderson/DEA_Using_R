@@ -26,7 +26,7 @@ options(htmltools.dir.version = FALSE)
 
 # Preface {.unnumbered}
 
-This book uses R, rmarkdown, and bookdown to create a living book for the field of Data Envelopment Analysis. There are many other books out there on DEA. This book explains issues in building your own toolset for DEA in R. It will also cover some of the challenges to watch out for along the way. The majority of the book emphasizes how to implement a variety of DEA models in R. This is generally done with a focus on readability rather than computational efficiency. Pedagogically, this enables the reader to appreciate how tools work and not simply treat a program for doing DEA as a black box. Later chapters demonstrate the use of a variety of DEA R packages and richer applications. HERe    
+This book uses R, rmarkdown, and bookdown to create a living book for the field of Data Envelopment Analysis. There are many other books out there on DEA. This book explains issues in building your own toolset for DEA in R. It will also cover some of the challenges to watch out for along the way. The majority of the book emphasizes how to implement a variety of DEA models in R. This is generally done with a focus on readability rather than computational efficiency. Pedagogically, this enables the reader to appreciate how tools work and not simply treat a program for doing DEA as a black box. Later chapters demonstrate the use of a variety of DEA R packages and richer applications.
 
 Along the way, readers may learn some optimization and gain fluency with R.
 
