@@ -6,6 +6,11 @@
 library(bookdown); library(rmarkdown); rmarkdown::render("08-App_Baseball.Rmd", "pdf_book")
 ```
 
+```{r, include=FALSE, eval=FALSE}
+library(devtools);devtools::install_github("aurokp2/TFDEA_V2")
+# Install TFDEA package from Auro's updated fork
+```
+
 Now that we have covered an introduction to benchmarking using data envelopment analysis, let's look at a variety of models applied to sports - in particular, baseball.
 
 Sports has a long history in \index{Operations research} operations research and \index{Management science} management science, well before the idea of sports analytics was popularized by Michael Lewis' *Moneyball* [@lewis2004]. While it doesn't have the life and death significance of emergency relief or health care applications, it provides quite a few benefits for explaining complex analysis methods:
@@ -145,16 +150,16 @@ Part of the beauty of dplyr is the ability to consolidate all of this into a sin
 
 batting<-Lahman::Batting
 
-batting <- batting                                         |>
-  select(playerID,yearID,teamID,lgID,AB,H,X2B,X3B,HR,BB)   |>
-  mutate(PA=as.numeric(AB+BB))                             |>
-  mutate(X1B=as.numeric(H-HR-X3B-X2B))                     |>
-  transform(BB=as.numeric(BB))                             |>
-  transform(X2B=as.numeric(X2B))                           |>
-  transform(X3B=as.numeric(X3B))                           |>
-  transform(HR=as.numeric(HR))                             |>
+batting <- batting                                           |>
+  select(playerID,yearID,teamID,lgID,AB,H,X2B,X3B,HR,BB)     |>
+  mutate(PA=as.numeric(AB+BB))                               |>
+  mutate(X1B=as.numeric(H-HR-X3B-X2B))                       |>
+  transform(BB=as.numeric(BB))                               |>
+  transform(X2B=as.numeric(X2B))                             |>
+  transform(X3B=as.numeric(X3B))                             |>
+  transform(HR=as.numeric(HR))                               |>
   
-  filter(yearID>1900, PA>MinPA)                            |>
+  filter(yearID>1900, PA>MinPA)                              |>
   select(playerID,yearID,teamID,lgID,PA,BB,X1B,X2B,X3B,HR)
 ```
 
@@ -219,21 +224,24 @@ res1920AL<-DEA(x,y, rts="CRS", orientation="output",
 
 phi <- res1920AL$eff
 theta <- 1/phi
+ccrooscores <- cbind(head(phi),head(theta))
+colnames (ccrooscores) <- c("Player", "$\\phi$", "$\\theta$")
 
-kbl (cbind(head(phi),head(theta)), booktabs=T,
+kbl (, booktabs=T, escape=F,
         caption="CCR-OO Scores for 1920AL (Phi and Theta)") |>
   kable_styling(latex_options = c("hold_position"))
 ```
 
-Success. We have now run DEA using the \index{TFDEA} `TFDEA` package, principally developed by Tom Shott with important contributions from Dong-Joon Lim, Kevin van Blommestein, and others. Notice that this is an output-oriented model so the values greater than 1.0 indicate that decreasing radial efficiency (increasing inefficiency), and describe the amount of additional outputs that should be achieved at the same level of input usage. In other words, how much more walks, singles, doubles, triples, and home runs the player should be producing in the same number of plate appearances if he was batting *efficiently*. As discussed in the chapter on the output-oriented model, under constant returns to scale, the input and output-oriented models are reciprocals of each other ($\theta=\frac{1}{\phi}$)
+Success. We have now run DEA using the \index{TFDEA} `TFDEA` package, principally developed by Tom Shott with important contributions from Dong-Joon Lim, Kevin van Blommestein, Aurobindh Kalathil Puthanpura and others. Notice that this is an output-oriented model so the values greater than 1.0 indicate that decreasing radial efficiency (increasing inefficiency), and describe the amount of additional outputs that should be achieved at the same level of input usage. In other words, how much more walks, singles, doubles, triples, and home runs the player should be producing in the same number of plate appearances if he was batting *efficiently*. As discussed in the chapter on the output-oriented model, under constant returns to scale, the input and output-oriented models are reciprocals of each other ($\theta=\frac{1}{\phi}$)
 
 Let's dig a little deeper now. Let's start by reviewing the output weights for the first few players. We'll display the table in two ways.
 
 ```{r display-weights}
 kbl(head(cbind(res1920AL$vx, res1920AL$uy)), 
          booktabs=T, digits=6,
-       caption = "Weights for Selected 1920 AL Players") |>
-  add_header_above(c(" " = 1, "Input Weight" = 1, "Output Weights" = 5)) |>
+       caption = "Weights for Selected 1920 AL Players")   |>
+  add_header_above(c(" " = 1, "Input Weight" = 1, 
+                     "Output Weights" = 5))                |>
   kable_styling(latex_options = c("hold_position"))
 ```
 
@@ -272,7 +280,6 @@ qplot (res1920ALmult$Efficiency,
 Next, let's review the output weights.
 
 ```{r}
-
 kbl(head (cbind(res1920AL$eff,res1920AL$vx, res1920AL$uy)), booktabs=T, digits=6, 
        caption="Output-Oriented CRS Multipier Model Results")|>
   add_header_above(c(" " = 1, "Efficiency"=1, "Input Weight" = 1, "Output Weights" = 5)) |>
@@ -341,11 +348,13 @@ weights <- data.frame(cbind( res1920ALmult$Efficiency,res1920ALmult$uy,
                              res1920ALmultWR$Efficiency,res1920ALmultWR$uy))
 
 kbl(head(weights 
-         [order(weights[,1], decreasing=TRUE),],20), digits=6, booktabs=T,
+         [order(weights[,1], decreasing=TRUE),],20), digits=5, booktabs=T,
     caption="Output Weights",
-    col.names=c("Eff", "BB", "X1B", "X2B", "X3B", "HR", "Eff", "BB", "X1B", "X2B", "X3B", "HR")) |>
-    add_header_above( c(" " = 1, "Standard Input-Oriented CRS" = 6, "With Weight Restrictions Added" = 6)) |>
- kable_styling(latex_options = c("hold_position", "scale_down")) |>
+    col.names=c("Eff", "BB", "X1B", "X2B", "X3B", "HR", "Eff", 
+                "BB", "X1B", "X2B", "X3B", "HR"))                          |>
+    add_header_above( c(" " = 1, "Standard Input-Oriented CRS" = 6, 
+                        "With Weight Restrictions Added" = 6))             |>
+ kable_styling(latex_options = c("hold_position", "scale_down"))           |>
   footnote (general="Top 20 Efficient 1920 American League Batters")
 
 ```
@@ -374,11 +383,11 @@ hist(res1920ALmultWR$Efficiency,
 
 ```
 
-The weight restrictions have dropped the number of efficient players from seven to two. As might be expected, Babe Ruth was efficient in both models.
+The weight restrictions have dropped the number of efficient players from nine to two. As might be expected, Babe Ruth was efficient in both models.
 
 ### Cross-Efficiency of Baseball Batters
 
-Now, let's turn our attention to a variation of DEA called \index{Cross-efficiency} cross-efficiency. Cross-efficiency was discussed in an earlier chapter. Proponents of Cross-efficiency contend that it can differentiate between players (DMUs) that are DEA efficient. Simple CRS DEA finds nine out of 54 players to be efficient. We will focus on the ten players with the top CRS efficiency scores.
+Now, let's turn our attention to a variation of DEA called \index{Cross-efficiency} cross-efficiency. Cross-efficiency was discussed in an earlier chapter. Proponents of Cross-efficiency contend that it can differentiate between players (DMUs) that are DEA efficient without resorting to weight restrictions. Simple CRS DEA finds nine out of 54 players to be efficient. We will focus on the ten players with the top CRS efficiency scores.
 
 ```{r, warning = FALSE}
 res1920ALcross<-CrossEfficiency(x, y, rts = "crs", 
@@ -396,7 +405,7 @@ temp <- data.frame(cbind(res1920ALmult$Efficiency,
 colnames(temp)<-c("Efficiency", "Cross-Efficiency", "Max Cross-Evaluation")
 
 kbl(head (temp,10), booktabs=T, digits=5,
-       caption="Cross-Efficiency Scores for First Ten 1920 AL Batters") |>
+       caption="Cross-Efficiency Scores for First Ten 1920 AL Batters")      |>
   kable_styling(latex_options = c("hold_position"))
 ```
 
@@ -471,16 +480,18 @@ collectedeff1 <- data.frame(cbind(res1920ALmult$Efficiency,
                                   rownames(collectedeff1)))
 colnames(collectedeff1)<-c("CCRIO", "CCRIOWR", "CE", "CEWR", "nameID")
 
-CRSvsCRSWR <- ggplot (collectedeff1, aes(x=as.numeric(CCRIO), y=as.numeric(CCRIOWR))) +
-  xlab("Input-Oriented CRS Efficiency") +
-  ylab("Input-Oriented CRS Efficiency with Weight Restrictions") +
-  ggtitle("1920 American League Input-Oriented Constant Returns to Scale Model") +
+CRSvsCRSWR <- ggplot (collectedeff1, aes(x=as.numeric(CCRIO), 
+                                         y=as.numeric(CCRIOWR))) +
+  xlab ("Input-Oriented CRS Efficiency") +
+  ylab ("Input-Oriented CRS Efficiency with Weight Restrictions") +
+  ggtitle 
+("1920 American League Input-Oriented Constant Returns to Scale Model") +
   geom_point(shape=1) +
   geom_abline(slope=1, color="red") +
   geom_text(data=subset(collectedeff1, as.numeric(CCRIO) > 0.999 ), 
-            nudge_x = 0.03, aes(x=as.numeric(CCRIO), y=as.numeric(CCRIOWR), 
+            nudge_x = 0.03, aes(x=as.numeric(CCRIO), 
+                                y=as.numeric(CCRIOWR), 
                                 label=nameID))
-
 CRSvsCRSWR 
 ```
 

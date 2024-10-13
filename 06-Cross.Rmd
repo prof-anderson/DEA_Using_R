@@ -370,8 +370,7 @@ kbl (rbind(rescross$crosseval,t(rescross$crosseff)),
 
 ## Dealing with Cross-Efficiency's Multiple Optima
 
-\index{Multiple optima|(}
-As discussed in the chapter on the Multiplier model, DEA often has multiple optima, particularly for efficient DMUs. While this doesn't affect the efficiency scores in either the envelopment or the multiplier model, it can have a major impact on the cross-evaluation scores and therefore the \index{Cross-efficiency} cross-efficiency scores.
+\index{Multiple optima|(} As discussed in the chapter on the Multiplier model, DEA often has multiple optima, particularly for efficient DMUs. While this doesn't affect the efficiency scores in either the envelopment or the multiplier model, it can have a major impact on the cross-evaluation scores and therefore the \index{Cross-efficiency} cross-efficiency scores.
 
 To examine this issue, we need to invoke a secondary objective function again in the same manner as we did for the envelopment model.
 
@@ -391,31 +390,30 @@ multiplierIOSec <- function (x, y)
   results.uweight    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
 
     for (k in 1:ND) {
-
-      result <- MIPModel()                                |>
+      result <- MIPModel()                                     |>
       add_variable(vweight[i], i = 1:NX, 
                    type = "continuous", lb = 0)        
       add_variable(uweight[r], r = 1:NY, 
-                   type = "continuous", lb = 0)           |>
+                   type = "continuous", lb = 0)                |>
       set_objective(sum_expr(uweight[r] * y[k,r], 
-                             r = 1:NY), "max")            |>
+                             r = 1:NY), "max")                 |>
       add_constraint(sum_expr(vweight[i] * x[k,i], 
-                              i = 1:NX) == 1)             |>
+                              i = 1:NX) == 1)                  |>
       add_constraint((sum_expr(uweight[r] * y[j,r], r = 1:NY)-
                     sum_expr(vweight[i] * x[j,i], i = 1:NX)) 
                   <= 0, j = 1:ND)
       result
 
-      result2 <- MIPModel()                               |>
+      result2 <- MIPModel()                                    |>
       add_variable(vweight[i], i = 1:NX, 
-                   type = "continuous", lb = 0)           |>
+                   type = "continuous", lb = 0)                |>
       add_variable(uweight[r], r = 1:NY, 
-                   type = "continuous", lb = 0)           |>
+                   type = "continuous", lb = 0)                |>
       set_objective(sum_expr(uweight[r] * sum(y[,r]), 
-                             r = 1:NY), "max")            |>
+                             r = 1:NY), "max")                 |>
           # Modified objective function for 
       add_constraint(sum_expr(vweight[i] * sum(x[,i]), 
-                              i = 1:NX) == 1)             |>
+                              i = 1:NX) == 1)                  |>
       add_constraint(result, sum_expr(uweight[r] * sum(y[,r]), 
                                       r = 1:NY)-
                     sum_expr(vweight[i] * sum(x[,i]), i = 1:NX)  
@@ -473,7 +471,8 @@ This ratio model can be linearized in the same way as the original ratio DEA mod
 $$
 \begin{split}
 \begin{aligned}
-    \text {min/max } & \sum_{r=1}^{N^Y} u_{r,k} \sum_{j=1}^{N^D} y_{r,j}\\ &   \text{s.t.:  } \sum_{i=1}^{N^X} v_{i,k} \sum_{j=1}^{N^D}x_{i,j} = 1 \\
+    \text {min/max } & \sum_{r=1}^{N^Y} u_{r,k} \sum_{j=1}^{N^D} y_{r,j}\\ 
+       \text{s.t.:  } & \sum_{i=1}^{N^X} v_{i,k} \sum_{j=1}^{N^D}x_{i,j} = 1 \\
 & \sum_{r=1}^{N^Y} u_{r,k} y_{r,j} - \sum_{i=1}^{N^X} v_{i,k} x_{i,j} 
                           \leq 0 \; \forall \; j\\
 & \sum_{r=1}^{N^Y} u_{r,k} y_{r,k}-  \theta^*_{k,k} \cdot\sum_{i=1}^{N^X} v_{i,k} x_{i,k} \leq 0

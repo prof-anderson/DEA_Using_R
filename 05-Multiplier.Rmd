@@ -17,15 +17,16 @@ library(bookdown); library(rmarkdown); rmarkdown::render("05-Multiplier.Rmd", "p
 
 \index{Multiplier model|(}
 
-Every linear program has a related alter ego referred to as the \index{Dual values} dual. By
-duality, the two models have the same optimal objective function values.
-In DEA, the  multiplier models are simply the dual of the envelopment models. In terms of the matrix 
-representations of DEA given in chapter 3, the A matrix is transposed, rows give 
-way to columns and columns become rows. The right hand side values appear in the 
-objective function while the previous objective function coefficients become 
-right hand side values. More could be said about this but this will be deferred 
-for people interested in duality or more algorithmic aspects of linear
-programming.
+Every linear program has a related alter ego referred to as the
+\index{Dual values} dual. By duality, the two models have the same
+optimal objective function values. In DEA, the multiplier models are
+simply the dual of the envelopment models. In terms of the matrix
+representations of DEA given in chapter 3, the A matrix is transposed,
+rows give way to columns and columns become rows. The right hand side
+values appear in the objective function while the previous objective
+function coefficients become right hand side values. More could be said
+about this but this will be deferred for people interested in duality or
+more algorithmic aspects of linear programming.
 
 Let's turn our attention instead to intuitively developing the DEA
 multiplier model through a few steps.
@@ -89,8 +90,9 @@ $$
 \end{split}
 $$
 
-Next let's implement this in \index{ompr} `ompr` which may serve as a convenient
-refresher as well. As usual, we will load the needed packages.
+Next let's implement this in \index{ompr} `ompr` which may serve as a
+convenient refresher as well. As usual, we will load the needed
+packages.
 
 ```{r, message=FALSE}
 library(ROI, quietly=TRUE)              
@@ -163,13 +165,13 @@ Let's do it for Chris.
 result <- MIPModel () |>
   add_variable (u1, type="continuous", lb=0) |>
   add_variable (u2, type="continuous", lb=0) |>
-  set_objective (42*u1+1050*u2, "max") |>
-  add_constraint (25*u1+3500*u2 <= 1.0) |>
-  add_constraint (14*u1+2100*u2 <= 1.0) |>
-  add_constraint (42*u1+1050*u2 <= 1.0) |>
-  add_constraint (28*u1+4200*u2 <= 1.0) |>
-  add_constraint (19*u1+2500*u2 <= 1.0) |>
-  add_constraint (14*u1+1500*u2 <= 1.0) |>
+  set_objective (42*u1+1050*u2, "max")       |>
+  add_constraint (25*u1+3500*u2 <= 1.0)      |>
+  add_constraint (14*u1+2100*u2 <= 1.0)      |>
+  add_constraint (42*u1+1050*u2 <= 1.0)      |>
+  add_constraint (28*u1+4200*u2 <= 1.0)      |>
+  add_constraint (19*u1+2500*u2 <= 1.0)      |>
+  add_constraint (14*u1+1500*u2 <= 1.0)      |>
   solve_model(with_ROI(solver = "glpk"))
 
 u1_result <- get_solution(result, u1) 
@@ -298,13 +300,13 @@ the *i*'th input.
 
 For clarification, we make a small variation from traditional DEA
 notation. Normally the number of inputs is *m* and the number of outputs
-is *s*. To make the code more readable, I will use a convention of *NX*
-instead of *m* to refer to the number of inputs (x's) and *NY* to be the
+is *s*. To make the code more readable, I will use a convention of `NX`
+instead of *m* to refer to the number of inputs (x's) and `NY` to be the
 number of outputs (y's) instead of *s*. Also, *n* is used to denote the
-number of Decision Making Units (DMUs) and therefore I'll use *ND* to
+number of Decision Making Units (DMUs) and therefore I'll use `ND` to
 indicate that in the R code. In the mathematical formulations,
-superscripts are used to differentiate the different N's resulting
-in $N^X$, $N^Y$, and $N^D$ for `NX`, `NY`, and `ND` or *m*, *s*, and *n*
+superscripts are used to differentiate the different N's resulting in
+$N^X$, $N^Y$, and $N^D$ for `NX`, `NY`, and `ND` or *m*, *s*, and *n*
 respectively.
 
 $$
@@ -335,20 +337,20 @@ $$
  \end{split}
 $$
 
-Alas, it is still a \index{Nonlinear function} nonlinear objective function. Fortunately, we can
-take advantage of the structure of the problem. There are an infinite
-number of possible combinations of numerators and denominators that can
-give the same ratio. For example, if a unit were to receive a 90%
-efficiency score, this could be with a numerator of nine and a
-denominator of 10 or a numerator of 90 and a denominator of 100. Each of
-these pairs satisfies the constraints and is therefore equally valid.
-One clever trick solves the non-linearity by setting the denominator to
-be a constant. The next step is to select a normalizing value for the
-objective function. Let's set the denominator equal to one. In this
-case, we simply add a constraint, $\sum_{i=1}^{N^X} v_i x_{i,k}$, to the
-linear program and replace the denominator in the objective function to
-one means that we can rewrite the objective function using only the
-numerator.
+Alas, it is still a \index{Nonlinear function} nonlinear objective
+function. Fortunately, we can take advantage of the structure of the
+problem. There are an infinite number of possible combinations of
+numerators and denominators that can give the same ratio. For example,
+if a unit were to receive a 90% efficiency score, this could be with a
+numerator of nine and a denominator of 10 or a numerator of 90 and a
+denominator of 100. Each of these pairs satisfies the constraints and is
+therefore equally valid. One clever trick solves the non-linearity by
+setting the denominator to be a constant. The next step is to select a
+normalizing value for the objective function. Let's set the denominator
+equal to one. In this case, we simply add a constraint,
+$\sum_{i=1}^{N^X} v_i x_{i,k}$, to the linear program and replace the
+denominator in the objective function to one means that we can rewrite
+the objective function using only the numerator.
 
 $$
 \begin{split}
@@ -465,24 +467,25 @@ kbl (mm1.combined , booktabs=T, escape=F, digits=4,
 ```
 
 The weights from the multiplier model often have multiple alternative
-solutions-in other words, different values for \index{Decision variables} decision variables that
-give the same objective function value. In optimization, this situation
-is called \index{Multiple optima} multiple optima. In DEA this means that the 
-weights may be different depending upon the particular settings used for solving 
-the linear program. The result is that you should be careful in over 
-interpreting the weights as well as in how you interpret results when trying to 
-reproduce analyses.
+solutions-in other words, different values for
+\index{Decision variables} decision variables that give the same
+objective function value. In optimization, this situation is called
+\index{Multiple optima} multiple optima. In DEA this means that the
+weights may be different depending upon the particular settings used for
+solving the linear program. The result is that you should be careful in
+over interpreting the weights as well as in how you interpret results
+when trying to reproduce analyses.
 
 \index{Multiplier model|)}
 
 ### Envelopment Multiplier Model Duality Relationship
 
-\index{Dual values} Duality is a fundamental characteristic of linear programming. Every
-linear program has a dual program that is a bit of mirror image of the
-original. The multiplier model and the \index{Envelopment model} envelopment models 
-are fundamentally connected by duality. The multiplier model of DEA is
-considered the dual of the envelopment model and the reverse is also
-true.
+\index{Dual values} Duality is a fundamental characteristic of linear
+programming. Every linear program has a dual program that is a bit of
+mirror image of the original. The multiplier model and the
+\index{Envelopment model} envelopment models are fundamentally connected
+by duality. The multiplier model of DEA is considered the dual of the
+envelopment model and the reverse is also true.
 
 Consider the basic structure of an LP as discussed in Chapter 3.
 
@@ -524,10 +527,10 @@ $$
 $$
 
 We won't dwell further on this transformation and will leave it to the
-reader to explore further but this is why we can extract dual values
-of the envelopment model to get the multiplier weights from the
-multiplier model. Also, it is why we can extract the envelopment's
-$\lambda$ values from the multiplier model's results.
+reader to explore further but this is why we can extract dual values of
+the envelopment model to get the multiplier weights from the multiplier
+model. Also, it is why we can extract the envelopment's $\lambda$ values
+from the multiplier model's results.
 
 (Example of extracting lambdas, compare to ch 2 results.)
 

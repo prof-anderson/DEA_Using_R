@@ -1,3 +1,9 @@
+---
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
 ```{r, include=FALSE, eval=FALSE}
 library(bookdown); library(rmarkdown); rmarkdown::render("09-Tech_Comm_Apps.Rmd", "pdf_book")
 ```
@@ -14,7 +20,9 @@ library(kableExtra)
 
 ## Introduction
 
-In 2002, Sten Thore edited a book, *Technology Commercialization: DEA and Related Analytical Methods for Evaluating the Use and Implementation of Technological Innovation* This book compiled a series of cases applying Data Envelopment Analysis to real-world technology management situations. This chapter revisits some of those cases. We will provide a snapshot of the cases and the interested reader is referred to Thore's book for more details.
+In 2002, Sten Thore edited a book, *Technology Commercialization: DEA and Related Analytical Methods for Evaluating the Use and Implementation of Technological Innovation* This book compiled a series of cases applying Data Envelopment Analysis to real-world technology management situations.
+This chapter revisits some of those cases.
+We will provide a snapshot of the cases and the interested reader is referred to Thore's book for more details.
 
 Before we begin, let's install some small helper functions.
 These are described in more detail in an Appendix.
@@ -99,8 +107,9 @@ tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),
 ![Baker Hughes Input-Output Model](IO-BakerHughes.png){#fig:IO-BakerHughes width="50%"}
 
 ```{r}
-
-kbl (cbind(XBH,YBH), caption="Data for Baker Hughes Corporation case.", booktabs = T)  
+kbl (cbind(XBH,YBH), 
+     caption="Data for Baker Hughes Corporation case.", 
+     booktabs = T)  
        # Displays table of inputs and outputs
 ```
 
@@ -120,19 +129,20 @@ dimnames(resBH$Lambda)<-c(Lambdanames,Lambdanames)
 dimnames(resBH$vx)<-c(DMUnames,Xnames)
 dimnames(resBH$uy)<-c(DMUnames,Ynames)
 
-kbl (poscol(cbind(resBH$Efficiency,resBH$Lambda)),
-       caption="Envelopment results for Baker Hughes Corporation analysis.", booktabs = T, digits = 4)
-
+kbl (poscol(cbind(resBH$Efficiency, resBH$Lambda)),
+     caption = "Envelopment results for Baker Hughes Corporation analysis.", 
+     booktabs = T, digits = 4)
 ```
 
 The results are consistent with those reported in Sten and Thore.
-Note that projects (DMU's) A, C, and F are efficient and all other projects use those three projects in setting their own targets of performance as denoted by non-zero values of lambda.
+Note that projects (DMUs) A, C, and F are efficient and all other projects use those three projects in setting their own targets of performance as denoted by non-zero values of lambda.
 
 Now, let's look at the other side of the analysis - the multiplier model.
 
 ```{r}
 kbl (cbind(resBH$Efficiency,resBH$vx,resBH$uy), 
-       caption="Weights for Baker Hughes Corporation analysis.", booktabs = T, digits = 4)
+     caption="Weights for Baker Hughes Corporation analysis.", 
+     booktabs = T, digits = 4)
 ```
 
 The envelopment and multiplier results are intricately related by \index{Dual values} duality.
