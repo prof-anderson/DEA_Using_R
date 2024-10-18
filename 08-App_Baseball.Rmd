@@ -225,9 +225,9 @@ res1920AL<-DEA(x,y, rts="CRS", orientation="output",
 phi <- res1920AL$eff
 theta <- 1/phi
 ccrooscores <- cbind(head(phi),head(theta))
-colnames (ccrooscores) <- c("Player", "$\\phi$", "$\\theta$")
+colnames (ccrooscores) <- c("$\\phi$", "$\\theta$")
 
-kbl (, booktabs=T, escape=F,
+kbl (ccrooscores, booktabs=T, escape=F,
         caption="CCR-OO Scores for 1920AL (Phi and Theta)") |>
   kable_styling(latex_options = c("hold_position"))
 ```
@@ -484,8 +484,7 @@ CRSvsCRSWR <- ggplot (collectedeff1, aes(x=as.numeric(CCRIO),
                                          y=as.numeric(CCRIOWR))) +
   xlab ("Input-Oriented CRS Efficiency") +
   ylab ("Input-Oriented CRS Efficiency with Weight Restrictions") +
-  ggtitle 
-("1920 American League Input-Oriented Constant Returns to Scale Model") +
+  ggtitle ("1920 AL Input-Oriented Constant Returns to Scale Model") +
   geom_point(shape=1) +
   geom_abline(slope=1, color="red") +
   geom_text(data=subset(collectedeff1, as.numeric(CCRIO) > 0.999 ), 
