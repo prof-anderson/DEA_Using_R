@@ -407,9 +407,7 @@ This graph seems to indicate that Benchmarking is relatively independent of othe
 Other packages appear to rely on a complex web of packages unrelated to DEA.
 Interestingly, it appears that \index{lpSolveAPI} `lpSolveAPI` is only used by `DJL` and `Benchmarking` while the other packages depend on other solvers.
 
-It would be more interesting to filter this to only include solver engines such as 
-\index{lpSolveAPI} `lpSolveAPI`, \index{lpSolve} `lpSolve`, \index{glpk} `glpk`, 
-and \index{symphony} `symphony` along with the DEA packages.
+It would be more interesting to filter this to only include solver engines such as \index{lpSolveAPI} `lpSolveAPI`, \index{lpSolve} `lpSolve`, \index{glpk} `glpk`, and \index{symphony} `symphony` along with the DEA packages.
 
 ## Summary of Package Features
 
