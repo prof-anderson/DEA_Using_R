@@ -169,7 +169,7 @@ rownames(res3c)<-c("A", "B", "C", "D", "E", "F", "G")
 
 kbl(res3c, booktabs=T, digits=4,
     caption="TFDEA Results from the `DJL` package")    |>
-    kable_styling(latex_options = c("hold_position", "scale_down"))
+    kable_styling(latex_options = c("HOLD_position", "scale_down"))
 
 ```
 
@@ -240,7 +240,7 @@ fj_full_data_ex <- cbind(t(fj_full_data_ex1), t(fj_full_data_ex2))
 
 kbl (fj_full_data_ex, booktabs= T, digits = 4,
     caption="Columns of Fighter Jet Data")   |>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("HOLD_position"))
 ```
 
 Let's do a few things. First, let's grab only the columns of data that we will be using. The regression study was limited to just four columns of specifications due to the high correlations among variables. In order to make a fair comparison, TFDEA was limited to using the same four columns. Also, we'll abbreviate the names of the columns for better display.
@@ -265,7 +265,7 @@ colnames(fj_data)<- c("Name",
 
 kbl (head(fj_data), booktabs = T, digits = 4, align = 'c', 
      caption = "Data for Regression and TFDEA Study")   |>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("HOLD_position"))
 ```
 
 Note that for TFDEA, there is no input specified for this application. We will use a constant value of one as the input for each aircraft.
@@ -283,7 +283,7 @@ fj_y <-  dplyr::select(fj_data,
 kbl (head(cbind(fj_x, fj_y)),  
        caption="Sample of Input (X) and Output (Y) Data for DEA Application",
      booktabs = T)   |>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("HOLD_position"))
 ```
 
 ```{r run-dea}
@@ -292,7 +292,7 @@ res1 <- DEA(fj_x, fj_y, rts="VRS", orientation="output")
 kbl (cbind(fj_data,res1$eff), 
        caption="Output-Oriented Variable Returns to Scale Results", 
      booktabs = T, digits = 4)   |>
-  kable_styling(latex_options = c("hold_position", "scale_down"))
+  kable_styling(latex_options = c("HOLD_position", "scale_down"))
 ```
 
 These results indicate that the earlier aircraft are greatly surpassed in performance by more modern aircraft, as would be expected. More specifically, this indicates that the first US fighter jet, the F80, was outperformed by a factor of `res1$eff[1]` versus the best products released after it had its first flight.
@@ -301,7 +301,7 @@ Next, we can look at the envelopment variables that describe which aircraft(s) t
 
 ```{r dea-results-of-fighter-jet}
 kbl (poscol(cbind(res1$eff, res1$lambda)), booktabs = T, digits = 3)  |>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("HOLD_position"))
 ```
 
 We can then go on to calculate the *peer year* of each fighter jet. This is the average year of the fighter jets that each fighter jet is compared against along with the original year of first flight. We refer to the use of the *peer year* as a dynamic frontier year model since the year of the efficiency frontier will vary depending on the mix of aircraft at each point.
@@ -316,7 +316,7 @@ colnames(combined_res1)<- c("Efficiency",
 kbl (combined_res1,
        caption = "Efficiency of Fighter Jet, Peer Year, and Year of First Flight",
      booktabs = T, align = 'c')   |>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("HOLD_position"))
 
 ```
 
@@ -329,7 +329,7 @@ fj_gamma <- combined_res1[,1] ^
 
 combined_res1 <- cbind(combined_res1, fj_gamma)
 kbl (head(combined_res1), booktabs = T,  align = 'c')   |>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("HOLD_position"))
 ```
 
 This value of gamma gives us then the annualized rate of change that compounds to give us far higher performance of the newer products. The value of gamma can be different for each fighter jet for a variety of reasons including:
@@ -375,7 +375,7 @@ colnames (res2eff) <- c("FirstFlight", "Eff at Release", "Eff at 1960")
 kbl (res2eff,
        caption="Comparison of Efficiency at Time of Release vs. 1960", 
      booktabs = T, digits = 4, align = 'c') |>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("HOLD_position"))
 ```
 
 These results require a careful look.

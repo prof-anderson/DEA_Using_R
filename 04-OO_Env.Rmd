@@ -88,7 +88,7 @@ temp<-cbind(storenames,x,y)
 colnames(temp)<-c("Store Name", "Employees (x)", "Sales (y)")
 kbl (temp, booktabs=T, escape=F,
      caption="First Dataset for DEA") |>
-  kable_styling(latex_options = "hold_position")
+  kable_styling(latex_options = "HOLD_position")
 ```
 
 Let's refresh our memory with the input-output data for the example.
@@ -132,7 +132,7 @@ kbl(res4_1.combined,
     col.names=c("$\\phi^{CRS}$", res4_1.names$LambdanamesbyletterLX),
     caption= 'Output-Oriented Envelopment Analysis for Stores') |>
   add_header_above(c(" " = 1, "Efficiency" = 1, "Envelopment Variables" = 4))|>
-  kable_styling(latex_options = "hold_position")
+  kable_styling(latex_options = "HOLD_position")
 ```
 
 Let's compare the results with those from Chapter 2's input-oriented analysis.
@@ -177,7 +177,7 @@ kbl(cbind(temp),
     col.names=c("$\\phi^{CRS}$", "$\\frac{1}{\\phi^{CRS}}$",
                 "$\\theta^{CRS}$"),
     caption= 'Input vs. Output-Orientation Under CRS') |>
-  kable_styling(latex_options = "hold_position")
+  kable_styling(latex_options = "HOLD_position")
 ```
 
 ### Output-Oriented Variable Returns to Scale
@@ -252,7 +252,7 @@ kbl(cbind(temp),
     col.names=c("$\\phi^{VRS}$", "$\\frac{1}{\\phi^{VRS}}$",
                 "$\\theta^{VRS}$"),
     caption= 'Input vs. Output Orientation Under VRS') |>
-  kable_styling(latex_options = "hold_position")
+  kable_styling(latex_options = "HOLD_position")
 ```
 
 Key takeaways about the impact of \index{Orientation} orientation:
@@ -300,7 +300,7 @@ temp<-cbind(storenames,x,y)
 colnames(temp)<-c("Store Name", "Employees (x1)", "Floor Space (x2)", "Sales (y)")
 kbl (temp, booktabs=TRUE, caption="Seven Store Grocery Store Data") |>
   add_header_above(c(" " = 2, "Inputs" = 2, "Output" = 1))|>
-  kable_styling (latex_options="hold_position")
+  kable_styling (latex_options="HOLD_position")
 NX <- ncol(x); NY <- ncol(y); ND <- nrow(x)
 store7names <- TRA::DEAnames(NX, NY, ND)
 ```
@@ -415,7 +415,7 @@ kbl (cbind(CRS2PhaseIO.Res,Slack1.Res), booktabs=T, escape=F, digits=3,
         caption="Slack Maximizing Results from Seven Store Example")      |>
   add_header_above(c(" "=1, "Efficiency" = 1, "First Phase Results" = 10, 
                      "Second Phase Results" = 10))                        |>
-  kable_styling (latex_options = c("hold_position", "scale_down"))
+  kable_styling (latex_options = c("HOLD_position", "scale_down"))
 ```
 
 Some important takeaways from these results.
@@ -519,7 +519,7 @@ colnames(temp) <- c("$\\theta^{CRS}$",
 kbl (TRA::poscol(temp, cutoff=0.000001), 
      booktabs=T, escape=F, digits=3,
         caption="Maximizing Slack vs. Slack Percentage")           |>
-  kable_styling (latex_options = c("hold_position", "scale_down")) |>
+  kable_styling (latex_options = c("HOLD_position", "scale_down")) |>
   add_header_above(c(" " = 2, "Sum of Slacks" = 6, 
                      "Sum of Slack Percentages" = 6))
 ```
@@ -529,7 +529,7 @@ kbl (cbind(rho_numerator1, rho_numerator2,
            rho_denominator1, rho_denominator2), 
      booktabs=T, escape=F, 
         caption="Maximizing Slack vs. Slack Percentage") |>
-  kable_styling (latex_options = c("hold_position", "scale_down"))
+  kable_styling (latex_options = c("HOLD_position", "scale_down"))
 
 ```
 

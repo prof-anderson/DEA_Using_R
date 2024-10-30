@@ -171,7 +171,7 @@ result <- DeaMultiplierModel(x,y,"crs", "input")
 ```{r, echo=FALSE}
 kbl (result$Efficiency, caption="CRS Efficiency Scores", 
      booktabs = T, digits = 3, align = 'c') |>
-    kable_styling(latex_options = c("hold_position"))
+    kable_styling(latex_options = c("HOLD_position"))
 ```
 
 The efficiency scores match the earlier results and that of Baker.
@@ -198,7 +198,7 @@ result <- CrossEfficiency(x,y,"crs", "input")
 kbl (result$ce_ave, 
      align = "c", booktabs = T, digits = 4,
      caption="Cross-Efficiency Scores")    |>
-    kable_styling(latex_options = c("hold_position"))
+    kable_styling(latex_options = c("HOLD_position"))
 ```
 
 As might be expected, the \index{Cross-efficiency} cross-efficiency values are all significantly lower than the original efficiency scores. In cross-efficiency, no nursing home is able to pick an extreme and unique weighting scheme to their advantage. It also tends to break the ties at 1.0 that frequently occur in DEA so it usually gives a unique ranking. These features come at a significant cost though which will be discussed in more detail in the future.
@@ -267,7 +267,7 @@ dimnames(resfunc$uweight)    <- c(DMUnames,Unames)
 ```{r, echo=FALSE}
 kbl (cbind(resfunc$efficiency,resfunc$vweight,resfunc$uweight), 
         caption="Efficiency Scores and Weights", booktabs = T) |>
-    kable_styling(latex_options = c("hold_position"))
+    kable_styling(latex_options = c("HOLD_position"))
 ```
 
 You can think of the cross-efficiency by going back to revisit the original ratio model of the multiplier model. Let's extend the definition of the input and output weights to reflect for which unit the weights were determined. For example, $u_{r,k}$ is then the weight on output *r* when analyzed from the perspective of DMU *k* and a similar interpretation applies to input weight.
@@ -323,7 +323,7 @@ kbl (rbind(results.crosseval,t(results.crosseff)),
      booktabs = T, digits=5,
      caption="Cross-Evaluation Matrix and Cross-Efficiency Scores from Direct Calculation") |>
     row_spec (7, bold=TRUE) |>
-    kable_styling(latex_options = c("hold_position"))
+    kable_styling(latex_options = c("HOLD_position"))
 ```
 
 Notice that the values on the diagonal, $\theta_{k,k}$ are the same as the original efficiency scores.
@@ -365,7 +365,7 @@ kbl (rbind(rescross$crosseval,t(rescross$crosseff)),
      booktabs = T, digits=5,
      caption="Cross-Evaluation Matrix and Cross-Efficiency Scores from Our Function") |>
     row_spec (7, bold=TRUE) |>
-    kable_styling(latex_options = c("hold_position", "scale_down"))
+    kable_styling(latex_options = c("HOLD_position", "scale_down"))
 ```
 
 ## Dealing with Cross-Efficiency's Multiple Optima
@@ -507,7 +507,7 @@ kbl (rbind(t(cbind(x,y)),
      pack_rows ("Inputs", 1, 2) |>
      pack_rows ("Outputs", 3, 4) |>
      pack_rows ("Cross-Efficiency Results", 5, 7) |>
-    kable_styling(latex_options = c("hold_position", "scale_down"))
+    kable_styling(latex_options = c("HOLD_position", "scale_down"))
 ```
 
 The cross-efficiency results are very different numerically but the relative ranking is similar. In this case, nursing home A stays the top scoring unit in all three cross-efficiency models but is joined by D in the Benevolent model. Also, G is the lowest ranked in all three models.
@@ -547,7 +547,7 @@ kbl (rbind(as.data.frame(t(cbind(XTT03, YTT03)),digits=1),
      pack_rows ("Inputs", 1, 1) |>
      pack_rows ("Outputs", 2, 4) |>
      pack_rows ("Cross-Efficiency Results", 5, 7) |>
-    kable_styling(latex_options = c("hold_position", "scale_down"))
+    kable_styling(latex_options = c("HOLD_position", "scale_down"))
 ```
 
 In this case, site location B, is highest ranked in all three cross-efficiency models.
@@ -586,7 +586,7 @@ kbl (cbind(resrows, as.data.frame(res,digits=4)),
      row_spec (9:10, bold=TRUE) |>
      pack_rows ("Cross-Evaluation Matrix", 1, 8) |>
      pack_rows ("Results", 9, 10) |>
-         kable_styling(latex_options = c("hold_position", "scale_down"))
+         kable_styling(latex_options = c("HOLD_position", "scale_down"))
 ```
 
 \index{Multiple optima|)}

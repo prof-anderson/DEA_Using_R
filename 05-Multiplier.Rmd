@@ -56,7 +56,7 @@ library(kableExtra)
 
 ```{r, echo=TRUE}
 kbl (YRest1, caption="Restaurant Data", booktabs = T)  |>
-  kable_styling(latex_options = "hold_position")
+  kable_styling(latex_options = "HOLD_position")
 ```
 
 You can select any way of weighting the two outputs with just two
@@ -126,7 +126,7 @@ kbl (cbind(alfred_score, u1_result, u2_result),
      escape=F, booktabs = T,
      col.names = c("Score", "$u_1$", "$u_2$"),
      caption="Alfred's Score and Results")    |>
-  kable_styling(latex_options = "hold_position")
+  kable_styling(latex_options = "HOLD_position")
 ```
 
 We could repeat the process for each person, by simply changing the
@@ -156,7 +156,7 @@ kbl (cbind(barb_score, u1_result, u2_result),
      escape=F, booktabs = T, digits = 5,
      col.names = c("Score", "$u_1$", "$u_2$"),
      caption="Barb's Score and Results")|>
-  kable_styling(latex_options = "hold_position")
+  kable_styling(latex_options = "HOLD_position")
 ```
 
 Let's do it for Chris.
@@ -185,7 +185,7 @@ kbl (cbind(chris_score, u1_result, u2_result),
      escape=F, booktabs = T, digits=5,
      col.names = c("Score", "$u_1$", "$u_2$"),
      caption="Chris's Score and Results")|>
-  kable_styling(latex_options = "hold_position")
+  kable_styling(latex_options = "HOLD_position")
 ```
 
 This process of building the model for each person individually and hard
@@ -463,7 +463,7 @@ kbl (mm1.combined , booktabs=T, escape=F, digits=4,
                  mm1names$UnamesLX,
                  mm1names$LambdanamesbyletterLX),
      caption =c("Multiplier Model Results from 7 Store Example"))  |>
-  kable_styling (latex_options = c("hold_position"))
+  kable_styling (latex_options = c("HOLD_position"))
 ```
 
 The weights from the multiplier model often have multiple alternative

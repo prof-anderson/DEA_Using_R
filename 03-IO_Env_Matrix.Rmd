@@ -188,7 +188,7 @@ rownames (res3_1.solution) <- c("L_A", "L_B", "L_C", "L_D", "theta",
                                  "s_x", "s_y")
 kbl (t(res3_1.solution), booktabs=T, digits=3,
         caption="Optimal solution values for DMU A (CCR-IO") |>
-  kable_styling(latex_options = "hold_position")
+  kable_styling(latex_options = "HOLD_position")
 ```
 
 Let's demonstrate the use of \index{LaTeX} LaTeX in table captions. There are several things to bear in mind when using LaTeX rendered in column labels.
@@ -207,7 +207,7 @@ rownames (res3_1.solution) <- c("$\\lambda_A$", "$\\lambda_B$",
 kbl (t(res3_1.solution), booktabs=T, escape=F, digits=3,
         caption=
   "Optimal solution values for DMU A with LaTeX column labels")|>
-  kable_styling(latex_options = "hold_position")
+  kable_styling(latex_options = "HOLD_position")
 ```
 
 ## Creating the LP Incrementally
@@ -444,7 +444,7 @@ kbl (cbind(results.efficiency [k],t(results.lambda  [k,]),
                                 "$v_1$", "$u_1$") )|>
   add_header_above(c("Efficiency" = 1, "Envelopment Variables" = 4, 
                      "Weights" = 2))|>
-  kable_styling(latex_options = "hold_position")
+  kable_styling(latex_options = "HOLD_position")
 ```
 
 ## Slack Maximization
@@ -507,7 +507,7 @@ kbl(cbind(t(results.lambda[k,]), results.efficiency[k],
                    "$\\theta$","$s_x$", "$s_y$") )|>
   add_header_above(c("Envelopment Variables" = 4, 
                      "Efficiency" = 1, "Slacks" = 2))|>
-  kable_styling(latex_options = "hold_position")
+  kable_styling(latex_options = "HOLD_position")
 ```
 
 Now, let's put it all together to summarize the results.

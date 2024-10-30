@@ -73,7 +73,7 @@ Now we need to work on getting the data for different players.
 ```{r display-batting-data, echo=FALSE}
 kbl (head(Lahman::Batting), booktabs = T,
        caption="Sample of Lahman Baseball Data") |> 
-  kable_styling(latex_options =  c("hold_position", "scale_down"))
+  kable_styling(latex_options =  c("HOLD_position", "scale_down"))
 ```
 
 What does this all mean? The first column, `playerID`, is a uniquely coded ID for each player consisting of the first six letters of the last name, first two letters of the first name, and which instance of that eight letter combination the player is. For example, row 5 is `ansonca01,` which corresponds to the Hall of Famer, Cap Anson. Each row gives the statistics for a year that he had with a particular team. If the player plays for multiple teams in a year, they will have multiple rows. Also, if their career lasts more than one year, they will have more than one row.
@@ -93,10 +93,11 @@ batting<-Lahman::Batting
 batting <- dplyr::select(batting, playerID, yearID,
                          teamID, lgID, AB, H, X2B, X3B, HR, BB)
 ```
+
 ```{r, include=FALSE}
 kbl (head(batting), booktabs = T, 
        caption="Batting Data Used for Analysis")        |>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("HOLD_position"))
 ```
 
 Through the 2015 season, this dataset has 101,332 rows or player seasons. The game of baseball went through a lot of change in teams, rules, and other development and so it may be more useful to focus our attention on the after 1900. We've got plenty of data, let's filter the rows to only include years after 1900.
@@ -108,7 +109,7 @@ batting<-dplyr::filter(batting,yearID>1900)
 ```{r, include=FALSE}
 kbl (head(batting), booktabs = T, 
        caption="Batting Statistics for Players after 1900")|>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("HOLD_position"))
 ```
 
 As we discussed earlier, At-Bats (AB) is good but let's convert that to plate appearances, `PA`. Also, let's get the number of singles.
@@ -118,7 +119,7 @@ batting<-dplyr::mutate(batting,X1B=H-HR-X3B-X2B)
 batting<-dplyr::mutate(batting,PA=AB+BB)
 kbl (head(batting), booktabs = T, 
        caption="Calculate Singles and Plate Appearances")  |>
-  kable_styling(latex_options = c("hold_position", "scale_down"))
+  kable_styling(latex_options = c("HOLD_position", "scale_down"))
 ```
 
 Lastly, now that we feel confident that our data transformation for calculating singles and plate appearances work, let's drop the old columns for hits and at-bats as well as reordering them.
@@ -131,7 +132,7 @@ batting <- dplyr::select(batting, playerID, yearID, teamID,
 ```{r, echo=FALSE}
 kbl (head(batting), booktabs = T, 
        caption="Batting Statistics Converted into Inputs and Outputs") |>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("HOLD_position"))
 ```
 
 ```{r selecting-fulltime-players}
@@ -139,7 +140,7 @@ MinPA <- 400
 batting <- dplyr::filter(batting,PA>MinPA)
 kbl (head(batting), booktabs = T, 
      caption="Limit to Full-time Players")            |>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("HOLD_position"))
 ```
 
 Now we will trim out players to only include those that have more than '$MinPA$' plate appearances to limit the impact of part-time players or platooning players.
@@ -166,9 +167,8 @@ batting <- batting                                           |>
 ```{r, include=FALSE}
 kbl (head(batting), booktabs = T,
      caption="Results of Preparing Data using dplyr")      |>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("HOLD_position"))
 ```
-
 
 Now that we have data prepared along with the tools for further manipulation, we are ready to proceed onto the analysis.
 
@@ -212,9 +212,8 @@ kbl (head (cbind(x,y)), booktabs=T,
      caption="Sample of 1920AL Data for DEA")        |>
   add_header_above(c("Player ID" = 1, "Input" = 1,
                      "Outputs" = 5))                 |>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("HOLD_position"))
 ```
-
 
 ```{r doing-DEA}
 library(TFDEA, quietly=TRUE)
@@ -229,7 +228,7 @@ colnames (ccrooscores) <- c("$\\phi$", "$\\theta$")
 
 kbl (ccrooscores, booktabs=T, escape=F,
         caption="CCR-OO Scores for 1920AL (Phi and Theta)") |>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("HOLD_position"))
 ```
 
 Success. We have now run DEA using the \index{TFDEA} `TFDEA` package, principally developed by Tom Shott with important contributions from Dong-Joon Lim, Kevin van Blommestein, Aurobindh Kalathil Puthanpura and others. Notice that this is an output-oriented model so the values greater than 1.0 indicate that decreasing radial efficiency (increasing inefficiency), and describe the amount of additional outputs that should be achieved at the same level of input usage. In other words, how much more walks, singles, doubles, triples, and home runs the player should be producing in the same number of plate appearances if he was batting *efficiently*. As discussed in the chapter on the output-oriented model, under constant returns to scale, the input and output-oriented models are reciprocals of each other ($\theta=\frac{1}{\phi}$)
@@ -242,7 +241,7 @@ kbl(head(cbind(res1920AL$vx, res1920AL$uy)),
        caption = "Weights for Selected 1920 AL Players")   |>
   add_header_above(c(" " = 1, "Input Weight" = 1, 
                      "Output Weights" = 5))                |>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("HOLD_position"))
 ```
 
 A few things stand out. First, only one of the first six players puts any weight on home runs. There should be a hierarchy that singles are at least as good as walks, doubles are at least as good singles, triples are at least as good as doubles, and home runs are at least as good triples. Every player violates at least one of these relationships. Any plausible analysis of baseball batting needs to reflect these relationships. While very different, common metrics such as batting average and slugging average satisfy these relationships but our first DEA model does not.
@@ -259,7 +258,7 @@ res1920ALmult<-DeaMultiplierModel(x, y, rts = "crs",
 
 kbl(head (res1920ALmult$Efficiency), booktabs=T,
        caption="DEA CRS Efficiency Scores")|>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("HOLD_position"))
 ```
 
 Notice that the scores are up to 1.0 rather than 1.0 and higher as in the \index{TFDEA} TFDEA package. This is because the TFDEA package reports efficiency as $\phi$ whereas the \index{DEAMultiplier} `DEAMultiplier` package reports $\frac{1}{\phi}$. The results are consistent and reciprocals. The value of $\phi$ is consistent with the formulation of the \index{Output-oriented} output-oriented model. The value of $\frac{1}{\phi}$ has the same interpretation $\theta$ where a value less than 1.0 indicates inefficiency. In fact, for the case of constant returns to scale (CRS), the orientation does not make a difference in the value of inefficiency found, in other words, $\theta=\frac{1}{\phi}$ For the sake of this discussion, we will interpret the results as $\frac{1}{\phi}$.
@@ -283,7 +282,7 @@ Next, let's review the output weights.
 kbl(head (cbind(res1920AL$eff,res1920AL$vx, res1920AL$uy)), booktabs=T, digits=6, 
        caption="Output-Oriented CRS Multipier Model Results")|>
   add_header_above(c(" " = 1, "Efficiency"=1, "Input Weight" = 1, "Output Weights" = 5)) |>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("HOLD_position"))
 ```
 
 Again, we see that the results are similar to what was observed earlier. Note that the results for Eddie Collins (`collied01`) are different. Eddie Collins was efficient and it is common that efficient players have multiple weighting schemes that still result in being efficient. The \index{MultiplierDEA} `MultiplierDEA` package puts weight on triples (`X3B`) while the \index{TFDEA} `TFDEA`package's solution puts a zero weight on triples and distributes weight among other outputs.
@@ -331,9 +330,8 @@ BattingWR<-data.frame(lower = c(1.0, 1.0, 1.0, 1.0),
 kbl(BattingWR, booktabs=T, 
     caption=
          "Data Structure for Batting Weight Restrictions") |>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("HOLD_position"))
 ```
-
 
 ```{r, warning=FALSE}
 res1920ALmultWR<-DeaMultiplierModel(x,y,rts = "crs", 
@@ -354,11 +352,10 @@ kbl(head(weights
                 "BB", "X1B", "X2B", "X3B", "HR"))                          |>
     add_header_above( c(" " = 1, "Standard Input-Oriented CRS" = 6, 
                         "With Weight Restrictions Added" = 6))             |>
- kable_styling(latex_options = c("hold_position", "scale_down"))           |>
+ kable_styling(latex_options = c("HOLD_position", "scale_down"))           |>
   footnote (general="Top 20 Efficient 1920 American League Batters")
 
 ```
-
 
 Let's talk about a particular hitter, Eddie Collins. Without weight restrictions, he was efficient. With weight restrictions, his efficiency was `r res1920ALmultWR$Efficiency["collied01",]`. In fact, the histogram of efficiency scores is more telling.
 
@@ -406,7 +403,7 @@ colnames(temp)<-c("Efficiency", "Cross-Efficiency", "Max Cross-Evaluation")
 
 kbl(head (temp,10), booktabs=T, digits=5,
        caption="Cross-Efficiency Scores for First Ten 1920 AL Batters")      |>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("HOLD_position"))
 ```
 
 This table of batters is simply in alphabetical order but illustrates that the maximum cross-evaluation score is the same as the efficiency score.
@@ -431,7 +428,7 @@ kbl(head(collectedeff1
     caption=
          "1920 AL Top Ten Input-Oriented CRS Efficient Players") |>
   add_header_above(c(" " = 1, "Efficiency" = 2, "Cross-Efficiency" = 2)) |>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("HOLD_position"))
 ```
 
 Baseball fans may recognize some of the names:
@@ -443,7 +440,6 @@ Baseball fans may recognize some of the names:
 -   George Herman "Babe" Ruth (`ruthba01`) has already been discussed at length.
 -   Eddie Collins, like Tris Speaker, was among the very best players of all time.
 -   Bob Meusel (`meusebo01`), Joe Judge (`judgejo01`), and Joe Dugan (`duganjo01`) had good careers but have never been thought of as all-time great batters.
-
 
 ```{r, echo=FALSE}
 temp<-as.matrix(cbind(res1920ALmult$Efficiency,
@@ -460,13 +456,12 @@ kbl(corrtemp, booktabs=T,
     caption="Correlations between Efficiency, Cross-Efficiency, and Weight Restricted Results") |>
        pack_rows ("Pearson Correlation", 1, 4) |>
        pack_rows ("Spearman Rank Correlation", 5, 8)  |>
-    kable_styling(latex_options = c("hold_position", "scale_down"))
+    kable_styling(latex_options = c("HOLD_position", "scale_down"))
 ```
 
+Both simple Pearson's correlation and the Spearman's rank correlation give similar scores but the Spearman rank correlations are generally higher. This indicates that the scores for the `r nrow(res1920ALmult$Efficiency)` players are numerically related and their relative ranking is a little more similar.
 
-Both  simple Pearson's correlation and the Spearman's rank correlation give similar scores but the Spearman rank correlations are generally higher. This indicates that the scores for the `r nrow(res1920ALmult$Efficiency)` players are numerically related and their relative ranking is a little more similar.  
-
-The \index{Cross-efficiency} cross-efficiency and the \index{Regular efficiency} regular efficiency scores are related - they have a correlation of `r  round(corrtemp[1,2], 3)`  but the cross-efficiency has a 0.910 correlation with the weight restricted DEA results. This suggests that perhaps cross-efficiency can help deal with decreasing the impact of unrealistic weight schemes but let's take a closer look at the results.
+The \index{Cross-efficiency} cross-efficiency and the \index{Regular efficiency} regular efficiency scores are related - they have a correlation of `r  round(corrtemp[1,2], 3)` but the cross-efficiency has a 0.910 correlation with the weight restricted DEA results. This suggests that perhaps cross-efficiency can help deal with decreasing the impact of unrealistic weight schemes but let's take a closer look at the results.
 
 While all of the correlations are strong, they are being done over the entire population of `r nrow(res1920ALmult$Efficiency)` batters but DEA is about benchmarking against the best. Let's dig into the results more deeply by examining one hitter in particular. In 1920, Babe Ruth had one of the best seasons ever by a baseball hitter. Various statistics demonstrate his dominance but home runs really highlight the impact. His 54 home runs in 1920 nearly doubled the previous major league baseball record of 29 in a season he had set the previous year. Alone, he hit more home runs than 14 of the 16 teams in the leagues. Until the recent steroid era, Babe Ruth's 1920 and 1921 seasons are often considered to be the two best offensive seasons in baseball.
 
@@ -494,7 +489,7 @@ CRSvsCRSWR <- ggplot (collectedeff1, aes(x=as.numeric(CCRIO),
 CRSvsCRSWR 
 ```
 
-This chart of efficiency vs. efficiency with weight restrictions clearly shows that no one has their efficiency improved by the imposition of weight restrictions as no one is above the diagonal line of equal scores in both models. All but two players are below the line indicating that their efficiencies went down. The only two players with the same score in both models: `sislege01` (George Sisler) and `ruthba01` (Babe Ruth). Sisler and Ruth are efficient in both models. The other formerly efficient batters are now inefficient when unrealistic weighting schemes are disallowed.  Their IDs can be read down the right hand side of the chart.
+This chart of efficiency vs. efficiency with weight restrictions clearly shows that no one has their efficiency improved by the imposition of weight restrictions as no one is above the diagonal line of equal scores in both models. All but two players are below the line indicating that their efficiencies went down. The only two players with the same score in both models: `sislege01` (George Sisler) and `ruthba01` (Babe Ruth). Sisler and Ruth are efficient in both models. The other formerly efficient batters are now inefficient when unrealistic weighting schemes are disallowed. Their IDs can be read down the right hand side of the chart.
 
 Let's examine similar plots to examine cross-efficiency. The code for plot generation is not displayed for the sake of readability (i.e. a code chunk option of `echo=FALSE` is used.)
 
@@ -564,7 +559,7 @@ rownames(uybabe) <- "output weights"
 kbl (rbind(ybabe, uybabe), booktabs=T, digits=5,
         caption = 
           "Ruth's Outputs and Ruth's Cross-Efficiency Output Weights")|>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("HOLD_position"))
 ```
 
 Now, we can multiply each output by the corresponding output weight and then add these products together. The result is `r as.matrix(ybabe) %*% t(as.matrix(uybabe))`. The input weight for Babe was `r round(vxbabe,5)` while his input (Plate Appearances) was `r xbabe`. Simply multiplying them together gives us `r as.matrix(xbabe) %*% t(as.matrix(vxbabe))`. The final result is taking the weighted output divided by the weighted output which gives us `r as.matrix(ybabe) %*% t(as.matrix(uybabe))/as.matrix(xbabe) %*% t(as.matrix(vxbabe))`. Not surprisingly, Babe Ruth's cross-evaluation score based on his own weights is the same as his CCR output-oriented efficiency score. In this case, simply 1.0.
@@ -581,7 +576,7 @@ rownames(uysisl) <- "output weights"
 kbl (rbind(ybabe, uysisl), booktabs=T, digits=6,
         caption = 
           "Ruth's Outputs and Sisler's Cross-Efficiency Output Weights")|>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("HOLD_position"))
 ```
 
 Now, we again multiply each output by the corresponding output weight and then add these products together. The result is `r round(as.matrix(ybabe) %*% t(as.matrix(uysisl)),5)`.The input weight for Sisler was `r round(vxsisl,5)` while Babe's input (Plate Appearances) was `r xbabe`. Simply multiplying them together gives us `r round(as.matrix(xbabe) %*% t(as.matrix(vxsisl)),5)` The final result is taking the weighted output divided by the weighted output which gives us `r round((as.matrix(ybabe) %*% t(as.matrix(uysisl)))/(as.matrix(xbabe) %*% t(as.matrix(vxsisl))),5)`. Babe Ruth's cross-evaluation score based on George Sisler's weights results in a much lower score than his own score.
@@ -625,7 +620,7 @@ rownames(uymean) <- "output weights"
 kbl (rbind(ybabe, uymean), booktabs=T, digits=4,
         caption = 
           "Ruth's Outputs and Mean Cross-Efficiency Output Weights")|>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("HOLD_position"))
 ```
 
 Once again we multiply each output by the corresponding output weight and then add these products together. The result is `r round(as.matrix(ybabe) %*% t(as.matrix(uymean)),4)`. The mean input weight was `r round(vxmean,4)` while his input (Plate Appearances) was `r xbabe`. Simply multiplying them together gives us `r round(as.matrix(xbabe) %*% t(as.matrix(vxmean)),4)`. The final result is taking the weighted output divided by the weighted output which gives us `r round(as.matrix(ybabe) %*% t(as.matrix(uymean))/as.matrix(xbabe) %*% t(as.matrix(vxmean)),4)`. Babe Ruth's cross-evaluation score based on the league-wide mean weights results in a higher score score than what Sisler gave him but far below his own efficiency score.
@@ -695,7 +690,7 @@ kbl(TRA::poscol(cbind(res1991MLB$eff,res1991MLB$lambda), cutoff=0.00001),
     booktabs=T, digits=4, 
        caption=
          "VRS Efficiency and Non-Zero Lambda Columns of 1991 AL Teams") |>
-kable_styling(latex_options = c("hold_position"))
+kable_styling(latex_options = c("HOLD_position"))
 ```
 
 These results show that only four teams were efficient: Chicago White Sox (CHA), Minnesota Twins (MIN), Seattle Mariners (SEA), and Toronto Blue Jays (TOR). All other teams were compared to a combination of these these teams. Since this is a simple, one-input, one-output model, it is easy to show graphically. The \index{Benchmarking} `Benchmarking` package from Bogetoft and Otto does a great job of drawing 2 dimensional DEA plots so we will again use this package.
@@ -767,7 +762,7 @@ Now, let's plot the data.
 kbl(head(subset (teampayroll2, yearID==1991 & lgID=="AL")), 
     booktabs=T, digits=2, 
     caption="Sample of 1991 AL Team Payrolls") |>
-  kable_styling (latex_options = c("hold_position", "scale_down"))
+  kable_styling (latex_options = c("HOLD_position", "scale_down"))
 ```
 
 ```{r, echo=FALSE}
@@ -967,7 +962,7 @@ teampayroll3 <- teampayroll3[-1,]
 
 kbl (head(teampayroll3), booktabs=T, digits=2, row.names=F, 
      caption="Team Information") |>
-  kable_styling (latex_options = c("hold_position", "scale_down"))
+  kable_styling (latex_options = c("HOLD_position", "scale_down"))
 ```
 
 ```{r}
@@ -977,9 +972,8 @@ kbl (head(cbind(teampayroll2$teamID,
      booktabs=T, digits=4, caption=
          "Sample of BCC-Efficiency vs. Allocative Efficiency",
      col.names=c("Team ID", "VRS", "Allocative")) |>
-  kable_styling (latex_options = c("hold_position"))
+  kable_styling (latex_options = c("HOLD_position"))
 ```
-
 
 ### Future Research Opportunities on Team Management
 

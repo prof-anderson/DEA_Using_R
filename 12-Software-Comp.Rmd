@@ -142,7 +142,7 @@ y <- matrix(c(6785798, 1594957, 1088699,
             dimnames=list(LETTERS[1:12],c("GIOF", "PT", "RS")))
 
 kbl (cbind(y,x), caption="Complex Data from Charnes, Cooper, and Li (1990)", booktabs = T, digits = 4) |>
-  kable_styling(latex_options = c("hold_position"))
+  kable_styling(latex_options = c("HOLD_position"))
 ```
 
 ```{r CCL_1990_IO_Model}
@@ -181,7 +181,7 @@ kbl (cbind(res_benchmarking$eff,poscol(res_benchmarking$lambda)),
         caption="Results from the Benchmarking package", 
      booktabs = T, digits = 4) |>
   kable_styling(latex_options = 
-                  c("hold_position"))
+                  c("HOLD_position"))
 ```
 
 The results from Benchmarking are simple and straightforward.
@@ -208,7 +208,7 @@ kbl (cbind(res_nonparaeff$eff,poscol(res_lambda_nonparaeff)),
      booktabs = T, digits = 4,
      caption="Results from the Benchmarking package") |>
   kable_styling(latex_options = 
-                  c("hold_position", "scale_down"))
+                  c("HOLD_position", "scale_down"))
 ```
 
 Some items to note about `nonparaeff`.
@@ -227,7 +227,7 @@ res_rDEA <- rDEA::dea (XREF=x, YREF=y, X=x, Y=y,
 
 kbl (cbind(res_rDEA$thetaOpt, res_rDEA$lambda), booktabs = T, digits = 4, 
      caption="Results from Benchmarking") |>
-kable_styling (latex_options = c("hold_position", "scale_down"))
+kable_styling (latex_options = c("HOLD_position", "scale_down"))
 ```
 
 Some notable characteristics of using the rDEA package are the following.
@@ -250,7 +250,7 @@ res_DJL <- DJL::dm.dea (xdata=x, ydata=y,
 
 kbl(cbind(res_DJL$eff, res_DJL$lambda), booktabs = T, digits = 4,
        caption="Efficiency Results from DJL")|>
-kable_styling (latex_options = c("hold_position", "scale_down"))
+kable_styling (latex_options = c("HOLD_position", "scale_down"))
 
 ```
 
@@ -269,7 +269,7 @@ res_MultiplierDEA <- MultiplierDEA::DeaMultiplierModel (x=x, y=y,
 kbl(cbind (res_MultiplierDEA$Efficiency, res_MultiplierDEA$Lambda),
     booktabs = T, digits = 4,
        caption="Efficiency Resfults from multiplierDEA") |>
-kable_styling (latex_options = c("hold_position", "scale_down"))
+kable_styling (latex_options = c("HOLD_position", "scale_down"))
 
 ```
 
@@ -337,7 +337,7 @@ colnames (combined_eff) <- c("Benchmarking", "nonparaeff", "rDEA",
 
 kbl (combined_eff, booktabs = T, digits = 6, 
      caption = "Comparison of Efficiency Scores")      |>
-  kable_styling(latex_options=c("hold_position","scale_down"))
+  kable_styling(latex_options=c("HOLD_position","scale_down"))
 ```
 
 ```{r combined-results-using-kable}
@@ -351,7 +351,7 @@ colnames (combined_eff2) <- c("nonparaeff", "rDEA",
 
 kbl (combined_eff2, digits=16, booktabs=T,
      caption="Difference from Benchmarking Package Results") |>
-  kable_styling(latex_options=c("hold_position"))
+  kable_styling(latex_options=c("HOLD_position"))
 ```
 
 The result is that the largest magnitude differences between Benchmarking's results and that of the other packages tested was a positive `r max(combined_eff2)` and the most negative (smaller than Benchmarking's efficiency scores) was `r min(combined_eff2)`.
@@ -366,7 +366,7 @@ rownames(comparative_deviations) <-
 
 kbl (summary(combined_eff2),  booktabs=T,
      caption="Summary of Differences between Benchmarking and other Packages") |>
-  kable_styling(latex_options="hold_position")
+  kable_styling(latex_options="HOLD_position")
 ```
 
 Computational performance could be further compared in many ways such as the following.

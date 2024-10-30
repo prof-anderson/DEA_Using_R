@@ -61,7 +61,7 @@ dimnames(resBH$uy)<-c(list(names$DMUnamesbyletter),
 kbl (cbind(resBH$Efficiency,resBH$Lambda), 
      booktabs=T, escape=F, 
      caption="Envelopment results for Baker Hughes Corporation analysis.") |>
-  kable_styling (latex_options = c("hold_position", "scale_down"))
+  kable_styling (latex_options = c("HOLD_position", "scale_down"))
 ```
 
 Notice that the data table is messy. In particular, an inefficient unit such as J is never used for creating a target for any other unit. Therefore the entire column (L_J) is zero. We want to be careful about simply removing columns since the full matrix makes further analysis simpler but for viewing, we don't need to include that data. Chester Ismay contributed an elegant line of code based on testing to see if the column sum is zero and if so, remove the column. The following line of code modifies this idea to add every column and then only pass columns that are larger than a cutoff value.
@@ -76,7 +76,7 @@ kbl (tempdf <- df[, colSums(df) > cutoff],
      booktabs=T, escape=F, 
      caption = "Envelopment results with columns containing 
        positive values.") |>
-  kable_styling (latex_options = c("hold_position", "scale_down"))
+  kable_styling (latex_options = c("HOLD_position", "scale_down"))
 
 ```
 
@@ -122,15 +122,15 @@ library(kableExtra)
 
 kbl(t1, booktabs=TRUE, escape=FALSE,
     caption="A Table without Row or Column Names.")  |>
-  kable_styling (latex_options = c("hold_position"))
+  kable_styling (latex_options = c("HOLD_position"))
 
 kbl(t2, booktabs=TRUE, escape=FALSE,
     caption="A Table with Plain Text Names.")        |>
-  kable_styling (latex_options = c("hold_position"))
+  kable_styling (latex_options = c("HOLD_position"))
 
 kbl(t3, booktabs=TRUE, escape=FALSE,
     caption="A Table with LaTeX Names.")             |>
-  kable_styling (latex_options = c("hold_position"))
+  kable_styling (latex_options = c("HOLD_position"))
 
 ```
 
