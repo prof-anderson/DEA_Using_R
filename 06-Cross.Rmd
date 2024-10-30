@@ -150,8 +150,8 @@ library (MultiplierDEA)
 
 ```{r}
 library (MultiplierDEA)
-# Example from Kenneth R. Baker, Optimization Modeling with Spreadsheets, 
-#    Third Edition, p. 176, John Wiley & Sons, Inc.
+# Example from Kenneth R. Baker, Optimization Modeling with  
+#    Spreadsheets, Third Edition, p. 176, John Wiley & Sons, Inc.
 dmu <- c("A", "B", "C", "D", "E", "F")
 x <- data.frame(c(150,400,320,520,350,320),
                 c(0.2,0.7,1.2,2.0,1.2,0.7))
@@ -318,11 +318,12 @@ dimnames(results.crosseff) <- c(DMUnames)
 ```
 
 ```{r, echo=FALSE}
-colnames(results.crosseff)<-c("Cross-Eff")
+colnames(results.crosseff)<-c("Cross-Efficiency")
 kbl (rbind(results.crosseval,t(results.crosseff)), 
-     booktabs = T, digits=5,
+     booktabs = T, digits=5, escape=F,
      caption="Cross-Evaluation Matrix and Cross-Efficiency Scores from Direct Calculation") |>
     row_spec (7, bold=TRUE) |>
+  add_header_above(c("Weights\nFrom"=1,"Peer Evaluation of:"=6)) |>
     kable_styling(latex_options = c("HOLD_position"))
 ```
 
@@ -365,6 +366,7 @@ kbl (rbind(rescross$crosseval,t(rescross$crosseff)),
      booktabs = T, digits=5,
      caption="Cross-Evaluation Matrix and Cross-Efficiency Scores from Our Function") |>
     row_spec (7, bold=TRUE) |>
+  add_header_above(c("Weights\nFrom"=1,"Peer Evaluation of:"=6)) |>
     kable_styling(latex_options = c("HOLD_position", "scale_down"))
 ```
 
@@ -381,7 +383,6 @@ A variety of mechanisms exist for dealing with the issue of multiple optima.
 
 multiplierIOSec <- function (x, y) 
   { 
-
   ND <- nrow(x); NX <- ncol(y); NY <- ncol(y); # Define data size
   
   results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)

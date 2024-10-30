@@ -193,7 +193,7 @@ kbl (t(res3_1.solution), booktabs=T, digits=3,
 
 Let's demonstrate the use of \index{LaTeX} LaTeX in table captions. There are several things to bear in mind when using LaTeX rendered in column labels.
 
--   The LaTeX must be wrapped in \$\$\$ symbols.
+-   The LaTeX must be wrapped in \$ symbols when used in-line for either column labels or in-line text.
 -   A double backslash is needed to show symbols
 -   When the plain text version is displayed such as by running a code chunk, the plain text version will display the LaTeX commands making for a harder to read table.
 -   Using the proper mathematical notation in the table gives a nice and rigorous display.

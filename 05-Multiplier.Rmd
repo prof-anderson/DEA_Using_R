@@ -45,7 +45,7 @@ YRest1 <- matrix(c(25, 14, 42, 18, 19, 14, 3500, 2100, 1050,
                    4200, 2500, 1500), ncol=2,
                  dimnames=list(c("Alfred", "Barb","Chris", 
                                  "Don", "Ed","Fran"),
-                               c("y1", "y2")))
+                               c("$y_1$", "$y_2$")))
 
 ND <- nrow(YRest1); NY <- ncol(YRest1) # Define data size
 ```
@@ -55,7 +55,7 @@ library(kableExtra)
 ```
 
 ```{r, echo=TRUE}
-kbl (YRest1, caption="Restaurant Data", booktabs = T)  |>
+kbl (YRest1, caption="Restaurant Data", booktabs=T, escape=F)  |>
   kable_styling(latex_options = "HOLD_position")
 ```
 

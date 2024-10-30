@@ -860,7 +860,8 @@ storenames<- c("Al\'s Pantry", "Bob\'s Mill",
                "Trader Carrie\'s", "Dilbertson\'s",
                "Ed\'s Eggshop", "Flo\'s Farmacopia")
 temp<-cbind(storenames,x,y)
-colnames(temp)<-c("Store Name", "Employees (x1)", "Floor Space (x2)", "Sales (y)")
+colnames(temp)<-c("Store Name", "Employees (x1)", "Floor Space (x2)", 
+                  "Sales (y)")
 ```
 
 ```{r, echo=FALSE}
@@ -927,7 +928,7 @@ Store6CRS.Eff<-results.efficiency
 store6names <- TRA::DEAnames(NX, NY, ND)
 rownames(Store6CRS.Res) <- store6names$DMUnamesbyletter
 
-kbl (Store6CRS.Res, booktabs=T, escape=F, digits=5,
+kbl (Store6CRS.Res, booktabs=T, escape=F, digits=4,
      col.names=c("$\\theta^{CRS}$", store6names$LambdanamesbyletterLX),
         caption="Results from Six Store Example (CRS) with Input and Output Weights") |>
   add_header_above(c(" " = 1, "Efficiency" = 1, 
@@ -1014,12 +1015,13 @@ for (k in 1:ND) {
   results.vweight[k,] <- -1*rduals[1:NX]
   results.uweight[k,] <- rduals[(NX+1):(NX+NY)]
   }
-temp <- cbind (results.efficiency, results.lambda, results.vweight, results.uweight)
+temp <- cbind (results.efficiency, results.lambda, 
+               results.vweight, results.uweight)
 rownames(temp) <- store6names$DMUnamesbyletter
 ```
 
 ```{r, echo=FALSE}
-kbl (temp,booktabs=T, digits=6, escape=F,
+kbl (temp,booktabs=T, digits=5, escape=F,
      col.names=c("$\\theta^{CRS}$", store6names$LambdanamesbyletterLX,
                  store6names$VnamesLX, store6names$UnamesLX),
         caption="Results from Six Store Example")                       |>
@@ -1056,7 +1058,8 @@ storenames<- c("Al\'s Pantry", "Bob\'s Mill",
                "Trader Carrie\'s", "Dilbertson\'s",
                "Ed\'s Eggshop", "Flo\'s Farmacopia", "Gary\'s Grocery")
 temp<-cbind(storenames,x,y)
-colnames(temp)<-c("Store Name", "Employees (x1)", "Floor Space (x2)", "Sales (y)")
+colnames(temp)<-c("Store Name", "Employees (x1)", "Floor Space (x2)", 
+                  "Sales (y)")
 
 ```
 

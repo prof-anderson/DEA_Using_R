@@ -33,8 +33,6 @@ Batting is in many ways the simplest to examine. In the abstract, a batter uses 
 
 In the past, batters weren't given much "recognition" for walks and a batter's receiving a walk did not count as an at-bat. Plate appearances count the opportunities for creating a hit or a walk and is sum of at-bats and walks. There are a variety of less frequent outcomes of a plate appearance such as a sacrifice fly, an error, or hit by pitch. These are all less common and often an accidental outcome from the batter's perspective. Therefore, we will exclude these items from the analysis.
 
-Over the course of the current 162 game season, most full-time players will have over 500 plate appearances.
-
 ```{r load_ch8_packages, echo = TRUE, message = FALSE, warning=FALSE}
 library (Lahman)
 library (dplyr)
@@ -42,15 +40,16 @@ library(DiagrammeRsvg)
 library(DiagrammeR)
 library(rsvg)
 library(htmltools)
-library(TRA)
 library(kableExtra)
 ```
 
 Our exploration will also serve as a review of data preparation in R. There are many ways of doing this. Feel free to explore further.
 
-As usual, we want to see get familiar with the data. Let's look at the first few rows of the batting data. We are going to want to make a model of baseball batting. A good model is that a batter uses plate appearances to produce singles, doubles, triple, home runs, and walks. Baseball fans might think of other outcomes such as sacrifice flies but these are generally less common, less desirable, and often not even intentional. These five outcomes constitute a model that fits well enough. The following figure shows what we will want to construct for a model.
+As usual, we want to see get familiar with the data. Let's look at the first few rows of the batting data. We are going to want to make a model of baseball batting. A good model is that a batter uses plate appearances to produce singles, doubles, triple, home runs, and walks. Baseball fans might think of other outcomes such as sacrifice flies but these are generally less common, less desirable, and often not even intentional. These five outcomes constitute a model that fits well enough. The following code chunk demonstrates how to build the input-output diagram figure.
 
-```{r ch8_draw_bb_io_diagram}
+```{r ch8_draw_bb_io_diagram, message = FALSE, warning=FALSE}
+library(TRA)  # Install from github if not available
+# library(devtools);install_github("prof-anderson/TRA")
 
 XFigNames <- "PA (Plate Appearances)"
 YFigNames <- c("BB (Base on Balls or Walks)", 
@@ -135,6 +134,8 @@ kbl (head(batting), booktabs = T,
   kable_styling(latex_options = c("HOLD_position"))
 ```
 
+A small number of plate appearances can result in a problem of setting an unfair target of performance whether due to a statistically insignificant lucky streak or only batting against pitchers that they have an advantage. Over the course of a 162 game season, most full-time players will have more than 500 plate appearances. A few players may exceed 700 plate appearances in a season. Now we will trim out players to only include those that have more than 400 (`MinPA`) plate appearances to limit the impact of part-time players or platooning players.
+
 ```{r selecting-fulltime-players}
 MinPA <- 400
 batting <- dplyr::filter(batting,PA>MinPA)
@@ -142,8 +143,6 @@ kbl (head(batting), booktabs = T,
      caption="Limit to Full-time Players")            |>
   kable_styling(latex_options = c("HOLD_position"))
 ```
-
-Now we will trim out players to only include those that have more than '$MinPA$' plate appearances to limit the impact of part-time players or platooning players.
 
 Part of the beauty of dplyr is the ability to consolidate all of this into a single function.
 
