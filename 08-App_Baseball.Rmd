@@ -728,7 +728,7 @@ class(teampayroll2$yearID)<-"numeric"
 class(teampayroll2$V2)<-"numeric"
 
 lastyear <- 2016  
-# Note that as of October 2024, the Lahman package (9.0) only 
+# Note that as of October 2024, the Lahman package (12.0) only 
 # includes teampayroll data through 2016.
 
 for (year in 1991:lastyear) {
