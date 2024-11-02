@@ -375,7 +375,7 @@ Computational performance could be further compared in many ways such as the fol
 -   Other forms of ill-conditioned data could be tested.
 -   Computational speed could be tested with data sets of over 1000.
 -   Returns to scale other than constant returns to scale or CRS could be used.
--   Detailed comparisons of lambda variables could be examined.
+-   Detailed comparisons of lambda variable values to ensure slack maximization is handled well.
 -   Testing could be done to to see if small numerical anomalies arise and affect results or if rounding processes to address this cause other problems. For example, LP solvers may return lambda values such as $-10^{-16}$ rather than zero or $0.99999998$ rather than $1.0$.
 -   Examining DEA bootstrapping.
 

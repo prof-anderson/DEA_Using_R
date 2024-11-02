@@ -18,7 +18,7 @@ While tools exist for conducting the evaluations, it is important to understand 
 
 This chapter walks through how DEA works and then shows how to implement the model in R using two very different approaches. Over the years, I have built DEA models in many languages and platforms: Pascal, LINDO, LINGO, Excel Macros, Excel VBA, GAMS, AMPL, XPress-MOSEL, and GLPK among others.
 
-Recently, my research group at PSU adopted the R platform based on the following strengths:
+The Extreme Technology Analytics research group at Portland State University adopted the R platform based on the following strengths:
 
 -   Open-source so that people can dive as deep as they need and no risk of future vendor lock-in
 -   Freely available so it does not strain research budgets
@@ -47,10 +47,9 @@ As the manager responsible for the stores in the region, there are many question
 
 We'll start by drawing a visual representation of the \index{Input-output model} input-output model. The function \index{TRA!DrawIOdiagram} `DrawIOdiagram` is from the \index{TRA!Package} `TRA` package and allows for creating a nicely formatted input-output diagram. For those that are new to `R`, it is important to load each package before its use using the `library` command. The library command loads it into memory but the package must be installed first. Most packages are available on \index{CRAN} CRAN and can be \index{Install packages} installed from CRAN by using `install.packages` command. RStudio makes it easier by just clicking on the install button in the IDE. The `TRA` package is instead just available on github. To install it, you will need a package, `remotes`, which can then be used to install a package directly from github. \vspace{12pt}
 
-```{r DEA-IO-Plot1, eval=TRUE, out.width="50%", fig.align='center', fig.cap="A Simple DEA Model for Store Management"}
+```{r DEA-IO-Plot1, warning=FALSE, message=FALSE, eval=TRUE, out.width="60%", fig.align='center', fig.cap="A Simple DEA Model for Store Management"}
 library (TRA) # Note, may need to install directly from github
               # remotes::install_github("prof-anderson/TRA")
-library (DiagrammeR)
 library (DiagrammeRsvg)
 library (rsvg)
 Figure <- DrawIOdiagram (c("Employees\n(FTE)" ), 
@@ -59,7 +58,6 @@ Figure <- DrawIOdiagram (c("Employees\n(FTE)" ),
 tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),
                              'generated-images/DEA_IO_stores.PNG')) 
 knitr::include_graphics("generated-images/DEA_IO_stores.PNG")
-
 ```
 
 The figure for drawing \index{Input-output diagram} input-output diagrams is worth a little discussion and explanation.
@@ -111,8 +109,8 @@ Key items in this code chunk is that we ensure the \index{kable!kableExtra} `kab
 
 For more information on using \index{kable} `kable` and \index{kable!kableExtra} `kableExtra` for doing mathematical modeling, see Appendix D of *Optimization Modeling Using R*.
 
-```{r first-dataset-table}
-suppressPackageStartupMessages(library (kableExtra))
+```{r first-dataset-table, warning=FALSE, message=FALSE}
+library (kableExtra)
 kbl (temp, booktabs=T, escape=F,
      caption="First Dataset for DEA") |>
   kable_styling(latex_options = "HOLD_position")
@@ -128,7 +126,7 @@ Let's start by doing a simple plot of the data. For now, I'm going to make use o
 
 The first line loads the `Benchmarking` package and uses an optional parameter \index{quietly} `quietly` in order to not display comments that might be generated. The \index{dea.plot} `dea.plot` function takes the data with a variety of custom options, many of them specific to DEA types of plots:
 
--    \index{Returns to scale} \index{RTS|see{Returns to scale}} `RTS` represents returns to scale and will be dealt with in more detail later in this chapter as will orientation.
+-   \index{Returns to scale} \index{RTS|see{Returns to scale}} `RTS` represents returns to scale and will be dealt with in more detail later in this chapter as will orientation.
 
 -   The `txt` parameter is used for passing data point labels. In this case, we check the length of the vector `x`, see that it has four letters, and then set `txt` to a list of the first four capital letters, A, B, C, and D. If we had used the `letters` function instead of `LETTERS` and 2:5, it would have given the letters b, c, d, and e.
 
@@ -136,9 +134,8 @@ The first line loads the `Benchmarking` package and uses an optional parameter \
 
 For more information on how to use the \index{Benchmarking} `Benchmarking` package along with a more economics-oriented treatment of DEA, please refer to the package's help file or [@BogetoftBenchmarkingDEASFA2011].
 
-```{r  fig.cap="Plot of First Data Set"}
-library(Benchmarking, quietly=TRUE)
-
+```{r  warning=FALSE, message=FALSE, fig.cap="Plot of First Data Set"}
+library(Benchmarking)
 dea.plot(x, y, RTS="crs", ORIENTATION="in-out", 
          txt=LETTERS[1:length(x)], 
          add=FALSE, wx=NULL, wy=NULL, TRANSPOSE=FALSE, 
@@ -149,6 +146,10 @@ This chart shows that unit *C* has the best ratio of output (y) to input (x). Th
 
 Furthermore, we can graphically examine the technical efficiency of each of the other units. I'm going to start with unit B since it is a little easier to visualize. For now, let's think of the question, how much more or less input would *C* require to produce as much output as *B*.
 
+```{r Fig-Orientation-IO-Projection, echo=FALSE, out.width="60%", fig.show='hold', fig.align='center',fig.cap="Input-Oriented Projection for Unit B", fig.show='hold'}
+knitr::include_graphics("images/Fig-4StoreIO-CRS.png")
+```
+
 To determine this efficiency score, simply draw a horizontal line from *B* to the efficiency frontier on the left. This point can be thought of as a target for *B* to be efficient. This point has the same output as *B* but uses only half as much input. The efficiency score can be calculated as the ratio of the distance from the vertical axis to the target divided by the distance from the vertical axis to *B*. This distance is simply 10/20 or 50%.
 
 Another result of the analysis is how to construct the target for *B*'s evaluation. The target is simply made by scaling down *C* to a third of its original size. This results in a target that is composed of about 0.333 of *C* and none of *A*, *B*, or *D*.
@@ -156,15 +157,14 @@ Another result of the analysis is how to construct the target for *B*'s evaluati
 The same steps can be followed for analyzing units *A*, *C*, and *D* resulting in efficiency scores of 75%, 100%, and 80% respectively.
 
 \index{Constant returns to scale|)}
- 
+
 ## A First Linear Program for DEA
 
 The graphical approach is intuitive but accuracy is limited to that of drawing tools. More importantly, it does not scale to more complex models with multiple inputs and outputs. Let's frame this topic mathematically so that we can proceed systematically.
 
 ### Developing the Linear Program
 
-\index{Linear program|(} \index{LP|see{Linear program}}
-Let's begin to frame this more mathematically. From the graphical figure, we could say that we want to create a target for evaluating store B based on some multiple of store C. We want to create targets for B that produce at least as much output using the same input or less. For now, let's emphasize input-reduction. In this case, we modify this to say that we want to use as little input while producing the same output. Given that we have a single set input and single output case and we know that C is the standard setter for everyone, we can frame this mathematically.
+\index{Linear program|(} \index{LP|see{Linear program}} Let's begin to frame this more mathematically. From the graphical figure, we could say that we want to create a target for evaluating store B based on some multiple of store C. We want to create targets for B that produce at least as much output using the same input or less. For now, let's emphasize input-reduction. In this case, we modify this to say that we want to use as little input while producing the same output. Given that we have a single set input and single output case and we know that C is the standard setter for everyone, we can frame this mathematically.
 
 Let's define this multiplier of unit C as $\lambda_C$. Given the emphasis on input-reduction, we can now require the target for B must produce the same level of output, as B actually did. This would be $y_C\cdot\lambda_C=y_B$ in terms of our data or $300\cdot\lambda_C=100$ or $\lambda_C=\frac{1}{3}$. The use of a Greek symbol, $\lambda$, is a common convention in the DEA field. It helps in avoiding confusion that *x* and *y* are commonly used as variables in optimization models but in DEA these are fixed data values.
 
@@ -295,17 +295,19 @@ We can see that we have five variables. Next, let's add our \index{Objective fun
 ```{r}
 mod2_0 <- set_objective(mod2_0, Vtheta, "min")
 ```
- 
+
 Next we can add our output \index{ompr!add\_constraint} \index{Constraints!Output} constraint.
 
 ```{r}
-mod2_0 <- add_constraint (mod2_0, 75*VL_A+100*VL_B+300*VL_C+400*VL_D >= 100)
+mod2_0 <- add_constraint (mod2_0, 
+                          75*VL_A+100*VL_B+300*VL_C+400*VL_D >= 100)
 ```
 
 Our last `ompr` model building command is to add our input \index{Constraints!Input} constraint.
 
 ```{r}
-mod2_0 <- add_constraint (mod2_0, 10*VL_A+20*VL_B+30*VL_C+50*VL_D <= 20*Vtheta)
+mod2_0 <- add_constraint (mod2_0, 10*VL_A+20*VL_B+30*VL_C+50*VL_D 
+                          <= 20*Vtheta)
 ```
 
 We can now solve the linear programming model and place the results in `res2_0`. We are going to use the \index{glpk} `glpk` linear programming solver.
@@ -379,7 +381,7 @@ A key way to begin the mathematical development of the envelopment model is to a
 
 This can be easily expanded to the multiple input and multiple output case by defining $x_{i,j}$ to be the amount of the *i*'th input used by unit *j* and $y_{r,j}$ to be the amount of the *r*'th output produced by unit *j*.
 
-For simplicity, this example will focus on the one input and one output case rather than the *m* input and *s* output case but the R code explicitly allows for $m,s>1$. To make the code more readable, I will use a slightly different convention $N^X$ or `NX` instead of *m* to refer to the number of inputs (*x*'s) and $N^Y$ or `NY` to be the number of outputs (*y*'s) instead of *s*. Also, the normal mathematical convention is to use *n* to denote the number of \index{Decision making unit} \index{DMU|see{Decision making unit}} Decision Making Units (DMUs) so I will use $N^D$ or `ND` to indicate that in the R code.
+For simplicity and to allow for a graphical representation, we have focused on the single input and single output case rather than the general *m* input and *s* output case but let's move on the more general case of multiple inputs and outputs or $m,s\geq1$. To make the code more readable and avoid name space conflicts in R, we will use a slightly different convention $N^X$ or `NX` instead of *m* to refer to the number of inputs (*x*'s) and $N^Y$ or `NY` to be the number of outputs (*y*'s) instead of *s*. Also, the normal mathematical convention is to use *n* to denote the number of \index{Decision making unit} \index{DMU|see{Decision making unit}} Decision Making Units (DMUs) so I will use $N^D$ or `ND` to indicate that in the R code.
 
 Let's connect these ideas together now using these mathematical building blocks. The core idea of the envelopment model of a DMU *k* can be thought of as to find a target constructed of a mix of the DMUs described by a vector $\lambda$ that uses no more input to achieve the same or more of every output as DMU *k*. The amount of the *i'th* input used by the target is then $\sum_{j=1}^{N^D} x_{i,j}\lambda_j$. By the same token, the amount of the *r'th* output produced by the target is $\sum_{j=1}^{N^D} y_{r,j}\lambda_j$.
 
@@ -438,7 +440,7 @@ $$
 
 There are two fundamentally different approaches to setting up linear programs for solving. The first approach is to define data structures to pass vectors for the objective function coefficients and constraint right hand sides along with a matrix of data describing the \index{Constraints} constraints. This requires careful setting up of the linear programs and is a bigger cognitive step away from the mathematical representation. Another approach is to use \index{Algebraic modeling} algebraic modeling languages. Standalone algebraic optimization modeling languages include LINGO, AMPL, GAMS, GMPL, and others.
 
-Until recently, R did not have the ability to do algebraic modeling optimization but recently a few efforts have provided support for this. The \index{ompr} `ompr` package provides an algebraic perspective that closely matches the summation representation of a linear program shown earlier. If you want to see the data structure format approach, that is covered in the next chapter.
+Until recently, R did not have the ability to do algebraic modeling optimization but recently a few efforts have provided support for this. The \index{ompr} `ompr` package by Dirk Schumacher provides an algebraic perspective that closely matches the summation representation of a linear program shown earlier. If you want to see the data structure format approach, that is covered in the next chapter.
 
 Let's define some data structures for holding our data and results.
 
@@ -457,21 +459,19 @@ Xnames <- lapply(list(rep("X",NX)),paste0,1:NX)
        # Input names: X1, ...
 Ynames <- lapply(list(rep("Y",NY)),paste0,1:NY)   
        # Output names: Y1, ...
-Lambdanames <- lapply(list(rep("L_",ND)),paste0, 
-                      LETTERS[1:ND])
+Lambdanames <- lapply(list(rep("L_",ND)),paste0, LETTERS[1:ND])
 
 results.efficiency <- matrix(rep(-1.0, ND), nrow=ND)
 dimnames(results.efficiency)<-c(DMUnames,"CCR-IO")  
   
 results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND)
-dimnames(results.lambda)<-c(DMUnames,Lambdanames)
-
+dimnames(results.lambda) <- c(DMUnames,Lambdanames)
 ```
 
-We are going to start by building a model for just one DMU, in this case, the second DMU (B) by setting `k`to be 2.
+We are going to start by building a model for just one DMU, in this case, the second DMU (B) by setting `k` to be 2.
 
 ```{r}
-k<-2    # DMU to analyze, for this case DMU, B.
+k <- 2    # DMU to analyze, for this case DMU, B.
 ```
 
 Let's demonstrate this one step at a time.
@@ -540,7 +540,7 @@ Again, we can get a summary of this \index{ompr!Results object} results object b
 res2_1
 ```
 
-This tells us that the model was successfully solved to optimality and that the optimal solution ($\theta$ in our case), was 0.50.
+This tells us that the model was successfully solved to optimality for store B ($k=2$) and that the optimal solution ($\theta$) was 0.50.
 
 Building the model up step by step can be helpful but a more concise form of model building connects each command to the previous one using a \index{Piping} piping operator, `|>`. One way to think of piping is that if you have two functions, A and B and want to use the result of function A in B, you can do this `A() |> B()` or "Take A's result and pass it into the start of B." The piping is the same operator that we use to pass a \index{kable} `kable` table into `kable_styling`.
 
@@ -558,14 +558,14 @@ mod2_1 <- MIPModel()                                          |>
 res2_1 <- solve_model(mod2_1, with_ROI(solver = "glpk")) 
 ```
 
-The piping command command was used in making a nicely formatted table but it can also make model building much more concise to not need to keep reassigning things to the model with each command. A few things to keep in mind with piping:
+The piping command command was used previously in making a nicely formatted table but it can also make model building much more concise to not need to keep reassigning things to the model with each command. A few things to keep in mind with piping:
 
 -   Piping was first implemented in R by way of packages such as `magrittr` and became so popular that a piping operator, `|>`, was added to the base system of `R` in version 4.1.0 (mid 2021). This means that you will get an error message if you try to use `|>` operator on earlier versions of R. You can upgrade the version of R, unpipe the commands, or use `magrittr` and the older `%>%` pipe operator.
 -   The pipe command is like glue connecting two commands together. This highlights that you don't want to end with another pipe that expects a different object. The last `add_constraint` command does **not** have a pipe.
 -   The solving is based on passing in the model, `mod2_1` directly but could have also been piped.
 -   Piped models are shorter making them easier to write and express.
 -   Piped models may be harder to \index{Piping!debugging} debug as syntax errors may point to the full piped object rather than just one individual line. Using the piping metaphor, this is equivalent to being told that there is a leak *somewhere* in the home's plumbing as compared to being told which particular pipe connection is leaking. This is potentially a very important reason for many people to build unpiped models, at least for development purposes.
--   Piped `ompr` models may be more concise looking but do not appear to run faster based on my early tests.
+-   Piped `ompr` models may be more concise looking but do not appear to run significantly faster based on my informal tests. Note that if speed is a concern, `ompr` has a new modeling structure in development, `MILPModel` that would be significantly faster but this may be more useful for bigger models than DEA typically requires.
 
 Now, let's get to looking over the results.
 
@@ -596,9 +596,15 @@ res2_1.lambda <- t(res2_1lambda[3])
 
 The following code chunk demonstrates the model building.
 
-It starts by generating a set of names based on model dimensions using the \index{TRA!DEAnames} `DEAnames` function from the `TRA` package. The syntax needed for giving names such $\lambda_C$ can be tricky and a lot of typing. The TRA package provides a set of common DEA names for a variety of model sizes.
+It starts by generating a set of names based on model dimensions using the \index{TRA!DEAnames} `DEAnames` function from the `TRA` package. The syntax needed for giving names such $\lambda_C$ can be tricky and a lot of typing. The TRA package provides a set of common DEA names given the dimensions of the DEA model. These can then be simply applied as row names or column names as desired. An `LX` suffix is used to differentiate a LaTeX formatted name. More details on this function are provided in the Appendix but to demonstrate the use we'll provide the names that would be used in our 4 store example.
 
-We will then select to use the \index{TRA!LambdanamesbyletterLX} `LambdanamesbyletterLX` to give LaTeX structured column names ready to be used as column names. We can can then apply column names to the table without needing to redefine the original table. We will often use a similar approach but will not display the table generating code chunk for brevity.
+```{r}
+res2_1.names <- TRA::DEAnames(NX, NY, ND)
+res2_1.names$Lambdanamesbyletter    # Plain text
+res2_1.names$LambdanamesbyletterLX  # LaTeX formatted
+```
+
+For our results, we will then select to use the \index{TRA!LambdanamesbyletterLX} `LambdanamesbyletterLX` to give LaTeX structured column names ready to be used as column names. We can can then apply column names to the table without needing to redefine the original table. Note the use of `escape=F` is needed for it accommodate LaTeX code. We will use a similar approach for many future tables but will often not display the table generating code chunk for brevity by using a code chunk option of `include=FALSE`. The actual source code for each chapter of the book is available from <https://github.com/prof-anderson/DEA_Using_R>.
 
 ```{r}
 res2_1.names <- TRA::DEAnames(NX, NY, ND)
@@ -606,11 +612,11 @@ res2_1.names <- TRA::DEAnames(NX, NY, ND)
 kbl(cbind(res2_1.efficiency, res2_1.lambda), 
     booktabs=T, digits=3, escape=F, 
     col.names=c("$\\theta^{CRS}$", res2_1.names$LambdanamesbyletterLX),
-    caption= 'Input-Oriented Envelopment Analysis for DMU B') |>
+    caption= 'Input-Oriented Envelopment Analysis for Store B') |>
   kable_styling(latex_options = "HOLD_position")
 ```
 
-The above table follows a few convenient \index{Conventions} conventions. Rather than just using \$\\theta\$, we label the efficiency score by the returns to scale used for the model, in this case the constant returns to scale is used and therefore $\theta$ is superscripted with CRS. In some research, it might be labeled as CCR after Charnes, Cooper, and Rhodes [@CharnesDataEnvelopmentAnalysis1978]. Later we will cover other models including the variable returns to scale model and label it is as VRS although it is often labeled BCC after Banker, Charnes, and Cooper [@Bankermodelsestimatingtechnical1984].
+The above table follows a few convenient \index{Conventions} conventions. Rather than just using $\theta$, we label the efficiency score by the returns to scale used for the model, in this case the constant returns to scale is used and therefore $\theta$ is superscripted with CRS. In some research, it might be labeled as CCR after Charnes, Cooper, and Rhodes [@CharnesDataEnvelopmentAnalysis1978]. Later we will cover other models including the variable returns to scale model and label it is as VRS although it is often labeled BCC after Banker, Charnes, and Cooper [@Bankermodelsestimatingtechnical1984].
 
 The results in the table indicate that DMU *B* has an efficiency score of 50%. The target of performance is made of DMU *C* scaled down by a factor of 0.33. These results match the graphical results from earlier.
 
@@ -731,7 +737,7 @@ $$
 
 To incorporate this, we can add another constraint to our previous model and solve it. Let's define a parameter, `RTS,` to describe which returns to scale assumption we are using and only add the VRS constraint when `RTS` is set to `"VRS"`.[^02-io_env-2]
 
-[^02-io_env-2]: In R, as in many languages, the distinction between assignment and testing for equivalency is important. Two symbols are used for assignment, `=` or `<-` while `==` is used to test for whether two items are equivalent.
+[^02-io_env-2]: In R, as in many languages, the distinction between assignment and testing for equivalency is important. Two symbols are used for assignment, `=` or `<-` while `==` is used to test for whether two items are equivalent. Note that in `ompr` a pair of equals is used for equality constraints. 
 
 ```{r Adding-VRS}
 res2_4.efficiency <- matrix(rep(-1.0, 1), nrow=ND, ncol=1)
@@ -783,7 +789,7 @@ Notice that the efficiencies have increased or stayed the same. Whereas earlier 
 
 ### Other Returns to Scale
 
-In addition to Constant Returns to Scale (CRS) and Variable Returns to Scale (VRS), two other common approaches are  \index{Increasing returns to scale} \index{IRS|see{Increasing returns to scale}} Increasing Returns to Scale (IRS) and \index{Decreasing returns to scale} \index{DRS|see{Decreasing returns to scale}} Decreasing Returns to Scale (DRS). Technically, IRS is sometimes more formally referred to as non-decreasing returns to scale. Similarly, DRS corresponds to non-increasing returns to scale.
+In addition to Constant Returns to Scale (CRS) and Variable Returns to Scale (VRS), two other common approaches are \index{Increasing returns to scale} \index{IRS|see{Increasing returns to scale}} Increasing Returns to Scale (IRS) and \index{Decreasing returns to scale} \index{DRS|see{Decreasing returns to scale}} Decreasing Returns to Scale (DRS). Technically, IRS is sometimes more formally referred to as non-decreasing returns to scale. Similarly, DRS corresponds to non-increasing returns to scale.
 
 The actual returns to scale models are straightforward to implement.
 
@@ -816,14 +822,11 @@ for (k in 1:ND) {
                    >= ydata[k,r], r = 1:NY)
 
     if (RTS=="VRS") {mod2_5 <-
-      add_constraint(mod2_5, sum_expr(Vlambda[j], 
-                                      j = 1:ND) == 1) }  
+      add_constraint(mod2_5, sum_expr(Vlambda[j], j = 1:ND) == 1) }  
     if (RTS=="IRS") {mod2_5 <-
-      add_constraint(mod2_5, sum_expr(Vlambda[j], 
-                                      j = 1:ND) >= 1) }  
+      add_constraint(mod2_5, sum_expr(Vlambda[j], j = 1:ND) >= 1) }  
     if (RTS=="DRS") {mod2_5 <-
-      add_constraint(mod2_5, sum_expr(Vlambda[j], 
-                                      j = 1:ND) <= 1) }  
+      add_constraint(mod2_5, sum_expr(Vlambda[j], j = 1:ND) <= 1) }  
 
   res2_5 <-   solve_model(mod2_5, with_ROI(solver = "glpk")) 
     
@@ -985,7 +988,7 @@ A few takeaways from these results:
 
 ## Extracting Multiplier Weights from Envelopment Results
 
-Recently, Dirk Schumacher added the option for the \index{Dual values!Extraction} extraction of dual results from glpk-solved linear programs. Let's now wrap this into the full series of linear programs so as to calculate the \index{Multiplier weights} multiplier weights for each unit in the CRS model.
+The `ompr` package returns the \index{Dual values!Extraction} of linear programs. Let's now wrap this into the full series of linear programs so as to calculate the \index{Multiplier weights} multiplier weights for each unit in the CRS model. We will discuss the weights in more detail in later chapters.
 
 ```{r Store6-example-w-mult-weight}
 
@@ -1034,7 +1037,7 @@ kable_styling(protect_latex = TRUE,
 A few things should be noticed with respect the the \index{Multiplier weights} multiplier weights:
 
 -   Multiplier weights can be quite small because in general, they are multiplied by inputs and the product is typically less than one. They may appear to round to zero but still be significant.
--   Multiplier weights are not unique for strongly efficient DMUs. This is explored in more detail in the multiplier model chapter.
+-   Multiplier weights are not unique for strongly efficient DMUs. This is explored in more detail in the multiplier model chapter and the cross-efficiency chapter.
 -   Multiplier weights are usually unique for inefficient DMUs and the results obtained using either the \index{Dual values!Row} row duals of the envelopment model or those obtained directly from the multiplier model should therefore typically match.
 
 ## Slack Maximization
@@ -1145,13 +1148,15 @@ result <- MIPModel()                                              |>
 
 results <-   solve_model(result, with_ROI(solver = "glpk")) 
     
-    results.efficiency[k] <-  get_solution(results, Vtheta)       
-    results.lambda[k,] <- t(as.matrix(as.numeric(
-                     get_solution(results, Vlambda[j])[,3] )))
+resalt <- cbind(get_solution(results, Vtheta), 
+              t(as.matrix(as.numeric(
+                get_solution(results, Vlambda[j])[,3] ))))
+rownames (resalt) <- c("G-Alternate")
 ```
 
 ```{r, echo=FALSE}
-rownames(Store7CRS.Res) <- store7names$DMUnamesbyletter
+Store7CRS.Res <- rbind (Store7CRS.Res, resalt)
+# rownames(Store7CRS.Res) <- store7names$DMUnamesbyletter
 kbl (Store7CRS.Res, booktabs=T, escape=F, digits=4,
      col.names=c("$\\theta^{CRS}$", store7names$LambdanamesbyletterLX),
         caption="Alternate Optimal Solution for Gary's")               |>
