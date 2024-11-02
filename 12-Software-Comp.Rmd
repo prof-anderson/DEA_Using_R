@@ -180,8 +180,7 @@ res_benchmarking <- Benchmarking::dea (X=x, Y=y, RTS="crs",
 kbl (cbind(res_benchmarking$eff,poscol(res_benchmarking$lambda)),
         caption="Results from the Benchmarking package", 
      booktabs = T, digits = 4) |>
-  kable_styling(latex_options = 
-                  c("HOLD_position"))
+  kable_styling(latex_options = c("HOLD_position"))
 ```
 
 The results from Benchmarking are simple and straightforward.
@@ -335,7 +334,7 @@ combined_eff <- cbind (res_benchmarking$eff, res_nonparaeff$eff,
 colnames (combined_eff) <- c("Benchmarking", "nonparaeff", "rDEA", 
                              "DJL", "MultiplierDEA")
 
-kbl (combined_eff, booktabs = T, digits = 6, 
+kbl (combined_eff, booktabs = T, digits = 7, 
      caption = "Comparison of Efficiency Scores")      |>
   kable_styling(latex_options=c("HOLD_position","scale_down"))
 ```
@@ -366,7 +365,7 @@ rownames(comparative_deviations) <-
 
 kbl (summary(combined_eff2),  booktabs=T,
      caption="Summary of Differences between Benchmarking and other Packages") |>
-  kable_styling(latex_options="HOLD_position")
+  kable_styling(latex_options="HOLD_position","scale_down")
 ```
 
 Computational performance could be further compared in many ways such as the following.

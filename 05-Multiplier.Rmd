@@ -541,3 +541,48 @@ Simple example, then use a package
 ## Variable Returns to Scale
 
 Formulate and implement a model Implement model
+
+## Output-Oriented Multiplier Model
+
+Recall that the input-oriented multiplier model had a ratio of weighted
+outputs over weighted inputs.
+
+$$
+\begin{split}
+\begin{aligned}
+    \text {max } & \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
+    \text{s.t.: } & \frac{\sum_{r=1}^{N^Y} u_r y_{r,j}} {\sum_{i=1}^{N^X} v_i x_{i,j} }
+                          \leq 1 \; \forall \; j\\
+                  &   u_r, \;v_i\geq 0  \; \forall \; r,i
+  \end{aligned}
+\end{split}
+$$
+
+The output-oriented model is then simply the reciprocal of this along
+with changing the *max* to a *min* and changing the direction of the
+inequality constraints.
+
+$$
+\begin{split}
+\begin{aligned}
+    \text {min } &  \frac{\sum_{i=1}^{N^X} v_i x_{i,k}} {\sum_{r=1}^{N^Y} u_r y_{r,k} } \\
+    \text{s.t.: } & \frac{\sum_{i=1}^{N^X} v_i x_{i,j}} {\sum_{r=1}^{N^Y} u_r y_{r,j} }
+                          \geq 1 \; \forall \; j\\
+                  &   u_r, \;v_i\geq 0  \; \forall \; r,i
+  \end{aligned}
+\end{split}
+$$
+
+The linearization follows in a similar process.
+
+$$
+\begin{split}
+\begin{aligned}
+    \text {min }  &  \sum_{i=1}^{N^X} v_i x_{i,k}\\
+    \text{s.t.: } &  \sum_{r=1}^{N^Y} u_r y_{r,k} =1 \\ 
+                  &  \sum_{i=1}^{N^X} v_i x_{i,j} - \sum_{r=1}^{N^Y} u_r y_{r,j}
+                          \geq 0 \; \forall \; j\\
+                  &   u_r, \;v_i\geq 0  \; \forall \; r,i
+  \end{aligned}
+\end{split}
+$$

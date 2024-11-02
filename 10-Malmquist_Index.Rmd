@@ -151,7 +151,6 @@ malm_gr_data<-tibble(Year=c(1,1,1,2,2,2),
 kbl (malm_gr_data, caption="Data for graphical example of the Malmquist Productivity Index with unit being studied as DMU 3.", 
      booktabs = T, digits = 4, align = 'c')  |>
   kable_styling(latex_options = c("HOLD_position"))
-
 ```
 
 This table is a pretty simple and compact format but MPI requires more organization. Specifically, even a simple dataset requires us to specify inputs and outputs just like in other DEA applications but it also needs time periods and a way to match each DMU from period to period. The \index{deaR package} `deaR` package has a function, `make_malmquist` to convert a dataset into the appropriate format.
@@ -369,7 +368,8 @@ colnames(da_bb20) <- c("PA", "BB", "X1B", "X2B", "X3B", "HR","Player", "Year")
 
 da_bb19_20 <- rbind (da_bb19,da_bb20)   # stack together the two years
 
-kbl(head( da_bb19_20), booktabs=T, caption="Example of Batting Data")
+kbl(head( da_bb19_20), booktabs=T, caption="Example of Batting Data") |>
+  kable_styling(latex_options = c("HOLD_position"))
 
 mpi_bb <- MultiplierDEA::MPI(Dataset = da_bb19_20, DMU_colName = "Player", 
              IP_colNames = "PA", 
@@ -395,7 +395,8 @@ colnames(res_bb) <- c("E19-T19", "E19-T20",
 rownames(res_bb)<-mpi_bb$DMU
 
 kbl(head(res_bb, 20), digits = 4,  booktabs=T, 
-    caption="Malmquist Productivity Index Results from MultiplierDEA Package")
+    caption="Malmquist Productivity Index Results from MultiplierDEA Package")|>
+  kable_styling(latex_options = c("HOLD_position"))
 
 ```
 
@@ -530,7 +531,8 @@ res20tab <- cbind (res20test$Efficiency,
 
 kbl(t(format( res20tab["speaktr01",], digits=5)), 
     booktabs=T, 
-    caption="Results from Multiplier DEA Using Ordinal (Accumulated) Weight Restrictions")
+    caption="Results from Multiplier DEA Using Ordinal (Accumulated) Weight Restrictions")|>
+  kable_styling(latex_options = c("HOLD_position"))
 ```
 
 The results match those found along the way in the Malmquist analysis but do not agree with those from earlier. Let's unpack the weights given the structure of

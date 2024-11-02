@@ -29,18 +29,13 @@ For those readers not interested in baseball, this can be viewed as a set of cas
 
 For the sake of readers unfamiliar with baseball, we will provide a brief introduction. If you want to think of a baseball batter as a simple factory that uses Plate Appearances as a resource to produce five different kinds of products. The following discussion gives more context for baseball fans.
 
-Batting is in many ways the simplest to examine. In the abstract, a batter uses their at-bats or plate appearances as opportunities to create events that help create runs for their team. In each game, a batter typically has four to six at-bats. These at-bats may be framed as a contest between a pitcher trying to make the batter create an out and the batter trying to get a hit. Hits include singles, doubles, triples, and home runs, in increasing order of value. A fifth common outcome is a walk or "base-on-balls" which occurs when the pitcher throws four balls that gives the batter a free pass to first base. There is a common expression that "a walk is as good as a hit" but a walk may not give as much advancement to other runners as a single so it may be considered as slightly less valuable than a single.
+Batting is in many ways the simplest aspect of baseball to examine. In the abstract, a batter uses their at-bats or plate appearances as opportunities to create events that help create runs for their team. In each game, a batter typically has four to six at-bats. These at-bats may be framed as a contest between a pitcher trying to make the batter create an out and the batter trying to get a hit. Hits include singles, doubles, triples, and home runs, in increasing order of value. A fifth common outcome is a walk or "base-on-balls" which occurs when the pitcher throws four balls that gives the batter a free pass to first base. There is a common expression that "a walk is as good as a hit" but a walk may not give as much advancement to other runners as a single so it may be considered as slightly less valuable than a single.
 
 In the past, batters weren't given much "recognition" for walks and a batter's receiving a walk did not count as an at-bat. Plate appearances count the opportunities for creating a hit or a walk and is sum of at-bats and walks. There are a variety of less frequent outcomes of a plate appearance such as a sacrifice fly, an error, or hit by pitch. These are all less common and often an accidental outcome from the batter's perspective. Therefore, we will exclude these items from the analysis.
 
 ```{r load_ch8_packages, echo = TRUE, message = FALSE, warning=FALSE}
-library (Lahman)
-library (dplyr)
-library(DiagrammeRsvg)
-library(DiagrammeR)
-library(rsvg)
-library(htmltools)
-library(kableExtra)
+library(TRA)  # Install from github if not available
+# library(devtools);install_github("prof-anderson/TRA")
 ```
 
 Our exploration will also serve as a review of data preparation in R. There are many ways of doing this. Feel free to explore further.
@@ -48,9 +43,8 @@ Our exploration will also serve as a review of data preparation in R. There are 
 As usual, we want to see get familiar with the data. Let's look at the first few rows of the batting data. We are going to want to make a model of baseball batting. A good model is that a batter uses plate appearances to produce singles, doubles, triple, home runs, and walks. Baseball fans might think of other outcomes such as sacrifice flies but these are generally less common, less desirable, and often not even intentional. These five outcomes constitute a model that fits well enough. The following code chunk demonstrates how to build the input-output diagram figure.
 
 ```{r ch8_draw_bb_io_diagram, message = FALSE, warning=FALSE}
-library(TRA)  # Install from github if not available
-# library(devtools);install_github("prof-anderson/TRA")
-
+library(rsvg)  # Used for saving the figure as an image.
+library(DiagrammeRsvg)
 XFigNames <- "PA (Plate Appearances)"
 YFigNames <- c("BB (Base on Balls or Walks)", 
                "1B (Singles)", 
@@ -67,30 +61,44 @@ tmp <- capture.output(rsvg_png(charToRaw (export_svg(Figure)),
 
 Now, let's wrestle with data sources. Sean Lahman's baseball database has been made available as an R package. This is a wonderful resource. <http://seanlahman.com/>
 
-Now we need to work on getting the data for different players.
+Now we need to work on getting the data for different players. The following code chunk loads relevant packages and then displays a sample of the first six rows in the Batting table.
 
 ```{r display-batting-data, echo=FALSE}
-kbl (head(Lahman::Batting), booktabs = T,
-       caption="Sample of Lahman Baseball Data") |> 
+library (Lahman)      # Lahman package of baseball statistics
+library (dplyr)       # Package for data management
+library (kableExtra)  # Package for nice table formatting
+kbl (head(filter(Lahman::Batting,playerID=="cobbty01"),5), 
+     booktabs = T, caption="Sample of Lahman Baseball Data")       |> 
   kable_styling(latex_options =  c("HOLD_position", "scale_down"))
 ```
 
-What does this all mean? The first column, `playerID`, is a uniquely coded ID for each player consisting of the first six letters of the last name, first two letters of the first name, and which instance of that eight letter combination the player is. For example, row 5 is `ansonca01,` which corresponds to the Hall of Famer, Cap Anson. Each row gives the statistics for a year that he had with a particular team. If the player plays for multiple teams in a year, they will have multiple rows. Also, if their career lasts more than one year, they will have more than one row.
+What does this all mean? The first column, `playerID`, is a uniquely coded ID for each player consisting of the first six letters of the last name, first two letters of the first name, and which instance of that eight letter combination the player is. For example, row 5 is `cobbty01,` corresponds to the Hall of Famer, Ty Cobb. Each row gives the statistics for a year that he had with a particular team. If the player plays for multiple teams in a year, they will have multiple rows. Also, if their career lasts more than one year, they will have more than one row.
 
-In this case, in 1871 Cap Anson played in 25 Games, had 120 at-bats, scored 29 runs, had 39 hits, and 11 doubles, 3 triples, and no home runs. He also had 16 runs-batted-in, 6 stolen bases while being caught stealing twice. He had 2 walks (base on balls) while striking out once. Note that values of many items such as intentional base on balls, hit by pitches (`IBB`), sacrifice hits (`SH`), sacrifice flies (`SF`), and grounded into double plays (`GIDP`) are marked as `NA` or Not Applicable or Not Available. These were not official statistics at the time.
+In this case, in 1905 Ty Cobb was a member of the Detroit Tigers (`teamID=DET`) in the American League (`lgID=AL`) where he played in 41 Games, had 151 at-bats, scored 19 runs, and had 36 hits. These hits consisted of 6 doubles, 0 triples, and one home run, leaving the remainder as 29 singles ($36-6-1=29$). He also had 15 runs-batted-in, 2 stolen bases, 10 walks or base-on-balls, 23 strikeouts, and no hit-by-pitches. There are frequent entries marked as `NA` or Not Applicable/Not Available. These were not official statistics at the time so there is no record of the times he was caught stealing (`CS`), the intentional bases on balls (`IBB`), sacrifice flies (`SF`), and grounded into double plays (`GIDP`). This is pretty impressive to have such detailed and specific data going back over 120 years!
 
-This is pretty impressive to have such detailed and specific data going back over 150 years!
+Let's use the summary command to look at a few things of interest.
 
-Using the Summary command will provide all kinds of interesting information such as that over half of the player seasons occurred after 1970, the maximum number of stints with different teams was 5 and the most player seasons were for the National League's Chicago Cubs (t`eamID=CHN`). I'll leave this for your exploration.
+```{r}
+kbl (summary(select(Lahman::Batting, 1:3,5,7,9,10,11,12,16)), 
+     booktabs = T, caption="Summary of Lahman Baseball Data")       |> 
+  kable_styling(latex_options =  c("HOLD_position", "scale_down"))
+```
 
-Alas, most of the columns are not needed and some of those that are listed need some transformations. Hadley Wickham has written an excellent package for wrestling with data called dplyr which we will use for preparing the dataset.
+The first column, `playerID`, indicates that there are 113,799 rows in the data set indicating separate player season stints across the entire data set. The `yearID` column is more interesting and says that the first year was 1871 but half of all player stints occurred in 1979 or more recently highlight that more people play professional baseball in recent years and the most recent year was 2023 for the Lahman package as of version 12.0. The `stint` column indicates that most players play for the same team throughout the whole season (median=1.0) but at least one player had stints on 5 teams in one year. The league ID, (`lgID`) highlights that the two most common leagues are the American League and National League, both with over 55,000 player stints.
 
-Let's start by subsetting the data in terms of including only the columns that we will be using.
+The batting related metrics are more relevant to our modeling. The number of at-bats ranged from 0 to 716 but the mean is only 137 which might not be too surprising as there are many reasons for people to not have many opportunities including pitchers that only played a limited number of games, platooning, backup players, mid-season trades, and injury shortened seasons. In any case, this highlights that it will be important to limit the dataset to full-time players as will be discussed later. The maximum number of hits (`H`) in a season was 262 but the two most surprising numbers for me are that someone hit 36 triples (`X3B`) in a season and someone else had 232 walks (`bb`).
+
+Using the Summary command will provide all kinds of interesting information such as the most player seasons were for the National League's Chicago Cubs (t`eamID=CHN`). I'll leave this for your exploration.
+
+Alas, most of the columns are not needed and some of those that are listed need some transformations. Hadley Wickham has written an excellent package for wrestling with data called `dplyr` which we will use for preparing the dataset.
+
+Let's start by subsetting the data in terms of including only the columns that we will be using. To do this, we will use the `select` command from `dplyr`. For demonstration purposes, we will restrict this to Honus Wagner who was in the inaugural class of five members in the Hall of Fame. While his career spanned 21 years, we will examine the first six of those years.
 
 ```{r subsetting-data}
-batting<-Lahman::Batting
-batting <- dplyr::select(batting, playerID, yearID,
-                         teamID, lgID, AB, H, X2B, X3B, HR, BB)
+batting<-filter(Lahman::Batting,playerID=="wagneho01")
+batting<-batting[1:6,]  # First six rows/years
+batting <- dplyr::select(batting, playerID, yearID, teamID, 
+                         lgID, AB, H, X2B, X3B, HR, BB)
 ```
 
 ```{r, include=FALSE}
@@ -99,7 +107,7 @@ kbl (head(batting), booktabs = T,
   kable_styling(latex_options = c("HOLD_position"))
 ```
 
-Through the 2015 season, this dataset has 101,332 rows or player seasons. The game of baseball went through a lot of change in teams, rules, and other development and so it may be more useful to focus our attention on the after 1900. We've got plenty of data, let's filter the rows to only include years after 1900.
+Through the 2023 season, this dataset has over 100,000 rows or player seasons. The game of baseball went through a lot of change in teams, rules, and other development and so it may be more useful to focus our attention on the period after 1900.
 
 ```{r filtering-data}
 batting<-dplyr::filter(batting,yearID>1900)
@@ -111,7 +119,7 @@ kbl (head(batting), booktabs = T,
   kable_styling(latex_options = c("HOLD_position"))
 ```
 
-As we discussed earlier, At-Bats (AB) is good but let's convert that to plate appearances, `PA`. Also, let's get the number of singles.
+As we discussed earlier, At-Bats (`AB`) is good but let's convert that to plate appearances, `PA`. Also, let's get the number of singles, `X1B`. The `mutate` function is used for changing or modifying the values of column to create a new column.
 
 ```{r converting-data}
 batting<-dplyr::mutate(batting,X1B=H-HR-X3B-X2B)
@@ -121,7 +129,7 @@ kbl (head(batting), booktabs = T,
   kable_styling(latex_options = c("HOLD_position", "scale_down"))
 ```
 
-Lastly, now that we feel confident that our data transformation for calculating singles and plate appearances work, let's drop the old columns for hits and at-bats as well as reordering them.
+Lastly, now that we feel confident that our data transformation for calculating singles and plate appearances work, let's drop the old columns for hits and at-bats as well as reordering them using the `select` command.
 
 ```{r selecting-columns}
 batting <- dplyr::select(batting, playerID, yearID, teamID, 
@@ -134,17 +142,14 @@ kbl (head(batting), booktabs = T,
   kable_styling(latex_options = c("HOLD_position"))
 ```
 
-A small number of plate appearances can result in a problem of setting an unfair target of performance whether due to a statistically insignificant lucky streak or only batting against pitchers that they have an advantage. Over the course of a 162 game season, most full-time players will have more than 500 plate appearances. A few players may exceed 700 plate appearances in a season. Now we will trim out players to only include those that have more than 400 (`MinPA`) plate appearances to limit the impact of part-time players or platooning players.
+A small number of plate appearances can result in a problem of setting an unfair target of performance whether due to a statistically insignificant lucky streak or only batting against pitchers that they have an advantage. Over the course of a 162 game season, most full-time players will have more than 500 plate appearances. A few players may exceed 700 plate appearances in a season. Now we will trim out player stints to only include those that have more than 400 (`MinPA`) plate appearances to limit the impact of part-time players or platooning players. In the case of Honus Wagner, this would have removed his first season (1897) but we already removed that due to being before 1900.
 
 ```{r selecting-fulltime-players}
 MinPA <- 400
 batting <- dplyr::filter(batting,PA>MinPA)
-kbl (head(batting), booktabs = T, 
-     caption="Limit to Full-time Players")            |>
-  kable_styling(latex_options = c("HOLD_position"))
 ```
 
-Part of the beauty of dplyr is the ability to consolidate all of this into a single function.
+Let's consolidate all of this into a single piped set of commands for all players.
 
 ```{r preparing-the-data-with-dplyr}
 
@@ -175,7 +180,9 @@ Now that we have data prepared along with the tools for further manipulation, we
 
 Our basic input-output model for baseball batting consists of plate appearances as the sole input and the five most common results of types of hits along with walks.
 
-In 1920, the American League featured a batter so dominant that he transformed the "industry" of baseball. Let's focus on this year for now. The core model for analysis is described in the following figure. We are going to use an output-oriented, constant returns to scale model. Output orientation is a better fit than an input-orientation because the batter is trying to create more hits rather than reducing plate appearances. The constant returns to scale was selected because increasing plate appearances should have a proportional increase in hits. Recall the earlier diagram illustrating the input-output model used.
+In 1920, the American League featured a batter so dominant that he transformed the "industry" of baseball. Let's focus on this year for now. We will also limit the dataset to just the American League as players at this time only played against the other league in the World Series at the end of the season.
+
+The core model for analysis is described in the following figure. We are going to use an output-oriented, constant returns to scale model. Output orientation is a better fit than an input-orientation because the batter is trying to create more hits rather than reducing plate appearances. The constant returns to scale was selected because increasing plate appearances should have a proportional increase in hits. Recall the earlier diagram illustrating the input-output model used.
 
 ```{r redrawbattingfig, echo=FALSE}
 XFigNames <- "PA (Plate Appearances)"
@@ -193,6 +200,8 @@ tmp<-capture.output(rsvg_png(
 
 ![Basic DEA Model of Baseball Batting](BaseballCCRIO.png){#fig:BaseballCCRIO}
 
+Let's use the `filter` command again to create a dataset of only 1920 American League data and arrange into separate input (`PA`) and batting outputs.  
+
 ```{r preparing-IO-data}
 inputs <- c("PA")
 outputs <- c("BB", "X1B", "X2B", "X3B", "HR")
@@ -206,7 +215,7 @@ y <- batting1920AL |> select(BB, X1B, X2B, X3B, HR)
 row.names(y)<-batting1920AL[,1]
 ```
 
-```{r, echo=FALSE}
+```{r, include=FALSE, echo=FALSE}
 kbl (head (cbind(x,y)), booktabs=T,
      caption="Sample of 1920AL Data for DEA")        |>
   add_header_above(c("Player ID" = 1, "Input" = 1,
@@ -214,10 +223,11 @@ kbl (head (cbind(x,y)), booktabs=T,
   kable_styling(latex_options = c("HOLD_position"))
 ```
 
-```{r doing-DEA}
+```{r doing-DEA-TFDEA, eval=FALSE, include=FALSE}
+# Left in here until verified that the multiplierDEA version works.
 library(TFDEA, quietly=TRUE)
 
-res1920AL<-DEA(x,y, rts="CRS", orientation="output", 
+res1920AL<-DeaMultiplierModel(x,y, rts="CRS", orientation="output", 
                slack=TRUE, dual=TRUE)
 
 phi <- res1920AL$eff
@@ -227,6 +237,56 @@ colnames (ccrooscores) <- c("$\\phi$", "$\\theta$")
 
 kbl (ccrooscores, booktabs=T, escape=F,
         caption="CCR-OO Scores for 1920AL (Phi and Theta)") |>
+  kable_styling(latex_options = c("HOLD_position"))
+```
+
+Let's use a constant returns to scale output-oriented multiplier.  Recall the formulation from Chapter 5. The weight of input *i* is $v_i$ and the weight on output *r* is $u_r$.  
+
+$$
+\begin{split}
+\begin{aligned}
+    \text {min }  &  \sum_{i=1}^{N^X} v_i x_{i,k}\\
+    \text{s.t.: } &  \sum_{r=1}^{N^Y} u_r y_{r,k} =1 \\ 
+                  &  \sum_{i=1}^{N^X} v_i x_{i,j} - \sum_{r=1}^{N^Y} u_r y_{r,j}
+                          \geq 0 \; \forall \; j\\
+                  &   u_r, \;v_i\geq 0  \; \forall \; r,i
+  \end{aligned}
+\end{split}
+$$
+Given the one input, five output case, we could write an explicit linear program as the following for each player *k*.  
+
+$$
+\begin{split}
+\begin{aligned}
+    \text {min }  &  v_{PA} x_{PA,k}\\
+    \text{s.t.: } &  u_{BB}x_{BB,k} + u_{1B}x_{1B,k} +
+                  u_{2B}x_{2B,k} + u_{3B}x_{3B,k} + u_{HR}x_{HR,k}  =1 \\ 
+                  &  v_{PA} x_{PA,j} - (u_{BB}x_{BB,j} + u_{1B}x_{1B,j} +
+                  u_{2B}x_{2B,j} + u_{3B}x_{3B,j} + u_{HR}x_{HR,j} )
+                          \geq 0 \; \forall \; j\\
+                  &   v_{PA}, \;u_{BB}, \; u_{1B}, \; u_{2B}, \; u_{3B}, \; u_{HR}\geq 0 
+  \end{aligned}
+\end{split}
+$$
+
+We are now ready to conduct a DEA study of the batters.  For this analysis we will use the `MultiplierDEA` \index{MultiplierDEA} package by Aurobindh Kalathil Puthanpura. This package is focused on the multiplier model which lends itself naturally to some additional analyses we will conduct.
+
+```{r doing-DEA-multDEA, warning=FALSE}
+# Left in here until verified that the MultiplierDEA version works.
+library(MultiplierDEA, quietly=TRUE)
+
+res1920AL<-DeaMultiplierModel (x,y, rts="CRS", orientation="output")
+
+theta <- res1920AL$Efficiency
+phi <- 1/theta
+table1920AL <- cbind(phi,theta, res1920AL$vx, res1920AL$uy)
+colnames (table1920AL) <- c("$\\phi$", "$\\theta$", "$v_{PA}$", "$u_{BB}$", 
+                            "$u_{1B}$", "$u_{2B}$", "$u_{3B}$", "$u_{HR}$")
+
+kbl (head(table1920AL,10), booktabs=T, escape=F, digits=5,
+        caption="CCR-OO Scores for 1920 AL") |>
+  add_header_above(c(" " = 1, "Efficiencies"=2, "Input Weight" = 1, 
+                     "Output Weights" = 5))                |>
   kable_styling(latex_options = c("HOLD_position"))
 ```
 
@@ -260,7 +320,7 @@ kbl(head (res1920ALmult$Efficiency), booktabs=T,
   kable_styling(latex_options = c("HOLD_position"))
 ```
 
-Notice that the scores are up to 1.0 rather than 1.0 and higher as in the \index{TFDEA} TFDEA package. This is because the TFDEA package reports efficiency as $\phi$ whereas the \index{DEAMultiplier} `DEAMultiplier` package reports $\frac{1}{\phi}$. The results are consistent and reciprocals. The value of $\phi$ is consistent with the formulation of the \index{Output-oriented} output-oriented model. The value of $\frac{1}{\phi}$ has the same interpretation $\theta$ where a value less than 1.0 indicates inefficiency. In fact, for the case of constant returns to scale (CRS), the orientation does not make a difference in the value of inefficiency found, in other words, $\theta=\frac{1}{\phi}$ For the sake of this discussion, we will interpret the results as $\frac{1}{\phi}$.
+Notice that the scores are up to 1.0 rather than 1.0 and higher as in the \index{TFDEA} TFDEA package. This is because the TFDEA package reports efficiency as $\phi$ whereas the \index{MultiplierDEA} `MultiplierDEA` package reports $\frac{1}{\phi}$. The results are consistent and reciprocals. The value of $\phi$ is consistent with the formulation of the \index{Output-oriented} output-oriented model. The value of $\frac{1}{\phi}$ has the same interpretation $\theta$ where a value less than 1.0 indicates inefficiency. In fact, for the case of constant returns to scale (CRS), the orientation does not make a difference in the value of inefficiency found, in other words, $\theta=\frac{1}{\phi}$ For the sake of this discussion, we will interpret the results as $\frac{1}{\phi}$.
 
 Now, let's look at the results.
 
@@ -277,7 +337,7 @@ qplot (res1920ALmult$Efficiency,
 
 Next, let's review the output weights.
 
-```{r}
+```{r, eval=FALSE}
 kbl(head (cbind(res1920AL$eff,res1920AL$vx, res1920AL$uy)), booktabs=T, digits=6, 
        caption="Output-Oriented CRS Multipier Model Results")|>
   add_header_above(c(" " = 1, "Efficiency"=1, "Input Weight" = 1, "Output Weights" = 5)) |>
@@ -293,10 +353,10 @@ We want to enforce the following restrictions on our output weights, *u*.
 $$
  \begin{split}
  \begin{aligned}
-    \ & u_{doubles} \geq u_{walks}\\
-    \ & u_{doubles} \geq u_{singles}\\
-    \ & u_{triples} \geq u_{doubles}\\
-    \ & u_{home runs} \geq u_{triples}\\
+    \ & u_{2B} \geq u_{BB}\\
+    \ & u_{2B} \geq u_{1B}\\
+    \ & u_{3B} \geq u_{2B}\\
+    \ & u_{HR} \geq u_{3B}\\
   \end{aligned}
   \end{split}
   (\#eq:Ch8BasicWeightRestrictions)
@@ -307,10 +367,10 @@ A more generalized data structure for the weight restrictions looks at these as 
 $$
  \begin{split}
  \begin{aligned}
-    \ & 1 \leq \frac{u_{doubles}} {u_{walks}} \leq \infty \\
-    \ & 1 \leq \frac{u_{doubles}} {u_{singles}} \leq \infty \\
-    \ & 1 \leq \frac{u_{triples}} {u_{doubles}} \leq \infty \\
-    \ & 1 \leq \frac{u_{home runs}} {u_{triples}} \leq \infty \\
+    \ & 1 \leq \frac{u_{2B}} {u_{BB}} \leq \infty \\
+    \ & 1 \leq \frac{u_{2B}} {u_{1B}} \leq \infty \\
+    \ & 1 \leq \frac{u_{3B}} {u_{2B}} \leq \infty \\
+    \ & 1 \leq \frac{u_{HR}} {u_{3B}} \leq \infty \\
   \end{aligned}
   \end{split}
   (\#eq:Ch8RatioWeightRestrictions)
@@ -346,9 +406,9 @@ weights <- data.frame(cbind( res1920ALmult$Efficiency,res1920ALmult$uy,
 
 kbl(head(weights 
          [order(weights[,1], decreasing=TRUE),],20), digits=5, booktabs=T,
-    caption="Output Weights",
-    col.names=c("Eff", "BB", "X1B", "X2B", "X3B", "HR", "Eff", 
-                "BB", "X1B", "X2B", "X3B", "HR"))                          |>
+    caption="Output Weights", escape=F,
+    col.names=c("$1/\\phi$", "$u_{BB}$", "$u_{1B}$", "$u_{2B}$", "$u_{3B}$", "$u_{HR}$", 
+                "$1/\\phi$", "$u_{BB}$", "$u_{1B}$", "$u_{2B}$", "$u_{3B}$", "$u_{HR}$"))                          |>
     add_header_above( c(" " = 1, "Standard Input-Oriented CRS" = 6, 
                         "With Weight Restrictions Added" = 6))             |>
  kable_styling(latex_options = c("HOLD_position", "scale_down"))           |>
@@ -679,13 +739,22 @@ tmp<-capture.output(rsvg_png(
 Note that we could use an input or an output orientation.
 
 ```{r}
-res1991MLB<-DEA(MLB1991AL$payroll, MLB1991AL$W, rts="vrs")
-rownames(res1991MLB$eff)<-MLB1991AL$teamID
-colnames(res1991MLB$lambda)<-t(MLB1991AL$teamID)
+library(TFDEA)
+res1991MLB<-TFDEA::DEA(MLB1991AL$payroll, MLB1991AL$W, rts="vrs")
+
+#res1991MLB<-MultiplierDEA::DeaMultiplierModel(x=MLB1991AL$payroll, y=MLB1991AL$W, rts="vrs", orientation="input")  # this line does not work
+
+res1991MLB<-MultiplierDEA::DeaMultiplierModel(x=as.matrix(MLB1991AL$payroll), y=as.matrix(MLB1991AL$W), rts="vrs", orientation="input")  
+
+# xx<-as.matrix(MLB1991AL$payroll)
+# yy<-as.matrix(MLB1991AL$W)          
+# res1991MLB<-MultiplierDEA::DeaMultiplierModel(x=xx, y=yy, rts="vrs", orientation="input")
+rownames(res1991MLB$Efficiency)<-MLB1991AL$teamID  # $eff in TFDEA package
+colnames(res1991MLB$Lambda)<-t(MLB1991AL$teamID)   # $lambda in TFDEA package
 ```
 
 ```{r, echo=FALSE}
-kbl(TRA::poscol(cbind(res1991MLB$eff,res1991MLB$lambda), cutoff=0.00001), 
+kbl(TRA::poscol(cbind(res1991MLB$Efficiency,res1991MLB$Lambda), cutoff=0.00001), 
     booktabs=T, digits=4, 
        caption=
          "VRS Efficiency and Non-Zero Lambda Columns of 1991 AL Teams") |>
@@ -694,12 +763,7 @@ kable_styling(latex_options = c("HOLD_position"))
 
 These results show that only four teams were efficient: Chicago White Sox (CHA), Minnesota Twins (MIN), Seattle Mariners (SEA), and Toronto Blue Jays (TOR). All other teams were compared to a combination of these these teams. Since this is a simple, one-input, one-output model, it is easy to show graphically. The \index{Benchmarking} `Benchmarking` package from Bogetoft and Otto does a great job of drawing 2 dimensional DEA plots so we will again use this package.
 
-```{r, include=FALSE}
-library (Benchmarking)
-# Done with include=FALSE so as to not give message about loading packages
-```
-
-```{r, eval=FALSE}
+```{r, message=FALSE, warning=FALSE}
 library (Benchmarking)
 ```
 
@@ -718,14 +782,14 @@ teampayroll2 <- as.data.frame(t(c(rep_len("",17))))
 
 class(teamPayroll$yearID)<-"numeric"
 
-colnames(teampayroll2)<-c(colnames(teamPayroll),"V2")
-# Above feels like a kludge to aggregate reesults
+colnames(teampayroll2)<-c(colnames(teamPayroll),"Eff")
+# Above feels like a kludge to aggregate results
 #   Feel free to come up with cleaner alternatives
 
 class(teampayroll2$payroll)<-"numeric"
 class(teampayroll2$W)<-"numeric"
 class(teampayroll2$yearID)<-"numeric"
-class(teampayroll2$V2)<-"numeric"
+class(teampayroll2$Eff)<-"numeric"
 
 lastyear <- 2016  
 # Note that as of October 2024, the Lahman package (12.0) only 
@@ -734,19 +798,18 @@ lastyear <- 2016
 for (year in 1991:lastyear) {
   MLBteamAL <- subset (teamPayroll, yearID==year & lgID=="AL")
 
-  resMLB  <-DEA(MLBteamAL$payroll, MLBteamAL$W, rts="vrs")
-  rownames(resMLB$eff)    <-MLBteamAL$teamID
-  colnames(resMLB$lambda) <-t(MLBteamAL$teamID)
+  resMLB  <-DeaMultiplierModel(as.matrix(MLBteamAL$payroll), as.matrix(MLBteamAL$W), rts="vrs")
+  rownames(resMLB$Efficiency)    <-MLBteamAL$teamID
   teampayroll2 <- rbind(teampayroll2, cbind (
-    subset (teamPayroll, yearID==year & lgID=="AL"),
-    resMLB$eff))
+    subset (teamPayroll, yearID==year & lgID=="AL"), 
+    resMLB$Efficiency))
   }
 
 #colnames(teampayroll2[,17])<-"Efficiency"
 colnames(teampayroll2)[colnames(teampayroll2)=="V2"] <- "Efficiency"
 class(teampayroll2$payroll)<-"numeric"
 class(teampayroll2$W)<-"numeric"
-class(teampayroll2$Efficiency)<-"numeric"
+# class(teampayroll2$Efficiency)<-"numeric"
 class(teampayroll2$WinPercent)<-"numeric"
 
 teampayroll2 <- teampayroll2[-1,]
@@ -801,10 +864,10 @@ moneyballplot2 <- ggplot (
   data=teampayroll2) +
   geom_point(data=teampayroll2[teampayroll2$teamID %in% 
                                  c("NYA"),],
-             aes(x=yearID, y=Efficiency, shape="New York")) + 
+             aes(x=yearID, y=Eff, shape="New York")) + 
   geom_point(data=teampayroll2[teampayroll2$teamID %in% 
                                  c("OAK"),],
-             aes(x=yearID, y=Efficiency, shape="Oakland")) +
+             aes(x=yearID, y=Eff, shape="Oakland")) +
   xlab("Year") + ylab("Team Efficiency") +
   ggtitle("Team Efficiency Oakland and New York Yankees (1991-2016)") +
 #  scale_shape_discrete(name="Team",
@@ -822,11 +885,11 @@ moneyballplot2
 
 The book, *Moneyball* was published in 2003 and tells the story of Billy Beane as the Oakland A's General Manager. He took over as General Manager at the end of the 1997 season. The central thesis is that the Oakland A's outcompeted the New York Yankees despite having a much lower salary for players by recognizing a skill that was overlooked by industry conventional wisdom. We can then divide our salary data and analysis into three periods: Before Billy Beane's General Manager role (1991-1997), Billy Beane before *Moneyball* (1998-2002), and the after *Moneyball* era (2004-2010). This leads to a few potential hypotheses.
 
-Oakland's salary efficiency should have improved with the hiring of Billy Beane. $\theta ^{1991-1997}_{OAK}$=`r mean(subset(teampayroll2, teamID=="OAK" & yearID>1990 & yearID<1998)[["Efficiency"]],round=4)`\<$\theta ^{1998-2002}_{OAK}$=`r mean(subset(teampayroll2, teamID=="OAK" & yearID>1997 & yearID<2003)[["Efficiency"]],round=4)`: *H1 Supported*
+Oakland's salary efficiency should have improved with the hiring of Billy Beane. $\theta ^{1991-1997}_{OAK}$=`r mean(subset(teampayroll2, teamID=="OAK" & yearID>1990 & yearID<1998)[["Eff"]],round=4)`\<$\theta ^{1998-2002}_{OAK}$=`r mean(subset(teampayroll2, teamID=="OAK" & yearID>1997 & yearID<2003)[["Eff"]],round=4)`: *H1 Supported*
 
-Oakland's salary efficiency should have been higher than New York's before the book was published while Billy Beane was running Oakland. $\theta ^{1998-2002}_{OAK}$=`r mean(subset(teampayroll2, teamID=="OAK" & yearID>1997 & yearID<2003)[["Efficiency"]],round=4)`\>$\theta ^{1998-2002}_{NYA}$=`r mean(subset(teampayroll2, teamID=="NYA" & yearID>1997 & yearID<2003)[["Efficiency"]],round=4)`: *H2 Supported*
+Oakland's salary efficiency should have been higher than New York's before the book was published while Billy Beane was running Oakland. $\theta ^{1998-2002}_{OAK}$=`r mean(subset(teampayroll2, teamID=="OAK" & yearID>1997 & yearID<2003)[["Eff"]],round=4)`\>$\theta ^{1998-2002}_{NYA}$=`r mean(subset(teampayroll2, teamID=="NYA" & yearID>1997 & yearID<2003)[["Eff"]],round=4)`: *H2 Supported*
 
-After the book was published, Oakland's strategy was widely known. The *efficient market hypothesis* would indicate that Oakland's salary efficiency would decline as the market would then reflect this information in player pricing. $\theta ^{1998-2003}_{OAK}$=`r mean(subset(teampayroll2, teamID=="OAK" & yearID<2003 & yearID>1997)[["Efficiency"]],round=4)`\>$\theta ^{2004-2009}_{OAK}$=`r mean(subset(teampayroll2, teamID=="OAK" & yearID>2003 & yearID<2010)[["Efficiency"]],round=4)`: *H3 Supported*
+After the book was published, Oakland's strategy was widely known. The *efficient market hypothesis* would indicate that Oakland's salary efficiency would decline as the market would then reflect this information in player pricing. $\theta ^{1998-2003}_{OAK}$=`r mean(subset(teampayroll2, teamID=="OAK" & yearID<2003 & yearID>1997)[["Eff"]],round=4)`\>$\theta ^{2004-2009}_{OAK}$=`r mean(subset(teampayroll2, teamID=="OAK" & yearID>2003 & yearID<2010)[["Eff"]],round=4)`: *H3 Supported*
 
 ```{r}
 #library(dplyr)
@@ -842,137 +905,13 @@ After the book was published, Oakland's strategy was widely known. The *efficien
 #     select=c(teamID, Efficiency))[["Efficiency"]])
 #mean(subset(teampayroll2, teamID=="HOU" & yearID>2003 )[["Efficiency"]])
 
-mean(subset(teampayroll2, teamID=="NYA" & yearID<2003 )[["Efficiency"]])
-mean(subset(teampayroll2, teamID=="NYA" & yearID>2003 )[["Efficiency"]])
+mean(subset(teampayroll2, teamID=="NYA" & yearID<2003 )[["Eff"]])
+mean(subset(teampayroll2, teamID=="NYA" & yearID>2003 )[["Eff"]])
 
-mean(subset(teampayroll2, teamID=="OAK" & yearID<2003 )[["Efficiency"]])
-mean(subset(teampayroll2, teamID=="OAK" & yearID>2003 )[["Efficiency"]])
+mean(subset(teampayroll2, teamID=="OAK" & yearID<2003 )[["Eff"]])
+mean(subset(teampayroll2, teamID=="OAK" & yearID>2003 )[["Eff"]])
 ```
 
-### Allocative Efficiency of Team Budgets
-
-Now, let's demonstrate the use of allocative efficiency in DEA by testing to see whether teams are using their budget efficiently between different categories of players.
-
-Getting the budget separated by position takes some work.
-
-```{r}
-appearances = as.data.table(Appearances)  
-# Create data table of appearances
-appearances = appearances[, .(yearID, 
-                          lgID = as.character(lgID), 
-                          teamID = as.character(teamID), 
-                          playerID, 
-                          G_all, 
-                          G_batting, G_defense, G_p, G_c, 
-                          G_1b, G_2b, G_3b, G_ss, G_of)]
-          # Simplify data table
-
-appearances = 
-  appearances[, c("P", "B", "C", "B1", "B2", "B3", "SS", "OF") := 
-                list(G_p / G_all,
-                     ifelse(G_p > 0, 0.0, G_batting / G_all), 
-                     ifelse(G_p > 0, 0.0, G_c / G_defense),
-                     ifelse(G_p > 0, 0.0, G_1b / G_defense),
-                     ifelse(G_p > 0, 0.0, G_2b / G_defense),
-                     ifelse(G_p > 0, 0.0, G_3b / G_defense),
-                     ifelse(G_p > 0, 0.0, G_ss / G_defense),
-                     ifelse(G_p > 0, 0.0, G_of / G_defense))]
-            # Separate by position
-
-positionSalaries = as.data.table(
-  merge (MLBSalaries, appearances))
-            # Combine with salaries and appearances
-
-positionSalaries = 
-  positionSalaries[, .(yearID, teamID, lgID, playerID, salary1M,
-                       pitcher = salary1M * P,
-                       batter = salary1M * B,
-                       catcher = salary1M * C,
-                       firstBase = salary1M * B1,
-                       secondBase = salary1M * B2,
-                       thirdBase = salary1M * B3,
-                       shortstop = salary1M * SS,
-                       outfielder = salary1M * OF)]
-             # Find salary by position
-
-payrollByPositions = 
-  positionSalaries[, .(pitcher = sum(pitcher),
-                       batter = sum(batter),
-                       catcher = sum(catcher),
-                       firstBase = sum(firstBase),
-                       secondBase = sum(secondBase),
-                       thirdBase = sum(thirdBase),
-                       shortstop = sum(shortstop),
-                       outfielder = sum(outfielder)),
-                   by=.(teamID, yearID)]
-
-teamPayrollByPositions = merge(teams, payrollByPositions,
-                               by=c("teamID","yearID"))
-             # Aggregate by team
-```
-
-There are likely to be more elegant and efficient ways of doing these calculations.
-
-```{r Allocative-Team-Salary-Efficiency}
-teampayroll3 <- as.data.frame(t(c(rep_len("",24))))
-
-class(teamPayrollByPositions$yearID)<-"numeric"
-
-colnames(teampayroll3)<-c(colnames(
-  teamPayrollByPositions),"V2")
-# Above feels like a kludge to aggregate results
-#   Feel free to come up with cleaner alternatives
-
-class(teampayroll3$W)<-"numeric"
-class(teampayroll3$yearID)<-"numeric"
-class(teampayroll3$V2)<-"numeric"
-class(teampayroll3$batter)<-"numeric"
-class(teampayroll3$catcher)<-"numeric"
-class(teampayroll3$firstBase)<-"numeric"
-class(teampayroll3$secondBase)<-"numeric"
-class(teampayroll3$thirdBase)<-"numeric"
-class(teampayroll3$shortstop)<-"numeric"
-class(teampayroll3$outfielder)<-"numeric"
-
-lastyear <- 2016  
-
-for (year in 1991:lastyear) {
-  MLBteamAL3 <- subset (teamPayrollByPositions, 
-                        yearID==year & lgID=="AL")
-
-  resMLB  <-DEA(cbind(MLBteamAL3$pitcher, MLBteamAL3$batter), 
-                MLBteamAL3$W, rts="vrs")
-  rownames(resMLB$eff)    <- MLBteamAL3$teamID
-#  colnames(resMLB$lambda) <- t(MLBteamAL3$teamID)
-  teampayroll3 <- rbind(teampayroll3, cbind (
-    subset (teamPayrollByPositions, 
-            yearID==year & lgID=="AL"),resMLB$eff))
-  }
-
-#colnames(teampayroll2[,17])   <- "Efficiency"
-colnames(teampayroll3)[colnames(teampayroll3)=="V2"] <- 
-  "Efficiency"
-class(teampayroll3$pitcher)    <- "numeric"
-class(teampayroll3$W)          <- "numeric"
-class(teampayroll3$Efficiency) <- "numeric"
-class(teampayroll3$WinPercent) <- "numeric"
-
-teampayroll3 <- teampayroll3[-1,]
-
-kbl (head(teampayroll3), booktabs=T, digits=2, row.names=F, 
-     caption="Team Information") |>
-  kable_styling (latex_options = c("HOLD_position", "scale_down"))
-```
-
-```{r}
-kbl (head(cbind(teampayroll2$teamID, 
-                as.numeric(teampayroll2$Efficiency), 
-                as.numeric(teampayroll3$Efficiency))), 
-     booktabs=T, digits=4, caption=
-         "Sample of BCC-Efficiency vs. Allocative Efficiency",
-     col.names=c("Team ID", "VRS", "Allocative")) |>
-  kable_styling (latex_options = c("HOLD_position"))
-```
 
 ### Future Research Opportunities on Team Management
 
@@ -982,13 +921,5 @@ kbl (head(cbind(teampayroll2$teamID,
 -   General managers spend salary between pitchers and position players. Extending the model by separating salaries between the two players could be used to reveal patterns of allocative inefficiency between teams.
 -   Salary efficiency could be used to explore and test the impact of organizational practices and structures.
 -   One of the open questions in baseball analysis is measuring the impact of being a *good* teammate. It has been argued that some players have most of their value come by way of being a positive influence in the team clubhouse but unlike for batting, pitching, and more recently, fielding, no accepted measure of this team influence has been done. Lessons from sports might then be applicable to areas of greater significance such as new product teams, project management, boards of directors, and other areas.
+- Malmquist Productivity Indices could be used to examine maturity of the industry.
 
-## Malmquist Productivity Indices
-
-## To-Do Items for this Chapter
-
--   Examine allocative efficiency by way of spending on different positions
--   Validate results with previous papers
--   Malmquist Productivity Index application in baseball
--   Salary and team information benchmarking
--   Discuss modeling issues from previous chapter

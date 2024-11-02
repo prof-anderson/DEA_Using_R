@@ -109,8 +109,8 @@ tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),
 ```{r}
 kbl (cbind(XBH,YBH), 
      caption="Data for Baker Hughes Corporation case.", 
-     booktabs = T)  
-       # Displays table of inputs and outputs
+     booktabs = T)  |>
+  kable_styling(latex_options = c("HOLD_position"))
 ```
 
 Now, let's run DEA.
@@ -131,7 +131,8 @@ dimnames(resBH$uy)<-c(DMUnames,Ynames)
 
 kbl (poscol(cbind(resBH$Efficiency, resBH$Lambda)),
      caption = "Envelopment results for Baker Hughes Corporation analysis.", 
-     booktabs = T, digits = 4)
+     booktabs = T, digits = 4)|>
+  kable_styling(latex_options = c("HOLD_position"))
 ```
 
 The results are consistent with those reported in Sten and Thore.
@@ -142,7 +143,8 @@ Now, let's look at the other side of the analysis - the multiplier model.
 ```{r}
 kbl (cbind(resBH$Efficiency,resBH$vx,resBH$uy), 
      caption="Weights for Baker Hughes Corporation analysis.", 
-     booktabs = T, digits = 4)
+     booktabs = T, digits = 4)|>
+  kable_styling(latex_options = c("HOLD_position"))
 ```
 
 The envelopment and multiplier results are intricately related by \index{Dual values} duality.
@@ -159,9 +161,9 @@ We will leave that to the interested reader to pontificate upon.
 The next case in the book was comparing NASA aeronautics projects.
 
 ```{r, echo=FALSE}
-
-XNASA <- matrix(c(15.5, 23.0, 39.5, 80.0, 14.5, 13.5, 30.0, 220.0, 180.0, 980.0, 1050.0, 15.0, 40.0,
-                5.5, 110.0, 350.0, 350.0, 110.0),
+XNASA <- matrix(c(15.5, 23.0, 39.5, 80.0, 14.5, 13.5, 
+                  30.0, 220.0, 180.0, 980.0, 1050.0, 15.0, 40.0,
+                  5.5, 110.0, 350.0, 350.0, 110.0),
                   ncol=1,dimnames=list(c("A1", "A2", "A3", "A4", "A5", "A6",
                                          "B1", "B2", "B3", "B4", "C1", "C2", "C3",
                                          "D1", "E1", "E2", "E3", "E4"),c("x1")))
@@ -180,10 +182,10 @@ YNASA <- matrix(c(
 Now that we have entered the data, let's run an input-oriented, variable returns-to-scale (BCC-IO) analysis.
 
 ```{r}
-
-resNASA<-DeaMultiplierModel(XNASA,YNASA,rts = "vrs", orientation="input")
-
-kbl (cbind(XNASA,YNASA,resNASA$Efficiency), booktabs = T, digits = 4)
+resNASA<-DeaMultiplierModel(XNASA, YNASA, 
+                            rts = "vrs", orientation="input")
+kbl (cbind(XNASA,YNASA,resNASA$Efficiency), booktabs = T, digits = 4) |>
+  kable_styling(latex_options = c("HOLD_position"))
 
 ```
 

@@ -394,5 +394,6 @@ res2eff <- cbind(fj_data$FirstFlight,
 colnames (res2eff) <- c("FirstFlight", 
                         "Super Eff", "Forecasted Rel")
 kbl (filter(data.frame(res2eff), FirstFlight > 1960),
-       caption="Forecasted Release Dates", booktabs = T, digits = 4)
+       caption="Forecasted Release Dates", booktabs = T, digits = 4)|>
+  kable_styling(latex_options = c("HOLD_position"))
 ```
