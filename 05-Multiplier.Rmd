@@ -561,7 +561,7 @@ Great care must be used in applying weight restrictions. As it removes a fundame
 Let's build a model with and without the weight restrictions that an employee, $x_1$ is  considered at least twice as expensive as a unit of floor space, $x_2$ or $v_1\geq v_2$.    
 
 
-```{r Structure-Results}
+```{r Structure-MM2-Wrs-Results}
 
 mm2.efficiency <- matrix(rep(-1.0, ND), nrow=ND)
 mm2.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND)
@@ -713,7 +713,7 @@ $$
 Numerical Example Multiplier 
 
 
-```{r Structure-Results}
+```{r Structure-VRS-MM-Results}
 
 mm3.efficiency <- matrix(rep(-1.0, ND), nrow=ND)
 mm3.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND)
