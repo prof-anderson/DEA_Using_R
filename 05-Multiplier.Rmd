@@ -550,6 +550,82 @@ $$
  \end{split}
 $$
 
+Weight restrictions can take a number of forms and are easy to visualize in the multiplier model.  
+
+For example, we could simply indicate that the second output is more valuable or challenging to produce than the first.  We could then add a constraint that $u_1\leq u_2$.  If we had more specific information, we might even put a range on that relationship such as the weight of output must be at least 10% of the first output and no more than double that of the first output.  This would be represented as $0.1\leq \frac{u_2}{u_1} \leq 2.0$ which is readily linearized by muliplying out the $u_1$ term.
+
+Another approach is to say that the component scores for each unit must follow a certain relationship. We might say that amount of the weighted output from the second output must be at least 10% of that of the first output but no more than double that of the first weighted output or $0.1\leq \frac{u_2y_{2,k}}{u_1y_{1,k}} \leq 2.0$.
+
+Great care must be used in applying weight restrictions. As it removes a fundamental characteristic of weighting flexibility from DEA. Also certain weight restriction approaches may risk making the analysis of certain units infeasible. 
+
+Let's build a model with and without the weight restrictions that an employee, $x_1$ is  considered at least twice as expensive as a unit of floor space, $x_2$ or $v_1\geq v_2$.    
+
+
+```{r Structure-Results}
+
+mm2.efficiency <- matrix(rep(-1.0, ND), nrow=ND)
+mm2.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND)
+mm2.vweight    <- matrix(rep(-1.0, ND*NX), nrow=ND) 
+mm2.uweight    <- matrix(rep(-1.0, ND*NY), nrow=ND) 
+mm2.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND) 
+mm2.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND) 
+
+mm2names <- TRA::DEAnames(NX, NY, ND)
+```
+
+We are now ready to do the analysis. In chapter 2 we used the
+envelopment model to examine this case. Now we will use the multiplier
+model.
+
+```{r eval=TRUE}
+for (k in 1:ND) {
+
+  mm2result <- MIPModel ()                                           |>
+  add_variable (vweight[i], i = 1:NX, type = "continuous", lb = 0)   |>
+  add_variable (uweight[r], r = 1:NY, type = "continuous", lb = 0)   |>
+  set_objective (sum_expr(uweight[r] * ydata[k,r], r = 1:NY), "max") |>
+  add_constraint (sum_expr(vweight[i] * xdata[k,i], i = 1:NX) == 1)  |>
+  add_constraint ((sum_expr(uweight[r] * ydata[j,r], r = 1:NY)-
+                    sum_expr(vweight[i] * xdata[j,i], i = 1:NX)) 
+                 <= 0, j = 1:ND)                                    |>         
+  add_constraint (vweight[1]>=2*vweight[2])  # Weight Restriction
+  
+  mm2result
+
+  mm2result <- solve_model(mm2result, with_ROI(solver = "glpk", 
+                                         verbose = FALSE))
+  mm2.efficiency[k] <- objective_value (mm2result) 
+
+  # Get the output weights
+  tempvweight <- get_solution(mm2result, vweight[i])
+  mm2.vweight[k,] <- tempvweight[,3]
+
+  # Get the input weights
+  tempuweight <- get_solution(mm2result, uweight[i])
+  mm2.uweight[k,] <- tempuweight[,3]
+  templambda <- as.matrix(get_row_duals(mm2result))
+  mm2.lambda[k,] <- templambda [2:7]
+  # Drops the first and last row duals as those contstraints
+  #   since the first is for setting demon=1, last is for 
+  #   weight restrictions.
+ }
+
+mm2.combined <- cbind (mm1.efficiency, mm2.vweight, mm1.uweight,
+                       mm2.efficiency, mm2.vweight, mm2.uweight)
+```
+
+```{r}
+kbl (mm2.combined , booktabs=T, escape=F, digits=5,
+     col.names=c("$\\theta^{CRS}$", mm1names$VnamesLX,
+                 mm1names$UnamesLX,
+                 "$\\theta^{CRS}$", mm1names$VnamesLX,
+                 mm1names$UnamesLX),
+     caption =c("Multiplier Model Results from Grocery Store Example"))  |>
+  add_header_above(c("Original Results" = 4, "With Weight Restrictions" = 4))  |>  kable_styling (latex_options = c("HOLD_position","scale_down"))
+```
+
+In this case, the impact of weight restrictions is relatively mild as it decreased the efficiency of store B modestly and store F by only a small amount. A key insight is that weight restrictions will not improve any unit's efficiency score and can only decrease it or at best leave it unchanged. Also, weights are dependent on the unit of measure of the input or output.  
+
 ## Output-Oriented Multiplier Model
 
 Recall that the input-oriented multiplier model had a ratio of weighted
@@ -633,3 +709,67 @@ $$
   \end{aligned} 
  \end{split} 
 $$
+
+Numerical Example Multiplier 
+
+
+```{r Structure-Results}
+
+mm3.efficiency <- matrix(rep(-1.0, ND), nrow=ND)
+mm3.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND)
+mm3.vweight    <- matrix(rep(-1.0, ND*NX), nrow=ND) 
+mm3.uweight    <- matrix(rep(-1.0, ND*NY), nrow=ND) 
+mm3.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND) 
+mm3.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND) 
+mm3.mu         <- matrix(rep(-1.0, ND), nrow=ND)
+mm3names <- TRA::DEAnames(NX, NY, ND)
+```
+
+```{r eval=TRUE}
+for (k in 1:ND) {
+
+  mm3result <- MIPModel ()                                              |>
+  add_variable (vweight[i], i = 1:NX, type = "continuous", lb = 0)      |>
+  add_variable (uweight[r], r = 1:NY, type = "continuous", lb = 0)      |>
+  add_variable (mu, type = "continuous")                                |>
+  set_objective (sum_expr(uweight[r] * ydata[k,r], r = 1:NY)+mu, "max") |>
+  add_constraint (sum_expr(vweight[i] * xdata[k,i], i = 1:NX) == 1)  |>
+  add_constraint ((sum_expr(uweight[r] * ydata[j,r], r = 1:NY)-
+                    sum_expr(vweight[i] * xdata[j,i], i = 1:NX))+mu 
+                 <= 0, j = 1:ND)                                             
+
+  mm3result
+
+  mm3result <- solve_model(mm3result, with_ROI(solver = "glpk", 
+                                         verbose = FALSE))
+  mm3.efficiency[k] <- objective_value (mm3result) 
+
+  # Get the output weights
+  tempvweight <- get_solution(mm3result, vweight[i])
+  mm3.vweight[k,] <- tempvweight[,3]
+  mm3.mu[k] <- get_solution(mm3result,mu)
+  # Get the input weights
+  tempuweight <- get_solution(mm3result, uweight[i])
+  mm3.uweight[k,] <- tempuweight[,3]
+  templambda <- as.matrix(get_row_duals(mm2result))
+  mm3.lambda[k,] <- templambda [2:7]
+  # Drops the first and last row duals as those contstraints
+  #   since the first is for setting demon=1, last is for 
+  #   weight restrictions.
+ }
+
+mm3.combined <- cbind (mm1.efficiency, mm2.vweight, mm1.uweight,
+                       mm3.efficiency, mm3.mu, mm3.vweight, mm3.uweight)
+```
+
+```{r}
+kbl (mm3.combined , booktabs=T, escape=F, digits=5,
+     col.names=c("$\\theta^{CRS}$", mm1names$VnamesLX,
+                 mm1names$UnamesLX,
+                 "$\\theta^{VRS}$", "$\\mu_k$", mm1names$VnamesLX,
+                 mm1names$UnamesLX),
+     caption =c("Multiplier Model Results from Grocery Store Example"))  |>
+  add_header_above(c("Original Results" = 4, "With Weight Restrictions" = 5))  |>  kable_styling (latex_options = c("HOLD_position","scale_down"))
+```
+
+These results match those from the envelopment model's six grocery store case in chapter 2.  The scale factor, $mu_k$ indicates whether the unit is operating at most productive scale size ($\mu_k=0$), at too small a size where growing could result in greater returns ($\mu_k<0$) or at too large a size where it is suffering from diseconomies of scale and may be better off shrinking ($\mu_k>0$).Of course these results are all relative to the data available. 
