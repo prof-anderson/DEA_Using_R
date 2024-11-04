@@ -103,16 +103,16 @@ library(ompr.roi, quietly=TRUE)
 
 ```{r}
 
-result <- MIPModel ()                        |>
-  add_variable (u1, type="continuous", lb=0) |>
-  add_variable (u2, type="continuous", lb=0) |>
-  set_objective (25*u1+3500*u2, "max")       |>
-  add_constraint (25*u1+3500*u2 <= 1.0)      |>
-  add_constraint (14*u1+2100*u2 <= 1.0)      |>
-  add_constraint (42*u1+1050*u2 <= 1.0)      |>
-  add_constraint (28*u1+4200*u2 <= 1.0)      |>
-  add_constraint (19*u1+2500*u2 <= 1.0)      |>
-  add_constraint (14*u1+1500*u2 <= 1.0)      |>
+result <- MIPModel ()                         |>
+  add_variable (u1, type="continuous", lb=0)  |>
+  add_variable (u2, type="continuous", lb=0)  |>
+  set_objective (25*u1+3500*u2, "max")        |>
+  add_constraint (25*u1+3500*u2 <= 1.0)       |>
+  add_constraint (14*u1+2100*u2 <= 1.0)       |>
+  add_constraint (42*u1+1050*u2 <= 1.0)       |>
+  add_constraint (28*u1+4200*u2 <= 1.0)       |>
+  add_constraint (19*u1+2500*u2 <= 1.0)       |>
+  add_constraint (14*u1+1500*u2 <= 1.0)       |>
   solve_model(with_ROI(solver = "glpk"))
 
 u1_result <- get_solution(result, u1) 
@@ -125,7 +125,7 @@ names(alfred_score)<-""
 kbl (cbind(alfred_score, u1_result, u2_result), 
      escape=F, booktabs = T,
      col.names = c("Score", "$u_1$", "$u_2$"),
-     caption="Alfred's Score and Results")    |>
+     caption="Alfred's Score and Results")       |>
   kable_styling(latex_options = "HOLD_position")
 ```
 
@@ -133,16 +133,16 @@ We could repeat the process for each person, by simply changing the
 objective function.
 
 ```{r}
-result <- MIPModel ()                        |>
-  add_variable (u1, type="continuous", lb=0) |>
-  add_variable (u2, type="continuous", lb=0) |>
-  set_objective (14*u1+2100*u2, "max")       |>
-  add_constraint (25*u1+3500*u2 <= 1.0)      |>
-  add_constraint (14*u1+2100*u2 <= 1.0)      |>
-  add_constraint (42*u1+1050*u2 <= 1.0)      |>
-  add_constraint (28*u1+4200*u2 <= 1.0)      |>
-  add_constraint (19*u1+2500*u2 <= 1.0)      |>
-  add_constraint (14*u1+1500*u2 <= 1.0)      |>
+result <- MIPModel ()                         |>
+  add_variable (u1, type="continuous", lb=0)  |>
+  add_variable (u2, type="continuous", lb=0)  |>
+  set_objective (14*u1+2100*u2, "max")        |>
+  add_constraint (25*u1+3500*u2 <= 1.0)       |>
+  add_constraint (14*u1+2100*u2 <= 1.0)       |>
+  add_constraint (42*u1+1050*u2 <= 1.0)       |>
+  add_constraint (28*u1+4200*u2 <= 1.0)       |>
+  add_constraint (19*u1+2500*u2 <= 1.0)       |>
+  add_constraint (14*u1+1500*u2 <= 1.0)       |>
   solve_model(with_ROI(solver = "glpk"))
 
 u1_result <- get_solution(result, u1) 
@@ -162,16 +162,16 @@ kbl (cbind(barb_score, u1_result, u2_result),
 Let's do it for Chris.
 
 ```{r}
-result <- MIPModel () |>
-  add_variable (u1, type="continuous", lb=0) |>
-  add_variable (u2, type="continuous", lb=0) |>
-  set_objective (42*u1+1050*u2, "max")       |>
-  add_constraint (25*u1+3500*u2 <= 1.0)      |>
-  add_constraint (14*u1+2100*u2 <= 1.0)      |>
-  add_constraint (42*u1+1050*u2 <= 1.0)      |>
-  add_constraint (28*u1+4200*u2 <= 1.0)      |>
-  add_constraint (19*u1+2500*u2 <= 1.0)      |>
-  add_constraint (14*u1+1500*u2 <= 1.0)      |>
+result <- MIPModel ()                         |>
+  add_variable (u1, type="continuous", lb=0)  |>
+  add_variable (u2, type="continuous", lb=0)  |>
+  set_objective (42*u1+1050*u2, "max")        |>
+  add_constraint (25*u1+3500*u2 <= 1.0)       |>
+  add_constraint (14*u1+2100*u2 <= 1.0)       |>
+  add_constraint (42*u1+1050*u2 <= 1.0)       |>
+  add_constraint (28*u1+4200*u2 <= 1.0)       |>
+  add_constraint (19*u1+2500*u2 <= 1.0)       |>
+  add_constraint (14*u1+1500*u2 <= 1.0)       |>
   solve_model(with_ROI(solver = "glpk"))
 
 u1_result <- get_solution(result, u1) 
@@ -538,9 +538,17 @@ from the multiplier model's results.
 
 Simple example, then use a package
 
-## Variable Returns to Scale
-
-Formulate and implement a model Implement model
+$$
+\begin{split}
+ \begin{aligned}
+    \text {max   } & \sum_{r=1}^{N^Y} u_r y_{r,k} \\
+    \text{s.t.:  } & \sum_{i=1}^{N^X} v_i x_{i,k} = 1 \\
+    & \sum_{r=1}^{N^Y} u_r y_{r,j} - \sum_{i=1}^{N^X} v_i x_{i,j} 
+                          \leq 0 \; \forall \; j\\
+                   &  u_r, \; v_i\geq 0  \; \forall \; r,i
+  \end{aligned}
+ \end{split}
+$$
 
 ## Output-Oriented Multiplier Model
 
@@ -585,4 +593,43 @@ $$
                   &   u_r, \;v_i\geq 0  \; \forall \; r,i
   \end{aligned}
 \end{split}
+$$
+
+## Variable Returns to Scale
+
+Formulate and implement a model Implement model. By duality, adding a
+constraint to the primal model, is equivalent to adding a variable for
+in dual. If we consider the envelopment model to be the primal and the
+multiplier to be its dual, then we are adding a variable. We'll term
+this variable $\mu_0$ to reflect the returns to scale associated with
+this DMU. If we are implementing a VRS model, then the equality
+constraint indicates that $\mu_0$ is an unrestricted (or free) variable.
+
+The input-oriented multiplier model is shown below.
+
+$$
+\begin{split}
+ \begin{aligned}
+    \text {max   } & \sum_{r=1}^{N^Y} u_r y_{r,k} +\mu_k\\
+    \text{s.t.:  } & \sum_{i=1}^{N^X} v_i x_{i,k} = 1 \\
+    & \sum_{r=1}^{N^Y} u_r y_{r,j} - \sum_{i=1}^{N^X} v_i x_{i,j} + \mu_k
+                          \leq 0 \; \forall \; j\\
+                   &  u_r, \; v_i\geq 0  \; \forall \; r,i\\
+                   & \mu_k \;\text{ free}
+  \end{aligned}
+ \end{split}
+$$
+
+The output-oriented VRS multiplier model is the following.  The returns to scale term is now denoted as *nu* or $\nu_k$ for unit *k*.  Note that it is common in some DEA multiplier models to use the Greek symbols nu ($\nu$) and mu ($\mu$) as the input and output multipliers instead of *v* and *u* and then use the alternate as the returns to scale terms.  In this book I use *u* and *v* consistently  to make it more accessible for reader and limit confusion between what appear to be visually similar terms *v* and $\nu$ to this this section.
+
+$$ 
+\begin{split} 
+ \begin{aligned}     
+    \text {min }  &  \sum_{i=1}^{N^X} v_i x_{i,k}+\nu_k\\
+    \text{s.t.: } &  \sum_{r=1}^{N^Y} u_r y_{r,k} =1 \\
+                  &  \sum_{i=1}^{N^X} v_i x_{i,j} - \sum_{r=1}^{N^Y} u_r y_{r,j} + \nu_k \geq 0 \; \forall \; j\\
+                  &  u_r, \;v_i\geq 0  \; \forall \; r,i\\
+                  & \nu_k \;\text{ free}
+  \end{aligned} 
+ \end{split} 
 $$

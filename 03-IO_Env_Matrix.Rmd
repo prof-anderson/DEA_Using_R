@@ -17,9 +17,9 @@ library (kableExtra)
 
 In the previous chapter we created the DEA linear program algebraically using the `ompr` package. Before `ompr` was available, we needed to use another approach for most DEA packages such as \index{TFDEA} `TFDEA` and \index{MultiplierDEA} `MultiplierDEA`, which consisted of using matrices. This approach requires more "bookkeeping". Both approaches work but I think the algebraic approach is likely to be easier to write, debug, and extend in the future. For solving, we will use the widely adopted \index{lpSolveAPI} `lpSolveAPI` package but this same matrix-based approach holds other LP solver engines such as C-Plex, Gurobi, and CBC.
 
-People interested in working on the `TFDEA` package should read this chapter carefully. We will be returning to these topics algebraically as well later since it is conceptually similar to the structure of the package. For people that want to stick to the algebraic implementation and using \index{ompr} `ompr`, you can skip this chapter.
+People interested in creating their own package or working on contributing to a package that uses a matrix approach instead of an algebraic approach may find this chapter helpful. For people that want to stick to the algebraic implementation and using \index{ompr} `ompr`, you can skip this chapter.
 
-To get it ready for matrix formulating, we need to put it in the standard form of linear programs which means that only numbers can be on the right hand side of the inequalities.
+To get it ready for matrix formulating, we need to review the standard form of linear programs which means that only numbers can be on the right hand side of the inequalities.
 The standard form of linear programming can be described as the following.
 
 $$
@@ -161,8 +161,8 @@ The bulk of the LP is then defined by passing along the numerical A matrix and t
 
 As models get larger, the full numerical representation becomes difficult for humans to read even if it is a very good format for computers. If you stare at that too long, you may go "bug-eyed." Personally I really like the algebraic representations. The \index{lpSolve} `lpSolve`package in R is capable of taking an LP model in this form and solving it. Now we just need to structure the data in R to put it in the same format.
 
-```{r}
-library(lpSolve)
+```{r warning=FALSE, message=FALSE}
+library (lpSolve)
 Amatrix <- rbind(c(10, 20, 30, 50, -20, 1, 0),
                  c(75, 100, 300, 400, 0, 0, -1))
 Bvector <- c(0, 100)
@@ -177,7 +177,7 @@ res3_1
 Now let's look at the optimal values of the \index{Decision variables} decision variables.
 
 ```{r}
-res3_1$solution
+format(res3_1$solution, digits=4)
 ```
 
 The solver in this case knew nothing of our model's structure so the results in terms of decision variable values would need be organized based on how we structured the model to pass into \index{lpSolve} `lpSolve`.
@@ -186,7 +186,7 @@ The solver in this case knew nothing of our model's structure so the results in 
 res3_1.solution <- as.matrix(res3_1$solution)
 rownames (res3_1.solution) <- c("L_A", "L_B", "L_C", "L_D", "theta", 
                                  "s_x", "s_y")
-kbl (t(res3_1.solution), booktabs=T, digits=3,
+kbl (t(res3_1.solution), booktabs=T, digits=4,
         caption="Optimal solution values for DMU A (CCR-IO") |>
   kable_styling(latex_options = "HOLD_position")
 ```
@@ -197,14 +197,15 @@ Let's demonstrate the use of \index{LaTeX} LaTeX in table captions. There are se
 -   A double backslash is needed to show symbols
 -   When the plain text version is displayed such as by running a code chunk, the plain text version will display the LaTeX commands making for a harder to read table.
 -   Using the proper mathematical notation in the table gives a nice and rigorous display.
+-   Superscripts and subscripts are triggered with a `^` or `_` respectively but this is done for just immediately following character. To have multiple characters in a superscript or subscript, they need to be wrapped in curly brackets.  
 
 ```{r, results = 'asis'}
 res3_1.solution <- as.matrix(res3_1$solution)
 rownames (res3_1.solution) <- c("$\\lambda_A$", "$\\lambda_B$", 
                                 "$\\lambda_C$", "$\\lambda_D$", 
-                                "$\\theta$", 
+                                "$\\theta^{CRS}$", 
                                 "$s^x_1$", "$s^y_1$")
-kbl (t(res3_1.solution), booktabs=T, escape=F, digits=3,
+kbl (t(res3_1.solution), booktabs=T, escape=F, digits=4,
         caption=
   "Optimal solution values for DMU A with LaTeX column labels")|>
   kable_styling(latex_options = "HOLD_position")
@@ -504,7 +505,7 @@ kbl(cbind(t(results.lambda[k,]), results.efficiency[k],
      caption="Analysis results for DMU B",
     col.names =  c("$\\lambda_A$", "$\\lambda_B$", 
                    "$\\lambda_C$", "$\\lambda_D$", 
-                   "$\\theta$","$s_x$", "$s_y$") )|>
+                   "$\\theta^{CRS}$","$s_x$", "$s_y$") )|>
   add_header_above(c("Envelopment Variables" = 4, 
                      "Efficiency" = 1, "Slacks" = 2))|>
   kable_styling(latex_options = "HOLD_position")
