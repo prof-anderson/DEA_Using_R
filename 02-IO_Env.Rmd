@@ -798,7 +798,7 @@ RTS_Table  <- matrix(c("CRS", "$\\text{None or }\\sum_{j=1}^{n} \\lambda_j  \\ge
                        "VRS", "$\\sum_{j=1}^{n} \\lambda_j = 1$", 
                        "DRS/NIRS", "$\\sum_{j=1}^{n} \\lambda_j \\leq 1$", 
                        "IRS/NDRS", "$\\sum_{j=1}^{n} \\lambda_j \\geq 1$"),
-                     byrow=TRUE, ncol=4)
+                     byrow=TRUE, nrow=4)
 kbl (RTS_Table , booktabs=T, escape=F, 
      col.names=c("Returns to Scale", "Envelopment Constraint"),
      caption =c("Returns to Scale Constraints for Envelopment Models"))  |>
