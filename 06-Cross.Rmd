@@ -84,7 +84,7 @@ library(ompr)
 library(ompr.roi) 
 ```
 
-```{r, include=FALSE}
+```{r, include=FALSE, warning=FALSE, message=FALSE}
 # This code chunk loads the above listed packages without
 #     disruptive warnings and messages.
 suppressPackageStartupMessages(library(kableExtra))           
@@ -107,13 +107,11 @@ YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000,
                                        c("y1", "y2")))
 
 ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1); 
-# Define data size
-
+    # Define data size
 xdata      <-XBaker1 [1:ND,]  # Call it xdata
-dim(xdata) <-c(ND,NX)  # structure data correctly
+dim(xdata) <-c(ND,NX)         # structure data correctly
 ydata      <-YBaker1[1:ND,]
 dim(ydata) <-c(ND,NY)
-  
 ```
 
 Remember the inputs are hard coded as "x1" and"x2" to represent the *staff hours per day* and the *supplies per day* respectively. The two outputs of *reimbursed patient-days* and *privately paid patient-days* are named "y1" and "y2".
@@ -126,7 +124,6 @@ YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000,
 
 ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1); 
 # Define data size
-
 ```
 
 Note that I'm naming the data sets based on their origin and then loading them into xdata and ydata for actual operation.
@@ -144,11 +141,11 @@ results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY)
 
 We are now ready to do the analysis. In Baker, the analysis was done using the \index{Multiplier model} multiplier model. In chapter 2 we used the \index{Envelopment model} envelopment model to examine this case. Now we will use the multiplier model using the \index{DEAMultiplierModel} `DEAMultiplerModel` package by Aurobindh Kalathil Puthanpura.
 
-```{r, include=FALSE}
+```{r, include=FALSE, message=FALSE, warning=FALSE}
 library (MultiplierDEA)
 ```
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 library (MultiplierDEA)
 # Example from Kenneth R. Baker, Optimization Modeling with  
 #    Spreadsheets, Third Edition, p. 176, John Wiley & Sons, Inc.
@@ -583,9 +580,9 @@ resrows <-cbind (c("A", "B", "C", "D", "E", "F", "G", "H",
          "Efficiency", "Cross-Efficiency"))
 kbl (cbind(resrows, as.data.frame(res,digits=4)), 
      row.names=F, booktabs = T, digits=4, escape=F,
-        caption = "Results from Class Grading Example") |>
+        caption = "Results from Class Grading Example")    |>
      row_spec (9:10, bold=TRUE) |>
-     pack_rows ("Cross-Evaluation Matrix", 1, 8) |>
+     pack_rows ("Cross-Evaluation Matrix", 1, 8)           |>
      pack_rows ("Results", 9, 10) |>
          kable_styling(latex_options = c("HOLD_position", "scale_down"))
 ```

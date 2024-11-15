@@ -720,7 +720,7 @@ Up to this point, our analyses used an assumption of constant returns to scale. 
 
 Instead, let's add a constraint that says that the target of performance must be made up of parts that add up to a whole unit. All it needs to do is constrain the sum of the $\lambda$ variables to equal 1 or in other words, $\sum_{j} \lambda_j = 1$. This prevents the target from being made up of just one greatly shrunken version of a unit, say C making the target for A in our earlier example. It also prevents an over reliance of scaling up a unit to make the performance target, in our example C being scaled up to make a comparison target for D. This constraint makes the model into a variables returns to scale or VRS input-oriented envelopment model.
 
-\index{Variable returns to scale|)}
+
 
 $$
 \begin{split}
@@ -785,17 +785,29 @@ kbl(temp,
   kable_styling(latex_options = "HOLD_position")
 ```
 
-Notice that the efficiencies have increased or stayed the same. Whereas earlier three out of four DMUs were inefficient, now three out of four are efficient. One way of thinking of returns to scale is whether doubling the inputs should be expected to result in doubling the outputs that should be achieved. Another way to think of it is whether it is fair to think of scaling up or down an efficient significantly to set a performance target for a much bigger or smaller unit. For example, would it be *fair* to compare a small convenience store such as 7-11 to a CostCo store scaled down by a factor of a 100?
+Notice that the efficiencies have increased or stayed the same. Whereas earlier three out of four DMUs were inefficient, now three out of four are efficient. One way of thinking of returns to scale is whether doubling the inputs should be expected to result in doubling the outputs that should be achieved. Another way to think of it is whether it is fair to think of scaling up or down an efficient significantly to set a performance target for a much bigger or smaller unit. For example, would it be *fair* to compare a small convenience store such as 7-11 to a CostCo store scaled down by a factor of a 100? \index{Variable returns to scale|)}
 
 ### Other Returns to Scale
 
 In addition to Constant Returns to Scale (CRS) and Variable Returns to Scale (VRS), two other common approaches are \index{Increasing returns to scale} \index{IRS|see{Increasing returns to scale}} Increasing Returns to Scale (IRS) and \index{Decreasing returns to scale} \index{DRS|see{Decreasing returns to scale}} Decreasing Returns to Scale (DRS). Technically, IRS is sometimes more formally referred to as non-decreasing returns to scale. Similarly, DRS corresponds to non-increasing returns to scale.
 
-The actual returns to scale models are straightforward to implement.
+Each returns to scale model is straightforward to implement.
+
+```{r}
+RTS_Table  <- matrix(c("CRS", "$\\text{None or }\\sum_{j=1}^{n} \\lambda_j  \\geq 0$", 
+                       "VRS", "$\\sum_{j=1}^{n} \\lambda_j = 1$", 
+                       "DRS/NIRS", "$\\sum_{j=1}^{n} \\lambda_j \\leq 1$", 
+                       "IRS/NDRS", "$\\sum_{j=1}^{n} \\lambda_j \\geq 1$"),
+                     byrow=TRUE, ncol=4)
+kbl (RTS_Table , booktabs=T, escape=F, 
+     col.names=c("Returns to Scale", "Envelopment Constraint"),
+     caption =c("Returns to Scale Constraints for Envelopment Models"))  |>
+  kable_styling (latex_options = c("HOLD_position"))
+```
 
 | Returns to Scale | Envelopment Constraint              |
 |------------------|-------------------------------------|
-| CRS              | No constraint needed                |
+| CRS              | No constraint needed or $\sum_{j=1}^{N^D} \lambda_j \geq 0$ |
 | VRS              | $\sum_{j=1}^{N^D} \lambda_j = 1$    |
 | IRS/NDRS         | $\sum_{j=1}^{N^D} \lambda_j \geq 1$ |
 | DRS/NIRS         | $\sum_{j=1}^{N^D} \lambda_j \leq 1$ |
@@ -828,11 +840,11 @@ for (k in 1:ND) {
     if (RTS=="DRS") {mod2_5 <-
       add_constraint(mod2_5, sum_expr(Vlambda[j], j = 1:ND) <= 1) }  
 
-  res2_5 <-   solve_model(mod2_5, with_ROI(solver = "glpk")) 
+  res2_5 <- solve_model(mod2_5, with_ROI(solver = "glpk")) 
     
-    res2_5.efficiency[k] <-  get_solution(res2_5, Vtheta)       
-    res2_5.lambda[k,] <- t(as.matrix(as.numeric(
-              get_solution(res2_5, Vlambda[j])[,3] )))
+  res2_5.efficiency[k] <-  get_solution(res2_5, Vtheta)       
+  res2_5.lambda[k,] <- t(as.matrix(as.numeric(
+    get_solution(res2_5, Vlambda[j])[,3] )))
 } #Close loop for each DMU
 
 ```
@@ -1181,7 +1193,7 @@ $$
 \end{split}
 $$
 
-Simply formulating the model with slacks is insufficient. We want to maximize these slacks after having found the best possible radial contraction (minimum value of $\theta$.) This is done by adding a term summing the slacks to the objective function. Note that this sum of slacks is multiplied by $\epsilon$ which is a non-Archimedean infinitesimal. The value of $\epsilon$ should be considered to be so small as to ensure that minimizing $\theta$ takes priority or maximizing the sum of slacks. Note also that maximizing the sum of slacks is denoted by minimizing the negative sum of slacks.
+Simply formulating the model with slacks is insufficient. We want to maximize these slacks after having found the best possible radial contraction (minimum value of $\theta$.) This is done by adding a term summing the slacks to the objective function. Note that this sum of slacks is multiplied by $\epsilon$ which is a non-Archimedean infinitesimal. The value of $\epsilon$ should be considered to be so small as to ensure that minimizing $\theta$ takes priority or maximizing the sum of slacks. Note also that maximizing the sum of slacks is denoted by minimizing the negative sum of slacks. \index{non-Archimedean infinitesimal}
 
 $$
 \begin{split}
@@ -1201,13 +1213,26 @@ The proper way to implement slack maximization is to treat it as a preemptive \i
 The first phase can take the form of any of our earlier linear programs without the $\epsilon$ and sum of slacks in the objective function. The second phase is the following where $\theta^*$ is the optimal value from phase one and $\theta$ is then held constant in the second phase. This is formulated by adding a constraint, $\theta=\theta^*$ to the second phase linear program.
 
 $$
+\text{Phase 1:    }
+\begin{split}
+ \begin{aligned}
+    \text{minimize  }   & \theta \\
+    \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \; \forall \; i\\
+                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
+                       & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
+ \end{aligned}
+\end{split}
+$$
+
+$$
+\text{Phase 2:    }
 \begin{split}
  \begin{aligned}
     \text{max   } & \sum_{i}s^x_i + \sum_{r}s^y_r\\
     \text{s.t.: } & \sum_{j=1}^{N^D} \lambda_j  = 1\\
                   & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \; \forall \; i\\
                   & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
-                  & \theta = \theta^*\\
+                  & \theta = \theta^* &\text{Keep fixed from Phase 1}\\
                   & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
   \end{aligned}
 \end{split}

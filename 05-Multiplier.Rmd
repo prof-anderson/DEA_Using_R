@@ -385,19 +385,15 @@ storenames<- c("Al\'s Pantry", "Bob\'s Mill",
                "Trader Carrie\'s", "Dilbertson\'s",
                "Ed\'s Eggshop", "Flo\'s Farmacopia")
 temp<-cbind(storenames,x,y)
-colnames(temp)<-c("Store Name", "Employees (x1)", 
+colnames(temp)<-c("Store Name", '"Employees \n (x1)"', 
                   "Floor Space (x2)", "Sales (y)")
-kbl (temp, booktabs=TRUE)
-NX <- ncol(x); NY <- ncol(y); ND <- nrow(x)
-store7names <- TRA::DEAnames(NX, NY, ND)
+kbl (temp, booktabs=TRUE, escape=FALSE)
 
-ND <- nrow(x); NX <- ncol(x); NY <- ncol(y); 
-# Define data size
-
-xdata      <- x [1:ND,]  # Call it xdata
-dim(xdata) <- c(ND,NX)  # structure data correctly
-ydata      <- y [1:ND,]
-dim(ydata) <- c(ND,NY)
+ND <- nrow(x); NX <- ncol(x); NY <- ncol(y) # Define data size
+xdata       <- x [1:ND,]   # Call it xdata
+dim (xdata) <- c (ND,NX)   # structure data correctly
+ydata       <- y [1:ND,]
+dim (ydata) <- c (ND,NY)
 ```
 
 Remember the inputs are named as "x1" and"x2" to represent the staff
@@ -462,7 +458,7 @@ kbl (mm1.combined , booktabs=T, escape=F, digits=4,
      col.names=c("$\\theta^{CRS}$", mm1names$VnamesLX,
                  mm1names$UnamesLX,
                  mm1names$LambdanamesbyletterLX),
-     caption =c("Multiplier Model Results from 7 Store Example"))  |>
+     caption =c("Multiplier Model Results from Six Store Example"))  |>
   kable_styling (latex_options = c("HOLD_position"))
 ```
 
@@ -502,18 +498,12 @@ $$
 A linear program can be converted to its dual by:
 
 -   Creating a variable for every constraint in the original LP
-
 -   Creating a constraint for every variable in the original LP
-
 -   Transposing the *A* matrix, sometimes denoted as $A^{\tau}$
-
 -   Using the *B* vector as the objective function coefficients
-
 -   Using the *C* vector as the right hand side values of the
     constraints.
-
 -   Changing the objective function from a *min* to a *max*
-
 -   Reverse the directions of the constraint inequalities
 
 $$
@@ -532,11 +522,9 @@ the envelopment model to get the multiplier weights from the multiplier
 model. Also, it is why we can extract the envelopment's $\lambda$ values
 from the multiplier model's results.
 
-(Example of extracting lambdas, compare to ch 2 results.)
-
 ## Weight Restrictions in the Multiplier Model
 
-Simple example, then use a package
+\index{Weight restrictions|(}
 
 $$
 \begin{split}
@@ -587,7 +575,7 @@ for (k in 1:ND) {
   add_constraint (sum_expr(vweight[i] * xdata[k,i], i = 1:NX) == 1)  |>
   add_constraint ((sum_expr(uweight[r] * ydata[j,r], r = 1:NY)-
                     sum_expr(vweight[i] * xdata[j,i], i = 1:NX)) 
-                 <= 0, j = 1:ND)                                    |>         
+                 <= 0, j = 1:ND)                                     |>         
   add_constraint (vweight[1]>=2*vweight[2])  # Weight Restriction
   
   mm2result
@@ -605,7 +593,7 @@ for (k in 1:ND) {
   mm2.uweight[k,] <- tempuweight[,3]
   templambda <- as.matrix(get_row_duals(mm2result))
   mm2.lambda[k,] <- templambda [2:7]
-  # Drops the first and last row duals as those contstraints
+  # Drops the first and last row duals as those constraints
   #   since the first is for setting demon=1, last is for 
   #   weight restrictions.
  }
@@ -624,12 +612,16 @@ kbl (mm2.combined , booktabs=T, escape=F, digits=5,
   add_header_above(c("Original Results" = 4, "With Weight Restrictions" = 4))  |>  kable_styling (latex_options = c("HOLD_position","scale_down"))
 ```
 
-In this case, the impact of weight restrictions is relatively mild as it decreased the efficiency of store B modestly and store F by only a small amount. A key insight is that weight restrictions will not improve any unit's efficiency score and can only decrease it or at best leave it unchanged. Also, weights are dependent on the unit of measure of the input or output.  
+In this case, the impact of weight restrictions is relatively mild as it decreased the efficiency of store B modestly and store F by only a small amount. A key insight is that weight restrictions will not improve any unit's efficiency score and can only decrease it or at best leave it unchanged. Also, weights are dependent on the unit of measure of the input or output. 
+
+Other approaches can be used for restrictions including the so-called cone ratio model for use in the envelopment model.  More generally, ordinal weight restrictions can be employed as a data pre-processing step and thereby be employed in many DEA models. This will be demonstrated with an extended example in Chapter 8.
+
+\index{Weight restrictions|)}
 
 ## Output-Oriented Multiplier Model
 
 Recall that the input-oriented multiplier model had a ratio of weighted
-outputs over weighted inputs.
+outputs over weighted inputs.  \index{Output-oriented|(}
 
 $$
 \begin{split}
@@ -657,7 +649,7 @@ $$
 \end{split}
 $$
 
-The linearization follows in a similar process.
+The linearization follows in a similar process to the input-oriented model.
 
 $$
 \begin{split}
@@ -671,7 +663,11 @@ $$
 \end{split}
 $$
 
+\index{Output-oriented|)}
+
 ## Variable Returns to Scale
+
+\index{Variable returns to scale|(} 
 
 Formulate and implement a model Implement model. By duality, adding a
 constraint to the primal model, is equivalent to adding a variable for
@@ -710,8 +706,7 @@ $$
  \end{split} 
 $$
 
-Numerical Example Multiplier 
-
+### Numerical Example Multiplier 
 
 ```{r Structure-VRS-MM-Results}
 
@@ -762,7 +757,7 @@ mm3.combined <- cbind (mm1.efficiency, mm2.vweight, mm1.uweight,
                        mm3.efficiency, mm3.mu, mm3.vweight, mm3.uweight)
 ```
 
-```{r}
+```{r echo=FALSE}
 kbl (mm3.combined , booktabs=T, escape=F, digits=5,
      col.names=c("$\\theta^{CRS}$", mm1names$VnamesLX,
                  mm1names$UnamesLX,
@@ -773,3 +768,116 @@ kbl (mm3.combined , booktabs=T, escape=F, digits=5,
 ```
 
 These results match those from the envelopment model's six grocery store case in chapter 2.  The scale factor, $mu_k$ indicates whether the unit is operating at most productive scale size ($\mu_k=0$), at too small a size where growing could result in greater returns ($\mu_k<0$) or at too large a size where it is suffering from diseconomies of scale and may be better off shrinking ($\mu_k>0$).Of course these results are all relative to the data available. 
+
+### Other Returns to Scale Models
+
+Restrictions on $\nu$ or $\mu$ can be made to multiplier model to allow for other returns scale assumptions. \index{Increasing returns to scale} \index{Decreasing returns to scale} Recall that from Chapter 2, Increasing returns to scale is more formally described as non-decreasing returns to scale and that Decreasing returns to scale is more formally described as non-increasing returns to scale.
+
+```{r}
+RTS_Table  <- matrix(c("CRS", "$\\text{None or }\\sum_{j=1}^{n} \\lambda_j  \\geq 0$", "$\\mu_k =0$", "$\\nu_k =0$", 
+                       "VRS", "$\\sum_{j=1}^{n} \\lambda_j = 1$", "$\\mu_k \\text{ free}$", "$\\nu_k \\text{ free}$",
+                       "DRS/NIRS", "$\\sum_{j=1}^{n} \\lambda_j \\leq 1$", "$\\mu_k \\leq 0$", "$\\nu_k \\geq 0$", 
+                       "IRS/NDRS", "$\\sum_{j=1}^{n} \\lambda_j \\geq 1$","$\\mu_k \\geq 0$", "$\\nu_k \\leq 0$"),
+                     byrow=TRUE, ncol=4)
+kbl (RTS_Table , booktabs=T, escape=F, 
+     col.names=c("Returns to Scale", "Envelopment", "Input-Oriented", "Output-Oriented"),
+     caption =c("Returns to Scale Constraints for Envelopment and Multiplier Bounds"))  |>
+  kable_styling (latex_options = c("HOLD_position","scale_down"))
+```
+
+\index{Variable returns to scale|)}
+
+## Slacks in the Multiplier Model
+
+Just as the envelopment model can be extended to allow for identifying weakly efficient units, *i.e.* units that are radially efficient but have a positive nonradial slack, we can also extend the multiplier model. Recall that we used $\epsilon$ as a non-Archimedean infinitesimal to indicate that the priority was primarily to minimize $\theta$. \index{non-Archimedean infinitesimal} \index{Slack|(}
+
+$$
+\begin{split}
+ \begin{aligned}
+    \text{minimize  }   & \theta - \epsilon ( \sum_{i} s^x_i + \sum_{r} s^y_r)\\
+    \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0  \; \forall \; i\\
+                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k}  \; \forall \; r\\
+                       & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
+  \end{aligned}
+ \end{split}
+$$
+
+The corresponding change in the multiplier model is to put a lower bound of $\epsilon$ on the input and output weights.  
+
+
+$$
+\begin{split}
+ \begin{aligned}
+    \text {max   } & \sum_{r=1}^{N^Y} u_r y_{r,k} \\
+    \text{s.t.:  } & \sum_{i=1}^{N^X} v_i x_{i,k} = 1 \\
+    & \sum_{r=1}^{N^Y} u_r y_{r,j} - \sum_{i=1}^{N^X} v_i x_{i,j} 
+                          \leq 0 \; \forall \; j\\
+                   &  u_r, \; v_i\geq \epsilon  \; \forall \; r,i
+  \end{aligned}
+ \end{split}
+$$
+
+Unfortunately finite approximations to $\epsilon$ will cause problems in the multiplier model just like in the envelopment model. Again, a second phase approach could be used to address this issue.  
+
+$$
+\text{Phase 1:          }
+\begin{split}
+ \begin{aligned}
+    \text {max   } & \theta_k=\sum_{r=1}^{N^Y} u_r y_{r,k} \\
+    \text{s.t.:  } & \sum_{i=1}^{N^X} v_i x_{i,k} = 1 \\
+    & \sum_{r=1}^{N^Y} u_r y_{r,j} - \sum_{i=1}^{N^X} v_i x_{i,j} 
+                          \leq 0 \; \forall \; j\\
+                   &  u_r, \; v_i\geq 0  \; \forall \; r,i
+  \end{aligned}
+ \end{split}
+$$
+
+$$
+\text{Phase 2:          }
+\begin{split}
+ \begin{aligned}
+    \text {min   } & Q_k \\
+    \text{s.t.:  } & \sum_{i=1}^{N^X} v_i x_{i,k} = 1 \\
+    & \sum_{r=1}^{N^Y} u_r y_{r,j} - \sum_{i=1}^{N^X} v_i x_{i,j} 
+                          \leq 0 \; \forall \; j\\
+                   & \sum_{r=1}^{N^Y} u_r y_{r,k} =\theta_k^* &\text{Keep fixed from Phase 1}\\
+                   &  u_r, \; v_i\geq Q_k  \; \forall \; r,i &\text{Increase smallest weight if possible}\\
+                   & Q_k \geq 0
+  \end{aligned}
+ \end{split}
+$$
+
+If $\theta_k^*=1$ and $Q_k>0$ then unit is *k* is weakly effficient.  \index{Slack|)}
+
+## Super-Efficiency in the Multiplier Model
+
+The multiplier model can be modified to account for super-efficiency in a similar way to that of the envelopment model.
+
+In the ratio model, we don't require that unit *k* limits its own score to 1.0.  This means that we simply eliminate the ratio constraint where $j=k$. \index{Super-efficiency}
+
+$$
+\begin{split}
+ \begin{aligned}
+    \text {max }   & \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
+    \text{s.t.:  } & \frac{\sum_{r=1}^{N^Y} u_r y_{r,j}} { \sum_{i=1}^{N^X} v_i x_{i,k} }
+                          \leq 1 \; \forall \; j, \; j\neq k\\
+                   & u_r, \; v_i\geq 0  \; \forall \; r,i
+  \end{aligned}
+ \end{split}
+$$
+
+We can then make the same change to the corresponding linear program version of the ratio model.
+
+$$ 
+\begin{split} 
+ \begin{aligned}     
+    \text {min }  &  \sum_{i=1}^{N^X} v_i x_{i,k}+\nu_k\\
+    \text{s.t.: } &  \sum_{r=1}^{N^Y} u_r y_{r,k} =1 \\
+                  &  \sum_{i=1}^{N^X} v_i x_{i,j} - \sum_{r=1}^{N^Y} u_r y_{r,j} + \nu_k \geq 0 \; \forall \; j, \; j\neq k\\
+                  &  u_r, \;v_i\geq 0  \; \forall \; r,i\\
+                  & \nu_k \;\text{ free}
+  \end{aligned} 
+ \end{split} 
+$$
+
+
