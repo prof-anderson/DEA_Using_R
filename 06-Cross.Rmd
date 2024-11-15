@@ -321,7 +321,7 @@ kbl (rbind(results.crosseval,t(results.crosseff)),
      caption="Cross-Evaluation Matrix and Cross-Efficiency Scores from Direct Calculation") |>
     row_spec (7, bold=TRUE) |>
   add_header_above(c("Weights\nFrom"=1,"Peer Evaluation of:"=6)) |>
-    kable_styling(latex_options = c("HOLD_position"))
+    kable_styling(latex_options = c("HOLD_position", "scale_down"))
 ```
 
 Notice that the values on the diagonal, $\theta_{k,k}$ are the same as the original efficiency scores.

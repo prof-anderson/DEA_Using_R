@@ -89,7 +89,7 @@ The first column, `playerID`, indicates that there are 113,799 rows in the data 
 ```{r, echo=FALSE}
 kbl (summary(select(Lahman::Batting, AB, H, X2B, X3B, HR, BB)), 
      booktabs = T, caption="Summary of Lahman Baseball Batting Data by Stint")  |> 
-  kable_styling(latex_options =  c("HOLD_position"))
+  kable_styling(latex_options =  c("HOLD_position", "scale_down"))
 ```
 
 The batting related metrics are more relevant to our modeling. The number of at-bats (`AB`) ranged from 0 to 716 but the mean is only 137 which might not be too surprising as there are many reasons for people to not have many opportunities including pitchers that only played a limited number of games, platooning, backup players, mid-season trades, and injury shortened seasons. In any case, this highlights that it will be important to limit the dataset to full-time players as will be discussed later. The maximum number of hits (`H`) in a season was 262 but the two most surprising numbers for me are that someone hit 36 triples (`X3B`) in a season and someone else had 232 walks (`BB`).
@@ -105,7 +105,7 @@ batting <- dplyr::select(batting, playerID, yearID, teamID,
                          lgID, AB, H, X2B, X3B, HR, BB)
 ```
 
-```{r, include=FALSE}
+```{r, echo=FALSE}
 kbl (head(batting), booktabs = T, 
        caption="Batting Data Used for Analysis")        |>
   kable_styling(latex_options = c("HOLD_position"))
@@ -117,7 +117,7 @@ Through the 2023 season, this dataset has over 100,000 rows or player seasons. T
 batting<-dplyr::filter(batting,yearID>1900)
 ```
 
-```{r, include=FALSE}
+```{r, echo=FALSE}
 kbl (head(batting), booktabs = T, 
        caption="Batting Statistics for Players after 1900") |>
   kable_styling(latex_options = c("HOLD_position"))
@@ -172,7 +172,7 @@ batting <- batting                                           |>
   select(playerID,yearID,teamID,lgID,PA,BB,X1B,X2B,X3B,HR)
 ```
 
-```{r, include=FALSE}
+```{r, echo=FALSE}
 kbl (head(batting), booktabs = T,
      caption="Results of Preparing Data using dplyr")      |>
   kable_styling(latex_options = c("HOLD_position"))
@@ -251,8 +251,9 @@ res1920AL<-DeaMultiplierModel (x,y, rts="CRS", orientation="output")
 theta <- res1920AL$Efficiency
 phi <- 1/theta
 table1920AL <- cbind(phi,theta, res1920AL$vx, res1920AL$uy)
-colnames (table1920AL) <- c("$\\phi$", "$\\theta$", "$v_{PA}$", "$u_{BB}$", 
-                            "$u_{1B}$", "$u_{2B}$", "$u_{3B}$", "$u_{HR}$")
+colnames (table1920AL) <- 
+  c("$\\phi$", "$\\theta$", "$v_{PA}$", "$u_{BB}$", 
+    "$u_{1B}$", "$u_{2B}$", "$u_{3B}$", "$u_{HR}$")
 
 kbl (head(table1920AL,10), booktabs=T, escape=F, digits=5,
         caption="CCR-OO Scores for 1920 AL") |>
@@ -275,20 +276,26 @@ Notice that the scores are up to 1.0 rather than 1.0 and higher as in the \index
 
 Now, let's look at the results.
 
-```{r, warning=FALSE, messages=FALSE}
+
+```{r, echo=FALSE}
+hist (res1920AL$Efficiency, 
+      xlab="Efficiency Score", 
+      main="1920 American League Batter Efficiency")
+```
+
+
+```{r warning=FALSE, messages=FALSE}
 library(ggplot2)
- 
-qplot (res1920ALmult$Efficiency, 
+qplot (res1920AL$Efficiency, 
        geom="dotplot", binwidth=0.01,
        main = "1920 American League Batter Efficiency",
        xlab = "Efficiency Score",
-       fill = I("blue")
-)
+       fill = I("blue") )
 ```
 
 Next, let's review the output weights.
 
-Again, we see that the results are similar to what was observed earlier. Note that the results for Eddie Collins (`collied01`) are different. Eddie Collins was efficient and it is common that efficient players have multiple weighting schemes that still result in being efficient. The \index{MultiplierDEA} `MultiplierDEA` package puts weight on triples (`X3B`) while the \index{TFDEA} `TFDEA`package's solution puts a zero weight on triples and distributes weight among other outputs.
+Again, we see that the results are similar to what was observed earlier. Note that the results for Eddie Collins (`collied01`) are different. Eddie Collins was efficient and it is common that efficient players have multiple weighting schemes that still result in being efficient. The \index{MultiplierDEA} `MultiplierDEA` package puts weight on triples (`X3B`).
 
 In any case, the output weights do not meet the requirements of a realistic baseball application. Let's apply weight restrictions.
 
@@ -329,14 +336,14 @@ BattingWR<-data.frame(lower = c(1.0, 1.0, 1.0, 1.0),
                       upper = c(NaN, NaN, NaN, NaN))
 ```
 
-```{r, include=FALSE}
+```{r, echo=FALSE}
 kbl(BattingWR, booktabs=T, 
     caption=
          "Data Structure for Batting Weight Restrictions") |>
   kable_styling(latex_options = c("HOLD_position"))
 ```
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, message=FALSE}
 res1920ALmultWR<-DeaMultiplierModel(x,y,rts = "crs", 
                                     orientation="output",
                                     weightRestriction = BattingWR)
@@ -344,8 +351,8 @@ res1920ALmultWR<-DeaMultiplierModel(x,y,rts = "crs",
 
 Let's examine the relative output weights given with and without weight restrictions.
 
-```{r, echo=FALSE}
-weights <- data.frame(cbind( res1920ALmult$Efficiency,res1920ALmult$uy,
+```{r, echo=FALSE, message=FALSE}
+weights <- data.frame(cbind( res1920AL$Efficiency,res1920AL$uy,
                              res1920ALmultWR$Efficiency,res1920ALmultWR$uy))
 
 kbl(head(weights 
@@ -362,18 +369,11 @@ kbl(head(weights
 
 Let's talk about a particular hitter, Eddie Collins. Without weight restrictions, he was efficient. With weight restrictions, his efficiency was `r res1920ALmultWR$Efficiency["collied01",]`. In fact, the histogram of efficiency scores is more telling.
 
-```{r, include=FALSE}
-qplot (res1920ALmultWR$Efficiency, 
-       geom="dotplot",
-       main = "1920 American League Batter Efficiency",
-       xlab = "Efficiency Score",
-       fill = I("blue")
-)
-```
+
 
 ```{r}
 binwidth <- 0.01
-hist(res1920ALmult$Efficiency, xlim=c(0.6,1.0),
+hist(res1920AL$Efficiency, xlim=c(0.6,1.0),
      col="red", breaks=seq(0.6,1.0,by=binwidth), 
      main="Impact of Weight Restrictions on Batter Efficiency",
      xlab="Efficiency")
@@ -398,7 +398,7 @@ res1920ALCEWR<-CrossEfficiency(x, y, rts = "crs",
 ```
 
 ```{r}
-temp <- data.frame(cbind(res1920ALmult$Efficiency,
+temp <- data.frame(cbind(res1920AL$Efficiency,
                          t(res1920ALcross$ce_ave),
                          t(res1920ALcross$ceva_max))) 
 
@@ -414,11 +414,11 @@ This table of batters is simply in alphabetical order but illustrates that the m
 Let's now examine the top ten most efficient hitters sorted by efficiency and their cross-efficiency scores with and without weight restrictions imposed.
 
 ```{r}
-collectedeff1 <- data.frame(cbind(as.numeric(res1920ALmult$Efficiency),
+collectedeff1 <- data.frame(cbind(as.numeric(res1920AL$Efficiency),
                                   as.numeric(res1920ALmultWR$Efficiency),
                                   as.numeric(t(res1920ALcross$ce_ave)),
                                   as.numeric(t(res1920ALCEWR$ce_ave))))
-rownames(collectedeff1)<-rownames(res1920ALmult$Efficiency)
+rownames(collectedeff1)<-rownames(res1920AL$Efficiency)
 ```
 
 ```{r}
@@ -446,7 +446,7 @@ Baseball fans may recognize some of the names:
 -   Bob Meusel (`meusebo01`), Joe Judge (`judgejo01`), and Joe Dugan (`duganjo01`) had good careers but have never been thought of as all-time great batters.
 
 ```{r, echo=FALSE}
-temp<-as.matrix(cbind(res1920ALmult$Efficiency,
+temp<-as.matrix(cbind(res1920AL$Efficiency,
                       res1920ALmultWR$Efficiency,
                       t(res1920ALcross$ce_ave),
                       t(res1920ALCEWR$ce_ave)))
@@ -463,16 +463,16 @@ kbl(corrtemp, booktabs=T,
     kable_styling(latex_options = c("HOLD_position", "scale_down"))
 ```
 
-Both simple Pearson's correlation and the Spearman's rank correlation give similar scores but the Spearman rank correlations are generally higher. This indicates that the scores for the `r nrow(res1920ALmult$Efficiency)` players are numerically related and their relative ranking is a little more similar.
+Both simple Pearson's correlation and the Spearman's rank correlation give similar scores but the Spearman rank correlations are generally higher. This indicates that the scores for the `r nrow(res1920AL$Efficiency)` players are numerically related and their relative ranking is a little more similar.
 
 The \index{Cross-efficiency} cross-efficiency and the \index{Regular efficiency} regular efficiency scores are related - they have a correlation of `r  round(corrtemp[1,2], 3)` but the cross-efficiency has a 0.910 correlation with the weight restricted DEA results. This suggests that perhaps cross-efficiency can help deal with decreasing the impact of unrealistic weight schemes but let's take a closer look at the results.
 
-While all of the correlations are strong, they are being done over the entire population of `r nrow(res1920ALmult$Efficiency)` batters but DEA is about benchmarking against the best. Let's dig into the results more deeply by examining one hitter in particular. In 1920, Babe Ruth had one of the best seasons ever by a baseball hitter. Various statistics demonstrate his dominance but home runs really highlight the impact. His 54 home runs in 1920 nearly doubled the previous major league baseball record of 29 in a season he had set the previous year. Alone, he hit more home runs than 14 of the 16 teams in the leagues. Until the recent steroid era, Babe Ruth's 1920 and 1921 seasons are often considered to be the two best offensive seasons in baseball.
+While all of the correlations are strong, they are being done over the entire population of `r nrow(res1920AL$Efficiency)` batters but DEA is about benchmarking against the best. Let's dig into the results more deeply by examining one hitter in particular. In 1920, Babe Ruth had one of the best seasons ever by a baseball hitter. Various statistics demonstrate his dominance but home runs really highlight the impact. His 54 home runs in 1920 nearly doubled the previous major league baseball record of 29 in a season he had set the previous year. Alone, he hit more home runs than 14 of the 16 teams in the leagues. Until the recent steroid era, Babe Ruth's 1920 and 1921 seasons are often considered to be the two best offensive seasons in baseball.
 
 Babe's \index{Cross-efficiency} cross-efficiency score was `r round(res1920ALcross$ce_ave[1,"ruthba01"],6)`. Coincidentally, his cross-efficiency score was nearly identical to the average cross-efficiency of other regular baseball batters of `r round(mean(res1920ALcross$ce_ave),6)`. In other words, what may have been one of the best batting performances in a century of baseball was wrongly misclassified as being just average by cross-efficiency. The reason for this can be seen by the cross-efficiency matrix of weights presented earlier that showed many batters put zero weight on home runs because they paled in comparison to the best performer on home runs, Babe Ruth.
 
 ```{r, fig.show='hold', fig.align='center', fig.cap="Impact of Weight Restrictions on Efficiency"}
-collectedeff1 <- data.frame(cbind(res1920ALmult$Efficiency, 
+collectedeff1 <- data.frame(cbind(res1920AL$Efficiency, 
                                   res1920ALmultWR$Efficiency,
                                   t(res1920ALcross$ce_ave),
                                   t(res1920ALCEWR$ce_ave),
@@ -832,18 +832,24 @@ Oakland's salary efficiency should have been higher than New York's before the b
 After the book was published, Oakland's strategy was widely known. The *efficient market hypothesis* would indicate that Oakland's salary efficiency would decline as the market would then reflect this information in player pricing. $\theta ^{1998-2003}_{OAK}$=`r mean(subset(teampayroll2, teamID=="OAK" & yearID<2003 & yearID>1997)[["Eff"]],round=4)`\>$\theta ^{2004-2009}_{OAK}$=`r mean(subset(teampayroll2, teamID=="OAK" & yearID>2003 & yearID<2010)[["Eff"]],round=4)`: *H3 Supported*
 
 ```{r}
-teampayroll2 |> 
+teameff <- teampayroll2 |> 
   group_by (teamID) |>
-  summarize (Eff)
+  dplyr::summarize(Mean = mean(Eff,na.rm=TRUE))
+
+kbl(teameff, 
+    booktabs=T, digits=3, 
+    caption="Efficiency of Teams") |>
+  kable_styling (latex_options = c("HOLD_position"))
+
 ```
 
 
 ```{r warning=FALSE, messages=FALSE}
 #library(dplyr); library (pander)
 #kbl (dply(teampayroll2, c("teamID"), summarise, mean(Efficiency)))
-pander(ddply(teampayroll2, c("teamID"), summarise, 
-       mean(Eff)), 
-       caption="Average Team Efficiency", round=4)
+# pander(ddply(teampayroll2, c("teamID"), summarise, 
+#       mean(Eff)), 
+#       caption="Average Team Efficiency", round=4)
 
 mean(subset(teampayroll2, teamID=="NYA" & yearID<2003 )[["Eff"]])
 mean(subset(teampayroll2, teamID=="NYA" & yearID>2003 )[["Eff"]])

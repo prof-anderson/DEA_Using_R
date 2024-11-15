@@ -131,7 +131,8 @@ kbl(res4_1.combined,
     booktabs=T, digits=3, escape=F, 
     col.names=c("$\\phi^{CRS}$", res4_1.names$LambdanamesbyletterLX),
     caption= 'Output-Oriented Envelopment Analysis for Stores') |>
-  add_header_above(c(" " = 1, "Efficiency" = 1, "Envelopment Variables" = 4))|>
+  add_header_above(c(" " = 1, "Efficiency" = 1, 
+                     "Envelopment Variables" = 4))|>
   kable_styling(latex_options = "HOLD_position")
 ```
 
