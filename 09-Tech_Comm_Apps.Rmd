@@ -217,11 +217,147 @@ Again, the results match those of Thore and Rich.
 Their discussion of results emphasized the comparison of projects to each other by looking at the lambda values to see how the targets of comparison were made.
 
 ```{r}
-resNASA<-DeaMultiplierModel(XNASA,YNASA,rts = "vrs", orientation="input")
+resNASA<-DeaMultiplierModel(XNASA,YNASA,
+                            rts = "vrs", orientation="input")
 
-kbl (poscol(cbind(resNASA$Efficiency,resNASA$Lambda),cutoff=0.00001), 
-     booktabs = T, digits = 4, align = 'c',
-       caption="Envelopment Model Results for NASA projects.")
+kbl (poscol(cbind(resNASA$Efficiency,resNASA$Lambda), cutoff=0.00001), 
+     booktabs = T, digits = 4, align = 'c', 
+       caption="Envelopment Model Results for NASA projects.") |>
+  kable_styling(latex_options = c("HOLD_position"))
+```
+
+## University Technology Transfer
+
+Let's examine the case of technology transfer success from university research by revisiting [@AndersonMeasuringefficiencyuniversity2007]. This paper used data from the Association of University Technology Managers, AUTM, and their 2004 survey. This dataset is available from the `TRA` package.
+
+```{r DEA_IO_Plot_Univ, out.width="70%"}
+#Define printable names to be used as appropriate
+ynames_printable<-c("Licensing Income\n($M)", 
+                    "Licenses and \n Options Executed",
+                    "Startup Companies",
+                    "US Patents Filed",
+                    "US Patents Issued")
+xnames_printable<-c("Total Research\n Spending ($M)")
+
+Figure <- DrawIOdiagram (xnames_printable, 
+                         ynames_printable, 
+                         '"\n\nUniversity\nTechnology\nTransfer\n\n\n"')
+tmp<-capture.output(rsvg_png(
+  charToRaw(export_svg(Figure)),
+  'images/DEA_Univ_IO.PNG'))
+knitr::include_graphics(
+  "images/DEA_Univ_IO.PNG")
+```
+
+```{r, message=FALSE}
+head(TRA::univ_lic_2007)
+#univ_lic_2007 <- read_csv("univ_lic_2007.csv", show_col_types=FALSE)
+
+kbl (TRA::univ_lic_2007, 
+     booktabs = T, digits = 3, align = 'c', 
+       caption="University Technology Transfer Data") |>
+  kable_styling(latex_options = c("HOLD_position", "scale_down"))
+
+```
+
+Now let's prepare the data for the analysis.  
+
+```{r}
+xdata <- as.matrix(univ_lic_2007 [,7])
+rownames(xdata)<-as.matrix(univ_lic_2007[,1])
+
+ydata <- as.matrix(univ_lic_2007 [,2:6])
+rownames(ydata)<-as.matrix(univ_lic_2007[,1])
+
+Xnames <- colnames(xdata)
+Ynames <- colnames(ydata)
+DMUnames <-list(as.matrix(univ_lic_2007[,1]))
+
+dimnames(xdata)              <- c(DMUnames,Xnames)
+colnames(ydata)              <- Ynames
+
+ND <- nrow(xdata)  # Number of DMUs (universities)
+NX <- ncol(xdata)  # Number of inputs (just 1 in this case)
+NY <- ncol(ydata)  # Number of outputs
+
+res.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
+res.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
+dimnames(res.efficiency) <- c(DMUnames,"CCR-IO")
+dimnames(res.lambda)     <- c(DMUnames,DMUnames)
+
+```
+
+As usual in DEA study, decisions need to be made about orientation and returns to scale.  Let's run  both input-orientation and output-orientations for both CRS and VRS.  In addition, two of the outputs are strongly related - patents applied for and patents issued. Applying for a patent merely implies the idea has sufficient value worth investing the time and effort to  file paperwork. An issued patent is certainly more valuable. Therefore, we will incorporate a weight restricted model that imposes a weight restriction that an issued patent is worth at least five times that of an applied for patent.   
+
+We will again use the `MultiplierDEA` package.  Let's use a series of models:
+
+- Input-oriented, constant returns to scale model
+- Output-oriented, constant returns to scale model
+- Input-oriented, variable returns to scale model
+- Output-oriented, variable returns to scale model
+- Weight restricted Input-oriented, variable returns to scale model
+- Weight restricted Output-oriented, variable returns to scale model
+
+$$
+ \begin{split}
+ \begin{aligned}
+    \ & u_{\text{Patents Issued}} \geq 5 \cdot u_{\text{Patents Applied for}}\\
+   \ & 5 \leq \frac{u_{\text{Patents Issued}}} {u_{\text{Patents Applied for}}} \leq \infty \\
+  \end{aligned}
+  \end{split}
+  (\#eq:Ch9PatentWeightRestrictions)
+$$
+
+```{r univ-dea, warning=FALSE, messages=FALSE}
+library(MultiplierDEA)
+PatentWR<-data.frame(lower = c(5.0), 
+                      numerator = c("US Patents Issued"), 
+                      denominator = c("US Patents Filed"), 
+                      upper = c(NaN))
+
+univiocrs<-DeaMultiplierModel (xdata, ydata, 
+                               rts="CRS", orientation="input")
+univoocrs<-DeaMultiplierModel (xdata, ydata, 
+                               rts="CRS", orientation="output")
+univiovrs<-DeaMultiplierModel (xdata, ydata, 
+                               rts="VRS", orientation="input")
+univoovrs<-DeaMultiplierModel (xdata,ydata, 
+                               rts="VRS", orientation="output")
+univiovrswr<-DeaMultiplierModel (xdata, ydata, 
+                               rts="VRS", orientation="input",
+                               PatentWR)
+univoovrswr<-DeaMultiplierModel (xdata, ydata, 
+                               rts="VRS", orientation="output", 
+                               PatentWR)
+```
+
+
+```{r collect-univ-result}
+univcollect <- cbind(univiocrs$Efficiency, univoocrs$Efficiency, 
+                     univiovrs$Efficiency, univoovrs$Efficiency, 
+                     univiovrswr$Efficiency, univiovrswr$Efficiency) 
+colnames (univcollect) <- c("$\\theta^{IO,CRS}$", "$\\theta^{OO,CRS}$", 
+                            "$\\theta^{IO,VRS}$", "$\\theta^{OO,VRS}$", 
+                            "$\\theta^{IO,VRS,WR}$", "$\\theta^{OO,VRS,WR}$")
+kbl (univcollect, 
+     booktabs = T, digits = 4, align = 'c', escape=F,
+       caption="University Technology Collected Results") |>
+  kable_styling(latex_options = c("HOLD_position", "scale_down"))
+```
+
+
+```{r}
+corrtemp <- rbind( cor(univcollect, method="pearson"), cor(univcollect, method="spearman"))
+
+```
+
+
+```{r, echo=FALSE}
+kbl(corrtemp, booktabs=T, escape=F,
+    caption="Correlations between Various Models of University Technology Transfer") |>
+       pack_rows ("Pearson Correlation", 1, 6) |>
+       pack_rows ("Spearman Rank Correlation", 7, 12)  |>
+    kable_styling(latex_options = c("HOLD_position", "scale_down"))
 ```
 
 ## Possible to-Do Items for this Chapter
