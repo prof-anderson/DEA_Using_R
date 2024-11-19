@@ -8,7 +8,7 @@ editor_options:
 library(bookdown); library(rmarkdown); rmarkdown::render("09-Tech_Comm_Apps.Rmd", "pdf_book")
 ```
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(DiagrammeRsvg)
 library(rsvg)
@@ -27,7 +27,9 @@ We will provide a snapshot of the cases and the interested reader is referred to
 Before we begin, let's install some small helper functions.
 These are described in more detail in an Appendix.
 
-```{r loadhelperfiles }
+```{r loadhelperfiles , include=FALSE, eval=FALSE}
+# Defunct code.  Replaced with simply loading TRA package later.
+
 source('Helperfiles.R')
 #knitr::read_chunk('Helperfiles.R')
 #<<poscolfunct>>   
@@ -55,83 +57,91 @@ The outputs are estimated market size in millions of dollars (Y1), strategic com
 
 Let's start by defining the data from page 63 of Thore and Rich.
 
-```{r BHCorp}
-NX <- 1
-NY <- 4
-ND <- 14
+```{r BHCorp, warning=FALSE, message=FALSE}
+# library(devtools);devtools::install_github("prof-anderson/TRA")
+#    Install TRA package from github if not already installed.
+library (TRA)
+NX <- 1; NY <- 4; ND <- 14
 
-DMUnames <- list(c(LETTERS[1:ND]))               
+BHNames <- TRA::DEAnames(NX=NX, NY=NY, ND=ND)
+BHProjnames <- lapply(list(rep("P",NX)),paste0,1:ND)
+  # DMU names: P1, P2, ..., P14
+
+#DMUnames <- list(c(LETTERS[1:ND]))               
   # DMU names: A, B, ...
-Xnames<- lapply(list(rep("X",NX)),paste0,1:NX)   
+#Xnames<- lapply(list(rep("X",NX)),paste0,1:NX)   
   # Input names: x1, ...
-Ynames<- lapply(list(rep("Y",NY)),paste0,1:NY)   
+#Ynames<- lapply(list(rep("Y",NY)),paste0,1:NY)   
   # Output names: y1, ...
-Vnames<- lapply(list(rep("v",NX)),paste0,1:NX)   
+#Vnames<- lapply(list(rep("v",NX)),paste0,1:NX)   
   # Input weight names: v1, ...
-Unames<- lapply(list(rep("u",NY)),paste0,1:NY)   
+#Unames<- lapply(list(rep("u",NY)),paste0,1:NY)   
   # Output weight names: u1, ...
-SXnames<- lapply(list(rep("sx",NX)),paste0,1:NX) 
+#SXnames<- lapply(list(rep("sx",NX)),paste0,1:NX) 
   # Input slack names: sx1, ...
-SYnames<- lapply(list(rep("sy",NY)),paste0,1:NY) 
+#SYnames<- lapply(list(rep("sy",NY)),paste0,1:NY) 
   # Output slack names: sy1, ...
-Lambdanames<- lapply(list(rep("L_",ND)),paste0,LETTERS[1:ND])
+#Lambdanames<- lapply(list(rep("L_",ND)),paste0,LETTERS[1:ND])
 
-XBH <- matrix(c(1.07, 1.06, 0.325, 1.60, 
-                0.55, 0.2, 0.35, 0.53, 
-                0.21, 0.16, 0.07, 
-                1.95, 5.59, 3.10),
-                ncol=NX,dimnames=c(DMUnames,Xnames))
+XBH <- matrix(c(
+  1.07, 1.06, 0.325, 1.60, 
+  0.55, 0.2, 0.35, 0.53, 
+  0.21, 0.16, 0.07, 
+  1.95, 5.59, 3.10),
+  ncol=NX,
+  dimnames=c(BHProjnames,list(BHNames$XnamesLX)))
 
 YBH <- matrix(c(
-  32, 50, 40, 30 , 25, 8, 2, 12, 
-  10, 0.8, 3, 300, 60, 240, 8.2, 7.6, 
-  7.6, 7.1, 7.0, 6.0, 5.9, 5.8, 5.8, 5.4, 
-  5.3, 6.8, 6.2, 6.2, 7.5, 7.2, 7.1, 7.2, 
-  7.0, 6.1, 6.2, 5.8, 5.8, 5.6, 5.4, 6.1, 
-  6.9, 6.6, 8.0, 6.4, 5.3, 5.5, 5.1, 6.9, 
-  6.6, 5.4, 4.7, 6.1, 6.5, 6.4, 6.8, 7.1),
-  ncol=NY,dimnames=c(DMUnames,Ynames))
+  32, 50, 40, 30 , 25, 8, 2, 12, 10, 0.8, 3, 300, 60, 240, 
+  8.2, 7.6, 7.6, 7.1, 7.0, 6.0, 5.9, 5.8, 5.8, 5.4, 5.3, 6.8, 6.2, 6.5, 
+  7.5, 7.2, 7.1, 7.2, 7.0, 6.1, 6.2, 5.8, 5.8, 5.6, 5.4, 6.1, 6.9, 6.6, 
+  8.0, 6.4, 5.3, 5.5, 5.1, 6.9, 6.6, 5.4, 4.7, 6.1, 6.5, 6.4, 6.8, 7.1),
+  ncol=NY, byrow=FALSE,
+  dimnames=c(BHProjnames,
+             list(BHNames$YnamesLX)))
 
 XFigNames <- "X1 - Expected Cost ($M)"
 YFigNames <- c("Y1 - Market Size ($M)", 
-               "Y2 - Strategic Compat. (1-10)", 
+               "Y2 - Strategic Compatability (1-10)", 
                "Y3 - Market Demand ($M)", 
-               "Y4 - Compet. Intensity (1-10)" )
+               "Y4 - Competitive Intensity (1-10)" )
 Figure<-DrawIOdiagram(XFigNames,YFigNames, '"\n\nBCC-IO\n\n "')  
 
 tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),
                              'IO-BakerHughes.png', height = 1440))
-
 ```
 
-![Baker Hughes Input-Output Model](IO-BakerHughes.png){#fig:IO-BakerHughes width="50%"}
+![Baker Hughes Input-Output Model](IO-BakerHughes.png){#fig:IO-BakerHughes width="70%"}
 
 ```{r}
 kbl (cbind(XBH,YBH), 
      caption="Data for Baker Hughes Corporation case.", 
-     booktabs = T)  |>
+     booktabs = T, escape=F)  |>
   kable_styling(latex_options = c("HOLD_position"))
 ```
 
-Now, let's run DEA.
-Feel free to pick a package.
-We explored some packages in chapter 8.
-For now, let's try the MultiplierDEA package.
-Let's look over the results.
+Now, let's run DEA. Feel free to pick a package. We explored some packages in chapter 8. For now, let's try the `MultiplierDEA` package. Let's look over the results.
 
-```{r results='asis'}
+```{r results='asis', warning=FALSE, message=FALSE}
 library(MultiplierDEA)
 
-resBH<-DeaMultiplierModel(XBH,YBH,rts = "vrs", orientation="input")
+resBH<-DeaMultiplierModel(XBH, YBH,
+                          rts = "vrs", orientation="input")
 
 # Rename some of the results row and column labels
-dimnames(resBH$Lambda)<-c(Lambdanames,Lambdanames)
-dimnames(resBH$vx)<-c(DMUnames,Xnames)
-dimnames(resBH$uy)<-c(DMUnames,Ynames)
+dimnames(resBH$Efficiency)<-c(BHProjnames,"$\\theta^{VRS}$")
 
-kbl (poscol(cbind(resBH$Efficiency, resBH$Lambda)),
+#dimnames(resBH$Lambda)<-c(Lambdanames,Lambdanames)
+dimnames(resBH$Lambda)<-c(list(BHNames$LambdanamesbynumberLX),
+                          list(BHNames$LambdanamesbynumberLX))
+#dimnames(resBH$vx)<-c(DMUnames,Xnames)
+#dimnames(resBH$uy)<-c(DMUnames,Ynames)
+dimnames(resBH$vx)<-c(BHProjnames,list(BHNames$VnamesLX))
+dimnames(resBH$uy)<-c(BHProjnames,list(BHNames$UnamesLX))
+
+kbl (poscol(cbind(resBH$Efficiency, resBH$Lambda),cutoff=0.0000001),
      caption = "Envelopment results for Baker Hughes Corporation analysis.", 
-     booktabs = T, digits = 4)|>
+     booktabs = T, digits = 4, escape=F)|>
   kable_styling(latex_options = c("HOLD_position"))
 ```
 
@@ -143,7 +153,7 @@ Now, let's look at the other side of the analysis - the multiplier model.
 ```{r}
 kbl (cbind(resBH$Efficiency,resBH$vx,resBH$uy), 
      caption="Weights for Baker Hughes Corporation analysis.", 
-     booktabs = T, digits = 4)|>
+     booktabs = T, digits = 4, escape=F)|>
   kable_styling(latex_options = c("HOLD_position"))
 ```
 
@@ -160,23 +170,36 @@ We will leave that to the interested reader to pontificate upon.
 
 The next case in the book was comparing NASA aeronautics projects.
 
+```{r}
+XFigNames <- "X1 Cost ($M)"
+YFigNames <- c("Y1 - Expected Income ($M)", 
+               "Y2 - Priority (1-10)", 
+               "Y3 - Expected Jobs ($M)")
+Figure<-DrawIOdiagram(XFigNames,YFigNames, '"\n\nBCC-IO\n\n "')  
+
+tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),
+                             'IO-NASA.png', height = 1440))
+```
+![NASA Project Input-Output Model](IO-NASA.png){#fig:IO-NASA width="70%"}
+
 ```{r, echo=FALSE}
+NASAprojnames<-list(c("A1", "A2", "A3", "A4", "A5", "A6",
+                  "B1", "B2", "B3", "B4", "C1", "C2", "C3",
+                  "D1", "E1", "E2", "E3", "E4"))
+NASANames <- TRA::DEAnames(NX=1, NY=3, ND=18)
 XNASA <- matrix(c(15.5, 23.0, 39.5, 80.0, 14.5, 13.5, 
                   30.0, 220.0, 180.0, 980.0, 1050.0, 15.0, 40.0,
                   5.5, 110.0, 350.0, 350.0, 110.0),
-                  ncol=1,dimnames=list(c("A1", "A2", "A3", "A4", "A5", "A6",
-                                         "B1", "B2", "B3", "B4", "C1", "C2", "C3",
-                                         "D1", "E1", "E2", "E3", "E4"),c("x1")))
+                  ncol=1, byrow = FALSE,
+                  dimnames=c(NASAprojnames, list(NASANames$XnamesLX)))
 
 YNASA <- matrix(c(
   1.8, 2.7, 2.7, 9.0, 1.35, 2.25, 9.6, 16.0, 6.8, 25.2, 20.7, 4.5, 19.8, 0.75,
    0, 0, 0, 0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 8.0, 10.0, 10.0, 9.0, 6.0, 6.0, 6.0, 10.0,
    8.0, 8.0, 8.0, 8.0,18.0, 45.0, 7.2, 108.0, 6.3, 40.5, 240.0, 160, 64.0, 560.0, 
   1170.0, 18.0, 544.5, 1.0, 0, 0, 0, 0),
-                  ncol=3,dimnames=list(c("A1", "A2", "A3", "A4", "A5", "A6",
-                                         "B1", "B2", "B3", "B4", "C1", "C2", "C3",
-                                         "D1", "E1", "E2", "E3", "E4"),c("y1", "y2", "y3")))
-
+                  ncol=3, byrow = FALSE,
+  dimnames=c(NASAprojnames, list(NASANames$YnamesLX)))
 ```
 
 Now that we have entered the data, let's run an input-oriented, variable returns-to-scale (BCC-IO) analysis.
@@ -184,7 +207,8 @@ Now that we have entered the data, let's run an input-oriented, variable returns
 ```{r}
 resNASA<-DeaMultiplierModel(XNASA, YNASA, 
                             rts = "vrs", orientation="input")
-kbl (cbind(XNASA,YNASA,resNASA$Efficiency), booktabs = T, digits = 4) |>
+kbl (cbind(XNASA,YNASA,resNASA$Efficiency), 
+     booktabs = T, digits = 4, escape=F) |>
   kable_styling(latex_options = c("HOLD_position"))
 
 ```
@@ -195,7 +219,7 @@ Their discussion of results emphasized the comparison of projects to each other 
 ```{r}
 resNASA<-DeaMultiplierModel(XNASA,YNASA,rts = "vrs", orientation="input")
 
-kbl (poscol(cbind(resNASA$Efficiency,resNASA$Lambda)), 
+kbl (poscol(cbind(resNASA$Efficiency,resNASA$Lambda),cutoff=0.00001), 
      booktabs = T, digits = 4, align = 'c',
        caption="Envelopment Model Results for NASA projects.")
 ```

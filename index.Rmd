@@ -36,7 +36,7 @@ Readers unfamiliar with R but knowledgeable about DEA may use this book as an op
 
 This book can be used as a supplement for a graduate course on productivity analysis with papers drawn from the literature.
 
-All of the code for the book is available in a github repository.
+All of the code for the book is available in a github repository at <https://github.com/prof-anderson/DEA_Using_R>.
 
 ## Instructor Notes {.unnumbered}
 
@@ -89,8 +89,6 @@ Also, this work makes extensive use of the `ompr` package authored by Dirk Schum
 
 I want to thank Dr. Gunter Sharp and Dr. Ronald Bohlander for their support during my time at the Georgia Institute of Technology along with Dr. Steven Hackman who introduced me to DEA.
 
-Lastly, I would like to thank my family, Carrie, Trent, and Paige.  Their patience as Dad toiled at the computer over the years was always appreciated. 
+Lastly, I would like to thank my family, Carrie, Trent, and Paige. Their patience as Dad toiled at the computer over the years was always appreciated.
 
-
-> Tim Anderson
-> `r Sys.Date()`
+> Tim Anderson `r Sys.Date()`
