@@ -31,7 +31,7 @@ The Extreme Technology Analytics research group at Portland State University ado
 
 ## An Illustrative Example
 
-DEA typically has \index{Inputs} inputs and \index{Outputs} outputs. The input(s) are typically resources that are consumed in the production of output(s). Inputs are referred to as "bads" in that higher levels at the same level of output is considered worse. Similarly, holding everything else constant, an increase in any single output is laudable. Examples of inputs might include capital, labor, or number of machines.
+DEA typically has \index{Inputs} inputs and \index{Outputs} outputs. The input(s) are typically resources that are consumed in the production of output(s). Inputs are referred to as "bads" in that higher levels at the same level of output are considered worse. Similarly, holding everything else constant, an increase in any single output is laudable. Examples of inputs might include capital, labor, or number of machines.
 
 In contrast, outputs are the "good" items that are being produced by the actions of the producers. Examples of outputs might include automobiles produced, customers served, or graduating students. \index{Data envelopment analysis|)}
 
@@ -41,11 +41,11 @@ As the manager responsible for the stores in the region, there are many question
 
 -   Which of these stores are the best?
 -   Which stores are laggards?
--   For those that are under performing, are there objective performance targets they should be able to reach?
+-   For those that are underperforming, are there objective performance targets they should be able to reach?
 -   Which stores might be employing \index{Best practices} best practices that could be adopted by other stores?
 -   Among the stores that are lagging in performance, are there particular stores they should focus attention on for learning best practices?
 
-We'll start by drawing a visual representation of the \index{Input-output model} input-output model. The function \index{TRA!DrawIOdiagram} `DrawIOdiagram` is from the \index{TRA!Package} `TRA` package and allows for creating a nicely formatted input-output diagram. For those that are new to `R`, it is important to load each package before its use using the `library` command. The library command loads it into memory but the package must be installed first. Most packages are available on \index{CRAN} CRAN and can be \index{Install packages} installed from CRAN by using `install.packages` command. RStudio makes it easier by just clicking on the install button in the IDE. The `TRA` package is instead just available on github. To install it, you will need a package, `remotes`, which can then be used to install a package directly from github. \vspace{12pt}
+We'll start by drawing a visual representation of the \index{Input-output model} input-output model. The function \index{TRA!DrawIOdiagram} `DrawIOdiagram` is from the \index{TRA!Package} `TRA` package and allows for creating a nicely formatted input-output diagram. For those that are new to `R`, it is important to load each package before its use using the `library` command. The library command loads it into memory, but the package must be installed first. Most packages are available on \index{CRAN} CRAN and can be \index{Install packages} installed from CRAN by using `install.packages` command. RStudio makes it easier by just clicking on the install button in the IDE. The `TRA` package is instead just available on github. To install it, you will need a package, `remotes`, which can then be used to install a package directly from github. \vspace{12pt}
 
 ```{r DEA-IO-Plot1, warning=FALSE, message=FALSE, eval=TRUE, out.width="60%", fig.align='center', fig.cap="A Simple DEA Model for Store Management"}
 library (TRA) # Note, may need to install directly from github
@@ -71,7 +71,7 @@ This follows three steps to work for both HTML & PDF:
 A few other things to note from reading the previous code chunk:
 
 1.  It assumes that there is a subdirectory for images - if there isn't a subdirectory for images, you can create one or edit the path in the code. I created a subdirectory `generated-images` to highlight that these are images that I am creating through R and do not need to be permanently stored in the github repository.
-2.  The text passed to the function such as `"Sales\n($/week)"` allows for a line return character such as `"\n"`. This allows the name of the output and the unit to be on separate line. The line return is also used to provide a taller box by being placed above and below the label for the box.
+2.  The text passed to the function such as `"Sales\n($/week)"` allows for a line return character such as `"\n"`. This allows the name of the output and the measurement unit to be on separate lines. The line return is also used to provide a taller box by being placed above and below the label for the box.
 
 Let's get started now with creating our data.
 
@@ -87,7 +87,7 @@ temp<-cbind(storenames,x,y)
 colnames(temp)<-c("Store Name", "Employees (x)", "Sales (y)")
 ```
 
-The above commands create matrices that hold the data and have named rows and columns to match. The `<-` symbol is a key function in R and assigns what is on the right to the object on the left. We are creating the input and output data, named `x` and `y`. A temporary table, `temp` is then made for combining all the information in a single table. The apostrophe for store names needs to be prefixed with a slash to avoid it being misinterpreted when using it for a table. We can look at the the basic table by just giving the name of the table, `temp`.
+The above commands create matrices that hold the data and have named rows and columns to match. The `<-` symbol is a key function in R and assigns what is on the right to the object on the left. We are creating the input and output data, named `x` and `y`. A temporary table, `temp` is then made for combining all the information in a single table. The apostrophe for store names needs to be prefixed with a slash to avoid it being misinterpreted when using it for a table. We can look at the basic table by just giving the name of the table, `temp`.
 
 ```{r}
 temp
@@ -95,13 +95,13 @@ temp
 
 We'll be using tables often throughout the book and it is worth putting some effort into making the table look better.
 
-The next code chunk creates a better formatted table. We will use \index{kable} `kable` from the \index{knitr} `knitr` package for displaying the table. We will use the added package \index{kable!kableExtra} `kableExtra` to provide a simpler way to do sophisticated tables. We'll provide the code chunk for this table but generally avoid code chunks for displaying tables in the future unless there is a specific item to show.
+The next code chunk creates a better formatted table. We will use \index{kable} `kable` from the \index{knitr} `knitr` package for displaying the table. We will use the added package \index{kable!kableExtra} `kableExtra` to provide a simpler way to make sophisticated tables. We'll provide the code chunk for this table but generally avoid code chunks for displaying tables in the future unless there is a specific item to show.
 
-Key items in this code chunk is that we ensure the \index{kable!kableExtra} `kableExtra` package is loaded. The \index{kable!kbl} `kbl` command is used to provide a shortcut for the \index{kable} `kable` function with explicit options available. Let's look at several of these options:
+The first line of this code chunk ensures the \index{kable!kableExtra} `kableExtra` package is loaded. The \index{kable!kbl} `kbl` command is used to provide a shortcut for the \index{kable} `kable` function with explicit options available. Let's look at several of these options:
 
 -   The \index{kable!booktabs} `booktabs` option is for generating clean PDF formatting of the tables required by the publisher.
 
--   The \index{kable!escape} `escape` option allows for LaTeX characters and code to be used as needed when set to `T` or `TRUE`.
+-   The \index{kable!escape} `escape` option allows for LaTeX code to be used as needed when set to `F` or `FALSE`.
 
 -   The \index{Piping} piping operator `|>` means to pass the previous command's results into the next command. The piping operator requires R 4.1.0 or higher to be used.
 
@@ -142,7 +142,7 @@ dea.plot(x, y, RTS="crs", ORIENTATION="in-out",
          fex=1, GRID=TRUE, RANGE=FALSE, param=NULL)
 ```
 
-This chart shows that unit *C* has the best ratio of output (y) to input (x). The diagonal line represents an \index{Efficiency frontier} efficiency frontier of best practices that could be achieved by scaling up or down unit *C*. As the input is scaled up or down, it is assumed that the output of unit *C* would be scaled up or down by the same proportion. We will revisit this assumption in a later section but for now, think of this as saying that unit *C* cannot enjoy economies of scale by getting larger or suffer from diseconomies of scale by getting smaller so it is referred to as constant returns to scale or CRS.
+This chart shows that unit *C* has the best ratio of output (y) to input (x). The diagonal line represents an \index{Efficiency frontier} efficiency frontier of best practices that could be achieved by scaling up or down unit *C*. As the input is scaled up or down, it is assumed that the output of unit *C* would be scaled up or down by the same proportion. We will revisit this assumption in a later section but for now, think of this as saying that unit *C* cannot enjoy economies of scale by getting larger or suffer from diseconomies of scale by getting smaller, so it is referred to as constant returns to scale or CRS.
 
 Furthermore, we can graphically examine the technical efficiency of each of the other units. I'm going to start with unit B since it is a little easier to visualize. For now, let's think of the question, how much more or less input would *C* require to produce as much output as *B*.
 
@@ -160,13 +160,13 @@ The same steps can be followed for analyzing units *A*, *C*, and *D* resulting i
 
 ## A First Linear Program for DEA
 
-The graphical approach is intuitive but accuracy is limited to that of drawing tools. More importantly, it does not scale to more complex models with multiple inputs and outputs. Let's frame this topic mathematically so that we can proceed systematically.
+The graphical approach is intuitive, but accuracy is limited to that of drawing tools. More importantly, it does not scale to more complex models with multiple inputs and outputs. Let's frame this topic mathematically so that we can proceed systematically.
 
 ### Developing the Linear Program
 
-\index{Linear program|(} \index{LP|see{Linear program}} Let's begin to frame this more mathematically. From the graphical figure, we could say that we want to create a target for evaluating store B based on some multiple of store C. We want to create targets for B that produce at least as much output using the same input or less. For now, let's emphasize input-reduction. In this case, we modify this to say that we want to use as little input while producing the same output. Given that we have a single set input and single output case and we know that C is the standard setter for everyone, we can frame this mathematically.
+\index{Linear program|(} \index{LP|see{Linear program}} Let's begin to frame this more mathematically. From the graphical figure, we could say that we want to create a target for evaluating store B based on some multiple of store C. We want to create targets for B that produce at least as much output using the same input or less. For now, let's emphasize input-reduction. In this case, we modify this to say that we want to use as little input while producing the same output. Given that we have a single input and single output case and we know that C is the standard setter for everyone, we can frame this mathematically.
 
-Let's define this multiplier of unit C as $\lambda_C$. Given the emphasis on input-reduction, we can now require the target for B must produce the same level of output, as B actually did. This would be $y_C\cdot\lambda_C=y_B$ in terms of our data or $300\cdot\lambda_C=100$ or $\lambda_C=\frac{1}{3}$. The use of a Greek symbol, $\lambda$, is a common convention in the DEA field. It helps in avoiding confusion that *x* and *y* are commonly used as variables in optimization models but in DEA these are fixed data values.
+Let's define this multiplier of unit C as $\lambda_C$. Given the emphasis on input-reduction, we can now require the target for B must produce the same level of output as B actually did. This would be $y_C\cdot\lambda_C=y_B$ in terms of our data or $300\cdot\lambda_C=100$ or $\lambda_C=\frac{1}{3}$. The use of a Greek symbol, $\lambda$, is a common convention in the DEA field. It helps in avoiding confusion that *x* and *y* are commonly used as variables in optimization models but in DEA these are fixed data values.
 
 Let's confirm this target based on $\lambda_C=\frac{1}{3}$ does in fact use less input than B does. The target uses $x_C\cdot\lambda_C=30\cdot\frac{1}{3}=10$. Since the target only requires *10* employees (input) as compared to the *20* used by B, we can say that the target for store B uses just 50% of the input used by the actual store B. We denote this efficiency, $\theta$ as the target input divided by the actual input.
 
@@ -202,7 +202,7 @@ $$
   \end{split}
 $$
 
-This is a linear program which we could then enter and run. If we do so, we would find that some of the values of $\lambda$ would be negative. Using negative values of a store to make a target for performance doesn't really make sense. A zero value makes sense but not a negative value so we add non-negativity \index{Constraints|(} constraints or bounds on the $\lambda$ values.
+This is a linear program which we could then enter and run. If we do so, we would find that some of the values of $\lambda$ would be negative. Using negative values of a store to make a target for performance doesn't really make sense. A zero value makes sense but a negative value does not, so we add non-negativity \index{Constraints|(} constraints or bounds on the $\lambda$ values.
 
 $$
 \begin{split}
@@ -271,7 +271,7 @@ mod2_0 <- MIPModel ()
 
 The \index{ompr!MIPModel} `MIPModel` command creates an initial, empty model which we name `mod2_0` to represent our initial optimization model in chapter two.
 
-The following commands \index{ompr!add\_variable} create and add each of the four $\lambda$ variables one at a time to the `mod2_0` model and resaves it as the same model. We can't use the Greek symbol, $\lambda$ directly in the `ompr` model so we will use a capital `L` instead. Each of these $\lambda$ variables are defined to be continuous variables and have lower bounds of 0 by using `lb=0`. We use a prefix of `V` to indicate that this is a mathematical programming variable and differentiate it from any R object in our environment with the same name. The `V` prefix convention is purely optional but I found using it decreases accidental problems of name conflicts.
+The following commands \index{ompr!add\_variable} create and add each of the four $\lambda$ variables one at a time to the `mod2_0` model and resaves it as the same model. We can't use the Greek symbol, $\lambda$ directly in the `ompr` model so we will use a capital `L` instead. Each of these $\lambda$ variables are defined to be continuous variables and have lower bounds of 0 by using `lb=0`. We use a prefix of `V` to indicate that this is a mathematical programming variable and differentiate it from any R object in our environment with the same name. The `V` prefix convention is purely optional, but I found using it decreases accidental problems of name conflicts.
 
 The $\theta$ variable is added in the same manner but does not need a lower bound 0 of zero.
 
@@ -324,7 +324,7 @@ Let's check the status to ensure that it found an optimal solution. The result o
 
 -   `res2_0$objective_value`: Gives the objective function value, in this case the the optimal value of $\theta$.
 
--   `res2_0$status`: This gives a clear statement as to whether the model was solved to optimality (success) or any other condition (error). This status is helpful because while most solvers return a numerical error code to describe the result of the optimization, the actual interpretation of the error code for each solver can be very different. The term error here encompasses a number of other conditions such as infeasibility, unbounded optimal solution, or an early termination condition being met due for reasons such as a suboptimality tolerance factor being met or a a time limit. If the status returns an error, the analyst should the more detailed information from the solver described below.
+-   `res2_0$status`: This gives a clear statement as to whether the model was solved to optimality (success) or any other condition (error). This status is helpful because while most solvers return a numerical error code to describe the result of the optimization, the actual interpretation of the error code for each solver can be very different. The term error here encompasses a number of other conditions such as infeasibility, unbounded optimal solution, or an early termination condition being met due for reasons such as a suboptimality tolerance factor being met or reaching a time limit. If the status returns an error, the analyst should the more detailed information from the solver described below.
 
 -   `res2_0$solution`: A nicely formatted set of decision variable values.
 
@@ -334,7 +334,7 @@ Let's check the status to ensure that it found an optimal solution. The result o
 
 -   `res2_0$additional_solver_output`: This collects detailed information directly from the solver used and is particularly helpful for diagnosing problems when the \index{Solver status} solver status is "error" or in integer programming optimization problems that are solving slowly.
 
-Let's start with checking the status.
+Let's start by checking the status.
 
 ```{r}
 res2_0$status
@@ -377,11 +377,11 @@ In general, we'll usually omit the details of this type of table formatting in m
 
 ## A More Formal and General Linear Program
 
-A key way to begin the mathematical development of the envelopment model is to ask, can you find a combination of units that produces a target with at least as much output using less input? The blend of other units is described by a vector $\lambda$. Another way to denote this is that $\lambda_j$ is the specific amount of a unit *j* used in setting the target for performance for unit *k*.
+Let's begin the mathematical development of the envelopment model by asking, can you find a combination of units that produces a target with at least as much output using less input? The blend of other units is described by a vector $\lambda$. Another way to denote this is that $\lambda_j$ is the specific amount of a unit *j* used in setting the target for performance for unit *k*.
 
 This can be easily expanded to the multiple input and multiple output case by defining $x_{i,j}$ to be the amount of the *i*'th input used by unit *j* and $y_{r,j}$ to be the amount of the *r*'th output produced by unit *j*.
 
-For simplicity and to allow for a graphical representation, we have focused on the single input and single output case rather than the general *m* input and *s* output case but let's move on the more general case of multiple inputs and outputs or $m,s\geq1$. To make the code more readable and avoid name space conflicts in R, we will use a slightly different convention $N^X$ or `NX` instead of *m* to refer to the number of inputs (*x*'s) and $N^Y$ or `NY` to be the number of outputs (*y*'s) instead of *s*. Also, the normal mathematical convention is to use *n* to denote the number of \index{Decision making unit} \index{DMU|see{Decision making unit}} Decision Making Units (DMUs) so I will use $N^D$ or `ND` to indicate that in the R code.
+For simplicity and to allow for a graphical representation, we have focused on the single input and single output case rather than the general *m* input and *s* output case but let's move on to the more general case of multiple inputs and outputs or $m,s\geq1$. To make the code more readable and avoid name space conflicts in R, we will use a slightly different convention $N^X$ or `NX` instead of *m* to refer to the number of inputs (*x*'s) and $N^Y$ or `NY` to be the number of outputs (*y*'s) instead of *s*. Also, the normal mathematical convention is to use *n* to denote the number of \index{Decision making unit} \index{DMU|see{Decision making unit}} Decision Making Units (DMUs) so I will use $N^D$ or `ND` to indicate that in the R code.
 
 Let's connect these ideas together now using these mathematical building blocks. The core idea of the envelopment model of a DMU *k* can be thought of as to find a target constructed of a mix of the DMUs described by a vector $\lambda$ that uses no more input to achieve the same or more of every output as DMU *k*. The amount of the *i'th* input used by the target is then $\sum_{j=1}^{N^D} x_{i,j}\lambda_j$. By the same token, the amount of the *r'th* output produced by the target is $\sum_{j=1}^{N^D} y_{r,j}\lambda_j$.
 
@@ -398,13 +398,13 @@ $$
   \end{split}
 $$
 
-The symbol $\forall$ should be read as "for all". This means that the first input \index{Constraints!Input} constraint with $\forall \; i$ is repeated for all values of *i*. In this case, it would mean that we repeat this constraint for values of *i* from *1* to $N^X$. In our single-input case ( $N^X=1$ ), we would only have one input constraint. Similarly, $\forall \; r$ indicates that we are repeating this constraint for each possible value of *r* from *1* to $N^Y$. Lastly, we will often use $\forall$ *j* to indicate for all \index{Decision making unit} decision making units from 1 to $N^D$. For the sake of brevity in our linear programming formulations, we will use the $\forall$ *i*, *r*, or *j* when it is for all the possible inputs, or outputs, or decision making units respectively.
+The symbol $\forall$ should be read as "for all". This means that the first input \index{Constraints!Input} constraint with $\forall \; i$ is repeated for all values of *i*. In this case, it would mean that we repeat this constraint for values of *i* from *1* to $N^X$. In our single input case ( $N^X=1$ ), we would only have one input constraint. Similarly, $\forall \; r$ indicates that we are repeating this constraint for each possible value of *r* from *1* to $N^Y$. Lastly, we will often use $\forall$ *j* to indicate for all \index{Decision making unit} decision making units from 1 to $N^D$. For the sake of brevity in our linear programming formulations, we will use the $\forall$ *i*, *r*, or *j* when it is for all the possible inputs, or outputs, or decision making units respectively.
 
 This is not yet a linear program because it is missing an objective function. It defines what is an acceptable target of performance that is at least as good as DMU *k* but does not try to find a *best* target.
 
 The two most common approaches to finding the best target are the input-oriented and output-oriented models. In the output-oriented model, the first (input) \index{Constraints!Input} constraint is satisfied while trying to *exceed* the second \index{Constraints!Output} constraint (output) by as much possible. This focus on increasing the output is then called an *output-orientation*.
 
-In this chapter, we will focus on satisfying the second constraint while trying to improve upon the first by as much as possible. In other words, we will satisfy the second (output) \index{Constraints!Output} constraint but try to form a target that uses as little input as possible.
+In this chapter and input-oriented model, we will aim to satisfy the second constraint while trying to improve upon the first constraint by as much as possible. In other words, we will satisfy the second (output) \index{Constraints!Output} constraint but try to form a target that uses as little input as possible.
 
 Let's define the proportion of the studied unit's input needed by the target as $\theta$. A value of $\theta=1$ then means no input reduction can be found in order to produce that unit's level of output. Similarly, $x_j$ is the amount of input used by unit *j* and $y_j$ is the amount of output produced by unit *j*.
 
@@ -423,7 +423,7 @@ $$
   \end{split}
 $$
 
-Expressing the target on the left and the actual unit's value with the radial reduction on the right is conceptually straightforward to understand. Standard form is to collect all the terms with variables on the left and putting constants (terms without variables) on the right hand side of the inequalities. This is easily done.
+Expressing the target on the left and the actual unit's value with the radial reduction on the right is conceptually straightforward to understand. Standard form is to collect all the terms with variables on the left and place constants (terms without variables) on the right hand side of the inequalities. This is easily done.
 
 $$
 \begin{split}
@@ -497,7 +497,7 @@ mod2_1 <- add_variable(mod2_1, Vtheta, type = "continuous")
 
 This follows the same format but there is only one variable. Also, it does not need to have a lower bound.
 
-Moving on to the \index{ompr!set\_objective} objective function, we set the objective function for the linear program using the `set_objective`function. In this case, our objective function was *minimize* $\theta$ .
+Moving on to the \index{ompr!set\_objective} objective function, we set the objective function for the linear program using the `set_objective` function. In this case, our objective function was *minimize* $\theta$ .
 
 ```{r}
 mod2_1 <- set_objective(mod2_1, Vtheta, "min")
@@ -520,7 +520,7 @@ mod2_1 <- add_constraint(mod2_1,
                          >= ydata[k,1])
 ```
 
-At this point, we now have a complete model. Simply typing the `mod2_1`in the console after running all of the above commands will result in a summary of the model.
+At this point, we now have a complete model. Simply typing the `mod2_1` in the console after running all of the above commands will result in a summary of the model.
 
 ```{r}
 mod2_1
@@ -532,7 +532,7 @@ This model is the size we expect. Let's go ahead and \index{ompr!solve\_model} s
 res2_1 <- solve_model(mod2_1, with_ROI(solver = "glpk"))
 ```
 
-This command solves the passed model, `mod2_1` by using the R Optimization Interface to use the \index{glpk} GLPK solver. The result is then assigned to `res2_1`.
+This command solves the passed model, `mod2_1`, by using the R Optimization Interface to use the \index{glpk} GLPK solver. The result is then assigned to `res2_1`.
 
 Again, we can get a summary of this \index{ompr!Results object} results object by simply typing in the object name, `res2_1`.
 
@@ -558,14 +558,14 @@ mod2_1 <- MIPModel()                                          |>
 res2_1 <- solve_model(mod2_1, with_ROI(solver = "glpk")) 
 ```
 
-The piping command command was used previously in making a nicely formatted table but it can also make model building much more concise to not need to keep reassigning things to the model with each command. A few things to keep in mind with piping:
+The piping command was used previously in making a nicely formatted table, but it can also make model building much more concise to not need to keep reassigning things to the model with each command. A few things to keep in mind with piping:
 
 -   Piping was first implemented in R by way of packages such as `magrittr` and became so popular that a piping operator, `|>`, was added to the base system of `R` in version 4.1.0 (mid 2021). This means that you will get an error message if you try to use `|>` operator on earlier versions of R. You can upgrade the version of R, unpipe the commands, or use `magrittr` and the older `%>%` pipe operator.
 -   The pipe command is like glue connecting two commands together. This highlights that you don't want to end with another pipe that expects a different object. The last `add_constraint` command does **not** have a pipe.
 -   The solving is based on passing in the model, `mod2_1` directly but could have also been piped.
 -   Piped models are shorter making them easier to write and express.
 -   Piped models may be harder to \index{Piping!debugging} debug as syntax errors may point to the full piped object rather than just one individual line. Using the piping metaphor, this is equivalent to being told that there is a leak *somewhere* in the home's plumbing as compared to being told which particular pipe connection is leaking. This is potentially a very important reason for many people to build unpiped models, at least for development purposes.
--   Piped `ompr` models may be more concise looking but do not appear to run significantly faster based on my informal tests. Note that if speed is a concern, `ompr` has a new modeling structure in development, `MILPModel` that would be significantly faster but this may be more useful for bigger models than DEA typically requires.
+-   Piped `ompr` models may be more concise looking but do not appear to run significantly faster based on my informal tests. Note that if speed is a concern, `ompr` has a new modeling structure in development, `MILPModel` that would be significantly faster, but this may be more useful for bigger models than DEA typically requires.
 
 Now, let's get to looking over the results.
 
@@ -604,7 +604,7 @@ res2_1.names$Lambdanamesbyletter    # Plain text
 res2_1.names$LambdanamesbyletterLX  # LaTeX formatted
 ```
 
-For our results, we will then select to use the \index{TRA!LambdanamesbyletterLX} `LambdanamesbyletterLX` to give LaTeX structured column names ready to be used as column names. We can can then apply column names to the table without needing to redefine the original table. Note the use of `escape=F` is needed for it accommodate LaTeX code. We will use a similar approach for many future tables but will often not display the table generating code chunk for brevity by using a code chunk option of `include=FALSE`. The actual source code for each chapter of the book is available from <https://github.com/prof-anderson/DEA_Using_R>.
+For our results, we will then select to use the \index{TRA!LambdanamesbyletterLX} `LambdanamesbyletterLX` to give LaTeX structured column names ready to be used as column names. We can then apply column names to the table without needing to redefine the original table. Note the use of `escape=F` is needed for it accommodate LaTeX code. We will use a similar approach for many future tables but will often not display the table generating code chunk for brevity by using a code chunk option of `include=FALSE`. The actual source code for each chapter of the book is available from <https://github.com/prof-anderson/DEA_Using_R>.
 
 ```{r}
 res2_1.names <- TRA::DEAnames(NX, NY, ND)
@@ -616,11 +616,11 @@ kbl(cbind(res2_1.efficiency, res2_1.lambda),
   kable_styling(latex_options = "HOLD_position")
 ```
 
-The above table follows a few convenient \index{Conventions} conventions. Rather than just using $\theta$, we label the efficiency score by the returns to scale used for the model, in this case the constant returns to scale is used and therefore $\theta$ is superscripted with CRS. In some research, it might be labeled as CCR after Charnes, Cooper, and Rhodes [@CharnesDataEnvelopmentAnalysis1978]. Later we will cover other models including the variable returns to scale model and label it is as VRS although it is often labeled BCC after Banker, Charnes, and Cooper [@Bankermodelsestimatingtechnical1984].
+The above table follows a few convenient \index{Conventions} conventions. Rather than just using $\theta$, we label the efficiency score by the returns to scale used for the model, in this case  constant returns to scale is used and therefore $\theta$ is superscripted with CRS. In some research, it might be labeled as CCR after Charnes, Cooper, and Rhodes [@CharnesDataEnvelopmentAnalysis1978]. Later we will cover other models including the variable returns to scale model and label it as VRS although it is often labeled BCC after Banker, Charnes, and Cooper [@Bankermodelsestimatingtechnical1984].
 
 The results in the table indicate that DMU *B* has an efficiency score of 50%. The target of performance is made of DMU *C* scaled down by a factor of 0.33. These results match the graphical results from earlier.
 
-Let's now extend it to handle multiple inputs, `NX`, and outputs, `NY`. Of course this doesn't have any impact on our results just yet since we are still only using a single input and output but we now have the structure to accommodate the more general case. To provide a little variety, we'll change it to the first DMU, A, (`k<-1`) to give a little more variety.
+Let's now extend it to handle multiple inputs, `NX`, and outputs, `NY`. This doesn't have any impact on our results just yet since we are still only using a single input and output but we now have the structure to accommodate the more general case. To provide a little variety, we'll change it to the first DMU, A, (`k<-1`) to give a little more variety.
 
 The key change to accommodate multiple inputs is to change the `add_constraint` command to repeat this constraint for `i = 1:NX`. This means that the constraint is repeated for every value from 1 to `NX`. If we had 10 inputs ($N^X=10$) then there would be ten constraints. The first substituting in `i=1`, the second `i=2`, etc.
 
@@ -704,7 +704,7 @@ kbl(temp, booktabs=T, digits=3, escape=F, row.names=F,
 
 This table command uses a few extra practices of building the table into a temporary object, `temp` and adding a column of DMU names to it rather than using row names. Again, names have not changed from the `res2_1` so there is no need to recreate the names. We then turn off the display of row names in the table using `row.names=F`.
 
-The results match those observed graphically but let's discuss them. These results indicate that only DMU *C* is efficient. A rescaled version of *C* could produce the same level of output of *A*, *B*, and *D*, while using 25%, 50%, and 20% less input respectively. The targets of performance for *A* and *C* are constructed by scaling down unit *C* to a much smaller size, as shown by the the values of $\lambda$. In contrast, *D*'s performance is surpassed by a 33% larger version of *C*.
+The results match those observed graphically but let's discuss them. These results indicate that only DMU *C* is efficient. A rescaled version of *C* could produce the same level of output of *A*, *B*, and *D*, while using 25%, 50%, and 20% less input respectively. The targets of performance for *A* and *C* are constructed by scaling down unit *C* to a much smaller size, as shown by the values of $\lambda$. In contrast, *D*'s performance is surpassed by a 33% larger version of *C*.
 
 It is an important step of any DEA study to carefully examine the results. In this case, it might be argued that for certain applications, *C*'s business practices do not scale linearly and therefore could not be assumed to operate at a much smaller or larger size. In that case, we should consider modeling returns to scale.
 
@@ -718,9 +718,7 @@ It is an important step of any DEA study to carefully examine the results. In th
 
 Up to this point, our analyses used an assumption of constant returns to scale. This might result in targets that are considered unfair as it can build a target based on a radically larger or smaller set of DMUs. Whether the stores were larger or smaller, store C set the performance target for other units.
 
-Instead, let's add a constraint that says that the target of performance must be made up of parts that add up to a whole unit. All it needs to do is constrain the sum of the $\lambda$ variables to equal 1 or in other words, $\sum_{j} \lambda_j = 1$. This prevents the target from being made up of just one greatly shrunken version of a unit, say C making the target for A in our earlier example. It also prevents an over reliance of scaling up a unit to make the performance target, in our example C being scaled up to make a comparison target for D. This constraint makes the model into a variables returns to scale or VRS input-oriented envelopment model.
-
-
+Instead, let's add a constraint that says that the target of performance must be made up of parts that add up to a whole unit. All it needs to do is constrain the sum of the $\lambda$ variables to equal 1 or in other words, $\sum_{j} \lambda_j = 1$. This prevents the target from being made up of just one greatly shrunken version of a unit, say C making the target for A in our earlier example. It also prevents an over reliance of scaling up a unit to make the performance target, in our example C being scaled up to make a comparison target for D. This constraint makes the model into a variable returns to scale or VRS input-oriented envelopment model.
 
 $$
 \begin{split}
@@ -1000,20 +998,22 @@ A few takeaways from these results:
 
 ## Extracting Multiplier Weights from Envelopment Results
 
-The `ompr` package returns the \index{Dual values!Extraction} of linear programs. Let's now wrap this into the full series of linear programs so as to calculate the \index{Multiplier weights} multiplier weights for each unit in the CRS model. We will discuss the weights in more detail in later chapters.
+The dual of the envelopment model is called the multiplier model. The dual of the multiplier model is referred to as the multiplier model. These problems are inextricably linked and when one problem is solved (called the primal), the dual is also solved. LP solvers will generally pass the solutions to the dual back with the primal results. We will cover the multiplier model in Chapter 5 but for now, let's use the `ompr` package's feature for returning the \index{Dual values!Extraction} dual values of linear programs. This will give us the solution to the multiplier model while solving the envelopment model.
+
+Let's now wrap this into the full series of linear programs so as to calculate the \index{Multiplier weights} multiplier weights for each unit in the CRS model. We will discuss the weights in more detail in later chapters.
 
 ```{r Store6-example-w-mult-weight}
 
 RTS<-"CRS"
 for (k in 1:ND) {
   
-  result <- MIPModel()                                                |>
+  result <- MIPModel()                                            |>
     add_variable(Vlambda[j], j = 1:ND, type = "continuous", 
-                 lb = 0)                                              |>
-    add_variable(Vtheta, type = "continuous")                         |>
-    set_objective(Vtheta, "min")                                      |>
+                 lb = 0)                                          |>
+    add_variable(Vtheta, type = "continuous")                     |>
+    set_objective(Vtheta, "min")                                  |>
     add_constraint(sum_expr(Vlambda[j] * xdata[j,i], j = 1:ND) 
-                   <= Vtheta * xdata[k,i], i = 1:NX)                  |>
+                   <= Vtheta * xdata[k,i], i = 1:NX)              |>
     add_constraint(sum_expr(Vlambda[j] * ydata[j,r], j = 1:ND) 
                    >= ydata[k,r], r = 1:NY) 
 
@@ -1039,14 +1039,14 @@ rownames(temp) <- store6names$DMUnamesbyletter
 kbl (temp,booktabs=T, digits=5, escape=F,
      col.names=c("$\\theta^{CRS}$", store6names$LambdanamesbyletterLX,
                  store6names$VnamesLX, store6names$UnamesLX),
-        caption="Results from Six Store Example")                       |>
+        caption="Results from Six Store Example")                         |>
   add_header_above(c(" "=1, "Efficiency" = 1, "Envelopment Variables" = 6, 
                      "Weights" = 3))|>
 kable_styling(protect_latex = TRUE, 
               latex_options = c("HOLD_position", "scale_down"))
 ```
 
-A few things should be noticed with respect the the \index{Multiplier weights} multiplier weights:
+A few things should be noticed with respect the \index{Multiplier weights} multiplier weights:
 
 -   Multiplier weights can be quite small because in general, they are multiplied by inputs and the product is typically less than one. They may appear to round to zero but still be significant.
 -   Multiplier weights are not unique for strongly efficient DMUs. This is explored in more detail in the multiplier model chapter and the cross-efficiency chapter.
@@ -1176,11 +1176,11 @@ kbl (Store7CRS.Res, booktabs=T, escape=F, digits=4,
 kable_styling(latex_option="HOLD_position")
 ```
 
-Notice that this is an instance *multiple optimal solutions* or *multiple optima*. We can demonstrate this by simply adding a constraint that prevents at iteration 7 (Gary's Grocery) from having Trader Carrie's used in target setting ($\lambda_C=0$) will result in exactly the same efficiency score and thereby objective function value. We were lucky in this case to find a target that pointed initially to Trader Carrie's. In the case of multiple optima, finding a solution by luck is not a reliable procedure. We could have just as readily easily found Gary's Grocery to use itself as the comparator setting target using five extra workers than Trader Carrie's.
+Notice that this is an instance of *multiple optimal solutions* or *multiple optima*. We can demonstrate this by simply adding a constraint that prevents at iteration 7 (Gary's Grocery) from having Trader Carrie's used in target setting ($\lambda_C=0$) will result in exactly the same efficiency score and thereby objective function value. We were lucky in this case to find a target that pointed initially to Trader Carrie's. In the case of multiple optima, finding a solution by luck is not a reliable procedure. We could have just as easily found Gary's Grocery to use itself as the comparator setting target using five extra workers than Trader Carrie's.
 
 ### Modeling to Account for Slacks
 
-In order to accommodate this, we need to extend the simple radial model by adding variables to reflect nonradial slacks. We do this by converting the model's \index{Constraints!Input} input and \index{Constraints!Output} output constraints from inequalities into equalities by explicitly defining slack variables. The slack variable(s) $s^x_i$ represents the amount of input, *i*, can be reduced from the target for the analysis. Similarly, the slack variable(s) $s^y_r$ indicate the additional amount of output r which the target is able to generate. These are considered non-radial slacks and are above and beyond the proportional inefficiency indicated by $\theta$
+In order to accommodate this, we need to extend the simple radial model by adding variables to reflect nonradial slacks. We do this by converting the model's \index{Constraints!Input} input and \index{Constraints!Output} output constraints from inequalities into equalities by explicitly defining slack variables. The input slack variable(s), $s^x_i$, represents the amount of input, *i*, can be reduced from the target for the analysis. Similarly, the output slack variable(s), $s^y_r$, indicate the additional amount of output *r* which the target is able to generate. These are considered non-radial slacks and are above and beyond the proportional inefficiency indicated by $\theta$.
 
 $$
 \begin{split}

@@ -122,7 +122,7 @@ kbl (cbind(XBH,YBH),
 
 Now, let's run DEA. Feel free to pick a package. We explored some packages in chapter 8. For now, let's try the `MultiplierDEA` package. Let's look over the results.
 
-```{r results='asis', warning=FALSE, message=FALSE}
+```{r results='asis', include=FALSE}
 library(MultiplierDEA)
 
 resBH<-DeaMultiplierModel(XBH, YBH,
@@ -251,10 +251,19 @@ knitr::include_graphics(
 
 ```{r, message=FALSE}
 head(TRA::univ_lic_2007)
+
+#ynames_printable<-c("$Licensing \\n Income\n(\\$M)$", 
+#                    "$Licenses \\; and \\n Options \\; Executed$",
+#                    "$Startup \\nCompanies$",
+#                    "$US Patents \\nFiled$",
+#                    "$US Patents \\nIssued$")
+#xnames_printable<-c("$Total \\; Research\\n Spending (\\$M)$")
+
 #univ_lic_2007 <- read_csv("univ_lic_2007.csv", show_col_types=FALSE)
 
 kbl (TRA::univ_lic_2007, 
-     booktabs = T, digits = 3, align = 'c', 
+     booktabs = T, digits = 3, align = 'c', escape=T,
+     col.names = c("University", ynames_printable, xnames_printable),
        caption="University Technology Transfer Data") |>
   kable_styling(latex_options = c("HOLD_position", "scale_down"))
 
@@ -262,7 +271,7 @@ kbl (TRA::univ_lic_2007,
 
 Now let's prepare the data for the analysis.  
 
-```{r}
+```{r results='asis'}
 xdata <- as.matrix(univ_lic_2007 [,7])
 rownames(xdata)<-as.matrix(univ_lic_2007[,1])
 
@@ -347,7 +356,8 @@ kbl (univcollect,
 
 
 ```{r}
-corrtemp <- rbind( cor(univcollect, method="pearson"), cor(univcollect, method="spearman"))
+corrtemp <- rbind( cor(univcollect, method="pearson"),
+                   cor(univcollect, method="spearman"))
 
 ```
 
