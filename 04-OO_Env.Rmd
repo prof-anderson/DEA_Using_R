@@ -8,11 +8,11 @@ library(bookdown); library(rmarkdown); rmarkdown::render("04-OO_Env.Rmd", "pdf_b
 
 In chapters 2 and 3 we focused on the input-oriented envelopment model. This chapter will focus on the output-oriented model before moving on to a slack-based model sometimes referred to as a non-oriented model.
 
-The \index{Input-oriented} input and \index{Output-oriented} output-oriented models are the most commonly used for DEA applications. People can sometimes be confused over when to use an input-oriented or an output-oriented model. Think of input-oriented as *input-reducing* and output-oriented as *output increasing*. In an input-oriented model, the primary goal is to reduce the input while not sacrificing any output. In contrast, the primary goal for an output-oriented model is to increase the output while not increasing the usage of any input.
+The \index{Input-oriented} input and \index{Output-oriented} output-oriented models are the most commonly used models for DEA applications. People can sometimes be confused over when to use an input-oriented or an output-oriented model. Think of input-oriented as *input reducing* and output-oriented as *output increasing*. In an input-oriented model, the primary goal is to reduce the input while not sacrificing any output. In contrast, the primary goal for an output-oriented model is to increase the output while not increasing the usage of any input.
 
 ## Output-Oriented Model
 
-Think of selecting the model orientation by looking at a simple model of say, a set of restaurants where the input is labor and the output is customers served. The question than is what do the managers have more control over. If managers of restaurants have the opportunity to serve more customers and have many customers trying to get reservations but are unable to be accommodated, perhaps an output-oriented model is best. On the other hand, they have weak influence over the number of customers served, perhaps due to advertising being done at a regional level. In this case, perhaps cost control is the primary goal which means that an input-oriented model should be applied to emphasize reducing labor.
+Think of selecting the model orientation by looking at a simple model of say, a set of restaurants where the input is labor and the output is customers served. The question then is what do the managers have more control over. If managers of restaurants have the opportunity to serve more customers and have many customers trying to get reservations but are unable to be accommodated, perhaps an output-oriented model is best. On the other hand, they may only have weak influence over the number of customers served, perhaps due to advertising being done at a regional level. In this case, perhaps cost control is the primary goal which means that an input-oriented model should be applied to emphasize reducing labor.
 
 ```{r Fig-Orientation-Projections, echo=FALSE, out.width="49%", fig.show='hold', fig.align='center',fig.cap="Input vs. Output Orientations", fig.show='hold'}
 knitr::include_graphics("images/Fig-4StoreIO-CRS.png")
@@ -260,7 +260,7 @@ Key takeaways about the impact of \index{Orientation} orientation:
 
 -   Changing a model from input-orientation to output-orientation will not change which units are efficient.
 -   Changing a model from input-orientation to output-orientation under CRS results in consistent results but different projections.
--   Changing a model from input-orientation to output-orientation under other returns scale may change the relative rankings of inefficient units.
+-   Changing a model from input-orientation to output-orientation under other returns to scale assumptions may change the relative rankings of inefficient units.
 
 ## Slack Based Models
 
@@ -443,7 +443,7 @@ $$
 \end{split}
 $$
 
-The $\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}$ is the sum of all input slacks by percentage. We could convert this to an average slack percentage by dividing by the number of inputs, $N^x$. A value 0% would mean no slacks in any input. Similar things could be done on the output side.
+The $\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}$ is the sum of all input slacks by percentage. We could convert this to an average slack percentage by dividing by the number of inputs, $N^x$. A value of 0% would mean no slacks in any input. Similar things could be done on the output side.
 
 We can use a single metric $\rho$, that can serve as an efficiency score by combining both the average input slack and the output slack.
 
@@ -451,7 +451,7 @@ $$
 \rho = \frac {1- \frac {1}{N^x}\sum_{i=1}^{N^X} \frac{s^x_i}{x_{i,k}}}  {1+\frac {1}{N^y}\sum_{r=1}^{N^Y} \frac{s^y_r}{y_{r,k}}}
 $$
 
-While it doesn't have the same radial interpretation of both $\theta$ or $\phi$ from the input or output-oriented model, it provides a nice holistic metric that captures inefficiency on both inputs and outputs. A value of $\rho=1.0$ represents an efficient unit. A value of $\rho=0.5$ might be due to an average input slack of 50% on the inputs in a unit that is output efficient. On the other hand, it might also represent a unit that only produces half of what an efficient target produces despite being input efficient. In either case, an overall efficiency of 50% seems warranted. Unfortunately the function for calculating $\rho$ involves dividing functions of variables, $s^x_i$ by functions of other variables, $x^y_r$. This makes it a \index{Nonlinear function} nonlinear function which is more difficult to optimize.
+While it doesn't have the same radial interpretation of both $\theta$ or $\phi$ from the input or output-oriented model, it provides a nice holistic metric that captures inefficiency on both inputs and outputs. A value of $\rho=1.0$ represents an efficient unit. A value of $\rho=0.5$ might be due to an average input slack of 50% on the inputs in a unit that is output efficient. On the other hand, it might also represent a unit that only produces half of what an efficient target produces despite being input efficient. In either case, an overall efficiency of 50% seems warranted. Unfortunately, the function for calculating $\rho$ involves dividing functions of variables, $s^x_i$ by functions of other variables, $x^y_r$. This makes it a \index{Nonlinear function} nonlinear function which is more difficult to optimize.
 
 Let's calculate $\rho$ for each of the stores using the slack based model.
 
