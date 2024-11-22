@@ -22,6 +22,10 @@ documentclass: krantz
 ```{r setup1, include=FALSE}
 knitr::opts_chunk$set(tidy = FALSE)
 options(htmltools.dir.version = FALSE)
+
+# in line 5, change output to 
+#output: pdf_document
+
 ```
 
 # Preface {.unnumbered}
@@ -44,7 +48,7 @@ This book can be used in support of an advanced elective or graduate course to h
 
 ## Acknowldegements {.unnumbered}
 
-This book has benefited from the interactions of many people over the years. In particular, I would like to thank the following students and graduates from over the recent years that have made direct or indirect contributions this effort.
+This book has benefited from the interactions of many people over the years. In particular, I would like to thank the following students and graduates from over the recent years that have made direct or indirect contributions to this effort.
 
 -   Tim Calderwood
 -   Jiali Ju
