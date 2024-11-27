@@ -155,7 +155,7 @@ names(barb_score)<-""
 kbl (cbind(barb_score, u1_result, u2_result), 
      escape=F, booktabs = T, digits = 5,
      col.names = c("Score", "$u_1$", "$u_2$"),
-     caption="Barb's Score and Results")|>
+     caption="Barb's Score and Results")           |>
   kable_styling(latex_options = "HOLD_position")
 ```
 
@@ -458,7 +458,7 @@ kbl (mm1.combined , booktabs=T, escape=F, digits=4,
      col.names=c("$\\theta^{CRS}$", mm1names$VnamesLX,
                  mm1names$UnamesLX,
                  mm1names$LambdanamesbyletterLX),
-     caption =c("Multiplier Model Results from Six Store Example"))  |>
+     caption =c("Multiplier Model Results from Six Store Example")) |>
   kable_styling (latex_options = c("HOLD_position"))
 ```
 
@@ -608,9 +608,9 @@ kbl (mm2.combined , booktabs=T, escape=F, digits=5,
                  mm1names$UnamesLX,
                  "$\\theta^{CRS}$", mm1names$VnamesLX,
                  mm1names$UnamesLX),
-     caption =c("Multiplier Model Results from Grocery Store Example"))  |>
+     caption =c("Multiplier Model Results from Grocery Store Example")) |>
   add_header_above(c("Original Results" = 4, 
-                     "With Weight Restrictions" = 4))                    |>  
+                     "With Weight Restrictions" = 4))                   |>  
   kable_styling (latex_options = c("HOLD_position","scale_down"))
 ```
 

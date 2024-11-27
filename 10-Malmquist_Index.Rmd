@@ -25,23 +25,23 @@ library (DJL)
 library (deaR)
 ```
 
-Often it is important to assess the changing performance over time rather than just at a single snapshot. We did some explorations of the changing distribution of scores in the chapter on baseball but we didn't really explore how these scores change on a year by year basis. A unit's changing performance might be due to a number of reasons:
+Often it is important to assess the changing performance over time rather than just at a single point in time. We did some explorations of the changing distribution of scores in the chapter 8 with baseball but we didn't really explore how these scores change on a year by year basis. A unit's changing DEA efficiency might be due to a number of reasons:
 
 -   General operating conditions have changed
 -   Changing size of operations
 -   Incorporated best practices by single unit
 
-In the case of a store being benchmarked against similar stores in the same chain, changes due to general operating conditions might be due to inflation raising wages (or materials, end products, etc.), changing laws or regulations, etc. In this case, a change in the general operating conditions is like "...a rising tide raising all boats." It is good to identify and quantify these impacts but it isn't something that an individual store manager would be either blamed for performance loss due to this or praised for changes helping. (A similar example could be found for stock traders, making a 20% return when the market is also up 20% is not particularly impressive and getting a 15% return might be considered poor.)
+In the case of a store being benchmarked against similar stores in the same chain, changes due to general operating conditions might be due to inflation raising wages (or materials, end products, etc.), changing laws or regulations, etc. In this case, a change in the general operating conditions is like "...a rising tide raising all boats." It is good to identify and quantify these impacts, but it isn't something that an individual store manager would be either blamed for performance loss due to this or praised for changes helping. Stock traders highlight the importance of this issue - making a 20% return when the market is also up 20% is not particularly impressive and getting a 15% return might be considered poor.
 
 Performance may be improved by simply getting bigger and achieving economies of scale. Perhaps a store expansion allowed for better space utilization with a 10% increase in space and staff generating a 20% increase in sales. In this case, there might be gains from just simply getting bigger. Other returns to scale effects such as getting too big and decreasing returns to scale or impacts of shrinking in size may also occur. Again, finding ways to separate and assess these impacts can be very useful.
 
-A third, key way of changing performance might be by adopting new best practices. A store manager might glean a new innovation such as a better way to staff employees, run checkout operations, or manage inventory. This innovation would be a change that affects only this particular store and we would like to identify and reward such innovation. Identifying a new best practice early could help us spread this best practice more widely and quickly.
+Another way of changing performance might be by adopting new best practices. A store manager might glean a new innovation such as a better way to staff employees, run checkout operations, or manage inventory. This innovation would be a change that affects only this particular store and we would like to identify and reward such innovation. Identifying a new best practice early could help us spread this best practice more widely and quickly.
 
 Simply looking at efficiency scores on their own in a single year does not always give us sufficient richness for separating out these situations. The \index{Malmquist productivity index|(} \index{MPI|see{Malmquist productivity index}} Malmquist Productivity Index was developed for decomposing this changing performance over time.
 
 ## A Two-Dimensional Example of MPI
 
-Let's use a straightforward single input, single output example of the Malmquist Productivity Index to illustrate conceptually what we are doing with the Malmquist Productivity Index. This is then followed with a numerical version of that example.
+Let's use a straightforward single input, single output example of the Malmquist Productivity Index to illustrate conceptually what we are doing with the Malmquist Productivity Index. This is then followed with a numerical version of that example. This example is inspired by Fare, Lindren, and Roos [@fare_productivity_1995].
 
 We will then follow with calculations using various packages.
 
@@ -63,8 +63,7 @@ We can now calculate the changing distance from the frontier from the respective
 
 $$
 TE=\frac{D_k^{t+1}(x^{t+1},y^{t+1})}{D_k^t(x^{t},y^{t})}
-$$ 
-Using the figure earlier, we can substitute locations on the vertical axis for these respective distances.
+$$ Using the figure earlier, we can substitute locations on the vertical axis for these respective distances.
 
 $$
 TE=\frac{D_k^{t+1}(x^{t+1},y^{t+1})}{D_k^t(x^{t},y^{t})}
@@ -72,7 +71,7 @@ TE=\frac{D_k^{t+1}(x^{t+1},y^{t+1})}{D_k^t(x^{t},y^{t})}
 =\frac{18/20}{6/10}=\frac{180}{120}=1.50
 $$
 
-This can be interpreted as the unit, making a 50% improvement in technical (or operational) efficiency separate from the general overall improving operating conditions.
+This can be interpreted as the unit, *k*, making a 50% improvement in technical (or operational) efficiency separate from the general overall improving operating conditions.
 
 Next, we want to calculate the technology progress that has occurred. This is done by comparing the relative closeness of unit at a particular time to those in both time periods. More formally, we can use the following.
 
@@ -402,11 +401,11 @@ kbl(head(res_bb, 20), digits = 4,  booktabs=T,
 
 \*\* I want to dig into the numbers in more detail but this is my first pass at interpretation!\*\*
 
-Some observations, the `NA` indicates that a player does not have data in one of the two years. For example, `ainsmed01` is efficient in year 1919 using his batting statistics from 1919 since the E19-T19 column is 1.0. His 1919 batting statistics are below the efficiency frontier in 1920 though since E20-T19 is less than 1.0 (0.9817). In other words, the efficiency frontier has expanded in 1920 such that his 1919 performance would be slightly inefficient. He does not have data from 1920 though and therefore the two columns that would use 1920 data are filled with `NA`.
+Some observations, the `NA` indicates that a player does not have data in one of the two years. For example, `ainsmed01` is efficient in the year 1919 using his batting statistics from 1919 since the E19-T19 column is 1.0. His 1919 batting statistics are below the efficiency frontier in 1920 though since E20-T19 is less than 1.0 (0.9817). In other words, the efficiency frontier has expanded in 1920 such that his 1919 performance would be slightly inefficient. He does not have data from 1920 though and therefore the two columns that would use 1920 data are filled with `NA`.
 
 Interesting that the `NA` seems to only cover players that played in 1919 and not 1920. I'll need to doublecheck in the full dataset as there should be a roughly equal number of `NA` values in both sides.
 
-Let's shift attention to talk about the best players by sorting by efficiency in 1919 and using the head function to display the top 20 batters.
+Let's shift our attention to talk about the best players by sorting by efficiency in 1919 and using the head function to display the top 20 batters.
 
 ```{r}
 # Now let's grab just a few rows of specific players to discuss
@@ -422,13 +421,13 @@ kbl(head(res_bb
   footnote (general="Top 20 Efficient 1920 American League Batters")
 ```
 
-Ty Cobb's values are interesting. His value for E19-T19 is one and therefore he was efficient in 1919 using his 1919 batting statistics. He is no longer efficient in 1920 as his as denoted by E20-T20 being 0.9165. While his 1919 performance was efficient relative to 1919, it would not have been efficient against the frontier in 1920 (E19-T20 \< 1.0). The TC value indicates that his efficiency declined relative to their respective efficiency frontiers. The TEC value though is larger than 1 indicating that the efficiency frontier expanded relative to the regions of the frontier that Ty Cobb was producing. If we had been looking at managerial performance of DMUs instead of batting performance of hitters, we would say that Ty Cobb was not as efficient in using his input to produce outputs relative to the changing efficiency frontier. The efficiency frontier expanded and Ty Cobb fell off the efficiency frontier.
+Ty Cobb's values are interesting. His value for *E19-T19* is *1* and therefore he was efficient in 1919 using his 1919 batting statistics. He is no longer efficient in 1920 as indicated by *E20-T20* being *0.9165.* While his 1919 performance was efficient relative to 1919, it would not have been efficient against the frontier in 1920 (E19-T20 \< 1.0). The *TC* value indicates that his efficiency declined relative to their respective efficiency frontiers. The TEC value though is larger than 1 indicating that the efficiency frontier expanded relative to the regions of the frontier that Ty Cobb was producing. If we had been looking at managerial performance of DMUs instead of batting performance of hitters, we would say that Ty Cobb was not as efficient in using his input to produce outputs relative to the changing efficiency frontier. The efficiency frontier expanded and Ty Cobb fell off the efficiency frontier.
 
-In contrast, Babe Ruth was efficient in both 1919 and 1920. His efficiency score in 1919 relative to the 1920 frontier was much larger than 1 indicating that he far exceeded the frontier in his area of 1920. His 1920 performance also exceeded the 1919 frontier. His values indicate that the efficiency frontier is rising by 26% in his area of the frontiers (TC=1.26).
+In contrast, Babe Ruth was efficient in both 1919 and 1920. His efficiency score in 1919 relative to the 1920 frontier was much larger than *1* indicating that he far exceeded the frontier in his region of the frontier of 1920. His 1920 performance also exceeded the 1919 frontier. His values indicate that the efficiency frontier is rising by *26%* in his area of the frontiers (*TC=1.26*).
 
 ### MPI with Ordinal Weight Restrictions
 
-Now let's try examining this with weight restrictions. Recall that in chapter 8 we indicated that Home Runs should be at least as valuable as triples, triples are at least as valuable as doubles, etc. The `MultiplierDEA` package's MPI function does not include a parameter to pass weight restrictions. Fortunately we can accommodate ordinal weight restrictions by making a simple data transformation on the outputs. Each output is converted into the sum of that output and "better" outputs. Home Runs are unchanged but Triples are redefined as the number of Triples + Home Runs. Doubles are converted to be Doubles+Triples+Home Runs. Specifically, we have the following:
+Now let's try examining this with weight restrictions. Recall that in chapter 8 we indicated that Home Runs should be at least as valuable as triples, triples are at least as valuable as doubles, etc. The `MultiplierDEA` package's MPI function does not include a parameter to pass weight restrictions. Fortunately, we can accommodate ordinal weight restrictions by making a simple data transformation on the outputs. Each output is converted into the sum of that output and "better" outputs. Home Runs are unchanged, but Triples are redefined as the number of Triples + Home Runs. Doubles are converted to be Doubles+Triples+Home Runs. Specifically, we have the following:
 
 -   Home Runs or longer: (Home Runs+Triples+Doubles+Singles)
 -   Triples or longer: (Triples)
@@ -511,11 +510,8 @@ Note that in this case there are only four efficient batters in 1919 (Ty Cobb, B
 **Results do not appear to match the weight restriction model results from chapter 8!**
 
 -   Take a look at Tris Speaker. His 1920 efficiency score with ordinal weight restrictions is 0.95140 but in chapter 8 with weight restrictions it is 0.9853.
-
 -   On the other hand, Joe Dugan gets the same score of 0.81610 in both analyses.
-
 -   The weight restriction results appear to be consistent for both Speaker and Dugan.
-
 -   The accumulation of outputs appears to be correct here so as to incorporate ordinal weight restrictions.
 
 ### Testing Weights from Accumulated (Ordinal) Approach

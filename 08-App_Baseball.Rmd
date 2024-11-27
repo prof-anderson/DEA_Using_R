@@ -40,7 +40,7 @@ library(TRA)  # Install from github if not available
 
 Our exploration will also serve as a demonstration of data preparation in R. There are many ways of doing this. Feel free to explore further.
 
-A good model of baseball batting is that a batter uses plate appearances to produce singles, doubles, triple, home runs, and walks. Baseball fans might think of other outcomes such as sacrifice flies but these are generally less common, less desirable, and often not even intentional. These five outcomes constitute a model that fits well enough. The following code chunk demonstrates how to build the DEA input-output diagram for this model.
+A good model of baseball batting is that a batter uses plate appearances to produce singles, doubles, triples, home runs, and walks. Baseball fans might think of other outcomes such as sacrifice flies, but these are generally less common, less desirable, and often not even intentional. These five outcomes constitute a model that fits well enough. The following code chunk demonstrates how to build the DEA input-output diagram for this model.
 
 ```{r ch8_draw_bb_io_diagram, message = FALSE, warning=FALSE}
 library(rsvg)  # Used for saving the figure as an image.
@@ -72,9 +72,9 @@ kbl (head(filter(Lahman::Batting,playerID=="cobbty01"),5),
   kable_styling(latex_options =  c("HOLD_position", "scale_down"))
 ```
 
-What does this all mean? The first column, `playerID`, is a uniquely coded ID for each player consisting of the first six letters of the last name, first two letters of the first name, and which instance of that eight letter combination the player is. For example, row 5 is `cobbty01,` corresponds to the Hall of Famer, Ty Cobb. Each row gives the statistics for a year that he had with a particular team. If the player plays for multiple teams in a year, they will have multiple rows. Also, if their career lasts more than one year, they will have more than one row.
+What does this all mean? The first column, `playerID`, is a uniquely coded ID for each player consisting of the first six letters of the last name, first two letters of the first name, and which instance of that eight-letter combination the player is. For example, row 5 is `cobbty01,` corresponds to the Hall of Famer, Ty Cobb. Each row gives the statistics for a year that he had with a particular team. If the player plays for multiple teams in a year, they will have multiple rows. Also, if their career lasts more than one year, they will have more than one row.
 
-In this case, in 1905 Ty Cobb was a member of the Detroit Tigers (`teamID=DET`) in the American League (`lgID=AL`) where he played in 41 Games, had 151 at-bats, scored 19 runs, and had 36 hits. These hits consisted of 6 doubles, 0 triples, and one home run, leaving the remainder as 29 singles ($36-6-1=29$). He also had 15 runs-batted-in, 2 stolen bases, 10 walks or base-on-balls, 23 strikeouts, and no hit-by-pitches. There are frequent entries marked as `NA` or Not Applicable/Not Available. These were not official statistics at the time so there is no record of the times he was caught stealing (`CS`), the intentional bases on balls (`IBB`), sacrifice flies (`SF`), and grounded into double plays (`GIDP`). This is pretty impressive to have such detailed and specific data going back over 120 years!
+In this case, in 1905 Ty Cobb was a member of the Detroit Tigers (`teamID=DET`) in the American League (`lgID=AL`) where he played in 41 Games, had 151 at-bats, scored 19 runs, and had 36 hits. These hits consisted of 6 doubles, 0 triples, and one home run, leaving the remainder as 29 singles ($36-6-1=29$). He also had 15 runs-batted-in, 2 stolen bases, 10 walks or base-on-balls, 23 strikeouts, and no hit-by-pitches. There are frequent entries marked as `NA` or Not Applicable/Not Available. These were not official statistics at the time so there is no record of the times he was caught stealing (`CS`), the intentional bases on balls (`IBB`), sacrifice flies (`SF`), and grounded into double plays (`GIDP`). It is impressive to have such detailed and specific data going back over 120 years!
 
 Let's use the summary command to look at a few things of interest.
 
@@ -146,7 +146,7 @@ kbl (head(batting), booktabs = T,
   kable_styling(latex_options = c("HOLD_position"))
 ```
 
-A small number of plate appearances can result in a problem of setting an unfair target of performance whether due to a statistically insignificant lucky streak or only batting against pitchers that they have an advantage. Over the course of a 162 game season, most full-time players will have more than 500 plate appearances. A few players may exceed 700 plate appearances in a season. Now we will trim out player stints to only include those that have more than 400 (`MinPA`) plate appearances to limit the impact of part-time players or platooning players. In the case of Honus Wagner, this would have removed his first season (1897) but we already removed that due to being before 1900.
+A small number of plate appearances can result in a problem of setting an unfair target of performance whether due to a statistically insignificant lucky streak or only batting against pitchers that they have an advantage. Over the course of a 162-game season, most full-time players will have more than 500 plate appearances. A few players may exceed 700 plate appearances in a season. Now we will trim out player stints to only include those that have more than 400 (`MinPA`) plate appearances to limit the impact of part-time players or platooning players. In the case of Honus Wagner, this would have removed his first season (1897) but we already removed that due to being before 1900.
 
 ```{r selecting-fulltime-players}
 MinPA <- 400
@@ -262,11 +262,11 @@ kbl (head(table1920AL,10), booktabs=T, escape=F, digits=5,
   kable_styling(latex_options = c("HOLD_position", "scale_down"))
 ```
 
-Notice that this is an output-oriented model so the values greater than 1.0 indicate that decreasing radial efficiency (increasing inefficiency), and describe the amount of additional outputs that should be achieved at the same level of input usage. In other words, how much more walks, singles, doubles, triples, and home runs the player should be producing in the same number of plate appearances if he was batting *efficiently*. As discussed in the chapter on the output-oriented model, under constant returns to scale, the input and output-oriented models are reciprocals of each other ($\theta=\frac{1}{\phi}$)
+Notice that this is an output-oriented model so the values greater than 1.0 indicate that decreasing radial efficiency (increasing inefficiency) and describe the amount of additional outputs that should be achieved at the same level of input usage. In other words, how many more walks, singles, doubles, triples, and home runs the player should be producing in the same number of plate appearances if he was batting *efficiently*. As discussed in the chapter on the output-oriented model, under constant returns to scale, the input and output-oriented models are reciprocals of each other ($\theta=\frac{1}{\phi}$)
 
 Let's dig a little deeper now. Let's start by reviewing the output weights for the first few players. 
 
-A few things stand out. First, only two of the first ten players put any weight on home runs. There should be a hierarchy that singles are at least as good as walks, doubles are at least as good singles, triples are at least as good as doubles, and home runs are at least as good triples. This means that every player violates at least one of these relationships. Any plausible analysis of baseball batting needs to reflect these relationships. While very different, common metrics such as batting average and slugging average satisfy these relationships but our first DEA model does not.
+A few things stand out. First, only two of the first ten players put any weight on home runs. There should be a hierarchy that singles are at least as good as walks, doubles are at least as good singles, triples are at least as good as doubles, and home runs are at least as good triples. This means that every player violates at least one of these relationships. Any plausible analysis of baseball batting needs to reflect these relationships. While very different, common metrics such as batting average and slugging average satisfy these relationships, but our first DEA model does not.
 
 In Anderson and Sharp's 1997 paper, ordinal weight restrictions were incorporated into the envelopment model for examining baseball batters by accumulating hits [@anderson1997]. This created new outputs of Singles or better (BB+X1B), doubles or better (BB+X1B+X2B), *etc.* This ordinal approach to weight restrictions can be done as a simple preprocessing step.
 
@@ -437,8 +437,8 @@ kbl(head(collectedeff1
 
 Baseball fans may recognize some of the names:
 
--   "Shoeless" Joe Jackson (`jacksjo01`) was a Hall of Fame caliber player but his career was cut short in 1920 after having one of his best seasons after being embroiled in a World Series scandal.
--   Tris Speaker (`speaktr01`) and Eddie Collins (`collied01`) were not just Hall of Famers but often considered among the very best players of all time. Despite this, neither of them are well known by baseball fans a century after they started playing - their biggest problem was that there were a few colleagues whose stars shown even brighter.
+-   "Shoeless" Joe Jackson (`jacksjo01`) was a Hall of Fame caliber player, but his career was cut short in 1920 after having one of his best seasons after being embroiled in a World Series scandal.
+-   Tris Speaker (`speaktr01`) and Eddie Collins (`collied01`) were not just Hall of Famers but often considered among the very best players of all time. Despite this, neither player is well known by baseball fans a century after they started playing - their biggest problem was that there were a few colleagues whose stars shown even brighter.
 -   George Sisler (`sislege01`), was a Hall of Famer but not generally considered to be at the level of Speaker and Collins except for a brief peak of 1920 and 1922.
 -   Harry Hooper (`hoopeha01`) and Sam Rice (`ricesa01`) were star players and made the Hall of Fame but was a big step below Speaker and Collins.
 -   George Herman "Babe" Ruth (`ruthba01`) has already been discussed at length.
@@ -463,11 +463,11 @@ kbl(corrtemp, booktabs=T,
     kable_styling(latex_options = c("HOLD_position", "scale_down"))
 ```
 
-Both simple Pearson's correlation and the Spearman's rank correlation give similar scores but the Spearman rank correlations are generally higher. This indicates that the scores for the `r nrow(res1920AL$Efficiency)` players are numerically related and their relative ranking is a little more similar.
+Both simple Pearson's correlation and the Spearman's rank correlation give similar scores, but the Spearman rank correlations are generally higher. This indicates that the scores for the `r nrow(res1920AL$Efficiency)` players are numerically related and their relative ranking is a little more similar.
 
 The \index{Cross-efficiency} cross-efficiency and the \index{Regular efficiency} regular efficiency scores are related - they have a correlation of `r  round(corrtemp[1,2], 3)` but the cross-efficiency has a 0.910 correlation with the weight restricted DEA results. This suggests that perhaps cross-efficiency can help deal with decreasing the impact of unrealistic weight schemes but let's take a closer look at the results.
 
-While all of the correlations are strong, they are being done over the entire population of `r nrow(res1920AL$Efficiency)` batters but DEA is about benchmarking against the best. Let's dig into the results more deeply by examining one hitter in particular. In 1920, Babe Ruth had one of the best seasons ever by a baseball hitter. Various statistics demonstrate his dominance but home runs really highlight the impact. His 54 home runs in 1920 nearly doubled the previous major league baseball record of 29 in a season he had set the previous year. Alone, he hit more home runs than 14 of the 16 teams in the leagues. Until the recent steroid era, Babe Ruth's 1920 and 1921 seasons are often considered to be the two best offensive seasons in baseball.
+While all of the correlations are strong, they are being done over the entire population of `r nrow(res1920AL$Efficiency)` batters. On the other hand, DEA is about benchmarking against the best. Let's dig into the results more deeply by examining one hitter in particular. In 1920, Babe Ruth had one of the best seasons ever by a baseball hitter. Various statistics demonstrate his dominance but home runs really highlight the impact. His 54 home runs in 1920 nearly doubled the previous major league baseball record of 29 in a season he had set the previous year. Alone, he hit more home runs than 14 of the 16 teams in the leagues. Until the recent steroid era, Babe Ruth's 1920 and 1921 seasons are often considered to be the two best offensive seasons in baseball.
 
 Babe's \index{Cross-efficiency} cross-efficiency score was `r round(res1920ALcross$ce_ave[1,"ruthba01"],6)`. Coincidentally, his cross-efficiency score was nearly identical to the average cross-efficiency of other regular baseball batters of `r round(mean(res1920ALcross$ce_ave),6)`. In other words, what may have been one of the best batting performances in a century of baseball was wrongly misclassified as being just average by cross-efficiency. The reason for this can be seen by the cross-efficiency matrix of weights presented earlier that showed many batters put zero weight on home runs because they paled in comparison to the best performer on home runs, Babe Ruth.
 
@@ -534,7 +534,7 @@ CEvsCEWR
 
 ```
 
-While \index{Cross-efficiency} cross-efficiency is sometimes used as a crutch to improve discrimination without needing to use application area-expertise, weight restrictions can be used just as readily in cross-efficiency as in regular DEA studies. This chart highlights shows that unlike regular DEA, adding weight restrictions helps some players' scores and hurts others'. The biggest beneficiary of weight restrictions is Babe Ruth. While his weight-restricted cross-efficiency score still trails George Sisler by a small margin, he is no longer considered a mere "average" batter.
+While \index{Cross-efficiency} cross-efficiency is sometimes used as a crutch to improve discrimination without needing to use application area-expertise, weight restrictions can be used just as readily in cross-efficiency as in regular DEA studies. This chart highlights shows that unlike regular DEA, adding weight restrictions helps some players' scores and hurts others' scores. The biggest beneficiary of weight restrictions is Babe Ruth. While his weight-restricted cross-efficiency score still trails George Sisler by a small margin, he is no longer considered a mere "average" batter.
 
 Most DEA applications do not have the benefit of a historically transcendent performance such as that of Babe Ruth to highlight a modeling error of using cross-efficiency to increase improve discrimination among DMUs. Cross-efficiency sacrifices DEA's conservative or generous assumption of weight flexibility to opaquely create an alternate scoring model. While it does typically create a unique ranking of all of the DMUs, this does not necessarily make it valid.
 
@@ -699,7 +699,7 @@ kbl(TRA::poscol(cbind(res1991MLB$Efficiency,res1991MLB$Lambda), cutoff=0.00001),
 kable_styling(latex_options = c("HOLD_position"))
 ```
 
-These results show that only four teams were efficient: Chicago White Sox (CHA), Minnesota Twins (MIN), Seattle Mariners (SEA), and Toronto Blue Jays (TOR). All other teams were compared to a combination of these these teams. Since this is a simple, one-input, one-output model, it is easy to show graphically. The \index{Benchmarking} `Benchmarking` package from Bogetoft and Otto does a great job of drawing 2 dimensional DEA plots so we will again use this package.
+These results show that only four teams were efficient: Chicago White Sox (CHA), Minnesota Twins (MIN), Seattle Mariners (SEA), and Toronto Blue Jays (TOR). All other teams were compared to a combination of these teams. Since this is a simple, one-input, one-output model, it is easy to show graphically. The \index{Benchmarking} `Benchmarking` package from Bogetoft and Otto does a great job of drawing 2 dimensional DEA plots so we will again use this package.
 
 ```{r, message=FALSE, warning=FALSE}
 library (Benchmarking)

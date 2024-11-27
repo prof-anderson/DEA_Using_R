@@ -181,8 +181,7 @@ Let's go through the calculations now for forecasting future products.
 
 $$
 t_{D,expected}=t_{eff,D}+\frac{\ln(\theta^{2003,SE}_D)}{\ln(\gamma)}
-$$ 
-Let's substitute in values for unit D.
+$$ Let's substitute in values for unit D.
 
 $$
 \begin {split}
@@ -208,7 +207,7 @@ Calculations can be repeated for unit G.
 
 Let's explore an application from a previously published paper about an intensely competitive industry - United States fighter jet aircraft. The time period studied was from the late stages of World War II to just before stealth technology had a big impact. The fighter jets were drawn from 1944 to 1982.
 
-First, let's start with a background. Colonel Joseph Martino of the US Air Force examined trends for US fighter jets from 1944 to 1992. He compared an expert scoring model and a regression model. This application was revisited using TFDEA. The full data set is included in the TFDEA package. For more detailed information on the application, the interested reader is referred to the PICMET paper or the later journal paper.
+First, let's start with a background. Colonel Joseph Martino of the US Air Force examined trends for US fighter jets from 1944 to 1992 [@MARTINO1993147]. He compared an expert scoring model and a regression model . This application was revisited using TFDEA. The full data set is included in the TFDEA package. For more detailed information on the application, the interested reader is referred [@InmanPredictingjetfighter2006].
 
 Let's start by examining the full dataset. Note that the names of the variables are rather long making their display quite awkward.
 
@@ -342,7 +341,7 @@ The approach of TFDEA has been both formalized and extended in later works but t
 
 ## Reproducing Fighter Jet Technology Forecasting
 
-Now, let's use the `TFDEA` to reexamine the fighter jet research and enhance the situation. Consider yourself to be a military analyst in 1960. You know the past fighter jets that the US has put into service and you know the specifications of the upcoming fighter jets being developed by Boeing, Lockheed, and others. Alas, you don't know when these *future* fighter jets will actually be put into service by having their first flights. After all, fighter jets and other large, complex projects are notorious for running late. Your mission is to try to predict, based upon trends up to 1960, when the post 1960 fighter jets will be released.
+Now, let's use the `TFDEA` package to reexamine the fighter jet research and enhance the situation. Consider yourself to be a military analyst in 1960. You know the past fighter jets that the US has put into service and you know the specifications of the upcoming fighter jets being developed by Boeing, Lockheed, and others. Alas, you don't know when these *future* fighter jets will actually be put into service by having their first flights. After all, fighter jets and other large, complex projects are notorious for running late. Your mission is to try to predict, based upon trends up to 1960, when the post 1960 fighter jets will be released.
 
 This is a particularly challenging scenario, as we are using 16 years of data (1944 to 1960) to forecast out 22 years through 1982.
 
@@ -380,9 +379,9 @@ kbl (res2eff,
 
 These results require a careful look.
 
--   Notice that these results are showing `NA` or `Not_Available` for fighter jets that had the first flight after 1960. This is because they are not used for calculating rate of change.
--   Each of the fighter jets from 1960 and earlier were deemed efficient at time of release (Efficiency=1.0)
--   The efficiency scores are inverted relative to the earlier results (smaller scores indicate inefficiency)
+-   Notice that these results are showing `NA` or `Not_Available` for fighter jets that had the first flight after 1960. This is because they are not used for calculating the rate of change.
+-   Each of the fighter jets from 1960 and earlier were deemed efficient at time of release (Efficiency=1.0).
+-   The efficiency scores are inverted relative to the earlier results (smaller scores indicate inefficiency).
 
 These results give us an annual rate of change of `res2$roc`. We can use this then to try to predict the post 1960 fighter jet's release dates.
 

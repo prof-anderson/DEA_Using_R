@@ -8,7 +8,7 @@ output:
 library(bookdown); library(rmarkdown); rmarkdown::render("06-Cross.Rmd", "pdf_book")
 ```
 
-# Cross-Efficiency-DRAFT
+# Cross-Efficiency
 
 ## The Ratio Model
 
@@ -20,7 +20,7 @@ On the other hand, what if it allowed for \index{Blending} blending of units. Th
 
 We'll start by creating a mathematical framework. Can you find a combination of units that produces at least as much output using less input? Let's define the proportion of input needed as $\theta$. A value of $\theta=1$ then means no input reduction can be found in order to produce that unit's level of output. The blend of other units is described by a vector $\lambda$. Another way to denote this is $\lambda_j$ is the specific amount of a unit *j* used in setting the target for for performance for unit *k*. Similarly, $x_j$ is the amount of input used by unit *j* and $y_j$ is the amount of output produced by unit *j*.
 
-This can be easily expanded to the multiple input and multiple output case by defining $x_i,j$ to be the amount of the *i*'th input used by unit *j* and $y_r,j$ to be the amount of the *r*'th output produced by unit *j*. For simplicity, this example will focus on the one input and one output case rather than the *m* input and *s* output case but the R code explicitly allows for $m,s>1$. To make the code more readable, I will use which corresponds to `NX` instead of *m* to refer to the number of inputs (x's) and `NY` to be the number of outputs (y's) instead of *s*. Also, *n* is used to denote the number of Decision Making Units (DMUs) and therefore I'll use `ND` to indicate that in the R code.
+This can be easily expanded to the multiple input and multiple output case by defining $x_i,j$ to be the amount of the *i*'th input used by unit *j* and $y_{r,j}$ to be the amount of the *r*'th output produced by unit *j*. For simplicity, this example will focus on the one input and one output case rather than the *m* input and *s* output case but the R code explicitly allows for $m,s>1$. To make the code more readable and help avoid name space conflicts, I will use `NX` instead of *m* to refer to the number of inputs (x's) and `NY` to be the number of outputs (y's) instead of *s*. Also, *n* is used to denote the number of Decision Making Units (DMUs) and therefore I'll use `ND` to indicate that in the R code.
 
 We have two important sets of variables now. The first is $u_r$ which is the weight on the *r*'th output. The second is $v_i$ which is the weight on the *i*'th input.
 
@@ -198,7 +198,7 @@ kbl (result$ce_ave,
     kable_styling(latex_options = c("HOLD_position"))
 ```
 
-As might be expected, the \index{Cross-efficiency} cross-efficiency values are all significantly lower than the original efficiency scores. In cross-efficiency, no nursing home is able to pick an extreme and unique weighting scheme to their advantage. It also tends to break the ties at 1.0 that frequently occur in DEA so it usually gives a unique ranking. These features come at a significant cost though which will be discussed in more detail in the future.
+As might be expected, the \index{Cross-efficiency} cross-efficiency values are all significantly lower than the original efficiency scores. In cross-efficiency, no nursing home is able to pick an extreme and unique weighting scheme to their advantage. It also tends to break the ties at 1.0 that frequently occur in DEA so it usually gives a unique ranking. These features come at a significant cost though, which will be discussed in more detail in the future.
 
 ## Implementing Cross-Efficiency
 

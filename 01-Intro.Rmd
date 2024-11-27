@@ -35,7 +35,7 @@ R has rapidly become a standard tool for analytics due to its open-source nature
 
 *R in Action* provides a comprehensive coverage of R discussing how to use it for statistics progressing through a variety of deeper topics including programming. The second edition of *R in Action* adds important topics such as package development and interactive documentation using knitr. It is available as a paperback or eBook.
 
-Peter Bogetoft and Lars Otto have written a very thorough book on DEA and other econometric methods, *Benchmarking with DEA, SFA, and R* [@BogetoftBenchmarkingDEASFA2011]. It is equal parts a mathematical book on frontier estimation and a manual for their R DEA package, `Benchmarking`. It is an excellent book. We will revisit this and other packages later book presumes some basic familiarity with R.
+Peter Bogetoft and Lars Otto have written a very thorough book on DEA and other econometric methods, *Benchmarking with DEA, SFA, and R* [@BogetoftBenchmarkingDEASFA2011]. It is equal parts a mathematical book on frontier estimation and a manual for their R DEA package, `Benchmarking`. We will revisit this and other packages later book presumes some basic familiarity with R.
 
 *The Art of R Programming* takes a different perspective on R by emphasizing it as a programming environment. People with experience in software development in some other language may find this eases the transition to using R as a rich computational environment. It was [published](http://shop.oreilly.com/product/9781593273842.do) in 2011 so it is getting a little dated but still a nice resource along with Grolemund's *Hands-On Programming with R: Write Your Own Functions and Simulations* [@grolemund2014].
 

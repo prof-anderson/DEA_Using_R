@@ -52,7 +52,7 @@ The first case begins on page 62 with an application from Baker Hughes Corporati
 They were considering 14 cases related to "directional drilling", which as a technology, combined with hydraulic fracturing, that years later resulted in the natural gas boom.
 
 Thore and Rich use a one-input, four-output variable returns to scale DEA model.
-The input was expected cost millions of dollars.
+The input was expected cost in millions of dollars.
 The outputs are estimated market size in millions of dollars (Y1), strategic compatibility with existing products (Y2), projected market demand in millions of dollars (Y3), and competitive intensity (Y4).
 
 Let's start by defining the data from page 63 of Thore and Rich.
@@ -66,22 +66,6 @@ NX <- 1; NY <- 4; ND <- 14
 BHNames <- TRA::DEAnames(NX=NX, NY=NY, ND=ND)
 BHProjnames <- lapply(list(rep("P",NX)),paste0,1:ND)
   # DMU names: P1, P2, ..., P14
-
-#DMUnames <- list(c(LETTERS[1:ND]))               
-  # DMU names: A, B, ...
-#Xnames<- lapply(list(rep("X",NX)),paste0,1:NX)   
-  # Input names: x1, ...
-#Ynames<- lapply(list(rep("Y",NY)),paste0,1:NY)   
-  # Output names: y1, ...
-#Vnames<- lapply(list(rep("v",NX)),paste0,1:NX)   
-  # Input weight names: v1, ...
-#Unames<- lapply(list(rep("u",NY)),paste0,1:NY)   
-  # Output weight names: u1, ...
-#SXnames<- lapply(list(rep("sx",NX)),paste0,1:NX) 
-  # Input slack names: sx1, ...
-#SYnames<- lapply(list(rep("sy",NY)),paste0,1:NY) 
-  # Output slack names: sy1, ...
-#Lambdanames<- lapply(list(rep("L_",ND)),paste0,LETTERS[1:ND])
 
 XBH <- matrix(c(
   1.07, 1.06, 0.325, 1.60, 
@@ -131,15 +115,14 @@ resBH<-DeaMultiplierModel(XBH, YBH,
 # Rename some of the results row and column labels
 dimnames(resBH$Efficiency)<-c(BHProjnames,"$\\theta^{VRS}$")
 
-#dimnames(resBH$Lambda)<-c(Lambdanames,Lambdanames)
 dimnames(resBH$Lambda)<-c(list(BHNames$LambdanamesbynumberLX),
                           list(BHNames$LambdanamesbynumberLX))
-#dimnames(resBH$vx)<-c(DMUnames,Xnames)
-#dimnames(resBH$uy)<-c(DMUnames,Ynames)
+
 dimnames(resBH$vx)<-c(BHProjnames,list(BHNames$VnamesLX))
+
 dimnames(resBH$uy)<-c(BHProjnames,list(BHNames$UnamesLX))
 
-kbl (poscol(cbind(resBH$Efficiency, resBH$Lambda),cutoff=0.0000001),
+kbl (poscol(cbind(resBH$Efficiency, resBH$Lambda), cutoff=0.000001),
      caption = "Envelopment results for Baker Hughes Corporation analysis.", 
      booktabs = T, digits = 4, escape=F)|>
   kable_styling(latex_options = c("HOLD_position"))
@@ -342,13 +325,13 @@ univoovrswr<-DeaMultiplierModel (xdata, ydata,
 
 
 ```{r collect-univ-result}
-univcollect <- cbind(univiocrs$Efficiency, univoocrs$Efficiency, 
+univcoll <- cbind(univiocrs$Efficiency, univoocrs$Efficiency, 
                      univiovrs$Efficiency, univoovrs$Efficiency, 
                      univiovrswr$Efficiency, univiovrswr$Efficiency) 
-colnames (univcollect) <- c("$\\theta^{IO,CRS}$", "$\\theta^{OO,CRS}$", 
+colnames (univcoll) <- c("$\\theta^{IO,CRS}$", "$\\theta^{OO,CRS}$", 
                             "$\\theta^{IO,VRS}$", "$\\theta^{OO,VRS}$", 
                             "$\\theta^{IO,VRS,WR}$", "$\\theta^{OO,VRS,WR}$")
-kbl (univcollect, 
+kbl (univcoll, 
      booktabs = T, digits = 4, align = 'c', escape=F,
        caption="University Technology Collected Results") |>
   kable_styling(latex_options = c("HOLD_position", "scale_down"))
@@ -356,11 +339,10 @@ kbl (univcollect,
 
 
 ```{r}
-corrtemp <- rbind( cor(univcollect, method="pearson"),
-                   cor(univcollect, method="spearman"))
+corrtemp <- rbind( cor(univcoll, method="pearson"),
+                   cor(univcoll, method="spearman"))
 
 ```
-
 
 ```{r, echo=FALSE}
 kbl(corrtemp, booktabs=T, escape=F,

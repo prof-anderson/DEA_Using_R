@@ -56,11 +56,11 @@ ggplot(pkg_dl_data, aes(end, downloads, group=package, color=package)) +
 
 ```
 
-The chapter "Computational Aspects of DEA" by Iqbal Ali in Data Envelopment Analysis, edited by Charnes, Cooper, Lewin, and Seiford does an interesting job with exploring computational issues in early DEA implementations.
+The chapter "Computational Aspects of DEA" by Iqbal Ali in Data Envelopment Analysis, edited by Charnes, Cooper, Lewin, and Seiford [@Ali1994] does an interesting job with exploring computational issues in early DEA implementations.
 Among the key insights is that a finite approximation for $\epsilon$ should not be used to maximize slacks.
 Iqbal Ali tests $\epsilon =10^{-5}$ to $\epsilon=10^{-8}$ demonstrating how DEA implementations can return incorrect values or even unbounded solutions.
 
-Any reliable DEA package should be tested to ensure that they do not rely on finite values for $\epsilon$ and instead implement a two-phase approach as discussed earlier.
+A reliable DEA package should be tested to ensure that they do not rely on finite values for $\epsilon$ and instead implements a two-phase approach as discussed earlier.
 
 Other issues considered by Iqbal Ali include:
 
@@ -92,16 +92,16 @@ Create a common dataset, perhaps the ill-conditioned dataset from Iqbal Ali's pa
 
 Data scaled with wide ranges may highlight problems in the DEA implementation of a package or a weakness in the underlying solver's numerical methods.
 In the late 1990s I received a phone call from an Economics professor that had done her PhD doing DEA but was at a complete loss as to why her simple DEA input-oriented efficiency scores were as large as 47 when they should have ranged from just zero to 1.0.
-She was was using SAS-OR.
+She was  using SAS-OR.
 I asked her the magnitudes of the inputs and outputs and found that they were in units of dollars but ranged to the millions or billions.
 I suggested simply rescaling and that immediately solved the problem.
-Another random call from a student team of Michigan State students had the same problem while using the Excel Solver.
+Another random call from a student team of Michigan State students had the same problem while using the Microsoft Excel Solver.
 I expect that the current linear programming solvers used by R DEA packages are robust enough to avoid scaling problems but is another item that should be checked.
 
 As discussed earlier, a common problem in some earlier DEA implementations was the use of finite values of $\epsilon$ causing computational issues and solvers that were susceptible to poorly scaled data.
 
 Testing of large scale DEA problems dates back to the work of Dr. Dick Barr and Dr. Matt Durchholz at Southern Methodist University in the late 1980s and early 1990s.
-Since then Jose Dula and others have continued this work.
+Since then, Jose Dula and others have continued this work.
 Since DEA requires a series of simple linear programs, in general they don't represent a major computational burden.
 Any modern DEA package should be able to handle 1000 DMU problems with ease.
 Problems with tens of thousands to millions or more could be considered but careful consideration should be given to the impact of using an outlier based approach such as DEA in such a large dataset.
@@ -158,14 +158,14 @@ tmp <- capture.output(rsvg_png(charToRaw (export_svg(Figure)),
 
 For each package, we will examine an input-oriented, constant returns to scale model.
 We will select slack maximization whenever it is available.
-Results are given for each analysis demonstrate the structure of the the lambda (envelopment variable) values returned as well as the efficiency scores.
+Results are given for each analysis to demonstrate the structure of the the lambda (envelopment variable) values returned as well as the efficiency scores.
 
 Results are summarized at the end after all analyses to illustrate the efficiency score.
 
 A few things to take note of:
 
--   `suppressPackageStartupMessages` is useful to cut down on warnings about duplicated functions among other items. After all, it isn't surprising that most of the packages have a function named `dea`.
--   Functions are called from specific packages using the `::` such as `Benchmarking::dea` to call the `dea` from the `Benchmarking` package.
+-   `suppressPackageStartupMessages` is useful to cut down on warnings about duplicated function names, among other items. After all, it isn't surprising that most of the packages have a function named `dea`.
+-   Functions are called from specific packages using the qualifier `::` such as `Benchmarking::dea` to call the `dea` from the `Benchmarking` package.  This is done to avoid any confusion over which package is being used for the analysis since many of the packages will have similar or the same names for functions.
 -   Parameters are passed by name into the DEA function to avoid ambiguity and to clarify the different naming \index{Conventions!Naming} conventions used in each package.
 
 ## The Benchmarking Package
@@ -229,15 +229,15 @@ kbl (cbind(res_rDEA$thetaOpt, res_rDEA$lambda), booktabs = T, digits = 4,
 kable_styling (latex_options = c("HOLD_position", "scale_down"))
 ```
 
-Some notable characteristics of using the rDEA package are the following.
+Some notable characteristics of using the `rDEA` package are the following.
 
--   The rDEA allows for passing input prices in order to do a cost-minimization analysis.\
+-   The `rDEA` allows for passing input prices in order to do a cost-minimization analysis.
 -   The model parameter combines both orientation and model decisions.
--   Explicitly allows for separating the production technology (XREF and YREF) from the units to be estimated.
+-   This package explicitly allows for separating the production technology (`XREF` and `YREF`) from the units to be estimated.
 
-## The DJL Package
+## The `DJL` Package
 
-The DJL package comes from the name "Distance Measure Based Judgement and Learning" but is coincidentally also the initials of the primary author, Dr. Dong-Joon Lim.
+The `DJL` package comes from the name "Distance Measure Based Judgement and Learning" but is coincidentally also the initials of the primary author, Dr. Dong-Joon Lim.
 The emphasis in this package is on a variety efficiency models from the perspective of distance metrics.
 With this it provides a variety of models for accommodating super-efficiency related issues - particularly infeasibility under certain situations.
 
@@ -267,7 +267,7 @@ res_MultiplierDEA <- MultiplierDEA::DeaMultiplierModel (x=x, y=y,
 
 kbl(cbind (res_MultiplierDEA$Efficiency, res_MultiplierDEA$Lambda),
     booktabs = T, digits = 4,
-       caption="Efficiency Resfults from multiplierDEA") |>
+       caption="Efficiency Results from multiplierDEA") |>
 kable_styling (latex_options = c("HOLD_position", "scale_down"))
 
 ```
@@ -376,7 +376,7 @@ Computational performance could be further compared in many ways such as the fol
 -   Computational speed could be tested with data sets of over 1000.
 -   Returns to scale other than constant returns to scale or CRS could be used.
 -   Detailed comparisons of lambda variable values to ensure slack maximization is handled well.
--   Testing could be done to to see if small numerical anomalies arise and affect results or if rounding processes to address this cause other problems. For example, LP solvers may return lambda values such as $-10^{-16}$ rather than zero or $0.99999998$ rather than $1.0$.
+-   Testing could be done to see if small numerical anomalies arise and affect results or if rounding processes to address this cause other problems. For example, LP solvers may return lambda values such as $-10^{-16}$ rather than zero or $0.99999998$ rather than $1.0$.
 -   Examining DEA bootstrapping.
 
 ## DEA Package Dependencies

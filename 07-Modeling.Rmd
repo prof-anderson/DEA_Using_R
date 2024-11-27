@@ -6,17 +6,17 @@ library(bookdown); library(rmarkdown); rmarkdown::render("07-Modeling.Rmd", "pdf
 
 ## Introduction
 
-This section gives some general guidelines in developing DEA models. There is no single recipe for developing a model or diagnostic tool for evaluating the quality of an analysis. Therefore it is still about as much of an art as it is a science.
+This section gives some general guidelines in developing DEA models. There is no single recipe for developing a model or diagnostic tool for evaluating the quality of an analysis. Therefore, it is still about as much of an art as it is a science.
 
 ## Model Scope
 
-One way to approach DEA modeling is to examine a series of questions. "What is the goal of the analysis?" A DEA evaluation can be used in a variety of ways but it is important decide on a goal to lead the rest of the modeling. Goals include but are not limited to evaluating management, setting targets, and determining best practices.
+One way to approach DEA modeling is to examine a series of questions. "What is the goal of the analysis?" A DEA evaluation can be used in a variety of ways but it is important to decide on a goal to lead the rest of the modeling. Goals include but are not limited to evaluating management, setting targets, and determining best practices.
 
 *"How do you measure the goal of the analysis?"* There are a variety of possible measures in a DEA evaluation. One measurement may be to determine estimates of efficiency scores for each DMU. In other cases, ranking the DMUs to differentiate the most inefficient DMUs from the most efficient ones may suffice. An advantage to ranking is that it generally requires less DMUs than estimating efficiency scores for a given model size.
 
 *"What are the decision making units?"* Deciding on which items to compare may be relatively straightforward after determining the goal.
 
-*"What is the scope of the data set?"* The scope of the data set implies whether or not you are comparing DMUs within a single company, within an industry, or across industries. For example, in the area of warehouse evaluation, a company such as AT&T or the Defense Logistics Agency may choose to evaluate their warehouses internally. These companies may have enough warehouses to perform a meaningful DEA evaluation. On the other hand, they would not be making use of comparisons against warehouses in other companies unless they include other companies.
+*"What is the scope of the data set?"* The scope of the data set implies whether or not you are comparing DMUs within a single company, within an industry, or across industries. For example, in the area of warehouse evaluation, organizations such as General Motors or the Defense Logistics Agency may choose to evaluate their warehouses internally. These companies may have enough warehouses to perform a meaningful DEA evaluation but they would not be making use of comparisons against warehouses in other companies unless they include other companies. This means that they may not be able to identify units with better practices.
 
 ## Inputs and Outputs
 
@@ -42,7 +42,7 @@ One way to approach DEA modeling is to examine a series of questions. "What is t
 
 ## Model Structure
 
-*"Is it appropriate to use multiple time periods for each DMU?"* A time series approach may be used in certain analyses to attempt to spot trends. One question that arises is whether or not to allow comparison between time periods and how many periods to allow comparison across. Allowing multiple periods can multiply the number of DMUs in your data set quickly and can help overcome problems with small data set size. It can also raise complications though. For example if you are analyzing retail store sales, it may be very misleading to include the Christmas season in a data with slower sales periods.
+*"Is it appropriate to use multiple time periods for each DMU?"* A time series approach may be used in certain analyses to attempt to spot trends. One question that arises is whether or not to allow comparison between time periods and how many periods to allow comparison across. Allowing multiple periods can multiply the number of DMUs in your data set quickly and can help overcome problems with small data set size. It can also raise complications though. For example if, you are analyzing retail store sales, it may be very misleading to compare the Christmas season in a data with slower sales periods.
 
 *"Which type of returns to scale should be used?"* The decision to assume CRS versus VRS is often arbitrary and not justified on the basis of the characteristics of the application. This issue deserves careful consideration in the modeling stage since it may have a significant effect on the results. Although CRS will help mitigate the problems of small data set size relative to model size, this is not an adequate justification for selecting CRS over other returns to scale assumptions.
 
@@ -74,7 +74,7 @@ Being obsessed with zero-valued weights in the multiplier model.
 
 Getting locked into just one model without consideration of whether another model is a better fit. For example, some people have only seen the input-oriented envelopment model so they don't consider whether an output-orientation or the multiplier model with weight restrictions might be a better fit.
 
-Not including an application area expert on the project. DEA will create numerical results that look highly precise but this does not replace the need for having a deep understanding of the application.
+Not including an application area expert on the project. DEA will create numerical results that look highly precise, but this does not replace the need for having a deep understanding of the application.
 
 ## Summary
 
