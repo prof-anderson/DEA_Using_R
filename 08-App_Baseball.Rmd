@@ -397,7 +397,7 @@ res1920ALCEWR<-CrossEfficiency(x, y, rts = "crs",
                                weightRestriction = BattingWR)
 ```
 
-```{r}
+```{r, include=FALSE}
 temp <- data.frame(cbind(res1920AL$Efficiency,
                          t(res1920ALcross$ce_ave),
                          t(res1920ALcross$ceva_max))) 
