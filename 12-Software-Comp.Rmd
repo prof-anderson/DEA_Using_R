@@ -92,7 +92,7 @@ Create a common dataset, perhaps the ill-conditioned dataset from Iqbal Ali's pa
 
 Data scaled with wide ranges may highlight problems in the DEA implementation of a package or a weakness in the underlying solver's numerical methods.
 In the late 1990s I received a phone call from an Economics professor that had done her PhD doing DEA but was at a complete loss as to why her simple DEA input-oriented efficiency scores were as large as 47 when they should have ranged from just zero to 1.0.
-She was  using SAS-OR.
+She was using SAS-OR.
 I asked her the magnitudes of the inputs and outputs and found that they were in units of dollars but ranged to the millions or billions.
 I suggested simply rescaling and that immediately solved the problem.
 Another random call from a student team of Michigan State students had the same problem while using the Microsoft Excel Solver.
@@ -165,7 +165,7 @@ Results are summarized at the end after all analyses to illustrate the efficienc
 A few things to take note of:
 
 -   `suppressPackageStartupMessages` is useful to cut down on warnings about duplicated function names, among other items. After all, it isn't surprising that most of the packages have a function named `dea`.
--   Functions are called from specific packages using the qualifier `::` such as `Benchmarking::dea` to call the `dea` from the `Benchmarking` package.  This is done to avoid any confusion over which package is being used for the analysis since many of the packages will have similar or the same names for functions.
+-   Functions are called from specific packages using the qualifier `::` such as `Benchmarking::dea` to call the `dea` from the `Benchmarking` package. This is done to avoid any confusion over which package is being used for the analysis since many of the packages will have similar or the same names for functions.
 -   Parameters are passed by name into the DEA function to avoid ambiguity and to clarify the different naming \index{Conventions!Naming} conventions used in each package.
 
 ## The Benchmarking Package
