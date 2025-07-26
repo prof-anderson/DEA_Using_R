@@ -27,11 +27,11 @@ For those readers not interested in baseball, this can be viewed as a set of cas
 
 ## Baseball Data, R, and dplyr
 
-For the sake of readers unfamiliar with baseball, we will provide a brief introduction. If you want to think of a baseball batter as a simple factory that uses Plate Appearances as a resource to produce five different kinds of products. The following discussion gives more context for baseball fans.
+For the sake of readers unfamiliar with baseball, we will provide a brief introduction. You can think of a baseball batter as a simple factory that uses Plate Appearances as a resource to produce five different kinds of products. The following discussion gives more context for baseball fans.
 
 Batting is in many ways the simplest aspect of baseball to examine. In the abstract, a batter uses their at-bats or plate appearances as opportunities to create events that help create runs for their team. In each game, a batter typically has four to six at-bats. These at-bats may be framed as a contest between a pitcher trying to make the batter create an out and the batter trying to get a hit. Hits include singles, doubles, triples, and home runs, in increasing order of value. A fifth common outcome is a walk or "base-on-balls" which occurs when the pitcher throws four balls that gives the batter a free pass to first base. There is a common expression that "a walk is as good as a hit" but a walk may not give as much advancement to other runners as a single so it may be considered as slightly less valuable than a single.
 
-In the past, batters weren't given much "recognition" for walks and a batter's receiving a walk did not count as an at-bat. Plate appearances count the opportunities for creating a hit or a walk and is sum of at-bats and walks. There are a variety of less frequent outcomes of a plate appearance such as a sacrifice fly, an error, or hit by pitch. These are all less common and often an accidental outcome from the batter's perspective. Therefore, we will exclude these items from the analysis.
+In the past, batters weren't given much "recognition" for walks and a batter's receiving a walk did not count as an at-bat. Plate appearances count the opportunities for creating a hit or a walk and is the sum of at-bats and walks. There are a variety of less frequent outcomes of a plate appearance such as a sacrifice fly, an error, or hit by pitch. These are all less common and often an accidental outcome from the batter's perspective. Therefore, we will exclude these items from the analysis.
 
 ```{r load_ch8_packages, echo = TRUE, message = FALSE, warning=FALSE}
 library(TRA)  # Install from github if not available
@@ -111,7 +111,7 @@ kbl (head(batting), booktabs = T,
   kable_styling(latex_options = c("HOLD_position"))
 ```
 
-Through the 2023 season, this dataset has over 100,000 rows or player seasons. The game of baseball went through a lot of change in teams, rules, and other development and so it may be more useful to focus our attention on the period after 1900.
+Through the 2023 season, this dataset has over 100,000 rows or player seasons. The game of baseball went through a lot of change in teams, rules, and other development and so it may be more useful to focus our attention on the period after 1900 using the 'filter' command.
 
 ```{r filtering-data}
 batting<-dplyr::filter(batting,yearID>1900)
@@ -262,7 +262,7 @@ kbl (head(table1920AL,10), booktabs=T, escape=F, digits=5,
   kable_styling(latex_options = c("HOLD_position", "scale_down"))
 ```
 
-Notice that this is an output-oriented model so the values greater than 1.0 indicate that decreasing radial efficiency (increasing inefficiency) and describe the amount of additional outputs that should be achieved at the same level of input usage. In other words, how many more walks, singles, doubles, triples, and home runs the player should be producing in the same number of plate appearances if he was batting *efficiently*. As discussed in the chapter on the output-oriented model, under constant returns to scale, the input and output-oriented models are reciprocals of each other ($\theta=\frac{1}{\phi}$)
+Notice that this is an output-oriented model so the values greater than 1.0 indicate  decreasing radial efficiency (increasing inefficiency) and describe the amount of additional outputs that should be achieved at the same level of input usage. In other words, how many more walks, singles, doubles, triples, and home runs the player should be producing in the same number of plate appearances if he was batting *efficiently*. As discussed in the chapter on the output-oriented model, under constant returns to scale, the input and output-oriented models are reciprocals of each other ($\theta=\frac{1}{\phi}$)
 
 Let's dig a little deeper now. Let's start by reviewing the output weights for the first few players. 
 
@@ -270,7 +270,7 @@ A few things stand out. First, only two of the first ten players put any weight 
 
 In Anderson and Sharp's 1997 paper, ordinal weight restrictions were incorporated into the envelopment model for examining baseball batters by accumulating hits [@anderson1997]. This created new outputs of Singles or better (BB+X1B), doubles or better (BB+X1B+X2B), *etc.* This ordinal approach to weight restrictions can be done as a simple preprocessing step.
 
-Another approach is to analyze the data set using the \index{Multiplier model} multiplier model and directly incorporating weight restrictions. The \index{DEAMultiplier} `DEAMultiplier`package written by Aurobindh Kalathil Puthanpura has options for integrating weight restrictions.  
+Another approach is to analyze the data set using the \index{Multiplier model} multiplier model and directly incorporate weight restrictions. The \index{DEAMultiplier} `DEAMultiplier` package written by Aurobindh Kalathil Puthanpura has options for integrating weight restrictions.  
 
 Notice that the scores are up to 1.0 rather than 1.0 and higher as in the \index{TFDEA} TFDEA package. This is because the TFDEA package reports efficiency as $\phi$ whereas the \index{MultiplierDEA} `MultiplierDEA` package reports $\frac{1}{\phi}$. The results are consistent and reciprocals. The value of $\phi$ is consistent with the formulation of the \index{Output-oriented} output-oriented model. The value of $\frac{1}{\phi}$ has the same interpretation $\theta$ where a value less than 1.0 indicates inefficiency. In fact, for the case of constant returns to scale (CRS), the orientation does not make a difference in the value of inefficiency found, in other words, $\theta=\frac{1}{\phi}$ For the sake of this discussion, we will interpret the results as $\frac{1}{\phi}$.
 
@@ -285,7 +285,7 @@ hist (res1920AL$Efficiency,
 
 
 ```{r warning=FALSE, messages=FALSE}
-library(ggplot2)
+library (ggplot2)
 qplot (res1920AL$Efficiency, 
        geom="dotplot", binwidth=0.01,
        main = "1920 American League Batter Efficiency",
@@ -327,7 +327,7 @@ $$
   (\#eq:Ch8RatioWeightRestrictions)
 $$
 
-We can now specify these ratios in a data frame that will be passed to `multiplierDEA` package by defining a lower bound, numerator, denominator, and upper bound for each weight restriction ratio relationship. Note that rather than specifying the upper limit of infinity, we declare it as `NaN` to indicate that it is not a number.
+We can now specify these ratios in a data frame that will be passed to the `multiplierDEA` package by defining a lower bound, numerator, denominator, and upper bound for each weight restriction ratio relationship. Note that rather than specifying the upper limit of infinity, we declare it as `NaN` to indicate that it is not a number.
 
 ```{r}
 BattingWR<-data.frame(lower = c(1.0, 1.0, 1.0, 1.0), 
@@ -363,13 +363,11 @@ kbl(head(weights
     add_header_above( c(" " = 1, "Standard Input-Oriented CRS" = 6, 
                         "With Weight Restrictions Added" = 6))             |>
  kable_styling(latex_options = c("HOLD_position", "scale_down"))           |>
-  footnote (general="Top 20 Efficient 1920 American League Batters")
+  footnote (general="Twenty Most Efficient 1920 American League Batters")
 
 ```
 
-Let's talk about a particular hitter, Eddie Collins. Without weight restrictions, he was efficient. With weight restrictions, his efficiency was `r res1920ALmultWR$Efficiency["collied01",]`. In fact, the histogram of efficiency scores is more telling.
-
-
+Let's talk about a particular hitter, Eddie Collins, 'collied01'. Without weight restrictions, he was efficient. With weight restrictions, his efficiency was `r res1920ALmultWR$Efficiency["collied01",]`. In fact, the histogram of efficiency scores is more telling.
 
 ```{r}
 binwidth <- 0.01
@@ -387,7 +385,7 @@ The weight restrictions have dropped the number of efficient players from nine t
 
 ### Cross-Efficiency of Baseball Batters
 
-Now, let's turn our attention to a variation of DEA called \index{Cross-efficiency} cross-efficiency. Cross-efficiency was discussed in an earlier chapter. Proponents of Cross-efficiency contend that it can differentiate between players (DMUs) that are DEA efficient without resorting to weight restrictions. Simple CRS DEA finds nine out of 54 players to be efficient. We will focus on the ten players with the top CRS efficiency scores.
+Now, let's turn our attention to a variation of DEA called \index{Cross-efficiency} cross-efficiency. Cross-efficiency was discussed in detail in Chapter 6. Proponents of Cross-efficiency contend that it can differentiate between players (DMUs) that are DEA efficient without resorting to weight restrictions. Simple CRS DEA finds nine out of 54 players to be efficient. We will focus on the ten players with the top CRS efficiency scores.
 
 ```{r, warning = FALSE}
 res1920ALcross<-CrossEfficiency(x, y, rts = "crs", 
@@ -437,12 +435,11 @@ kbl(head(collectedeff1
 
 Baseball fans may recognize some of the names:
 
--   "Shoeless" Joe Jackson (`jacksjo01`) was a Hall of Fame caliber player, but his career was cut short in 1920 after having one of his best seasons after being embroiled in a World Series scandal.
+-   "Shoeless" Joe Jackson (`jacksjo01`) was a Hall of Fame caliber player, but his career was cut short in 1920 after having one of his best seasons due to being embroiled in a World Series scandal.
 -   Tris Speaker (`speaktr01`) and Eddie Collins (`collied01`) were not just Hall of Famers but often considered among the very best players of all time. Despite this, neither player is well known by baseball fans a century after they started playing - their biggest problem was that there were a few colleagues whose stars shown even brighter.
 -   George Sisler (`sislege01`), was a Hall of Famer but not generally considered to be at the level of Speaker and Collins except for a brief peak of 1920 and 1922.
--   Harry Hooper (`hoopeha01`) and Sam Rice (`ricesa01`) were star players and made the Hall of Fame but was a big step below Speaker and Collins.
+-   Harry Hooper (`hoopeha01`) and Sam Rice (`ricesa01`) were star players and made the Hall of Fame but were a big step below Speaker and Collins.
 -   George Herman "Babe" Ruth (`ruthba01`) has already been discussed at length.
--   Eddie Collins, like Tris Speaker, was among the very best players of all time.
 -   Bob Meusel (`meusebo01`), Joe Judge (`judgejo01`), and Joe Dugan (`duganjo01`) had good careers but have never been thought of as all-time great batters.
 
 ```{r, echo=FALSE}
@@ -450,16 +447,17 @@ temp<-as.matrix(cbind(res1920AL$Efficiency,
                       res1920ALmultWR$Efficiency,
                       t(res1920ALcross$ce_ave),
                       t(res1920ALCEWR$ce_ave)))
-colnames(temp)<-c("Efficiency", "Efficiency/WR", "Cross-Efficiency", "Cross-Efficiency/WR")
+colnames(temp)<-c("Standard", "Weight Restricted", "Standard", "Weight Restricted")
 
 corrtemp <- rbind( cor(temp, method="pearson"), cor(temp, method="spearman"))
 ```
 
 ```{r, echo=FALSE}
-kbl(corrtemp, booktabs=T,
+kbl(corrtemp, booktabs=T, digits=6,
     caption="Correlations between Efficiency, Cross-Efficiency, and Weight Restricted Results") |>
        pack_rows ("Pearson Correlation", 1, 4) |>
        pack_rows ("Spearman Rank Correlation", 5, 8)  |>
+       add_header_above(c(" " = 1, "DEA Efficiency" = 2, "Cross-Efficiency" = 2)) |>
     kable_styling(latex_options = c("HOLD_position", "scale_down"))
 ```
 
@@ -542,7 +540,7 @@ This analysis demonstrates that cross-efficiency is not a substitute for the har
 
 ### Cross-Efficiency and Fixed Weights
 
-Babe Ruth's scores showed high variability across the different analysis. Let's explore this in more detail by digging into the actual weights from the multiplier model used.
+Babe Ruth's scores showed high variability across the different analyses. Let's explore this in more detail by digging into the actual weights from the multiplier model used.
 
 The cross-efficiency score for a player, say Babe Ruth, is computed by averaging each cross-evaluation score which is the score that each of the players implicitly give Babe Ruth using their own preferred weighting scheme.
 

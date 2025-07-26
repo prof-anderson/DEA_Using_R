@@ -27,7 +27,7 @@ The Extreme Technology Analytics research group at Portland State University ado
 -   Multiple linear programming packages to choose from
 -   Widespread usage and acceptance in the research and analytics communities
 -   No arbitrary capacity limits
--   One platform that combines optimization and statistical analysis
+-   One platform that combines optimization, simulation, and statistical analysis.
 
 ## An Illustrative Example
 
@@ -50,11 +50,13 @@ We'll start by drawing a visual representation of the \index{Input-output model}
 ```{r DEA-IO-Plot1, warning=FALSE, message=FALSE, eval=TRUE, out.width="60%", fig.align='center', fig.cap="A Simple DEA Model for Store Management"}
 library (TRA) # Note, may need to install directly from github
               # remotes::install_github("prof-anderson/TRA")
-library (DiagrammeRsvg)
-library (rsvg)
+library (DiagrammeR) # Should not be required because
+     # TRA package uses imports DiagrammeR.
 Figure <- DrawIOdiagram (c("Employees\n(FTE)" ), 
                          c("Sales\n($/week)"), 
                          c("\nStore\n"))
+library (DiagrammeRsvg)
+library (rsvg)
 tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),
                              'generated-images/DEA_IO_stores.PNG')) 
 knitr::include_graphics("generated-images/DEA_IO_stores.PNG")
@@ -103,7 +105,7 @@ The first line of this code chunk ensures the \index{kable!kableExtra} `kableExt
 
 -   The \index{kable!escape} `escape` option allows for LaTeX code to be used as needed when set to `F` or `FALSE`.
 
--   The \index{Piping} piping operator `|>` means to pass the previous command's results into the next command. The piping operator requires R 4.1.0 or higher to be used.
+-   The \index{Piping} piping operator `|>` means to pass the previous command's results into the next command. The piping operator requires R 4.1.0 or higher to be used.^[Prior to a piping operator being built in to R, many people used a piping operator, '%>%' from the 'magrittr' package.  They function similarly though for most purpses.]
 
 -   The \index{kable!kable\_styling} `kable_styling` command provides a lot more formatting richness. In this case, it is passing an option of \index{kable!hold\_position} `HOLD_position` to ensure that LaTeX keeps the table placed close to this location.
 
