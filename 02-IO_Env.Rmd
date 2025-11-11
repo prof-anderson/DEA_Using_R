@@ -12,15 +12,15 @@ output:
 library(bookdown); library(rmarkdown); rmarkdown::render("02-IO_Env.Rmd", "pdf_book")
 ```
 
-\index{Data envelopment analysis|(} Data envelopment analysis or DEA is a powerful tool for conducting studies of \index{Efficiency} efficiency and has been used in thousands of publications since its inception in the 1970s.
+\index{Data envelopment analysis|(} Data Envelopment Analysis (DEA) is a powerful tool for conducting efficiency studies and has been used in thousands of publications since its inception in the 1970s. \index{Efficiency}
 
-While tools exist for conducting the evaluations, it is important to understand how the tools work. Many DEA studies have been conducted and published by authors with only a superficial understanding of the technique. This is equivalent to having a house built by carpenters who barely understand how to use a hammer. The purpose of this document is to explain what DEA is, demonstrate how it works, and how to use R for getting started with DEA. In order to keep things simple, the first step only looks at the \index{Input-oriented} input-oriented \index{Envelopment model} envelopment model with \index{Constant returns to scale} \index{CRS|see{Constant returns to scale}} \index{Constant returns to scale|(} constant returns to scale. We will consider other models soon.
+While tools exist for conducting these evaluations, it is important to understand their underlying mechanics. Many DEA studies have been conducted and published by authors with only a superficial understanding of the technique. This is equivalent to having a house built by carpenters who barely understand how to use a hammer. The purpose of this document is to explain what DEA is, demonstrate how it works, and how to use R for getting started with DEA. To keep things simple, the first step examines only the \index{Input-oriented} input-oriented \index{Envelopment model} envelopment model with \index{Constant returns to scale} \index{CRS|see{Constant returns to scale}} \index{Constant returns to scale|(} constant returns to scale. We will consider other models soon.
 
-This chapter walks through how DEA works and then shows how to implement the model in R using two very different approaches. Over the years, I have built DEA models in many languages and platforms: Pascal, LINDO, LINGO, Excel Macros, Excel VBA, GAMS, AMPL, XPress-MOSEL, and GLPK among others.
+This chapter walks through how DEA works and then shows how to implement the model in R using two very different approaches. Over the years, I have built DEA models in many languages and platforms: Pascal, LINDO, LINGO, Excel Macros, Excel VBA, GAMS, AMPL, XPress-MOSEL, and GLPK, among others.
 
 The Extreme Technology Analytics research group at Portland State University adopted the R platform based on the following strengths:
 
--   Open-source so that people can dive as deep as they need and no risk of future vendor lock-in
+-   Open-source, so people can dive as deep as they need, with no risk of future vendor lock-in.
 -   Freely available so it does not strain research budgets
 -   Extensive collection of numerical add-in packages (over 15,000 at \index{CRAN} CRAN) to build upon
 -   Robust distribution of add-in packages helps improve distribution of our own contributions
@@ -31,7 +31,7 @@ The Extreme Technology Analytics research group at Portland State University ado
 
 ## An Illustrative Example
 
-DEA typically has \index{Inputs} inputs and \index{Outputs} outputs. The input(s) are typically resources that are consumed in the production of output(s). Inputs are referred to as "bads" in that higher levels at the same level of output are considered worse. Similarly, holding everything else constant, an increase in any single output is laudable. Examples of inputs might include capital, labor, or number of machines.
+DEA typically has \index{Inputs} inputs and \index{Outputs} outputs. Inputs are typically resources consumed in the production of outputs. Inputs are referred to as "bads" because higher input levels for the same output are considered worse. Similarly, holding everything else constant, an increase in any single output is laudable. Examples of inputs might include capital, labor, or the number of machines.
 
 In contrast, outputs are the "good" items that are being produced by the actions of the producers. Examples of outputs might include automobiles produced, customers served, or graduating students. \index{Data envelopment analysis|)}
 
@@ -105,9 +105,11 @@ The first line of this code chunk ensures the \index{kable!kableExtra} `kableExt
 
 -   The \index{kable!escape} `escape` option allows for LaTeX code to be used as needed when set to `F` or `FALSE`.
 
--   The \index{Piping} piping operator `|>` means to pass the previous command's results into the next command. The piping operator requires R 4.1.0 or higher to be used.^[Prior to a piping operator being built in to R, many people used a piping operator, '%>%' from the 'magrittr' package.  They function similarly though for most purpses.]
+-   The \index{Piping} piping operator `|>` means to pass the previous command's results into the next command. The piping operator requires R 4.1.0 or higher to be used.[^02-io_env-1]
 
 -   The \index{kable!kable\_styling} `kable_styling` command provides a lot more formatting richness. In this case, it is passing an option of \index{kable!hold\_position} `HOLD_position` to ensure that LaTeX keeps the table placed close to this location.
+
+[^02-io_env-1]: Prior to a piping operator being built in to R, many people used a piping operator, '%\>%' from the 'magrittr' package. They function similarly though for most purpses.
 
 For more information on using \index{kable} `kable` and \index{kable!kableExtra} `kableExtra` for doing mathematical modeling, see Appendix D of *Optimization Modeling Using R*.
 
@@ -410,9 +412,9 @@ In this chapter and input-oriented model, we will aim to satisfy the second cons
 
 Let's define the proportion of the studied unit's input needed by the target as $\theta$. A value of $\theta=1$ then means no input reduction can be found in order to produce that unit's level of output. Similarly, $x_j$ is the amount of input used by unit *j* and $y_j$ is the amount of output produced by unit *j*.
 
-In fact, we will go one step further and say that we want to find the maximum input possible reduction in *k*'s input or conversely, the minimum amount of the input that could be used by the target while still producing the same or more output. We do this by adding a new variable, $\theta$, which is the radial reduction in the amount of DMU *k*'s input. We want to find how low we can drive this by *minimizing* $\theta$. This gives us the following linear program, often abbreviated as LP.[^02-io_env-1]
+In fact, we will go one step further and say that we want to find the maximum input possible reduction in *k*'s input or conversely, the minimum amount of the input that could be used by the target while still producing the same or more output. We do this by adding a new variable, $\theta$, which is the radial reduction in the amount of DMU *k*'s input. We want to find how low we can drive this by *minimizing* $\theta$. This gives us the following linear program, often abbreviated as LP.[^02-io_env-2]
 
-[^02-io_env-1]: The mathematics in this book are written using LaTeX embedded within the Rmarkdown document. Another benefit of using Rmarkdown is that it is possible embed LaTeX without requiring using a full LaTeX document.
+[^02-io_env-2]: The mathematics in this book are written using LaTeX embedded within the Rmarkdown document. Another benefit of using Rmarkdown is that it is possible embed LaTeX without requiring using a full LaTeX document.
 
 $$
  \begin{split}
@@ -618,7 +620,7 @@ kbl(cbind(res2_1.efficiency, res2_1.lambda),
   kable_styling(latex_options = "HOLD_position")
 ```
 
-The above table follows a few convenient \index{Conventions} conventions. Rather than just using $\theta$, we label the efficiency score by the returns to scale used for the model, in this case  constant returns to scale is used and therefore $\theta$ is superscripted with CRS. In some research, it might be labeled as CCR after Charnes, Cooper, and Rhodes [@CharnesDataEnvelopmentAnalysis1978]. Later we will cover other models including the variable returns to scale model and label it as VRS although it is often labeled BCC after Banker, Charnes, and Cooper [@Bankermodelsestimatingtechnical1984].
+The above table follows a few convenient \index{Conventions} conventions. Rather than just using $\theta$, we label the efficiency score by the returns to scale used for the model, in this case constant returns to scale is used and therefore $\theta$ is superscripted with CRS. In some research, it might be labeled as CCR after Charnes, Cooper, and Rhodes [@CharnesDataEnvelopmentAnalysis1978]. Later we will cover other models including the variable returns to scale model and label it as VRS although it is often labeled BCC after Banker, Charnes, and Cooper [@Bankermodelsestimatingtechnical1984].
 
 The results in the table indicate that DMU *B* has an efficiency score of 50%. The target of performance is made of DMU *C* scaled down by a factor of 0.33. These results match the graphical results from earlier.
 
@@ -735,9 +737,9 @@ $$
  \end{split}
 $$
 
-To incorporate this, we can add another constraint to our previous model and solve it. Let's define a parameter, `RTS,` to describe which returns to scale assumption we are using and only add the VRS constraint when `RTS` is set to `"VRS"`.[^02-io_env-2]
+To incorporate this, we can add another constraint to our previous model and solve it. Let's define a parameter, `RTS,` to describe which returns to scale assumption we are using and only add the VRS constraint when `RTS` is set to `"VRS"`.[^02-io_env-3]
 
-[^02-io_env-2]: In R, as in many languages, the distinction between assignment and testing for equivalency is important. Two symbols are used for assignment, `=` or `<-` while `==` is used to test for whether two items are equivalent. Note that in `ompr` a pair of equals is used for equality constraints. 
+[^02-io_env-3]: In R, as in many languages, the distinction between assignment and testing for equivalency is important. Two symbols are used for assignment, `=` or `<-` while `==` is used to test for whether two items are equivalent. Note that in `ompr` a pair of equals is used for equality constraints.
 
 ```{r Adding-VRS}
 res2_4.efficiency <- matrix(rep(-1.0, 1), nrow=ND, ncol=1)
@@ -805,12 +807,12 @@ kbl (RTS_Table , booktabs=T, escape=F,
   kable_styling (latex_options = c("HOLD_position"))
 ```
 
-| Returns to Scale | Envelopment Constraint              |
-|------------------|-------------------------------------|
-| CRS              | No constraint needed or $\sum_{j=1}^{N^D} \lambda_j \geq 0$ |
-| VRS              | $\sum_{j=1}^{N^D} \lambda_j = 1$    |
-| IRS/NDRS         | $\sum_{j=1}^{N^D} \lambda_j \geq 1$ |
-| DRS/NIRS         | $\sum_{j=1}^{N^D} \lambda_j \leq 1$ |
+| Returns to Scale | Envelopment Constraint |
+|------------------------|------------------------------------------------|
+| CRS | No constraint needed or $\sum_{j=1}^{N^D} \lambda_j \geq 0$ |
+| VRS | $\sum_{j=1}^{N^D} \lambda_j = 1$ |
+| IRS/NDRS | $\sum_{j=1}^{N^D} \lambda_j \geq 1$ |
+| DRS/NIRS | $\sum_{j=1}^{N^D} \lambda_j \leq 1$ |
 
 No envelopment constraint on the sum of $\lambda$ is needed to create a CRS model and to convert a VRS formulation into a CRS we can just delete the new constraint. On the other hand, it may sometimes be helpful to maintain a consistent model size in terms of number of constraints as we make richer models. We can make it a redundant \index{Constraints!Redundant} constraint by constraining the sum of $\lambda$ to be greater than or equal to zero, $\sum_{j} \lambda_j\geq0$. Since $\lambda$'s are by definition non-negative, the sum of $\lambda$'s is also non-negative and therefore the constraint is superfluous or redundant.
 

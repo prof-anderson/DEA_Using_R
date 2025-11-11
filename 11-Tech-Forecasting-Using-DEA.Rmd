@@ -28,9 +28,9 @@ We are looking at how new generations of products are developed over time in ord
 
 ## History
 
-In 2001, a National Science Foundation workshop on engineering applications of DEA invited DEA experts to work with engineering faculty from Union College to explore novel opportunities for collaboration. Breakout sessions were organized by engineering discipline. While industrial engineering was well represented, I was one of the few electrical engineers using DEA at the time and joined that group. These discussions included Dr. Shawna Grosskopf, one of the co-inventors of the \index{Malmquist productivity index} Malmquist Productivity Index, MPI. Discussions prompted me to think about would there be a way to apply the inherently multidimensional nature of DEA to technology forecasting?
+In 2001, a National Science Foundation workshop on engineering applications of DEA invited DEA experts to work with engineering faculty from Union College to explore novel opportunities for collaboration. Breakout sessions were organized by engineering discipline. While industrial engineering was well represented, I was one of the few electrical engineers using DEA at the time and joined that group. These discussions included Shawna Grosskopf, one of the co-inventors of the \index{Malmquist productivity index} Malmquist Productivity Index, MPI. Discussions prompted me to think about would there be a way to apply the inherently multidimensional nature of DEA to technology forecasting?
 
-Over the following weeks, these thoughts percolated, including a day long visit with two of the top experts in MPI, Dr. Rolf Fare and Dr. Shawna Grosskopf, and a lot of time at a whiteboard. In the end, we decided that the mathematics and restrictions of product forecasting were different enough that MPI was not the right approach. Over the ensuing months, with a PhD student, Oliver (Lane) Inman, the approach took shape and we started calling it Technology Forecasting Using DEA or TFDEA.
+Over the following weeks, these thoughts percolated, including a day long visit with two of the top experts in MPI, Rolf Fare and Shawna Grosskopf, and a lot of time at a whiteboard. In the end, we decided that the mathematics and restrictions of product forecasting were different enough that MPI was not the right approach. Over the ensuing months, with a PhD student, Oliver (Lane) Inman, the approach took shape and we started calling it Technology Forecasting Using DEA or TFDEA.
 
 The first application was revisiting microprocessor benchmarking in line with Moore's Law [@AndersonFurtherexaminationMoore2002]. Later work examined fighter jets [@InmanImprovingtimemarket2005; @InmanPredictingjetfighter2006] and other products.
 
@@ -116,9 +116,9 @@ cbind(z,x,y)
 
 ### TFDEA
 
-Let's call the function for doing a Rate of Change, RoC, calculation.
+Let's call the function for doing a Rate of Change, RoC, calculation. \index{Rate of Change}
 
-In this case, note that the planning period specified is 2003. This means that data up to and including 2003 is used in forecasting the following data which in this dataset means products released in 2004. The returns to scale is set to variable returns to scale (VRS). The orientation of the underlying DEA model is \index{Output-oriented} output-oriented as compared to \index{Input-oriented} input-oriented which suggests a primary goal of driving increased output (storage capacity) rather than cost (input) reduction. The frontier type selected is "d" which refers to a dynamic frontier where the frontier's year is a weighted blend of the year of the constituent units.
+In this case, note that the planning period specified is 2003. This means that data up to and including 2003 is used in forecasting the following data which in this dataset means products released in 2004. The returns to scale is set to variable returns to scale (VRS). The orientation of the underlying DEA model is \index{Output-oriented} output-oriented as compared to \index{Input-oriented} input-oriented which suggests a primary goal of driving increased output (storage capacity) rather than cost (input) reduction. The frontier type selected is `d` which refers to a dynamic frontier where the frontier's year is a weighted blend of the year of the constituent units.
 
 ```{r, include=FALSE}
 library(DJL)

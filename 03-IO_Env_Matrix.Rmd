@@ -15,7 +15,7 @@ library (kableExtra)
 ```
 
 
-In the previous chapter we created the DEA linear program algebraically using the `ompr` package. Before `ompr` was available, we needed to use another approach for most DEA packages such as \index{TFDEA} `TFDEA` and \index{MultiplierDEA} `MultiplierDEA`, which consisted of using matrices. This approach requires more "bookkeeping". Both approaches work but I think the algebraic approach is likely to be easier to write, debug, and extend in the future. For solving, we will use the widely adopted \index{lpSolveAPI} `lpSolveAPI` package, but this same matrix-based approach holds other LP solver engines such as C-Plex, Gurobi, and CBC.
+In the previous chapter we created the DEA linear program algebraically using the `ompr` package. Before `ompr` was available, most DEA packages such as \index{TFDEA} `TFDEA` and \index{MultiplierDEA} `MultiplierDEA`, used a matrix-based approach. This approach requires more "bookkeeping". Both approaches work but I believe the algebraic approach is likely to be easier to write, debug, and extend in the future. For solving, we will use the widely adopted \index{lpSolveAPI} `lpSolveAPI` package, but this same matrix-based approach holds other LP solver engines such as C-Plex, Gurobi, and CBC.
 
 People interested in creating their own package or working on contributing to a package that uses a matrix approach instead of an algebraic approach may find this chapter helpful. For people that want to stick to the algebraic implementation and using \index{ompr} `ompr`, you can skip this chapter.
 
@@ -47,7 +47,7 @@ $$
    \end{split}
 $$
 
-The first step is to simply move the expression with a variable from the right hand side of the input inequality to the right-hand side.
+The first step is to simply move the expression with a variable from the right hand side of the input inequality to the left-hand side.
 
 $$
 \begin{split}
