@@ -103,7 +103,7 @@ $$
    \end{split}
 $$
 
-Notice that this formulation now includes seven \index{Decision variables} decision variables. The linear programming convention is to define the vector of all variables to be *X*. In this case, $X=[\lambda_A, \lambda_B, \lambda_C, \lambda_D, \theta, s^x_1, s^y_1 ]^\tau$. The $\tau$ is a transpose operator that changes a vector from a column vector to a row vector or row to column. In this case, the *X* is a column vector but the elements are shown as a horizontal row vector to save space and then flipped using the transpose operator. Using the *X* vector for decision variables allows us to separate the data from the variables into the following.
+Notice that this formulation now includes seven \index{Decision variables} decision variables. The linear programming convention is to define the vector of all variables to be *X*. In this case, $X=[\lambda_A, \lambda_B, \lambda_C, \lambda_D, \theta, s^x_1, s^y_1 ]^\tau$. The $\tau$ is a transpose operator that changes a vector from a column to a row vector or vice versa (row to column). In this case, the *X* is a column vector but the elements are shown as a horizontal row vector to save space and then flipped using the transpose operator. Using the *X* vector for decision variables allows us to separate the data from the variables into the following.
 
 $$
 \begin{split}
@@ -159,7 +159,7 @@ $$
 
 The bulk of the LP is then defined by passing along the numerical A matrix and the vectors of B and C. We then just need to indicate the sense of the objective function (min or max) and the directions of the constraints.
 
-As models get larger, the full numerical representation becomes difficult for humans to read even if it is a very good format for computers. If you stare at that too long, you may go "bug-eyed." Personally, I really like the algebraic representations. The \index{lpSolve} `lpSolve`package in R is capable of taking an LP model in this form and solving it. Now we just need to structure the data in R to put it in the same format.
+As models get larger, the full numerical representation becomes difficult for humans to read even if it is a very good format for computers. If you stare at that too long, you may go "bug-eyed." Personally, I prefer the algebraic representations. The \index{lpSolve} `lpSolve`package in R is capable of taking an LP model in this form and solving it. Now we just need to structure the data in R to put it in the same format.
 
 ```{r warning=FALSE, message=FALSE}
 library (lpSolve)
@@ -180,7 +180,7 @@ Now let's look at the optimal values of the \index{Decision variables} decision 
 format(res3_1$solution, digits=4)
 ```
 
-The solver in this case knew nothing of our model's structure so the results in terms of decision variable values would need be organized based on how we structured the model to pass into \index{lpSolve} `lpSolve`.
+The solver in this case knew nothing of our model's structure so the results in terms of decision variable values needed to be organized based on how we structured the model to pass into \index{lpSolve} `lpSolve`.
 
 ```{r}
 res3_1.solution <- as.matrix(res3_1$solution)
@@ -221,7 +221,7 @@ library(lpSolveAPI)
 
 Now it gets more involved. We are defining a function for calculating DEA with options for \index{Returns to scale} returns to scale\index{Orientation}, and two different options for \index{Super-efficiency} super-efficiency.
 
-For this walk through, we will focus on running the LP for calculating DEA for only one unit. We typically would do a loop for every unit but the entire `for` loop would need to be inside a single R chunk of this document. Instead, we will walk through how the data structure works. If you understand this, extending it to other units with a `for` loop is straightforward.
+For this walkthrough, we will focus on running the LP to calculate DEA for only one unit. We typically would do a loop for every unit but the entire `for` loop would need to be inside a single R chunk of this document. Instead, we will walk through how the data structure works. If you understand this, extending it to other units with a `for` loop is straightforward.
 
 First, let's declare each of the needed basic data structures. First, determine the number of DMUs, number of inputs, and number of outputs.
 

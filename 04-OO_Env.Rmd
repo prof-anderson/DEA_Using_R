@@ -6,13 +6,13 @@
 library(bookdown); library(rmarkdown); rmarkdown::render("04-OO_Env.Rmd", "pdf_book")
 ```
 
-In chapters 2 and 3 we focused on the input-oriented envelopment model. This chapter will focus on the output-oriented model before moving on to a slack-based model sometimes referred to as a non-oriented model.
+In Chapters 2 and 3 we focused on the input-oriented envelopment model. This chapter focuses on the output-oriented model before moving on to a slack-based model, sometimes referred to as a non-oriented model.
 
-The \index{Input-oriented} input and \index{Output-oriented} output-oriented models are the most commonly used models for DEA applications. People can sometimes be confused over when to use an input-oriented or an output-oriented model. Think of input-oriented as *input reducing* and output-oriented as *output increasing*. In an input-oriented model, the primary goal is to reduce the input while not sacrificing any output. In contrast, the primary goal for an output-oriented model is to increase the output while not increasing the usage of any input.
+The \index{Input-oriented} input and \index{Output-oriented} output-oriented models are the most commonly used models for DEA applications. People can sometimes be confused about when to use an input-oriented or an output-oriented model. Think of input-oriented as *input reducing* and output-oriented as *output increasing*. In an input-oriented model, the primary goal is to reduce the input while not sacrificing any output. In contrast, the primary goal for an output-oriented model is to increase the output while not increasing the usage of any input.
 
 ## Output-Oriented Model
 
-Think of selecting the model orientation by looking at a simple model of say, a set of restaurants where the input is labor and the output is customers served. The question then is what do the managers have more control over. If managers of restaurants have the opportunity to serve more customers and have many customers trying to get reservations but are unable to be accommodated, perhaps an output-oriented model is best. On the other hand, they may only have weak influence over the number of customers served, perhaps due to advertising being done at a regional level. In this case, perhaps cost control is the primary goal which means that an input-oriented model should be applied to emphasize reducing labor.
+Think of selecting the model orientation by looking at a simple model of say, a set of restaurants where the input is labor and the output is customers served. The question then is what do the managers have more control over. If restaurant managers have the opportunity to serve more customers and have many customers trying to get reservations that they are unable to accommodate, perhaps an output-oriented model is best. On the other hand, they may only have weak influence over the number of customers served, perhaps due to advertising being done at a regional level. In this case, perhaps cost control is the primary goal which means that an input-oriented model should be applied to emphasize reducing labor.
 
 ```{r Fig-Orientation-Projections, echo=FALSE, out.width="49%", fig.show='hold', fig.align='center',fig.cap="Input vs. Output Orientations", fig.show='hold'}
 knitr::include_graphics("images/Fig-4StoreIO-CRS.png")
@@ -21,7 +21,7 @@ knitr::include_graphics("images/Fig-4StoreOO-CRS.png")
 
 ### Output-Oriented Formulation
 
-The linear program for the output-oriented model is very similar to that of the input-oriented model. The major change now is that rather than finding the minimum level of input capable of producing the desired output, the goal is to find the maximum output without reducing the input. This expansion of output is denoted as $\phi$ and the resulting constant returns to scale model is given below.
+The linear program for the output-oriented model is very similar to that of the input-oriented model. The major change now is that rather than finding the minimum level of input capable of producing the desired output, the goal is to find the maximum output without reducing the inputs. This expansion of output is denoted as $\phi$ and the resulting constant returns to scale model is given below.
 
 $$
  \begin{aligned}
@@ -32,7 +32,7 @@ $$
   \end{aligned}
 $$
 
-The value $\phi$ is a radial expansion that unit *k* is expected to make on every output whereas in the input-oriented model, $\theta$ was a radial reduction for every input. A very inefficient unit that received an input-oriented, constant returns to scale efficiency score of $\theta=0.5$ indicates that it should be able to achieve the same output it is currently producing using no more than half of any input. If the same analysis were done using an output-orientation, the unit would get a score of $\phi=2.0$ indicating that using the current input, the unit should at least double each output. In the case of constant returns to scale, the efficiency scores will be consistent ($\theta$=$\frac{1}{\phi}$) but targets will be different. Under other returns to scale assumptions, this relationship between $\theta$ and $\phi$ generally does not hold. The result is that the orientation can have a significant impact on efficiency scores, targets of performance, and who is used to in the developing performance targets for inefficient units.
+The value $\phi$ is a radial expansion that unit *k* is expected to make on every output whereas in the input-oriented model, $\theta$ was a radial reduction for every input. A very inefficient unit that received an input-oriented, constant returns to scale efficiency score of $\theta=0.5$ indicates that it should be able to achieve its current output level using no more than half of its inputs. If the same analysis were done using an output-orientation, the unit would get a score of $\phi=2.0$ indicating that using the current input, the unit should at least double each output. In the case of constant returns to scale, the efficiency scores will be consistent ($\theta$=$\frac{1}{\phi}$), but targets will be different. Under other returns to scale assumptions, this relationship between $\theta$ and $\phi$ generally does not hold. The result is that the orientation can have a significant impact on efficiency scores, targets of performance, and who is used to in the developing performance targets for inefficient units.
 
 Just as we did in chapter 2 for the input-oriented model, we will transform it to standard form by moving all terms with variables to the left-hand side.
 

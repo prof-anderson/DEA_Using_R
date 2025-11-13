@@ -17,14 +17,14 @@ library(bookdown); library(rmarkdown); rmarkdown::render("05-Multiplier.Rmd", "p
 
 \index{Multiplier model|(}
 
-Every linear program has a related alter ego referred to as the
+Every linear program has a related "alter ego" referred to as the
 \index{Dual values} dual. By duality, the two models have the same
 optimal objective function values. In DEA, the multiplier models are
 simply the dual of the envelopment models. In terms of the matrix
-representations of DEA given in chapter 3, the A matrix is transposed,
-rows give way to columns and columns become rows. The right hand side
-values appear in the objective function while the previous objective
-function coefficients become right hand side values. More could be said
+representations of DEA given in chapter 3, the A matrix is transposed:
+rows give way to columns, and columns become rows. The right-hand side
+values appear in the objective function, while the previous objective
+function coefficients become right-hand side values. More could be said
 about this but this will be deferred for people interested in duality or
 more algorithmic aspects of linear programming.
 
@@ -274,7 +274,7 @@ idea of output over input.
 Now, let's further extend this model to incorporate inputs. Not only are
 the restaurant managers producing different outcomes, they are also
 using different resources, say capital and labor. Let's denote capital
-investment as $x_1$ and labor in full-time-equivalents as $x_2$.
+investment as $x_1$ and labor in full-time equivalents as $x_2$.
 
 We can frame the question of doing a two-input, two-output study in the
 same way as we did for the two output example earlier. Instead of a
@@ -694,7 +694,7 @@ $$
  \end{split}
 $$
 
-The output-oriented VRS multiplier model is the following.  The returns to scale term is now denoted as *nu* or $\nu_k$ for unit *k*.  Note that it is common in some DEA multiplier models to use the Greek symbols nu ($\nu$) and mu ($\mu$) as the input and output multipliers instead of *v* and *u* and then use the alternate as the returns to scale terms.  In this book I use *u* and *v* consistently  to make it more accessible for reader and limit confusion between what appear to be visually similar terms *v* and $\nu$ to this this section.
+The output-oriented VRS multiplier model is the following.  The returns to scale term is now denoted as *nu* or $\nu_k$ for unit *k*.  Note that it is common in some DEA multiplier models to use the Greek symbols nu ($\nu$) and mu ($\mu$) as the input and output multipliers instead of *v* and *u* and then use the alternate as the returns to scale terms.  In this book I use *u* and *v* consistently  to make it more accessible for the reader and limit confusion between what appear to be visually similar terms *v* and $\nu$ to this this section.
 
 $$ 
 \begin{split} 
@@ -852,7 +852,7 @@ $$
  \end{split}
 $$
 
-If $\theta_k^*=1$ and $Q_k>0$ then unit is *k* is weakly effficient.  \index{Slack|)}
+If $\theta_k^*=1$ and $Q_k>0$ then unit *k* is weakly effficient.  \index{Slack|)}
 
 ## Super-Efficiency in the Multiplier Model
 
