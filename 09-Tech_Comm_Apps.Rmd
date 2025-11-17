@@ -20,7 +20,7 @@ library(kableExtra)
 
 ## Introduction
 
-In 2002, Sten Thore edited a book, *Technology Commercialization: DEA and Related Analytical Methods for Evaluating the Use and Implementation of Technological Innovation* This book compiled a series of cases applying Data Envelopment Analysis to real-world technology management situations.
+In 2002, Sten Thore edited the book, *Technology Commercialization: DEA and Related Analytical Methods for Evaluating the Use and Implementation of Technological Innovation* The book compiled a series of cases applying Data Envelopment Analysis to real-world technology management situations.
 This chapter revisits some of those cases.
 We will provide a snapshot of the cases and the interested reader is referred to Thore's book for more details.
 
@@ -145,7 +145,7 @@ In this case, we can see that certain outputs are "ignored" by certain projects 
 This is perfectly permissible in a DEA study when we don't know the relative value outputs and is why we refer to DEA scores as technical efficiency or relative efficiency.
 On the other hand, if we had more information on relative values of outputs that could or should be incorporated, this can be done.
 The impact is that it would generally decrease the scores of some (but not necessarily all) projects (DMUs) whose original results violate these restrictions.
-The efficiency scores match those reported by Thore and Rich but they didn't examine the output weights.
+The efficiency scores match those reported by Thore and Rich, but they didn't examine the output weights.
 A lot of discussion could be had about relative weights.
 We will leave that to the interested reader to pontificate upon.
 
@@ -196,8 +196,7 @@ kbl (cbind(XNASA,YNASA,resNASA$Efficiency),
 
 ```
 
-Again, the results match those of Thore and Rich.
-Their discussion of results emphasized the comparison of projects to each other by looking at the lambda values to see how the targets of comparison were made.
+Again, the results match those of Thore and Rich. Their discussion of results emphasized the comparison of projects by examining the lambda values to see how the targets of comparison were made.
 
 ```{r}
 resNASA<-DeaMultiplierModel(XNASA,YNASA,

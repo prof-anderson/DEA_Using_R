@@ -36,7 +36,7 @@ The first application was revisiting microprocessor benchmarking in line with Mo
 
 Dr. Inman's thesis formalized and significantly extended the approach of TFDEA. An interesting case study included enterprise database system and their changing performance over time by identifying a key disruptive innovation has rippled through industry after industry including most phones used around the world. Another important linkage was examining hard disk drives and providing additional insights to the classic case by Clayton Christensen made famous in the book, *The Innovator's Dilemma* [@christensen2011].
 
-Later, we revisited a classic technology forecasting application of US fighter jets from 1944 to 1992 to examine how TFDEA performed relative to other techniques, whether it could be applied to large systems outside of the high technology industry, and the usage over a long time horizon [@InmanPredictingjetfighter2006].
+Later, we revisited a classic technology forecasting application of US fighter jets from 1944 to 1992 to examine how TFDEA performed relative to other techniques, whether it could be applied to large systems outside of the high-technology industry, and its usage over a long time horizon [@InmanPredictingjetfighter2006].
 
 ```{r loadhelperfiles, echo=FALSE }
 source('Helperfiles.R')
@@ -56,9 +56,9 @@ source('Helperfiles.R')
 
 \index{TFDEA|(}
 
-The core idea of TFDEA is to examine how the *state of the art* products change over time by using the rich, multidimensional tool of DEA.
+The core idea of TFDEA is to examine how the *state-of-the-art* products change over time by using the rich, multidimensional tool of DEA.
 
-To do this, we sequentially run DEA for each product against all products that have been released to date. If a product is *efficient* at time of release, it is considered, state of the art. It if is state of the art, we then examine how the efficiency score changes with the introduction of new products over time. The changing efficiency over time can be used to estimate a *rate_of_change* for the product category.
+To do this, we sequentially run DEA for each product against all products that have been released to date. If a product is *efficient* at time of release, it is considered, state-of-the-art. It if is state-of-the-art, we then examine how the efficiency score changes with the introduction of new products over time. The changing efficiency over time can be used to estimate a *rate_of_change* for the product category.
 
 ## A Two-Dimensional Example of TFDEA
 
@@ -152,7 +152,7 @@ These results are consistent with those obtained from the `TFDEA` package. The k
 
 This function does not calculate release dates but we showed how they could be calculated as done using the results of the `TFDEA` package.
 
-The `DJL` package also provides a function that directly calculates arrival dates of future products using two approaches. The first is using average RoC the way that we did in the in the earlier example. The second approach is using what is called a segmented approach. Let's examine these results.
+The `DJL` package also provides a function that directly calculates arrival dates of future products using two approaches. The second approach is using what is called a segmented approach. Let's examine these results.
 
 ```{r}
 res3 <- target.arrival.dea (xdata=x, ydata=y, date=z, 2003, 
@@ -242,7 +242,7 @@ kbl (fj_full_data_ex, booktabs= T, digits = 4,
   kable_styling(latex_options = c("HOLD_position"))
 ```
 
-Let's do a few things. First, let's grab only the columns of data that we will be using. The regression study was limited to just four columns of specifications due to the high correlations among variables. In order to make a fair comparison, TFDEA was limited to using the same four columns. Also, we'll abbreviate the names of the columns for better display.
+Let's do a few things. First, let's grab only the columns of data that we will be using. The regression study was limited to just four columns of specifications due to the high correlations among variables. To make a fair comparison, TFDEA was limited to using the same four columns. Also, we'll abbreviate the names of the columns for better display.
 
 Now, let's start by examining what the results would look like for just a simple DEA model of all of the fighter jets.
 
@@ -341,7 +341,7 @@ The approach of TFDEA has been both formalized and extended in later works but t
 
 ## Reproducing Fighter Jet Technology Forecasting
 
-Now, let's use the `TFDEA` package to reexamine the fighter jet research and enhance the situation. Consider yourself to be a military analyst in 1960. You know the past fighter jets that the US has put into service and you know the specifications of the upcoming fighter jets being developed by Boeing, Lockheed, and others. Alas, you don't know when these *future* fighter jets will actually be put into service by having their first flights. After all, fighter jets and other large, complex projects are notorious for running late. Your mission is to try to predict, based upon trends up to 1960, when the post 1960 fighter jets will be released.
+Now, let's use the `TFDEA` package to reexamine the fighter jet research and enhance the situation. Consider yourself to be a military analyst in 1960. You know the past fighter jets that the US has put into service and you know the specifications of the upcoming fighter jets being developed by Boeing, Lockheed, and others. Alas, you don't know when these *future* fighter jets will actually be put into service and have their first flights. After all, fighter jets and other large, complex projects are notorious for running late. Your mission is to try to predict, based upon trends up to 1960, when the post 1960 fighter jets will be released.
 
 This is a particularly challenging scenario, as we are using 16 years of data (1944 to 1960) to forecast out 22 years through 1982.
 
@@ -364,7 +364,7 @@ res2 <- TFDEA(x=fj_x, y=fj_y,        # Use the same data
               mode="dynamic")        # Uses peer year rather than 1960
 ```
 
-The TFDEA package has an abundance of caution and gives a warning about the fighter jets with zeros in outputs (Range of Beyond Visual Range Missiles). This is not a problem though. The second message is more subtle and requires an explanation. The eighth fighter jet, the `fighter_jet[8,1]`, had a peer year that was earlier than its actual first flight. This occurs because it is using a blended average with earlier planes, yet it was considered state of the art. The result is that it is dropped from the analysis.
+The TFDEA package has an abundance of caution and gives a warning about the fighter jets with zeros in outputs (Range of Beyond Visual Range Missiles). This is not a problem though. The second message is more subtle and requires an explanation. The eighth fighter jet, the `fighter_jet[8,1]`, had a peer year that was earlier than its actual first flight. This occurs because it is using a blended average with earlier planes, yet it was considered state-of-the-art. The result is that it is dropped from the analysis.
 
 Let's examine the pieces of information that we receive for results.
 

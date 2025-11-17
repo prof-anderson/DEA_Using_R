@@ -808,7 +808,7 @@ kbl (RTS_Table , booktabs=T, escape=F,
 ```
 
 | Returns to Scale | Envelopment Constraint |
-|------------------------|------------------------------------------------|
+|----|----|
 | CRS | No constraint needed or $\sum_{j=1}^{N^D} \lambda_j \geq 0$ |
 | VRS | $\sum_{j=1}^{N^D} \lambda_j = 1$ |
 | IRS/NDRS | $\sum_{j=1}^{N^D} \lambda_j \geq 1$ |
