@@ -8,6 +8,7 @@ library(bookdown); library(rmarkdown); rmarkdown::render("08-App_Baseball.Rmd", 
 
 ```{r, include=FALSE, eval=FALSE, warning=FALSE, messages=FALSE}
 library(devtools);devtools::install_github("aurokp2/TFDEA_V2")
+library(DiagrammeR)
 # Install TFDEA package from Auro's updated fork
 ```
 
@@ -59,7 +60,7 @@ tmp <- capture.output(rsvg_png(charToRaw (export_svg(Figure)),
 
 ![Model of Baseball Batting](BaseballBatting.png){#fig:BaseballBatting}
 
-Now, let's wrestle with data sources. Sean Lahman's baseball database has been made available as an R package. This is a wonderful resource with a broad range of data for batters, pitchers, teams, and more going back to 1871. <http://seanlahman.com/> 
+Now, let's wrestle with data sources. Sean Lahman's baseball database has been made available as an R package. This is a wonderful resource with a broad range of data for batters, pitchers, teams, and more going back to 1871. <http://seanlahman.com/>
 
 We will restrict our attention to batters and the corresponding `Batting` table. The following code chunk loads relevant packages and then displays a sample of the first six rows in the `Batting` table. Each player is given a `playerID`. To illustrate data processing, we will use the `filter` command from `dplyr` to include only Ty Cobb (`playerID="cobbty01"`).
 
@@ -188,7 +189,7 @@ In 1920, the American League featured a batter so dominant that he transformed t
 
 The core model for analysis is described in the following figure. We are going to use an output-oriented, constant returns to scale model. Output orientation is a better fit than an input-orientation because the batter is trying to create more hits rather than reducing plate appearances. The constant returns to scale was selected because increasing plate appearances should have a proportional increase in hits. Recall the first figure in this chapter illustrating the input-output model used.
 
-Let's use the `filter` command again to create a dataset of only 1920 American League data and arrange into separate input (`PA`) and batting outputs.  
+Let's use the `filter` command again to create a dataset of only 1920 American League data and arrange into separate input (`PA`) and batting outputs.
 
 ```{r preparing-IO-data}
 inputs <- c("PA")
@@ -211,7 +212,7 @@ kbl (head (cbind(x,y)), booktabs=T,
   kable_styling(latex_options = c("HOLD_position"))
 ```
 
-Let's use a constant returns to scale output-oriented multiplier.  Recall the formulation from Chapter 5. The weight of input *i* is $v_i$ and the weight on output *r* is $u_r$.  
+Let's use a constant returns to scale output-oriented multiplier. Recall the formulation from Chapter 5. The weight of input *i* is $v_i$ and the weight on output *r* is $u_r$.
 
 $$
 \begin{split}
@@ -223,8 +224,7 @@ $$
                   &   u_r, \;v_i\geq 0  \; \forall \; r,i
   \end{aligned}
 \end{split}
-$$
-Given the one input, five output case, we could write an explicit linear program as the following for each player *k*.  
+$$ Given the one input, five output case, we could write an explicit linear program as the following for each player *k*.
 
 $$
 \begin{split}
@@ -241,7 +241,7 @@ $$
 \end{split}
 $$
 
-We are now ready to conduct a DEA study of the batters. For this analysis we will use the `MultiplierDEA` \index{MultiplierDEA} package by Aurobindh Kalathil Puthanpura. This package is focused on the multiplier model which lends itself naturally to some additional analyses we will conduct.
+We are now ready to conduct a DEA study of the batters. For this analysis we will use the `MultiplierDEA` \index{MultiplierDEA} package by Aurobindh Kalathil Puthanpura. This package is focused on the multiplier model, which lends itself naturally to some additional analyses we will conduct.
 
 ```{r doing-DEA-multDEA, warning=FALSE, messages=FALSE}
 library(MultiplierDEA)
@@ -262,27 +262,25 @@ kbl (head(table1920AL,10), booktabs=T, escape=F, digits=5,
   kable_styling(latex_options = c("HOLD_position", "scale_down"))
 ```
 
-Notice that this is an output-oriented model so the values greater than 1.0 indicate  decreasing radial efficiency (increasing inefficiency) and describe the amount of additional outputs that should be achieved at the same level of input usage. In other words, how many more walks, singles, doubles, triples, and home runs the player should be producing in the same number of plate appearances if he was batting *efficiently*. As discussed in the chapter on the output-oriented model, under constant returns to scale, the input and output-oriented models are reciprocals of each other ($\theta=\frac{1}{\phi}$)
+Notice that this is an output-oriented model so the values greater than 1.0 indicate decreasing radial efficiency (increasing inefficiency) and describe the amount of additional outputs that should be achieved at the same level of input usage. In other words, how many more walks, singles, doubles, triples, and home runs the player should be producing in the same number of plate appearances if he was batting *efficiently*. As discussed in the chapter on the output-oriented model, under constant returns to scale, the input and output-oriented models are reciprocals of each other ($\theta=\frac{1}{\phi}$)
 
-Let's dig a little deeper now. Let's start by reviewing the output weights for the first few players. 
+Let's dig a little deeper now. Let's start by reviewing the output weights for the first few players.
 
 A few things stand out. First, only two of the first ten players put any weight on home runs. There should be a hierarchy that singles are at least as good as walks, doubles are at least as good singles, triples are at least as good as doubles, and home runs are at least as good triples. This means that every player violates at least one of these relationships. Any plausible analysis of baseball batting needs to reflect these relationships. While very different, common metrics such as batting average and slugging average satisfy these relationships, but our first DEA model does not.
 
 In Anderson and Sharp's 1997 paper, ordinal weight restrictions were incorporated into the envelopment model for examining baseball batters by accumulating hits [@anderson1997]. This created new outputs of Singles or better (BB+X1B), doubles or better (BB+X1B+X2B), *etc.* This ordinal approach to weight restrictions can be done as a simple preprocessing step.
 
-Another approach is to analyze the data set using the \index{Multiplier model} multiplier model and directly incorporate weight restrictions. The \index{DEAMultiplier} `DEAMultiplier` package written by Aurobindh Kalathil Puthanpura has options for integrating weight restrictions.  
+Another approach is to analyze the data set using the \index{Multiplier model} multiplier model and directly incorporate weight restrictions. The \index{DEAMultiplier} `DEAMultiplier` package written by Aurobindh Kalathil Puthanpura has options for integrating weight restrictions.
 
 Notice that the scores are up to 1.0 rather than 1.0 and higher as in the \index{TFDEA} TFDEA package. This is because the TFDEA package reports efficiency as $\phi$ whereas the \index{MultiplierDEA} `MultiplierDEA` package reports $\frac{1}{\phi}$. The results are consistent and reciprocals. The value of $\phi$ is consistent with the formulation of the \index{Output-oriented} output-oriented model. The value of $\frac{1}{\phi}$ has the same interpretation $\theta$ where a value less than 1.0 indicates inefficiency. In fact, for the case of constant returns to scale (CRS), the orientation does not make a difference in the value of inefficiency found, in other words, $\theta=\frac{1}{\phi}$ For the sake of this discussion, we will interpret the results as $\frac{1}{\phi}$.
 
 Now, let's look at the results.
-
 
 ```{r, echo=FALSE}
 hist (res1920AL$Efficiency, 
       xlab="Efficiency Score", 
       main="1920 American League Batter Efficiency")
 ```
-
 
 ```{r warning=FALSE, messages=FALSE}
 library (ggplot2)
@@ -841,7 +839,6 @@ kbl(teameff,
 
 ```
 
-
 ```{r warning=FALSE, messages=FALSE}
 #library(dplyr); library (pander)
 #kbl (dply(teampayroll2, c("teamID"), summarise, mean(Efficiency)))
@@ -856,7 +853,6 @@ mean(subset(teampayroll2, teamID=="OAK" & yearID<2003 )[["Eff"]])
 mean(subset(teampayroll2, teamID=="OAK" & yearID>2003 )[["Eff"]])
 ```
 
-
 ### Future Research Opportunities on Team Management
 
 -   The above hypotheses were considered based on means. It could be extended for statistical significance.
@@ -865,5 +861,4 @@ mean(subset(teampayroll2, teamID=="OAK" & yearID>2003 )[["Eff"]])
 -   General managers spend salary between pitchers and position players. Extending the model by separating salaries between the two players could be used to reveal patterns of allocative inefficiency between teams.
 -   Salary efficiency could be used to explore and test the impact of organizational practices and structures.
 -   One of the open questions in baseball analysis is measuring the impact of being a *good* teammate. It has been argued that some players have most of their value come by way of being a positive influence in the team clubhouse but unlike for batting, pitching, and more recently, fielding, no accepted measure of this team influence has been done. Lessons from sports might then be applicable to areas of greater significance such as new product teams, project management, boards of directors, and other areas.
-- Malmquist Productivity Indices could be used to examine maturity of the industry.
-
+-   Malmquist Productivity Indices could be used to examine maturity of the industry.

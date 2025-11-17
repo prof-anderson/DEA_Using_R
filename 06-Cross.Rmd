@@ -12,7 +12,7 @@ library(bookdown); library(rmarkdown); rmarkdown::render("06-Cross.Rmd", "pdf_bo
 
 ## The Ratio Model
 
-Put yourself as a manager trying to argue that you are the best in converting inputs into outputs compared to a set of peer managers operating competing units. You have data on what the competitors' inputs and outputs. You have the flexibility of... 
+Put yourself as a manager trying to argue that you are the best in converting inputs into outputs compared to a set of peer managers operating competing units. You have data on what the competitors' inputs and outputs. You have the flexibility of...
 
 ## The Linear Programs for DEA
 
@@ -444,7 +444,7 @@ multiplierIOSec <- function (x, y)
 
 ```
 
-Let's explore the impact of the secondary objective function. The \index{MultiplierDEA} `MultiplierDEA` package has a cross-efficiency function but the `Mal_Ben` is a specialized version of the cross-efficiency function that implements the secondary goal of either malevolently trying to minimize other people's scores or benevolently trying to maximize other people's scores based on the work of Doyle and Green.
+Let's explore the impact of the secondary objective function. The \index{MultiplierDEA} `MultiplierDEA` package has a cross-efficiency function but the `Mal_Ben` is a specialized version of the cross-efficiency function that implements the secondary goal of either malevolently trying to minimize other people's scores or benevolently trying to maximize other people's scores, based on the work of Doyle and Green.
 
 This can be framed as a two-phase model in the same way as the envelopment model slack maximization model.
 
