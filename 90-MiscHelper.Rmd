@@ -66,7 +66,7 @@ kbl (cbind(resBH$Efficiency,resBH$Lambda),
 
 Notice that the data table is messy. In particular, an inefficient unit such as J is never used for creating a target for any other unit. Therefore the entire column (L_J) is zero. We want to be careful about simply removing columns since the full matrix makes further analysis simpler but for viewing, we don't need to include that data. Chester Ismay contributed an elegant line of code based on testing to see if the column sum is zero and if so, remove the column. The following line of code modifies this idea to add every column and then only pass columns that are larger than a cutoff value.
 
-In theory, a cutoff could be set to exactly zero but sometimes small deviations from zero will arise from floating point arithmetic calculation. A cutoff value can then be used to guard against these very small positive or negative values where the result should actually be zero.
+In theory, a cutoff could be set to exactly zero but sometimes small deviations from zero will arise from floating point arithmetic calculation. A cutoff value can then be used to guard against these very small positive or negative values when the result should actually be zero.
 
 ```{r displaysmallertable1}
 df <- cbind(resBH$Efficiency,resBH$Lambda)
