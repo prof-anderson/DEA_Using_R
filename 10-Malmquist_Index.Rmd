@@ -45,7 +45,7 @@ Let's use a straightforward single input, single output example of the Malmquist
 
 We will then follow with calculations using various packages.
 
-```{r displaymalm1, out.width="45%", fig.show='hold', fig.align='center', fig.cap="Malmquist Graphical Example"}
+```{r displaymalm1, echo=FALSE, out.width="55%", fig.show='hold', fig.align='center', fig.cap="Malmquist Graphical Example"}
 knitr::include_graphics("images/ch10_malm1.PNG")
 ```
 
@@ -131,7 +131,7 @@ MPI & =TC\cdot P \\
 \end{split}
 $$
 
-```{r displaymalm4, out.width="45%", fig.show='hold', fig.align='center', fig.cap="Detailed Graphical Example of Malmquist"}
+```{r displaymalm4, echo=FALSE, out.width="55%", fig.show='hold', fig.align='center', fig.cap="Detailed Graphical Example of Malmquist"}
 knitr::include_graphics("images/ch10_malm4.PNG")
 ```
 
