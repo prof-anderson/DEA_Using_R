@@ -15,7 +15,7 @@ library (kableExtra)
 ```
 
 
-In the previous chapter we created the DEA linear program algebraically using the `ompr` package. Before `ompr` was available, most DEA packages such as \index{TFDEA} `TFDEA` and \index{MultiplierDEA} `MultiplierDEA`, used a matrix-based approach. This approach requires more "bookkeeping". Both approaches work but I believe the algebraic approach is likely to be easier to write, debug, and extend in the future. For solving, we will use the widely adopted \index{lpSolveAPI} `lpSolveAPI` package, but this same matrix-based approach holds other LP solver engines such as C-Plex, Gurobi, and CBC.
+In the previous chapter we created the DEA linear program algebraically using the `ompr` package. Before `ompr` was available, most DEA packages such as \index{TFDEA} `TFDEA` and \index{MultiplierDEA} `MultiplierDEA`, used a matrix-based approach. This approach requires more "bookkeeping". Both approaches work but I believe the algebraic approach is likely to be easier to write, debug, and extend in the future. For solving, we will use the widely adopted \index{lpSolveAPI} `lpSolveAPI` package, but this matrix-based approach can be implemented using other LP solver engines such as C-Plex, Gurobi, and CBC.
 
 People interested in creating their own package or working on contributing to a package that uses a matrix approach instead of an algebraic approach may find this chapter helpful. For people that want to stick to the algebraic implementation and using \index{ompr} `ompr`, you can skip this chapter.
 
@@ -191,7 +191,7 @@ kbl (t(res3_1.solution), booktabs=T, digits=4,
   kable_styling(latex_options = "HOLD_position")
 ```
 
-Let's demonstrate the use of \index{LaTeX} LaTeX in table captions. There are several things to bear in mind when using LaTeX rendered in column labels.
+Let's demonstrate the use of \index{LaTeX} LaTeX in table headings. There are several things to bear in mind when using LaTeX rendered in column labels.
 
 -   The LaTeX must be wrapped in \$ symbols when used in-line for either column labels or in-line text.
 -   A double backslash is needed to show symbols

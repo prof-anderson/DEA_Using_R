@@ -16,11 +16,11 @@ Now that we have covered an introduction to benchmarking using data envelopment 
 
 Sports has a long history in \index{Operations research} operations research and \index{Management science} management science, well before the idea of sports analytics was popularized by Michael Lewis' *Moneyball* [@lewis2004]. While it doesn't have the life and death significance of emergency relief or health care applications, it provides quite a few benefits for explaining complex analysis methods:
 
--   Accurate and well curated historical data
--   Easy to understand models
--   Opportunities to validate results
--   Clear, quantifiable, and objective metrics
--   Input-output models can be agreed upon
+- Accurate and well curated historical data
+- Easy to understand models
+- Opportunities to validate results
+- Clear, quantifiable, and objective metrics
+- Input-output models can be agreed upon
 
 The range of applications can cover benchmarking individual players, managers, general managers, and teams. Analyzing individual players is the most common type of baseball application and will be the bulk of this chapter. Each baseball player typically plays a role as a batter, a fielder, and/or a pitcher. The analysis of baseball batters is an updated version of an earlier paper [@Andersonnewmeasurebaseball1997a].
 
@@ -214,8 +214,7 @@ kbl (head (cbind(x,y)), booktabs=T,
 
 Let's use a constant returns to scale output-oriented multiplier. Recall the formulation from Chapter 5. The weight of input *i* is $v_i$ and the weight on output *r* is $u_r$.
 
-$$
-\begin{split}
+$$\begin{split}
 \begin{aligned}
     \text {min }  &  \sum_{i=1}^{N^X} v_i x_{i,k}\\
     \text{s.t.: } &  \sum_{r=1}^{N^Y} u_r y_{r,k} =1 \\ 
@@ -223,11 +222,10 @@ $$
                           \geq 0 \; \forall \; j\\
                   &   u_r, \;v_i\geq 0  \; \forall \; r,i
   \end{aligned}
-\end{split}
-$$ Given the one input, five output case, we could write an explicit linear program as the following for each player *k*.
+\end{split}$$
+Given the one input, five output case, we could write an explicit linear program as the following for each player *k*.
 
-$$
-\begin{split}
+$$\begin{split}
 \begin{aligned}
     \text {min }  &  v_{PA} x_{PA,k}\\
     \text{s.t.: } &  u_{BB}x_{BB,k} + u_{1B}x_{1B,k} +
@@ -238,8 +236,7 @@ $$
                           \geq 0 \; \forall \; j\\
                   &   v_{PA}, \;u_{BB}, \; u_{1B}, \; u_{2B}, \; u_{3B}, \; u_{HR}\geq 0 
   \end{aligned}
-\end{split}
-$$
+\end{split}$$
 
 We are now ready to conduct a DEA study of the batters. For this analysis we will use the `MultiplierDEA` \index{MultiplierDEA} package by Aurobindh Kalathil Puthanpura. This package is focused on the multiplier model, which lends itself naturally to some additional analyses we will conduct.
 
@@ -299,8 +296,7 @@ In any case, the output weights do not meet the requirements of a realistic base
 
 We want to enforce the following restrictions on our output weights, *u*.
 
-$$
- \begin{split}
+$$ \begin{split}
  \begin{aligned}
     \ & u_{2B} \geq u_{BB}\\
     \ & u_{2B} \geq u_{1B}\\
@@ -308,13 +304,11 @@ $$
     \ & u_{HR} \geq u_{3B}\\
   \end{aligned}
   \end{split}
-  (\#eq:Ch8BasicWeightRestrictions)
-$$
+  (\#eq:Ch8BasicWeightRestrictions)$$
 
 A more generalized data structure for the weight restrictions looks at these as a series of ratios.
 
-$$
- \begin{split}
+$$ \begin{split}
  \begin{aligned}
     \ & 1 \leq \frac{u_{2B}} {u_{BB}} \leq \infty \\
     \ & 1 \leq \frac{u_{2B}} {u_{1B}} \leq \infty \\
@@ -322,8 +316,7 @@ $$
     \ & 1 \leq \frac{u_{HR}} {u_{3B}} \leq \infty \\
   \end{aligned}
   \end{split}
-  (\#eq:Ch8RatioWeightRestrictions)
-$$
+  (\#eq:Ch8RatioWeightRestrictions)$$
 
 We can now specify these ratios in a data frame that will be passed to the `multiplierDEA` package by defining a lower bound, numerator, denominator, and upper bound for each weight restriction ratio relationship. Note that rather than specifying the upper limit of infinity, we declare it as `NaN` to indicate that it is not a number.
 
@@ -433,12 +426,12 @@ kbl(head(collectedeff1
 
 Baseball fans may recognize some of the names:
 
--   "Shoeless" Joe Jackson (`jacksjo01`) was a Hall of Fame caliber player, but his career was cut short in 1920 after having one of his best seasons due to being embroiled in a World Series scandal.
--   Tris Speaker (`speaktr01`) and Eddie Collins (`collied01`) were not just Hall of Famers but often considered among the very best players of all time. Despite this, neither player is well known by baseball fans a century after they started playing - their biggest problem was that there were a few colleagues whose stars shown even brighter.
--   George Sisler (`sislege01`), was a Hall of Famer but not generally considered to be at the level of Speaker and Collins except for a brief peak of 1920 and 1922.
--   Harry Hooper (`hoopeha01`) and Sam Rice (`ricesa01`) were star players and made the Hall of Fame but were a big step below Speaker and Collins.
--   George Herman "Babe" Ruth (`ruthba01`) has already been discussed at length.
--   Bob Meusel (`meusebo01`), Joe Judge (`judgejo01`), and Joe Dugan (`duganjo01`) had good careers but have never been thought of as all-time great batters.
+- "Shoeless" Joe Jackson (`jacksjo01`) was a Hall of Fame caliber player, but his career was cut short in 1920 after having one of his best seasons due to being embroiled in a World Series scandal.
+- Tris Speaker (`speaktr01`) and Eddie Collins (`collied01`) were not just Hall of Famers but often considered among the very best players of all time. Despite this, neither player is well known by baseball fans a century after they started playing - their biggest problem was that there were a few colleagues whose stars shown even brighter.
+- George Sisler (`sislege01`), was a Hall of Famer but not generally considered to be at the level of Speaker and Collins except for a brief peak of 1920 and 1922.
+- Harry Hooper (`hoopeha01`) and Sam Rice (`ricesa01`) were star players and made the Hall of Fame but were a big step below Speaker and Collins.
+- George Herman "Babe" Ruth (`ruthba01`) has already been discussed at length.
+- Bob Meusel (`meusebo01`), Joe Judge (`judgejo01`), and Joe Dugan (`duganjo01`) had good careers but have never been thought of as all-time great batters.
 
 ```{r, echo=FALSE}
 temp<-as.matrix(cbind(res1920AL$Efficiency,
@@ -586,16 +579,14 @@ In fact, a paper by Anderson, Inman, and Hollingsworth [@Andersonfixedweightingn
 
 The cross-efficiency mean output weights can be expressed as the following:
 
-$$
-\begin{split}
+$$\begin{split}
 \begin{aligned}
     u_r^{CE} & = \frac{1} {N^D} \sum_{j=1}^{N^D} \frac {u_{r,j}} {v_{1,j}}  \\
     \\
     v_1^{CE} & = 1 \\
     \end{aligned}
 \end{split}
-(\#eq:Ch8CEFixedWeights)
-$$
+(\#eq:Ch8CEFixedWeights)$$
 
 Let's repeat this exercise one more time based on the mean output and mean input weights for all 54 players in the 1920 American League.
 
@@ -855,10 +846,10 @@ mean(subset(teampayroll2, teamID=="OAK" & yearID>2003 )[["Eff"]])
 
 ### Future Research Opportunities on Team Management
 
--   The above hypotheses were considered based on means. It could be extended for statistical significance.
--   The spread of best practices from the Oakland A's through baseball could be modeled from the perspective of the diffusion of innovation.
--   The book *Moneyball* helped to popularize and legitimize analytics in sports management. Other industries could be explored to see if they have similar pre- and post-*Moneyball* effects.
--   General managers spend salary between pitchers and position players. Extending the model by separating salaries between the two players could be used to reveal patterns of allocative inefficiency between teams.
--   Salary efficiency could be used to explore and test the impact of organizational practices and structures.
--   One of the open questions in baseball analysis is measuring the impact of being a *good* teammate. It has been argued that some players have most of their value come by way of being a positive influence in the team clubhouse but unlike for batting, pitching, and more recently, fielding, no accepted measure of this team influence has been done. Lessons from sports might then be applicable to areas of greater significance such as new product teams, project management, boards of directors, and other areas.
--   Malmquist Productivity Indices could be used to examine maturity of the industry.
+- The above hypotheses were considered based on means. It could be extended for statistical significance.
+- The spread of best practices from the Oakland A's through baseball could be modeled from the perspective of the diffusion of innovation.
+- The book *Moneyball* helped to popularize and legitimize analytics in sports management. Other industries could be explored to see if they have similar pre- and post-*Moneyball* effects.
+- General managers spend salary between pitchers and position players. Extending the model by separating salaries between the two players could be used to reveal patterns of allocative inefficiency between teams.
+- Salary efficiency could be used to explore and test the impact of organizational practices and structures.
+- One of the open questions in baseball analysis is measuring the impact of being a *good* teammate. It has been argued that some players have most of their value come by way of being a positive influence in the team clubhouse but unlike for batting, pitching, and more recently, fielding, no accepted measure of this team influence has been done. Lessons from sports might then be applicable to areas of greater significance such as new product teams, project management, boards of directors, and other areas.
+- Malmquist Productivity Indices could be used to examine maturity of the industry.

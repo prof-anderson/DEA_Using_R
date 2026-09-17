@@ -26,8 +26,7 @@ We have two important sets of variables now. The first is $u_r$ which is the wei
 
 The multiplier model can be thought of as finding a weighting scheme for outputs over inputs that give you the best possible score while giving no one better than *1.0.*
 
-$$
-\begin{split}
+$$\begin{split}
  \begin{aligned}
     \text {max } & \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
     \text{s.t.:  } & \frac{\sum_{r=1}^{N^Y} u_r y_{r,j}} {\sum_{i=1}^{N^X} v_i x_{i,j} }
@@ -35,13 +34,11 @@ $$
                   & u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
 \end{split}
-(\#eq:Ch6LPCCRIOM-Ratio-1a)
-$$
+(\#eq:Ch6LPCCRIOM-Ratio-1a)$$
 
 This isn't a linear program because we are dividing functions of variables by functions of variables. We need to make a few transformations. First, we clear the denominator of each of the constraints resulting in the following formulation.
 
-$$
-\begin{split}
+$$\begin{split}
  \begin{aligned}
     \text {max } & \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
     \text{s.t.:  } & \sum_{r=1}^{N^Y} u_r y_{r,j} - \sum_{i=1}^{N^X} v_i x_{i,j} 
@@ -49,15 +46,13 @@ $$
                    & u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
 \end{split}
-(\#eq:Ch6LPCCRIOM-Ratio-2a)
-$$
+(\#eq:Ch6LPCCRIOM-Ratio-2a)$$
 
 Now we will convert the problem \index{Inputs} input and \index{Outputs} output constraints from inequalities into equalities by explicitly defining slack variables.
 
 There are an infinite number of possible combinations of numerators and denominators that can give the same ratio. The next step is to select a normalizing value for the objective function. Let's set the denominator equal to one. In this case, we simply add a \index{Constraints} constraint, $\sum_{i=1}^{N^X} v_i x_{i,k}$, to the linear program.
 
-$$
-\begin{split}
+$$\begin{split}
  \begin{aligned}
     \text {max } & \sum_{r=1}^{N^Y} u_r y_{r,k} \\
     \text{s.t.:  } & \sum_{i=1}^{N^X} v_i x_{i,k} \\
@@ -66,8 +61,7 @@ $$
                   &  u_r, v_i\geq 0  \; \forall \; r,i
   \end{aligned}
 \end{split}
-(\#eq:Ch6LPCCRIOM-NoSlack)  
-$$
+(\#eq:Ch6LPCCRIOM-NoSlack)  $$
 
 ## Creating the LP - The Algebraic Approach
 
@@ -269,8 +263,7 @@ kbl (cbind(resfunc$efficiency,resfunc$vweight,resfunc$uweight),
 
 You can think of the cross-efficiency by going back to revisit the original ratio model of the multiplier model. Let's extend the definition of the input and output weights to reflect for which unit the weights were determined. For example, $u_{r,k}$ is then the weight on output *r* when analyzed from the perspective of DMU *k* and a similar interpretation applies to input weight.
 
-$$
-\begin{split}
+$$\begin{split}
 \begin{aligned}
     \text {max } & \theta_{k,k}=\frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,k}} {\sum_{i=1}^{N^X} v_i,k x_{i,k} } \\
     \text{s.t.:  } & \theta_{j,k}=\frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,j}} {\sum_{i=1}^{N^X} v_{i,k} x_{i,j} }
@@ -278,15 +271,13 @@ $$
             & u_{r,k}, v_{i,k}\geq 0  \; \forall \; r,i
   \end{aligned}
 \end{split}
-(\#eq:Ch6LPCCRIO-Cross1)
-$$
+(\#eq:Ch6LPCCRIO-Cross1)$$
 
 Now the cross-efficiency for a unit j can be calculated as the following. I refer to the value $\theta_{k,j}$ as the cross-evaluation score for unit *j* from the perspective of the evaluation of unit *k*.
 
 The cross-efficiency score for unit *j* is simply the average of all of the cross-evaluation scores given to *j* by the other units when they do their analysis.
 
-$$
-\begin{split}
+$$\begin{split}
  \begin{aligned}
     CE_j= \frac {\sum_{k=1}^{N^D}\theta_{k,j}} {N^D}
         = \frac {\sum_{k=1}^{N^D} {
@@ -295,8 +286,7 @@ $$
                 {N^D}
   \end{aligned}
 \end{split}
-(\#eq:Ch6Calc-Cross)
-$$
+(\#eq:Ch6Calc-Cross)$$
 
 ```{r}
 results.crosseval  <- matrix(rep(-1.0, ND*ND), nrow=ND,ncol=ND) 
@@ -450,8 +440,7 @@ This can be framed as a two-phase model in the same way as the envelopment model
 
 The first phase is still the standard DEA multiplier model as discussed earlier. In the second phase, we try to either minimize or maximize the collective population's score. Note that in this case, we can define the population input (or output) either including the unit being studied by summing over all of j or all of j excluding the unit studied, k.
 
-$$
-\begin{split}
+$$\begin{split}
 \begin{aligned}
     \text {min/max } & \frac{\sum_{r=1}^{N^Y} u_{r,k} \sum_{j=1}^{N^D} y_{r,j}} {\sum_{i=1}^{N^X} v_{i,k} \sum_{j=1}^{N^D}x_{i,j} } \\
     \text{s.t.:  } & \theta_{j,k}=\frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,j}} {\sum_{i=1}^{N^X} v_{i,k} x_{i,j} }
@@ -461,13 +450,11 @@ $$
 & u_{r,k}, v_{i,k}\geq 0  \; \forall \; r,i
   \end{aligned}
 \end{split}
-(\#eq:Ch6LPCCRIO-2Phase)
-$$
+(\#eq:Ch6LPCCRIO-2Phase)$$
 
 This ratio model can be linearized in the same way as the original ratio DEA model.
 
-$$
-\begin{split}
+$$\begin{split}
 \begin{aligned}
     \text {min/max } & \sum_{r=1}^{N^Y} u_{r,k} \sum_{j=1}^{N^D} y_{r,j}\\ 
        \text{s.t.:  } & \sum_{i=1}^{N^X} v_{i,k} \sum_{j=1}^{N^D}x_{i,j} = 1 \\
@@ -478,8 +465,7 @@ $$
 & u_{r,k}, v_{i,k}\geq 0  \; \forall \; r,i
   \end{aligned}
 \end{split}
-(\#eq:Ch6LPCCRIO-2Phase)
-$$
+(\#eq:Ch6LPCCRIO-2Phase)$$
 
 Let's compare these to the arbitrary cross-efficiency function which does neither. Note that this does not guarantee the existence of a unique optimal solution in terms of input and output weights, it does greatly decrease the potential.
 
@@ -552,11 +538,11 @@ In this case, site location B, is highest ranked in all three cross-efficiency m
 
 Comments about cross-efficiency functions from `DEAmultiplier` package.
 
--   Mal_and_Ben is not defined as a function.
--   `CrossEfficiency` function should allow secondary objective function choice of "Malevolent" or "Benevolent"
--   Results from `CrossEfficiency` do not match Takamura and Tone.
--   Naming convention from results of analysis. Would be good if column names follow convention like my "helper file"-For example lambdas could use L\_ as a prefix.
--   data validation. Ex. allow "Ben", "ben" "benevolent", "Benevolent". Also, RTS could do "CRS" or "crs"
+- Mal_and_Ben is not defined as a function.
+- `CrossEfficiency` function should allow secondary objective function choice of "Malevolent" or "Benevolent"
+- Results from `CrossEfficiency` do not match Takamura and Tone.
+- Naming convention from results of analysis. Would be good if column names follow convention like my "helper file"-For example lambdas could use L\_ as a prefix.
+- data validation. Ex. allow "Ben", "ben" "benevolent", "Benevolent". Also, RTS could do "CRS" or "crs"
 
 Let's try the Spring case
 
@@ -593,6 +579,6 @@ kbl (cbind(resrows, as.data.frame(res,digits=4)),
 
 Issues to consider in the future for this chapter or other chapters:
 
--   Fixed Weighting nature of certain model dimensions (no-wait to talk about it in baseball chapter?)
--   Check to see if Auro is using population with or without k in mal_ben code.
--   Add reference to Doyle and Green.
+- Fixed Weighting nature of certain model dimensions (no-wait to talk about it in baseball chapter?)
+- Check to see if Auro is using population with or without k in mal_ben code.
+- Add reference to Doyle and Green.

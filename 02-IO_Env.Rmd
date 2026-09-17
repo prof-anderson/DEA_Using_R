@@ -20,14 +20,14 @@ This chapter walks through how DEA works and then shows how to implement the mod
 
 The Extreme Technology Analytics research group at Portland State University adopted the R platform based on the following strengths:
 
--   Open-source, so people can dive as deep as they need, with no risk of future vendor lock-in.
--   Freely available so it does not strain research budgets
--   Extensive collection of numerical add-in packages (over 15,000 at \index{CRAN} CRAN) to build upon
--   Robust distribution of add-in packages helps improve distribution of our own contributions
--   Multiple linear programming packages to choose from
--   Widespread usage and acceptance in the research and analytics communities
--   No arbitrary capacity limits
--   One platform that combines optimization, simulation, and statistical analysis.
+- Open-source, so people can dive as deep as they need, with no risk of future vendor lock-in.
+- Freely available so it does not strain research budgets
+- Extensive collection of numerical add-in packages (over 15,000 at \index{CRAN} CRAN) to build upon
+- Robust distribution of add-in packages helps improve distribution of our own contributions
+- Multiple linear programming packages to choose from
+- Widespread usage and acceptance in the research and analytics communities
+- No arbitrary capacity limits
+- One platform that combines optimization, simulation, and statistical analysis.
 
 ## An Illustrative Example
 
@@ -39,11 +39,11 @@ Let's start by creating a simple application. Assume that you are a regional man
 
 As the manager responsible for the stores in the region, there are many questions that you may want answered:
 
--   Which of these stores are the best?
--   Which stores are laggards?
--   For those that are underperforming, are there objective performance targets they should be able to reach?
--   Which stores might be employing \index{Best practices} best practices that could be adopted by other stores?
--   Among the stores that are lagging in performance, are there particular stores they should focus attention on for learning best practices?
+- Which of these stores are the best?
+- Which stores are laggards?
+- For those that are underperforming, are there objective performance targets they should be able to reach?
+- Which stores might be employing \index{Best practices} best practices that could be adopted by other stores?
+- Among the stores that are lagging in performance, are there particular stores they should focus attention on for learning best practices?
 
 We'll start by drawing a visual representation of the \index{Input-output model} input-output model. The function \index{TRA!DrawIOdiagram} `DrawIOdiagram` is from the \index{TRA!Package} `TRA` package and allows for creating a nicely formatted input-output diagram. For those that are new to `R`, it is important to load each package before its use using the `library` command. The library command loads it into memory, but the package must be installed first. Most packages are available on \index{CRAN} CRAN and can be \index{Install packages} installed from CRAN by using `install.packages` command. RStudio makes it easier by just clicking on the install button in the IDE. The `TRA` package is instead just available on github. To install it, you will need a package, `remotes`, which can then be used to install a package directly from github. \vspace{12pt}
 
@@ -101,13 +101,13 @@ The next code chunk creates a better formatted table. We will use \index{kable} 
 
 The first line of this code chunk ensures the \index{kable!kableExtra} `kableExtra` package is loaded. The \index{kable!kbl} `kbl` command is used to provide a shortcut for the \index{kable} `kable` function with explicit options available. Let's look at several of these options:
 
--   The \index{kable!booktabs} `booktabs` option is for generating clean PDF formatting of the tables required by the publisher.
+- The \index{kable!booktabs} `booktabs` option is for generating clean PDF formatting of the tables required by the publisher.
 
--   The \index{kable!escape} `escape` option allows for LaTeX code to be used as needed when set to `F` or `FALSE`.
+- The \index{kable!escape} `escape` option allows for LaTeX code to be used as needed when set to `F` or `FALSE`.
 
--   The \index{Piping} piping operator `|>` means to pass the previous command's results into the next command. The piping operator requires R 4.1.0 or higher to be used.[^02-io_env-1]
+- The \index{Piping} piping operator `|>` means to pass the previous command's results into the next command. The piping operator requires R 4.1.0 or higher to be used.[^02-io_env-1]
 
--   The \index{kable!kable\_styling} `kable_styling` command provides a lot more formatting richness. In this case, it is passing an option of \index{kable!hold\_position} `HOLD_position` to ensure that LaTeX keeps the table placed close to this location.
+- The \index{kable!kable\_styling} `kable_styling` command provides a lot more formatting richness. In this case, it is passing an option of \index{kable!hold\_position} `HOLD_position` to ensure that LaTeX keeps the table placed close to this location.
 
 [^02-io_env-1]: Prior to a piping operator being built in to R, many people used a piping operator, '%\>%' from the 'magrittr' package. They function similarly though for most purpses.
 
@@ -130,11 +130,11 @@ Let's start by doing a simple plot of the data. For now, I'm going to make use o
 
 The first line loads the `Benchmarking` package and uses an optional parameter \index{quietly} `quietly` in order to not display comments that might be generated. The \index{dea.plot} `dea.plot` function takes the data with a variety of custom options, many of them specific to DEA types of plots:
 
--   \index{Returns to scale} \index{RTS|see{Returns to scale}} `RTS` represents returns to scale and will be dealt with in more detail later in this chapter as will orientation.
+- \index{Returns to scale} \index{RTS|see{Returns to scale}} `RTS` represents returns to scale and will be dealt with in more detail later in this chapter as will orientation.
 
--   The `txt` parameter is used for passing data point labels. In this case, we check the length of the vector `x`, see that it has four letters, and then set `txt` to a list of the first four capital letters, A, B, C, and D. If we had used the `letters` function instead of `LETTERS` and 2:5, it would have given the letters b, c, d, and e.
+- The `txt` parameter is used for passing data point labels. In this case, we check the length of the vector `x`, see that it has four letters, and then set `txt` to a list of the first four capital letters, A, B, C, and D. If we had used the `letters` function instead of `LETTERS` and 2:5, it would have given the letters b, c, d, and e.
 
--   Since the \index{dea.plot} `dea.plot` function is built upon standard R plot routines, the authors wisely allow for parameters to also be passed. For example, `fex` sets a scaling for the text data labels.
+- Since the \index{dea.plot} `dea.plot` function is built upon standard R plot routines, the authors wisely allow for parameters to also be passed. For example, `fex` sets a scaling for the text data labels.
 
 For more information on how to use the \index{Benchmarking} `Benchmarking` package along with a more economics-oriented treatment of DEA, please refer to the package's help file or [@BogetoftBenchmarkingDEASFA2011].
 
@@ -196,41 +196,35 @@ $$x_A\cdot\lambda_A + x_B\cdot\lambda_B + x_C\cdot\lambda_C +x_D\cdot\lambda_D =
 
 Our goal is to find the *best* target or smallest value of $\theta$. We could then pull this together to say
 
-$$
-\begin{split}
+$$\begin{split}
  \begin{aligned}
     \text{minimize  }   & \theta \\ 
   &  y_A\cdot\lambda_A + y_B\cdot\lambda_B + y_C\cdot\lambda_C +y_D\cdot\lambda_D =  y_B\\
  & x_A\cdot\lambda_A + x_B\cdot\lambda_B + x_C\cdot\lambda_C +x_D\cdot\lambda_D = \theta \cdot x_B
 \end{aligned}
-  \end{split}
-$$
+  \end{split}$$
 
 This is a linear program which we could then enter and run. If we do so, we would find that some of the values of $\lambda$ would be negative. Using negative values of a store to make a target for performance doesn't really make sense. A zero value makes sense but a negative value does not, so we add non-negativity \index{Constraints|(} constraints or bounds on the $\lambda$ values.
 
-$$
-\begin{split}
+$$\begin{split}
  \begin{aligned}
     \text{minimize  }   & \theta \\ 
   \text{subject to:  }   &  y_A\cdot\lambda_A + y_B\cdot\lambda_B + y_C\cdot\lambda_C +y_D\cdot\lambda_D =  y_B\\
  & x_A\cdot\lambda_A + x_B\cdot\lambda_B + x_C\cdot\lambda_C +x_D\cdot\lambda_D = \theta \cdot x_B \\
  & x_A, \; x_B, \; x_C, \; x_D \geq 0 
 \end{aligned}
-  \end{split}
-$$
+  \end{split}$$
 
 Next, since we are trying to find the smallest possible value of $\theta$, we could in fact relax the equality constraints to be inequalities. For the output, the target for B must be at least as large as the actual output of B. For the input constraint we could say that the target input for B cannot exceed the reduced input used by B. For brevity, we can also abbreviate *minimize* as *min* and *subject to* as *s.t.*. This gives us the following linear program formulation.
 
-$$
-\begin{split}
+$$\begin{split}
  \begin{aligned}
     \text{min  }   & \theta \\ 
   \text{s.t.:  }   &  y_A\cdot\lambda_A + y_B\cdot\lambda_B + y_C\cdot\lambda_C +y_D\cdot\lambda_D \geq  y_B\\
  & x_A\cdot\lambda_A + x_B\cdot\lambda_B + x_C\cdot\lambda_C +x_D\cdot\lambda_D \leq \theta \cdot x_B \\
  & x_A, \; x_B, \; x_C, \; x_D \geq 0 
 \end{aligned}
-  \end{split}
-$$
+  \end{split}$$
 
 ### Implementing a First Linear Program for DEA
 
@@ -240,8 +234,7 @@ Let's make a simple, explicit linear program for doing DEA. We are going to use 
 
 For this case, let's use the numbers directly for values of inputs and outputs to examine the efficiency of store B.
 
-$$
- \begin{split}
+$$ \begin{split}
  \begin{aligned}
     \text{Min    } & \theta &\text{[Efficiency]}\\
     \text{s.t.:  } & 75 \lambda_A + 100 \lambda_B +
@@ -253,8 +246,7 @@ $$
                   & \lambda_A , \; \lambda_B , \; \lambda_D , \; \lambda_D \geq 0  
                   & \text{[Non-negativity]}
   \end{aligned}
-  \end{split}
-$$
+  \end{split}$$
 
 We're going to use our data from earlier.
 
@@ -322,21 +314,21 @@ res2_0 <- solve_model(mod2_0, with_ROI (solver="glpk"))
 
 Let's check the status to ensure that it found an optimal solution. The result object contains seven elements.
 
--   `res2_0$model`: This gives a summary of the model including the number and types of variables, the number of constraints and whether the objective function is to minimize or maximize. It can be helpful to check this to ensure that the model is the size of what is intended. Further details of the model can be examined such as the objective function by entering `res2_0$model$objective`.
+- `res2_0$model`: This gives a summary of the model including the number and types of variables, the number of constraints and whether the objective function is to minimize or maximize. It can be helpful to check this to ensure that the model is the size of what is intended. Further details of the model can be examined such as the objective function by entering `res2_0$model$objective`.
 
 \index{Constraints|)}
 
--   `res2_0$objective_value`: Gives the objective function value, in this case the the optimal value of $\theta$.
+- `res2_0$objective_value`: Gives the objective function value, in this case the the optimal value of $\theta$.
 
--   `res2_0$status`: This gives a clear statement as to whether the model was solved to optimality (success) or any other condition (error). This status is helpful because while most solvers return a numerical error code to describe the result of the optimization, the actual interpretation of the error code for each solver can be very different. The term error here encompasses a number of other conditions such as infeasibility, unbounded optimal solution, or an early termination condition being met due for reasons such as a suboptimality tolerance factor being met or reaching a time limit. If the status returns an error, the analyst should the more detailed information from the solver described below.
+- `res2_0$status`: This gives a clear statement as to whether the model was solved to optimality (success) or any other condition (error). This status is helpful because while most solvers return a numerical error code to describe the result of the optimization, the actual interpretation of the error code for each solver can be very different. The term error here encompasses a number of other conditions such as infeasibility, unbounded optimal solution, or an early termination condition being met due for reasons such as a suboptimality tolerance factor being met or reaching a time limit. If the status returns an error, the analyst should the more detailed information from the solver described below.
 
--   `res2_0$solution`: A nicely formatted set of decision variable values.
+- `res2_0$solution`: A nicely formatted set of decision variable values.
 
--   `res2_0$solution_column_duals`: \index{Dual values!Column} Dual values of the decision variables (columns).
+- `res2_0$solution_column_duals`: \index{Dual values!Column} Dual values of the decision variables (columns).
 
--   `res2_0$solution_row_duals`: \index{Dual values!Row} Dual values of the constraints (rows). In the DEA envelopment model, these can be used to find the solution to the DEA multiplier model.
+- `res2_0$solution_row_duals`: \index{Dual values!Row} Dual values of the constraints (rows). In the DEA envelopment model, these can be used to find the solution to the DEA multiplier model.
 
--   `res2_0$additional_solver_output`: This collects detailed information directly from the solver used and is particularly helpful for diagnosing problems when the \index{Solver status} solver status is "error" or in integer programming optimization problems that are solving slowly.
+- `res2_0$additional_solver_output`: This collects detailed information directly from the solver used and is particularly helpful for diagnosing problems when the \index{Solver status} solver status is "error" or in integer programming optimization problems that are solving slowly.
 
 Let's start by checking the status.
 
@@ -367,15 +359,15 @@ kbl (t(as.matrix(res2_0$solution)),
 
 There is a lot going on in this command. Let's unpack it step by step.
 
--   The first line takes the solution object, converts it to a matrix, and then transposes it from a \index{Orientation} row orientation to a column orientation.
+- The first line takes the solution object, converts it to a matrix, and then transposes it from a \index{Orientation} row orientation to a column orientation.
 
--   The second line sets the number of \index{kable!digits} `digits` to 3, \index{kable!booktabs} `booktabs` is set again for high quality publication, and \index{kable!escape} `escape` is set to `FALSE` or `F` in order to enable LaTeX for column names.
+- The second line sets the number of \index{kable!digits} `digits` to 3, \index{kable!booktabs} `booktabs` is set again for high quality publication, and \index{kable!escape} `escape` is set to `FALSE` or `F` in order to enable LaTeX for column names.
 
--   The third and fourth lines of code provide LaTeX symbols for column names.
+- The third and fourth lines of code provide LaTeX symbols for column names.
 
--   The fifth line sets a \index{kable!caption} caption and then \index{Piping} pipes (or passes) the \index{kable} `kable` object to the next command using `|>` \index{Piping} piping operator.
+- The fifth line sets a \index{kable!caption} caption and then \index{Piping} pipes (or passes) the \index{kable} `kable` object to the next command using `|>` \index{Piping} piping operator.
 
--   The last statement, since it is connected by a pipe, takes the previous table and gives it a latex option of `HOLD_position` that tells our LaTeX rendering system to try to place the table at the particular spot rather than allowing it to float and be placed in a position that favors nice typesetting.
+- The last statement, since it is connected by a pipe, takes the previous table and gives it a latex option of `HOLD_position` that tells our LaTeX rendering system to try to place the table at the particular spot rather than allowing it to float and be placed in a position that favors nice typesetting.
 
 In general, we'll usually omit the details of this type of table formatting in most of the rest of the book to save on space.
 
@@ -391,16 +383,14 @@ Let's connect these ideas together now using these mathematical building blocks.
 
 This gives us two sets of constraints along with a restriction of non-negativity. These are shown in the following relationships that must all be satisfied simultaneously.
 
-$$
-\begin{split}
+$$\begin{split}
  \begin{aligned}
     \ & \sum_{j=1}^{N^D} x_{i,j}\lambda_j \leq x_{i,k} \; \forall \; i\\
                        & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \;  \forall \; r\\
                        & \lambda_j \geq 0  \; \forall \; j
     \end{aligned}
   (\#eq:Ch2ConstructingTargets)
-  \end{split}
-$$
+  \end{split}$$
 
 The symbol $\forall$ should be read as "for all". This means that the first input \index{Constraints!Input} constraint with $\forall \; i$ is repeated for all values of *i*. In this case, it would mean that we repeat this constraint for values of *i* from *1* to $N^X$. In our single input case ( $N^X=1$ ), we would only have one input constraint. Similarly, $\forall \; r$ indicates that we are repeating this constraint for each possible value of *r* from *1* to $N^Y$. Lastly, we will often use $\forall$ *j* to indicate for all \index{Decision making unit} decision making units from 1 to $N^D$. For the sake of brevity in our linear programming formulations, we will use the $\forall$ *i*, *r*, or *j* when it is for all the possible inputs, or outputs, or decision making units respectively.
 
@@ -416,29 +406,25 @@ In fact, we will go one step further and say that we want to find the maximum in
 
 [^02-io_env-2]: The mathematics in this book are written using LaTeX embedded within the Rmarkdown document. Another benefit of using Rmarkdown is that it is possible embed LaTeX without requiring using a full LaTeX document.
 
-$$
- \begin{split}
+$$ \begin{split}
  \begin{aligned}
     \text{min    } & \theta \\
     \text{s.t.:  } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j \leq \theta x_{i,k} \; \forall \; i\\
                    & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \; \forall \; r\\
                    & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
-  \end{split}
-$$
+  \end{split}$$
 
 Expressing the target on the left and the actual unit's value with the radial reduction on the right is conceptually straightforward to understand. Standard form is to collect all the terms with variables on the left and place constants (terms without variables) on the right hand side of the inequalities. This is easily done.
 
-$$
-\begin{split}
+$$\begin{split}
 \begin{aligned}
     \text{min  }   & \theta \\
     \text{s.t.:  } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} \leq 0 \; \forall \; i\\
                    & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \;  \forall \; r\\
                    & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
- \end{split}
-$$
+ \end{split}$$
 
 ### Implementing the LP Algebraically
 
@@ -564,12 +550,12 @@ res2_1 <- solve_model(mod2_1, with_ROI(solver = "glpk"))
 
 The piping command was used previously in making a nicely formatted table, but it can also make model building much more concise to not need to keep reassigning things to the model with each command. A few things to keep in mind with piping:
 
--   Piping was first implemented in R by way of packages such as `magrittr` and became so popular that a piping operator, `|>`, was added to the base system of `R` in version 4.1.0 (mid 2021). This means that you will get an error message if you try to use `|>` operator on earlier versions of R. You can upgrade the version of R, unpipe the commands, or use `magrittr` and the older `%>%` pipe operator.
--   The pipe command is like glue connecting two commands together. This highlights that you don't want to end with another pipe that expects a different object. The last `add_constraint` command does **not** have a pipe.
--   The solving is based on passing in the model, `mod2_1` directly but could have also been piped.
--   Piped models are shorter making them easier to write and express.
--   Piped models may be harder to \index{Piping!debugging} debug as syntax errors may point to the full piped object rather than just one individual line. Using the piping metaphor, this is equivalent to being told that there is a leak *somewhere* in the home's plumbing as compared to being told which particular pipe connection is leaking. This is potentially a very important reason for many people to build unpiped models, at least for development purposes.
--   Piped `ompr` models may be more concise looking but do not appear to run significantly faster based on my informal tests. Note that if speed is a concern, `ompr` has a new modeling structure in development, `MILPModel` that would be significantly faster, but this may be more useful for bigger models than DEA typically requires.
+- Piping was first implemented in R by way of packages such as `magrittr` and became so popular that a piping operator, `|>`, was added to the base system of `R` in version 4.1.0 (mid 2021). This means that you will get an error message if you try to use `|>` operator on earlier versions of R. You can upgrade the version of R, unpipe the commands, or use `magrittr` and the older `%>%` pipe operator.
+- The pipe command is like glue connecting two commands together. This highlights that you don't want to end with another pipe that expects a different object. The last `add_constraint` command does **not** have a pipe.
+- The solving is based on passing in the model, `mod2_1` directly but could have also been piped.
+- Piped models are shorter making them easier to write and express.
+- Piped models may be harder to \index{Piping!debugging} debug as syntax errors may point to the full piped object rather than just one individual line. Using the piping metaphor, this is equivalent to being told that there is a leak *somewhere* in the home's plumbing as compared to being told which particular pipe connection is leaking. This is potentially a very important reason for many people to build unpiped models, at least for development purposes.
+- Piped `ompr` models may be more concise looking but do not appear to run significantly faster based on my informal tests. Note that if speed is a concern, `ompr` has a new modeling structure in development, `MILPModel` that would be significantly faster, but this may be more useful for bigger models than DEA typically requires.
 
 Now, let's get to looking over the results.
 
@@ -724,8 +710,7 @@ Up to this point, our analyses used an assumption of constant returns to scale. 
 
 Instead, let's add a constraint that says that the target of performance must be made up of parts that add up to a whole unit. All it needs to do is constrain the sum of the $\lambda$ variables to equal 1 or in other words, $\sum_{j} \lambda_j = 1$. This prevents the target from being made up of just one greatly shrunken version of a unit, say C making the target for A in our earlier example. It also prevents an over reliance of scaling up a unit to make the performance target, in our example C being scaled up to make a comparison target for D. This constraint makes the model into a variable returns to scale or VRS input-oriented envelopment model.
 
-$$
-\begin{split}
+$$\begin{split}
 \begin{aligned}
     \text{minimize  }   & \theta \\
     \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j \leq \theta x_{i,k} \; \forall \; i\\
@@ -734,8 +719,7 @@ $$
                        & \lambda_j \geq 0  \; \forall  \; j
   \end{aligned}
   (\#eq:Ch2LPBCCIOE) 
- \end{split}
-$$
+ \end{split}$$
 
 To incorporate this, we can add another constraint to our previous model and solve it. Let's define a parameter, `RTS,` to describe which returns to scale assumption we are using and only add the VRS constraint when `RTS` is set to `"VRS"`.[^02-io_env-3]
 
@@ -796,14 +780,15 @@ In addition to Constant Returns to Scale (CRS) and Variable Returns to Scale (VR
 Each returns to scale model is straightforward to implement.
 
 ```{r}
-RTS_Table  <- matrix(c("CRS", "$\\text{None or }\\sum_{j=1}^{n} \\lambda_j  \\geq 0$", 
-                       "VRS", "$\\sum_{j=1}^{n} \\lambda_j = 1$", 
-                       "DRS/NIRS", "$\\sum_{j=1}^{n} \\lambda_j \\leq 1$", 
-                       "IRS/NDRS", "$\\sum_{j=1}^{n} \\lambda_j \\geq 1$"),
-                     byrow=TRUE, nrow=4)
+RTS_Table  <- 
+  matrix(c("CRS","$\\text{None or }\\sum_{j=1}^{n} \\lambda_j  \\geq 0$",
+           "VRS", "$\\sum_{j=1}^{n} \\lambda_j = 1$", 
+           "DRS/NIRS", "$\\sum_{j=1}^{n} \\lambda_j \\leq 1$", 
+           "IRS/NDRS", "$\\sum_{j=1}^{n} \\lambda_j \\geq 1$"),
+           byrow=TRUE, nrow=4)
 kbl (RTS_Table , booktabs=T, escape=F, 
      col.names=c("Returns to Scale", "Envelopment Constraint"),
-     caption =c("Returns to Scale Constraints for Envelopment Models"))  |>
+     caption=c("Envelopment Model Returns to Scale Constraints")) |>
   kable_styling (latex_options = c("HOLD_position"))
 ```
 
@@ -998,7 +983,7 @@ kbl (temp,
 
 A few takeaways from these results:
 
--   Switching from CRS to VRS will never hurt the efficiency of a DMU. From an optimization perspective, think of this as adding a constraint which will increase or leave unchanged the objective function value from a minimization linear program. makes it *easier* for a find
+- Switching from CRS to VRS will never hurt the efficiency of a DMU. From an optimization perspective, think of this as adding a constraint which will increase or leave unchanged the objective function value from a minimization linear program. makes it *easier* for a find
 
 ## Extracting Multiplier Weights from Envelopment Results
 
@@ -1052,9 +1037,9 @@ kable_styling(protect_latex = TRUE,
 
 A few things should be noticed with respect the \index{Multiplier weights} multiplier weights:
 
--   Multiplier weights can be quite small because in general, they are multiplied by inputs and the product is typically less than one. They may appear to round to zero but still be significant.
--   Multiplier weights are not unique for strongly efficient DMUs. This is explored in more detail in the multiplier model chapter and the cross-efficiency chapter.
--   Multiplier weights are usually unique for inefficient DMUs and the results obtained using either the \index{Dual values!Row} row duals of the envelopment model or those obtained directly from the multiplier model should therefore typically match.
+- Multiplier weights can be quite small because in general, they are multiplied by inputs and the product is typically less than one. They may appear to round to zero but still be significant.
+- Multiplier weights are not unique for strongly efficient DMUs. This is explored in more detail in the multiplier model chapter and the cross-efficiency chapter.
+- Multiplier weights are usually unique for inefficient DMUs and the results obtained using either the \index{Dual values!Row} row duals of the envelopment model or those obtained directly from the multiplier model should therefore typically match.
 
 ## Slack Maximization
 
@@ -1186,29 +1171,25 @@ Notice that this is an instance of *multiple optimal solutions* or *multiple opt
 
 In order to accommodate this, we need to extend the simple radial model by adding variables to reflect nonradial slacks. We do this by converting the model's \index{Constraints!Input} input and \index{Constraints!Output} output constraints from inequalities into equalities by explicitly defining slack variables. The input slack variable(s), $s^x_i$, represents the amount of input, *i*, can be reduced from the target for the analysis. Similarly, the output slack variable(s), $s^y_r$, indicate the additional amount of output *r* which the target is able to generate. These are considered non-radial slacks and are above and beyond the proportional inefficiency indicated by $\theta$.
 
-$$
-\begin{split}
+$$\begin{split}
  \begin{aligned}
     \text{minimize  }   & \theta \\
     \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \; \forall \; i\\
                        & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
  \end{aligned}
-\end{split}
-$$
+\end{split}$$
 
 Simply formulating the model with slacks is insufficient. We want to maximize these slacks after having found the best possible radial contraction (minimum value of $\theta$.) This is done by adding a term summing the slacks to the objective function. Note that this sum of slacks is multiplied by $\epsilon$ which is a non-Archimedean infinitesimal. The value of $\epsilon$ should be considered to be so small as to ensure that minimizing $\theta$ takes priority or maximizing the sum of slacks. Note also that maximizing the sum of slacks is denoted by minimizing the negative sum of slacks. \index{non-Archimedean infinitesimal}
 
-$$
-\begin{split}
+$$\begin{split}
  \begin{aligned}
     \text{minimize  }   & \theta - \epsilon ( \sum_{i} s^x_i + \sum_{r} s^y_r)\\
     \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \forall \; i\\
                        & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \forall \; r\\
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
   \end{aligned}
- \end{split}
-$$
+ \end{split}$$
 
 A common mistake in implementing DEA is to use a finite approximation for $\epsilon$ such as $10^{-6}$. Any finite value can cause distortions in $\theta$. For example, an application comparing companies using revenue and expenses might have inputs and outputs on the order of millions or billions. In this case, non-radial slacks could also be on the order of $10^{6}$. Multiplying the two results in a value similar in magnitude to the maximum possible efficiency score ($10^{-6}\cdot 10^{6}=1$) which would then potentially overwhelm the radial efficiency, $\theta$, part of the objective function and lead to distorted results.
 
@@ -1216,8 +1197,7 @@ The proper way to implement slack maximization is to treat it as a preemptive \i
 
 The first phase can take the form of any of our earlier linear programs without the $\epsilon$ and sum of slacks in the objective function. The second phase is the following where $\theta^*$ is the optimal value from phase one and $\theta$ is then held constant in the second phase. This is formulated by adding a constraint, $\theta=\theta^*$ to the second phase linear program.
 
-$$
-\text{Phase 1:    }
+$$\text{Phase 1:    }
 \begin{split}
  \begin{aligned}
     \text{minimize  }   & \theta \\
@@ -1225,11 +1205,9 @@ $$
                        & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
  \end{aligned}
-\end{split}
-$$
+\end{split}$$
 
-$$
-\text{Phase 2:    }
+$$\text{Phase 2:    }
 \begin{split}
  \begin{aligned}
     \text{max   } & \sum_{i}s^x_i + \sum_{r}s^y_r\\
@@ -1239,8 +1217,7 @@ $$
                   & \theta = \theta^* &\text{Keep fixed from Phase 1}\\
                   & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
   \end{aligned}
-\end{split}
-$$
+\end{split}$$
 
 ### Implementing the Slack Maximization Approach
 
