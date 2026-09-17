@@ -318,15 +318,15 @@ kbl (head (cbind(x19,y19)),
 
 ```{r preparing-BB-IO-1920-data}
 
-batting1920AL <- batting %>% filter(yearID==1920, lgID=="AL")
+batting1920AL <- batting |> filter(yearID==1920, lgID=="AL")
 
-x20 <- batting1920AL %>% select( PA)
+x20 <- batting1920AL |> select( PA)
 row.names(x20)<-batting1920AL[,1]
 
-y20 <- batting1920AL %>% select(BB, X1B, X2B, X3B, HR)
+y20 <- batting1920AL |> select(BB, X1B, X2B, X3B, HR)
 row.names(y20)<-batting1920AL[,1]
 
-t20 <- batting1920AL %>% select(yearID)
+t20 <- batting1920AL |> select(yearID)
 row.names(t20)<-batting1920AL[,1]
 
 kbl (head (cbind(x20,y20)), 
@@ -335,7 +335,7 @@ kbl (head (cbind(x20,y20)),
   kable_styling(latex_options = c("HOLD_position"))
 
 #Data for DJL's Malmquist function
-# batting1919_20AL <- batting %>% filter((yearID>1918) 
+# batting1919_20AL <- batting |> filter((yearID>1918) 
 #     & (yearID<1921), lgID=="AL")
 
 ```
