@@ -1,7 +1,7 @@
 ---
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 # Input-Oriented Envelopment Model
@@ -73,7 +73,7 @@ This follows three steps to work for both HTML & PDF:
 A few other things to note from reading the previous code chunk:
 
 1.  It assumes that there is a subdirectory for images - if there isn't a subdirectory for images, you can create one or edit the path in the code. I created a subdirectory `generated-images` to highlight that these are images that I am creating through R and do not need to be permanently stored in the github repository.
-2.  The text passed to the function such as `"Sales\n($/week)"` allows for a line return character such as `"\n"`. This allows the name of the output and the measurement unit to be on separate lines. The line return is also used to provide a taller box by being placed above and below the label for the box.
+2.  The text passed to the function such as `"Sales\n($/week)"` allows for a line return character, `"\n"`. This enables the name of the output and the measurement unit to be on separate lines. The leading and edning line returns are also used to provide a taller box by being placed above and below the label for the box.
 
 Let's get started now with creating our data.
 
@@ -105,13 +105,13 @@ The first line of this code chunk ensures the \index{kable!kableExtra} `kableExt
 
 - The \index{kable!escape} `escape` option allows for LaTeX code to be used as needed when set to `F` or `FALSE`.
 
-- The \index{Piping} piping operator `|>` means to pass the previous command's results into the next command. The piping operator requires R 4.1.0 or higher to be used.[^02-io_env-1]
+- The \index{Piping} piping operator `|>` passes the previous command's results into the next command. [^02-io_env-1]
 
 - The \index{kable!kable\_styling} `kable_styling` command provides a lot more formatting richness. In this case, it is passing an option of \index{kable!hold\_position} `HOLD_position` to ensure that LaTeX keeps the table placed close to this location.
 
-[^02-io_env-1]: Prior to a piping operator being built in to R, many people used a piping operator, '%\>%' from the 'magrittr' package. They function similarly though for most purpses.
+[^02-io_env-1]: Prior to a piping operator being built in to R in version 4.1.0, many people used a piping operator, '%\>%' from the 'magrittr' package. They function similarly though for most purposes.
 
-For more information on using \index{kable} `kable` and \index{kable!kableExtra} `kableExtra` for doing mathematical modeling, see Appendix D of *Optimization Modeling Using R*.
+For more information on using \index{kable} `kable` and \index{kable!kableExtra} `kableExtra` for doing mathematical modeling, see Appendix D of *Optimization Modeling Using R* [@AndersonOMUR2024]
 
 ```{r first-dataset-table, warning=FALSE, message=FALSE}
 library (kableExtra)
@@ -128,6 +128,14 @@ Can you tell which stores represent the best trade-off between inputs and output
 
 Let's start by doing a simple plot of the data. For now, I'm going to make use of a function in Peter Bogetoft and Lars Otto's \index{Benchmarking} `Benchmarking` package which provides a very handy two-dimensional plot in the format often used for showing production.
 
+```{r  warning=FALSE, eval=FALSE, fig.cap="Plot of First Data Set"}
+library(Benchmarking, quietly=TRUE)
+dea.plot(x, y, RTS="crs", ORIENTATION="in-out", 
+         txt=LETTERS[1:length(x)], 
+         add=FALSE, wx=NULL, wy=NULL, TRANSPOSE=FALSE, 
+         fex=1, GRID=TRUE, RANGE=FALSE, param=NULL)
+```
+
 The first line loads the `Benchmarking` package and uses an optional parameter \index{quietly} `quietly` in order to not display comments that might be generated. The \index{dea.plot} `dea.plot` function takes the data with a variety of custom options, many of them specific to DEA types of plots:
 
 - \index{Returns to scale} \index{RTS|see{Returns to scale}} `RTS` represents returns to scale and will be dealt with in more detail later in this chapter as will orientation.
@@ -138,8 +146,8 @@ The first line loads the `Benchmarking` package and uses an optional parameter \
 
 For more information on how to use the \index{Benchmarking} `Benchmarking` package along with a more economics-oriented treatment of DEA, please refer to the package's help file or [@BogetoftBenchmarkingDEASFA2011].
 
-```{r  warning=FALSE, message=FALSE, fig.cap="Plot of First Data Set"}
-library(Benchmarking)
+```{r  warning=FALSE, echo=FALSE, fig.cap="Plot of First Data Set"}
+library(Benchmarking, quietly=TRUE)
 dea.plot(x, y, RTS="crs", ORIENTATION="in-out", 
          txt=LETTERS[1:length(x)], 
          add=FALSE, wx=NULL, wy=NULL, TRANSPOSE=FALSE, 
@@ -150,7 +158,7 @@ This chart shows that unit *C* has the best ratio of output (y) to input (x). Th
 
 Furthermore, we can graphically examine the technical efficiency of each of the other units. I'm going to start with unit B since it is a little easier to visualize. For now, let's think of the question, how much more or less input would *C* require to produce as much output as *B*.
 
-```{r Fig-Orientation-IO-Projection, echo=FALSE, out.width="60%", fig.show='hold', fig.align='center',fig.cap="Input-Oriented Projection for Unit B", fig.show='hold'}
+```{r Fig-Orientation-IO-Projection, echo=FALSE, out.width="80%", fig.show='hold', fig.align='center',fig.cap="Constant Returns to Scale Input-Oriented Projection for Unit B", fig.show='hold'}
 knitr::include_graphics("images/Fig-4StoreIO-CRS.png")
 ```
 
@@ -230,7 +238,7 @@ $$\begin{split}
 
 \index{ompr|(}
 
-Let's make a simple, explicit linear program for doing DEA. We are going to use the `ompr` package.
+Let's make a simple, explicit linear program for doing DEA. We are going to use the `ompr` package. This package was developed by Dirk Schumacher [@SchumacherOmpr2023] and provides a powerful algebraic optimization modeling tool that we will use this throughout this book.
 
 For this case, let's use the numbers directly for values of inputs and outputs to examine the efficiency of store B.
 
@@ -259,7 +267,7 @@ library(ompr, quietly=TRUE)
 library(ompr.roi, quietly=TRUE)        
 ```
 
-The `ROI` package is the R Optimization Interface and provides a standardized interface layer to different optimization routines. The specific routines are provided through a plugin, in this case, \index{ROI.plugin.glpk} `ROI.plugin.glpk` for the glpk optimization system. A variety of other optimization systems can be used as well by using the corresponding plugin. The `ompr` package provides the \index{Algebraic modeling} algebraic modeling functions for building the model to then pass to `ROI` by way of the \index{ompr.roi} `ompr.roi` package. While this layered structure may sound complicated, it has several important benefits. First, it allows for concise algebraic representation of the linear program by way of `ompr`. Second, the use of the `ROI` layer allows the analyst to change the optimization system used (such as from `glpk` to \index{symphony} `symphony`) without affecting the model built.
+The `ROI` package is the R Optimization Interface and provides a standardized interface layer to different optimization routines. The specific routines are provided through a plugin, in this case, \index{ROI.plugin.glpk} `ROI.plugin.glpk` for the glpk optimization system. A variety of other optimization systems can be used as well by using the corresponding plugin. The `ompr` package provides the \index{Algebraic modeling} algebraic modeling functions for building the model to then pass to `ROI` by way of the \index{ompr.roi} `ompr.roi` package. While this layered structure may sound complicated, it has several important benefits. First, it allows for concise algebraic representation of the linear program by way of `ompr`. Second, the use of the `ROI` layer allows the analyst to change the optimization engine used (such as from `glpk` to \index{symphony} `symphony`) without affecting the model built.
 
 ```{r}
 mod2_0 <- MIPModel ()
@@ -357,7 +365,7 @@ kbl (t(as.matrix(res2_0$solution)),
   kable_styling(latex_options = "HOLD_position")
 ```
 
-There is a lot going on in this command. Let's unpack it step by step.
+There is a lot going on in this code chunk. Let's unpack it step by step.
 
 - The first line takes the solution object, converts it to a matrix, and then transposes it from a \index{Orientation} row orientation to a column orientation.
 
@@ -385,14 +393,14 @@ This gives us two sets of constraints along with a restriction of non-negativity
 
 $$\begin{split}
  \begin{aligned}
-    \ & \sum_{j=1}^{N^D} x_{i,j}\lambda_j \leq x_{i,k} \; \forall \; i\\
-                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \;  \forall \; r\\
+    \ & \sum_{j=1}^{N^D} x_{i,j}\lambda_j \leq x_{i,k} \; \forall \; i &\text{[Input]}\\ 
+                       & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \;  \forall \; r &\text{[Output]}\\
                        & \lambda_j \geq 0  \; \forall \; j
     \end{aligned}
   (\#eq:Ch2ConstructingTargets)
   \end{split}$$
 
-The symbol $\forall$ should be read as "for all". This means that the first input \index{Constraints!Input} constraint with $\forall \; i$ is repeated for all values of *i*. In this case, it would mean that we repeat this constraint for values of *i* from *1* to $N^X$. In our single input case ( $N^X=1$ ), we would only have one input constraint. Similarly, $\forall \; r$ indicates that we are repeating this constraint for each possible value of *r* from *1* to $N^Y$. Lastly, we will often use $\forall$ *j* to indicate for all \index{Decision making unit} decision making units from 1 to $N^D$. For the sake of brevity in our linear programming formulations, we will use the $\forall$ *i*, *r*, or *j* when it is for all the possible inputs, or outputs, or decision making units respectively.
+The symbol $\forall$ should be read as "for all". This means that the input \index{Constraints!Input} constraint with $\forall \; i$ is repeated for all values of *i*. Therefore, it would repeat this constraint for values of *i* from *1* to $N^X$. In our single input case ( $N^X=1$ ), we would only have one input constraint. Similarly, $\forall \; r$ in the output constraint indicates that we are repeating this constraint for each possible value of *r* from *1* to $N^Y$. Lastly, we will often use $\forall$ *j* to indicate for all \index{Decision making unit} decision making units from 1 to $N^D$. For the sake of brevity in our linear programming formulations, we will use the $\forall$ *i*, *r*, or *j* when it is for all the possible inputs, or outputs, or decision making units respectively.
 
 This is not yet a linear program because it is missing an objective function. It defines what is an acceptable target of performance that is at least as good as DMU *k* but does not try to find a *best* target.
 
@@ -404,35 +412,35 @@ Let's define the proportion of the studied unit's input needed by the target as 
 
 In fact, we will go one step further and say that we want to find the maximum input possible reduction in *k*'s input or conversely, the minimum amount of the input that could be used by the target while still producing the same or more output. We do this by adding a new variable, $\theta$, which is the radial reduction in the amount of DMU *k*'s input. We want to find how low we can drive this by *minimizing* $\theta$. This gives us the following linear program, often abbreviated as LP.[^02-io_env-2]
 
-[^02-io_env-2]: The mathematics in this book are written using LaTeX embedded within the Rmarkdown document. Another benefit of using Rmarkdown is that it is possible embed LaTeX without requiring using a full LaTeX document.
+[^02-io_env-2]: The mathematics in this book are written using LaTeX embedded within the RMarkdown document. Another benefit of using RMarkdown is that it is possible embed LaTeX without requiring using a full LaTeX document.
 
 $$ \begin{split}
  \begin{aligned}
     \text{min    } & \theta \\
-    \text{s.t.:  } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j \leq \theta x_{i,k} \; \forall \; i\\
-                   & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \; \forall \; r\\
+    \text{s.t.:  } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j \leq \theta x_{i,k} \; \forall \; i &\text{[Input]}\\
+                   & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \; \forall \; r &\text{[Output]}\\
                    & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
   \end{split}$$
 
-Expressing the target on the left and the actual unit's value with the radial reduction on the right is conceptually straightforward to understand. Standard form is to collect all the terms with variables on the left and place constants (terms without variables) on the right hand side of the inequalities. This is easily done.
+Expressing the target on the left and the actual unit's value with the radial reduction on the right is conceptually straightforward to understand. On the other hand, the standard form for a linear program is to collect all the terms with variables on the left and place constants (terms without variables) on the right hand side of the inequalities. The input constraint is easily modified to address this by subtracting the right hand side from both sides of the inequality resulting in the following LP.
 
 $$\begin{split}
 \begin{aligned}
     \text{min  }   & \theta \\
-    \text{s.t.:  } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} \leq 0 \; \forall \; i\\
-                   & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \;  \forall \; r\\
+    \text{s.t.:  } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} \leq 0 \; \forall \; i &\text{[Input]}\\
+                   & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \;  \forall \; r &\text{[Output]}\\
                    & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
  \end{split}$$
 
-### Implementing the LP Algebraically
+### Implementing the Multiple DMU Case
 
 There are two fundamentally different approaches to setting up linear programs for solving. The first approach is to define data structures to pass vectors for the objective function coefficients and constraint right hand sides along with a matrix of data describing the \index{Constraints} constraints. This requires careful setting up of the linear programs and is a bigger cognitive step away from the mathematical representation. Another approach is to use \index{Algebraic modeling} algebraic modeling languages. Standalone algebraic optimization modeling languages include LINGO, AMPL, GAMS, GMPL, and others.
 
-Until recently, R did not have the ability to do algebraic modeling optimization but recently a few efforts have provided support for this. The \index{ompr} `ompr` package by Dirk Schumacher provides an algebraic perspective that closely matches the summation representation of a linear program shown earlier. If you want to see the data structure format approach, that is covered in the next chapter.
+Until recently, R did not have the ability to do algebraic modeling optimization but recently a few efforts have provided support for this. The \index{ompr} `ompr` package by Dirk Schumacher [@SchumacherOmpr2023] provides an algebraic perspective that closely matches the summation representation of a linear program shown earlier. If you want to see the data structure format approach, that is covered in the next chapter.
 
-Let's define some data structures for holding our data and results.
+We'll start by exstending to multiple DMUs but still hardcoding for the single input and single output case. Let's define some data structures for holding our data and results.
 
 ```{r Declaring_Structures_of_Results_ompr}
 ND <- nrow(x); NX <- ncol(x); NY <- ncol(y); # Define data size
@@ -510,7 +518,7 @@ mod2_1 <- add_constraint(mod2_1,
                          >= ydata[k,1])
 ```
 
-At this point, we now have a complete model. Simply typing the `mod2_1` in the console after running all of the above commands will result in a summary of the model.
+At this point, we now have a complete model. Typing `mod2_1` in the console after running all of the above commands will result in a summary of the model.
 
 ```{r}
 mod2_1
@@ -610,9 +618,11 @@ The above table follows a few convenient \index{Conventions} conventions. Rather
 
 The results in the table indicate that DMU *B* has an efficiency score of 50%. The target of performance is made of DMU *C* scaled down by a factor of 0.33. These results match the graphical results from earlier.
 
+### Extending the Implementation to Multiple Inputs and Outputs
+
 Let's now extend it to handle multiple inputs, `NX`, and outputs, `NY`. This doesn't have any impact on our results just yet since we are still only using a single input and output but we now have the structure to accommodate the more general case. To provide a little variety, we'll change it to the first DMU, A, (`k<-1`) to give a little more variety.
 
-The key change to accommodate multiple inputs is to change the `add_constraint` command to repeat this constraint for `i = 1:NX`. This means that the constraint is repeated for every value from 1 to `NX`. If we had 10 inputs ($N^X=10$) then there would be ten constraints. The first substituting in `i=1`, the second `i=2`, etc.
+The key change to accommodate multiple inputs is to change the `add_constraint` command to repeat this constraint for `i = 1:NX`. This means that the constraint is repeated for every value from 1 to `NX`. If we had 10 inputs ($N^X=10$) then there would be ten constraints. The first substituting in `i=1`, the second `i=2`, etc. The output constraint is modified in the same manner.
 
 ```{r ompr-mult-IO, message=FALSE, results='asis'}
 k<-1    # DMU to analyze.  Let's change it to the first unit, DMU A.
@@ -648,7 +658,11 @@ kbl(cbind(res2_2.efficiency, res2_2.lambda),
   kable_styling(latex_options = "HOLD_position")
 ```
 
-Again, the results match what would be expected from Figure 1. Now we will extend this to handle all four of the decision making units by using a `for` loop.
+Again, the results match what would be expected from Figure 1.
+
+### Solving for all DMUs
+
+Now we will extend our implementation to handle all four of the decision making units by using a `for` loop.
 
 ```{r ompr_mult_DMUs, message=FALSE}
 res2_3.efficiency <- matrix(rep(-1.0, 1), nrow=ND, ncol=1)
@@ -715,7 +729,7 @@ $$\begin{split}
     \text{minimize  }   & \theta \\
     \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j \leq \theta x_{i,k} \; \forall \; i\\
                        & \sum_{j=1}^{n} y_{r,j}\lambda_j \geq y_{r,k} \; \forall \; r\\
-                       & \sum_{j=1}^{n} \lambda_j  = 1\\
+                       & \sum_{j=1}^{n} \lambda_j  = 1 &\text{[VRS]}\\
                        & \lambda_j \geq 0  \; \forall  \; j
   \end{aligned}
   (\#eq:Ch2LPBCCIOE) 
@@ -732,13 +746,12 @@ res2_4.lambda     <- matrix(rep(-1.0, ND), nrow=ND,ncol=ND)
 RTS<-"VRS"
 for (k in 1:ND) {
   
-  mod2_4 <- MIPModel()                                              |>
-    add_variable(Vlambda[j], j = 1:ND, type = "continuous", 
-                 lb = 0)                                            |>
-    add_variable(Vtheta, type = "continuous")                       |>
-    set_objective(Vtheta, "min")                                    |>
+  mod2_4 <- MIPModel()                                               |>
+    add_variable(Vlambda[j], j = 1:ND, type = "continuous", lb = 0)  |>
+    add_variable(Vtheta, type = "continuous")                        |>
+    set_objective(Vtheta, "min")                                     |>
     add_constraint(sum_expr(Vlambda[j] * xdata[j,i], j = 1:ND) 
-                   <= Vtheta * xdata[k,i], i = 1:NX)                |>
+                   <= Vtheta * xdata[k,i], i = 1:NX)                 |>
     add_constraint(sum_expr(Vlambda[j] * ydata[j,r], j = 1:ND) 
                    >= ydata[k,r], r = 1:NY) 
 
@@ -779,7 +792,7 @@ In addition to Constant Returns to Scale (CRS) and Variable Returns to Scale (VR
 
 Each returns to scale model is straightforward to implement.
 
-```{r}
+```{r, echo=FALSE}
 RTS_Table  <- 
   matrix(c("CRS","$\\text{None or }\\sum_{j=1}^{n} \\lambda_j  \\geq 0$",
            "VRS", "$\\sum_{j=1}^{n} \\lambda_j = 1$", 
@@ -791,13 +804,6 @@ kbl (RTS_Table , booktabs=T, escape=F,
      caption=c("Envelopment Model Returns to Scale Constraints")) |>
   kable_styling (latex_options = c("HOLD_position"))
 ```
-
-| Returns to Scale | Envelopment Constraint |
-|----|----|
-| CRS | No constraint needed or $\sum_{j=1}^{N^D} \lambda_j \geq 0$ |
-| VRS | $\sum_{j=1}^{N^D} \lambda_j = 1$ |
-| IRS/NDRS | $\sum_{j=1}^{N^D} \lambda_j \geq 1$ |
-| DRS/NIRS | $\sum_{j=1}^{N^D} \lambda_j \leq 1$ |
 
 No envelopment constraint on the sum of $\lambda$ is needed to create a CRS model and to convert a VRS formulation into a CRS we can just delete the new constraint. On the other hand, it may sometimes be helpful to maintain a consistent model size in terms of number of constraints as we make richer models. We can make it a redundant \index{Constraints!Redundant} constraint by constraining the sum of $\lambda$ to be greater than or equal to zero, $\sum_{j} \lambda_j\geq0$. Since $\lambda$'s are by definition non-negative, the sum of $\lambda$'s is also non-negative and therefore the constraint is superfluous or redundant.
 
@@ -847,9 +853,24 @@ kbl(temp,
   kable_styling(latex_options = "HOLD_position")
 ```
 
-## Multiple Inputs and Multiple Outputs
+## A Numerical Example with Multiple Inputs and Outputs
 
-Using DEA for two-dimensional examples such as the one-input, one-output model is easy to draw and visualize but overkill and not generally very useful.
+Using DEA for two-dimensional examples such as the one-input, one-output model is easy to draw and visualize but overkill and not generally very useful. Let's extend our earlier store management by adding as an input, store floor space and two more stores.  
+
+```{r DEA-IO-Plot2, warning=FALSE, message=FALSE, eval=TRUE, out.width="60%", echo=FALSE, fig.align='center', fig.cap="A Two-Input, One-Output DEA Model for Store Management"}
+library (TRA) # Note, may need to install directly from github
+              # remotes::install_github("prof-anderson/TRA")
+library (DiagrammeR) # Should not be required because
+     # TRA package uses imports DiagrammeR.
+Figure <- DrawIOdiagram (c("Employees\n(FTE)", "Space\n(m^2)" ), 
+                         c("Sales\n($/week)"), 
+                         c("\nStore\n"))
+library (DiagrammeRsvg)
+library (rsvg)
+tmp<-capture.output(rsvg_png(charToRaw(export_svg(Figure)),
+                             'generated-images/DEA_IO_stores2x1.PNG')) 
+knitr::include_graphics("generated-images/DEA_IO_stores2x1.PNG")
+```
 
 ```{r}
 x <- matrix(c(10, 20, 30, 50, 22, 29,
@@ -869,13 +890,11 @@ colnames(temp)<-c("Store Name", "Employees (x1)", "Floor Space (x2)",
 ```{r, echo=FALSE}
 kbl(temp, 
     booktabs=T, escape=F, row.names=T,
-    caption= "Two Input, Single Output Grocery Store Example") |>
+    caption= "Two-Input, Single-Output Grocery Store Model") |>
     add_header_above(c(" " = 2, "Inputs" = 2, 
                      "Ouptut" = 1))                            |>
   kable_styling(latex_options = "HOLD_position")
 ```
-
-Let's extend our earlier store management by adding as an input, store floor space and two more stores,
 
 Note that I'm naming the data sets based on their origin and then loading them into `xdata` and `ydata` for actual operation. This allows the model to be generalized.
 
@@ -1214,7 +1233,7 @@ $$\text{Phase 2:    }
     \text{s.t.: } & \sum_{j=1}^{N^D} \lambda_j  = 1\\
                   & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \; \forall \; i\\
                   & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
-                  & \theta = \theta^* &\text{Keep fixed from Phase 1}\\
+                  & \theta = \theta^* &\text{[Keep fixed from Phase 1]}\\
                   & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
   \end{aligned}
 \end{split}$$
