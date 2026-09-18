@@ -222,8 +222,7 @@ $$\begin{split}
                           \geq 0 \; \forall \; j\\
                   &   u_r, \;v_i\geq 0  \; \forall \; r,i
   \end{aligned}
-\end{split}$$
-Given the one input, five output case, we could write an explicit linear program as the following for each player *k*.
+\end{split}$$ Given the one input, five output case, we could write an explicit linear program as the following for each player *k*.
 
 $$\begin{split}
 \begin{aligned}

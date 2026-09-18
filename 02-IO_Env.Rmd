@@ -111,7 +111,7 @@ The first line of this code chunk ensures the \index{kable!kableExtra} `kableExt
 
 [^02-io_env-1]: Prior to a piping operator being built in to R in version 4.1.0, many people used a piping operator, '%\>%' from the 'magrittr' package. They function similarly though for most purposes.
 
-For more information on using \index{kable} `kable` and \index{kable!kableExtra} `kableExtra` for doing mathematical modeling, see Appendix D of *Optimization Modeling Using R* [@AndersonOMUR2024]
+For more information on using \index{kable} `kable` and \index{kable!kableExtra} `kableExtra` for doing mathematical modeling, see Appendix D of *Optimization Modeling Using R* [@AndersonOMUR2024].
 
 ```{r first-dataset-table, warning=FALSE, message=FALSE}
 library (kableExtra)
@@ -206,8 +206,8 @@ Our goal is to find the *best* target or smallest value of $\theta$. We could th
 
 $$\begin{split}
  \begin{aligned}
-    \text{minimize  }   & \theta \\ 
-  &  y_A\cdot\lambda_A + y_B\cdot\lambda_B + y_C\cdot\lambda_C +y_D\cdot\lambda_D =  y_B\\
+    \text{min  }   & \theta \\ 
+  \text{st  }   &  y_A\cdot\lambda_A + y_B\cdot\lambda_B + y_C\cdot\lambda_C +y_D\cdot\lambda_D =  y_B\\
  & x_A\cdot\lambda_A + x_B\cdot\lambda_B + x_C\cdot\lambda_C +x_D\cdot\lambda_D = \theta \cdot x_B
 \end{aligned}
   \end{split}$$
@@ -217,18 +217,18 @@ This is a linear program which we could then enter and run. If we do so, we woul
 $$\begin{split}
  \begin{aligned}
     \text{minimize  }   & \theta \\ 
-  \text{subject to:  }   &  y_A\cdot\lambda_A + y_B\cdot\lambda_B + y_C\cdot\lambda_C +y_D\cdot\lambda_D =  y_B\\
+  \text{subject to  }   &  y_A\cdot\lambda_A + y_B\cdot\lambda_B + y_C\cdot\lambda_C +y_D\cdot\lambda_D =  y_B\\
  & x_A\cdot\lambda_A + x_B\cdot\lambda_B + x_C\cdot\lambda_C +x_D\cdot\lambda_D = \theta \cdot x_B \\
  & x_A, \; x_B, \; x_C, \; x_D \geq 0 
 \end{aligned}
   \end{split}$$
 
-Next, since we are trying to find the smallest possible value of $\theta$, we could in fact relax the equality constraints to be inequalities. For the output, the target for B must be at least as large as the actual output of B. For the input constraint we could say that the target input for B cannot exceed the reduced input used by B. For brevity, we can also abbreviate *minimize* as *min* and *subject to* as *s.t.*. This gives us the following linear program formulation.
+Next, since we are trying to find the smallest possible value of $\theta$, we could in fact relax the equality constraints to be inequalities. For the output, the target for B must be at least as large as the actual output of B. For the input constraint we could say that the target input for B cannot exceed the reduced input used by B. For brevity, we can also abbreviate *minimize* as *min* and *subject to* as *st*. This gives us the following linear program formulation.
 
 $$\begin{split}
  \begin{aligned}
     \text{min  }   & \theta \\ 
-  \text{s.t.:  }   &  y_A\cdot\lambda_A + y_B\cdot\lambda_B + y_C\cdot\lambda_C +y_D\cdot\lambda_D \geq  y_B\\
+  \text{st  }   &  y_A\cdot\lambda_A + y_B\cdot\lambda_B + y_C\cdot\lambda_C +y_D\cdot\lambda_D \geq  y_B\\
  & x_A\cdot\lambda_A + x_B\cdot\lambda_B + x_C\cdot\lambda_C +x_D\cdot\lambda_D \leq \theta \cdot x_B \\
  & x_A, \; x_B, \; x_C, \; x_D \geq 0 
 \end{aligned}
@@ -244,8 +244,8 @@ For this case, let's use the numbers directly for values of inputs and outputs t
 
 $$ \begin{split}
  \begin{aligned}
-    \text{Min    } & \theta &\text{[Efficiency]}\\
-    \text{s.t.:  } & 75 \lambda_A + 100 \lambda_B +
+    \text{min    } & \theta &\text{[Efficiency]}\\
+    \text{st  } & 75 \lambda_A + 100 \lambda_B +
                     300 \lambda_C + 400 \lambda_D 
                     \geq 100 &\text{[Output]}\\
                     & 10 \lambda_A + 20 \lambda_B +
@@ -367,16 +367,19 @@ kbl (t(as.matrix(res2_0$solution)),
 
 There is a lot going on in this code chunk. Let's unpack it step by step.
 
-- The first line takes the solution object, converts it to a matrix, and then transposes it from a \index{Orientation} row orientation to a column orientation.
-
+- The first line takes the solution object, converts it to a matrix, and then transposes it from a \index{Orientation} row orientation to a column orientation. The transpose function is just `t()` and can be thought as switching rows to columns and columns to rows.
 - The second line sets the number of \index{kable!digits} `digits` to 3, \index{kable!booktabs} `booktabs` is set again for high quality publication, and \index{kable!escape} `escape` is set to `FALSE` or `F` in order to enable LaTeX for column names.
-
 - The third and fourth lines of code provide LaTeX symbols for column names.
-
 - The fifth line sets a \index{kable!caption} caption and then \index{Piping} pipes (or passes) the \index{kable} `kable` object to the next command using `|>` \index{Piping} piping operator.
-
 - The last statement, since it is connected by a pipe, takes the previous table and gives it a latex option of `HOLD_position` that tells our LaTeX rendering system to try to place the table at the particular spot rather than allowing it to float and be placed in a position that favors nice typesetting.
 
+The use of \index{LaTeX} LaTeX in table headings warrants some explanation. There are several things to bear in mind when using LaTeX rendered in column labels.
+
+-   The LaTeX must be wrapped in \$ symbols when used in-line for either column labels or in-line text.
+-   A double backslash is needed to show symbols
+-   When the plain text version is displayed such as by running a code chunk, the plain text version will display the LaTeX commands making for a harder to read table.
+-   Using the proper mathematical notation in the table gives a nice and rigorous display.
+-   Superscripts and subscripts are triggered with a `^` or `_` respectively but this is done for just immediately following character. To have multiple characters in a superscript or subscript, they need to be wrapped in curly brackets.  
 In general, we'll usually omit the details of this type of table formatting in most of the rest of the book to save on space.
 
 ## A More Formal and General Linear Program
@@ -417,7 +420,7 @@ In fact, we will go one step further and say that we want to find the maximum in
 $$ \begin{split}
  \begin{aligned}
     \text{min    } & \theta \\
-    \text{s.t.:  } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j \leq \theta x_{i,k} \; \forall \; i &\text{[Input]}\\
+    \text{st  } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j \leq \theta x_{i,k} \; \forall \; i &\text{[Input]}\\
                    & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \; \forall \; r &\text{[Output]}\\
                    & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
@@ -428,7 +431,7 @@ Expressing the target on the left and the actual unit's value with the radial re
 $$\begin{split}
 \begin{aligned}
     \text{min  }   & \theta \\
-    \text{s.t.:  } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} \leq 0 \; \forall \; i &\text{[Input]}\\
+    \text{st  } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} \leq 0 \; \forall \; i &\text{[Input]}\\
                    & \sum_{j=1}^{N^D} y_{r,j}\lambda_j \geq  y_{r,k} \;  \forall \; r &\text{[Output]}\\
                    & \lambda_j \geq 0  \; \forall \; j
   \end{aligned}
@@ -726,10 +729,10 @@ Instead, let's add a constraint that says that the target of performance must be
 
 $$\begin{split}
 \begin{aligned}
-    \text{minimize  }   & \theta \\
-    \text{subject to } & \sum_{j=1}^{n} x_{i,j}\lambda_j \leq \theta x_{i,k} \; \forall \; i\\
+    \text{min  }   & \theta \\
+    \text{st } & \sum_{j=1}^{n} x_{i,j}\lambda_j \leq \theta x_{i,k} \; \forall \; i\\
                        & \sum_{j=1}^{n} y_{r,j}\lambda_j \geq y_{r,k} \; \forall \; r\\
-                       & \sum_{j=1}^{n} \lambda_j  = 1 &\text{[VRS]}\\
+                       & \sum_{j=1}^{n} \lambda_j  = 1 &\text{[VRS constraint]}\\
                        & \lambda_j \geq 0  \; \forall  \; j
   \end{aligned}
   (\#eq:Ch2LPBCCIOE) 
@@ -855,14 +858,14 @@ kbl(temp,
 
 ## A Numerical Example with Multiple Inputs and Outputs
 
-Using DEA for two-dimensional examples such as the one-input, one-output model is easy to draw and visualize but overkill and not generally very useful. Let's extend our earlier store management by adding as an input, store floor space and two more stores.  
+Using DEA for two-dimensional examples such as the one-input, one-output model is easy to draw and visualize but overkill and not generally very useful. Let's extend our earlier store management by adding as an input, store floor space and two more stores.  the floor space might be measured in square meters.    
 
 ```{r DEA-IO-Plot2, warning=FALSE, message=FALSE, eval=TRUE, out.width="60%", echo=FALSE, fig.align='center', fig.cap="A Two-Input, One-Output DEA Model for Store Management"}
 library (TRA) # Note, may need to install directly from github
               # remotes::install_github("prof-anderson/TRA")
 library (DiagrammeR) # Should not be required because
      # TRA package uses imports DiagrammeR.
-Figure <- DrawIOdiagram (c("Employees\n(FTE)", "Space\n(m^2)" ), 
+Figure <- DrawIOdiagram (c("Employees\n(FTE)", "Space\n(sq. m)" ), 
                          c("Sales\n($/week)"), 
                          c("\nStore\n"))
 library (DiagrammeRsvg)
@@ -957,7 +960,7 @@ kbl (Store6CRS.Res, booktabs=T, escape=F, digits=4,
   kable_styling(latex_options = c("HOLD_position"))
 ```
 
-The small, nearly zero, values that may appear in DEA calculations can cause some computational difficulty. For example, testing for zero lambda values could miss cases where the value is approximately but not exactly zero.
+I limited the results to 4 decimal places (`digits=4`) but if I had not, the results might have values such as $\lambda_E=10^{-12}$ in *B*'s evaluation. These numbers should be considered to be zero and are an artifact of the linear programming calculations and numerical methods. The small, nearly zero, values that may appear in DEA calculations can cause some computational difficulty. For example, testing for zero lambda values could miss cases where the value is approximately but not exactly zero.
 
 Let's compare the results from the constant and variable returns to scale cases.
 
@@ -1002,7 +1005,11 @@ kbl (temp,
 
 A few takeaways from these results:
 
-- Switching from CRS to VRS will never hurt the efficiency of a DMU. From an optimization perspective, think of this as adding a constraint which will increase or leave unchanged the objective function value from a minimization linear program. makes it *easier* for a find
+- Stores (DMUs) that were efficient before will stay efficient when shifting to VRS as seen for store *C*.
+- Stores (DMUs) that were inefficient, may become efficient such as *A* and *D*. This means that the other stores were not able to demonstrate how to operate better at their size.
+- Stores (DMUs) that were inefficient might keep the same efficiency or increase as seen for *B* and *F* but still be inefficient. Their inefficiency is only partly explained by their operating size. 
+
+In summary, switching from CRS to VRS will never hurt the efficiency of a DMU. From an optimization perspective, think of this as adding a constraint which will increase or leave unchanged the objective function value from a minimization linear program. makes it *harder* to find a small value.
 
 ## Extracting Multiplier Weights from Envelopment Results
 
@@ -1047,7 +1054,7 @@ rownames(temp) <- store6names$DMUnamesbyletter
 kbl (temp,booktabs=T, digits=5, escape=F,
      col.names=c("$\\theta^{CRS}$", store6names$LambdanamesbyletterLX,
                  store6names$VnamesLX, store6names$UnamesLX),
-        caption="Results from Six Store Example")                         |>
+        caption="Results from the Six Store Example")                         |>
   add_header_above(c(" "=1, "Efficiency" = 1, "Envelopment Variables" = 6, 
                      "Weights" = 3))|>
 kable_styling(protect_latex = TRUE, 
@@ -1056,9 +1063,9 @@ kable_styling(protect_latex = TRUE,
 
 A few things should be noticed with respect the \index{Multiplier weights} multiplier weights:
 
-- Multiplier weights can be quite small because in general, they are multiplied by inputs and the product is typically less than one. They may appear to round to zero but still be significant.
-- Multiplier weights are not unique for strongly efficient DMUs. This is explored in more detail in the multiplier model chapter and the cross-efficiency chapter.
-- Multiplier weights are usually unique for inefficient DMUs and the results obtained using either the \index{Dual values!Row} row duals of the envelopment model or those obtained directly from the multiplier model should therefore typically match.
+- Multiplier weights can be quite small because in general, they are multiplied by inputs and outputs but the product is typically less than one. When inputs or outputs are on the order of millions, then the weights will typically be less than $10^{-6}. They may appear to round to zero but still be significant.
+- Multiplier weights are not unique for strongly efficient DMUs. This is explored in more detail in the multiplier model chapter (5) and the cross-efficiency chapter (6).
+- Multiplier weights are usually unique for inefficient DMUs and the results obtained using either the \index{Dual values!Row} row duals of the envelopment model or those obtained directly from the multiplier model should therefore  match for those DMUs.
 
 ## Slack Maximization
 
@@ -1179,9 +1186,10 @@ Store7CRS.Res <- rbind (Store7CRS.Res, resalt)
 # rownames(Store7CRS.Res) <- store7names$DMUnamesbyletter
 kbl (Store7CRS.Res, booktabs=T, escape=F, digits=4,
      col.names=c("$\\theta^{CRS}$", store7names$LambdanamesbyletterLX),
-        caption="Alternate Optimal Solution for Gary's")               |>
+        caption="Alternate Optimal Solution for Gary's Store")               |>
    add_header_above(c(" " = 1, "Efficiency" = 1, "Envelopment Variables" = 7)) |>
-kable_styling(latex_option="HOLD_position")
+kable_styling(latex_option="HOLD_position") |>
+  row_spec(c(7,8), bold = TRUE)
 ```
 
 Notice that this is an instance of *multiple optimal solutions* or *multiple optima*. We can demonstrate this by simply adding a constraint that prevents at iteration 7 (Gary's Grocery) from having Trader Carrie's used in target setting ($\lambda_C=0$) will result in exactly the same efficiency score and thereby objective function value. We were lucky in this case to find a target that pointed initially to Trader Carrie's. In the case of multiple optima, finding a solution by luck is not a reliable procedure. We could have just as easily found Gary's Grocery to use itself as the comparator setting target using five extra workers than Trader Carrie's.
@@ -1192,25 +1200,25 @@ In order to accommodate this, we need to extend the simple radial model by addin
 
 $$\begin{split}
  \begin{aligned}
-    \text{minimize  }   & \theta \\
-    \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \; \forall \; i\\
+    \text{min }   & \theta \\
+    \text{st } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \; \forall \; i\\
                        & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
  \end{aligned}
 \end{split}$$
 
-Simply formulating the model with slacks is insufficient. We want to maximize these slacks after having found the best possible radial contraction (minimum value of $\theta$.) This is done by adding a term summing the slacks to the objective function. Note that this sum of slacks is multiplied by $\epsilon$ which is a non-Archimedean infinitesimal. The value of $\epsilon$ should be considered to be so small as to ensure that minimizing $\theta$ takes priority or maximizing the sum of slacks. Note also that maximizing the sum of slacks is denoted by minimizing the negative sum of slacks. \index{non-Archimedean infinitesimal}
+Simply formulating the model with slacks is insufficient. We want to maximize these slacks after having found the best possible radial contraction (minimum value of $\theta$.) This is done by adding a term summing the slacks to the objective function. Note that this sum of slacks is multiplied by $\epsilon$ which is a non-Archimedean infinitesimal. The value of $\epsilon$ is smaller than any positive number but still larger than zero. It should be interpreted to be so small as to ensure that minimizing $\theta$ takes absolute priority or maximizing the sum of slacks. Note also that maximizing the sum of slacks is denoted by minimizing the negative sum of slacks. \index{non-Archimedean infinitesimal}
 
 $$\begin{split}
  \begin{aligned}
-    \text{minimize  }   & \theta - \epsilon ( \sum_{i} s^x_i + \sum_{r} s^y_r)\\
-    \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \forall \; i\\
+    \text{min  }   & \theta - \epsilon ( \sum_{i} s^x_i + \sum_{r} s^y_r)\\
+    \text{st  } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \forall \; i\\
                        & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \forall \; r\\
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
   \end{aligned}
  \end{split}$$
 
-A common mistake in implementing DEA is to use a finite approximation for $\epsilon$ such as $10^{-6}$. Any finite value can cause distortions in $\theta$. For example, an application comparing companies using revenue and expenses might have inputs and outputs on the order of millions or billions. In this case, non-radial slacks could also be on the order of $10^{6}$. Multiplying the two results in a value similar in magnitude to the maximum possible efficiency score ($10^{-6}\cdot 10^{6}=1$) which would then potentially overwhelm the radial efficiency, $\theta$, part of the objective function and lead to distorted results.
+A common mistake in implementing DEA is to use a finite approximation for $\epsilon$ such as $10^{-6}$. Any finite value can cause distortions in $\theta$. For example, an application comparing companies using revenue and expenses might have inputs and outputs on the order of millions or billions. In this case, non-radial slacks could also be on the order of $10^{6}$ or larger. Multiplying  $10^{-6}$ and the sum of slacks results in a value similar in magnitude to the maximum possible efficiency score ($10^{-6}\cdot 10^{6}=1$) which would then potentially overwhelm the radial efficiency, $\theta$, part of the objective function and lead to distorted results. The impact would be more extreme if had values in the billions!
 
 The proper way to implement slack maximization is to treat it as a preemptive \index{Goal programming} goal programming problem. The primary goal is to minimize $\theta$ in a first phase linear program and the second goal, holding the level of $\theta$ fixed from the first phase, is to then maximize the sum of the slacks.
 
@@ -1219,8 +1227,8 @@ The first phase can take the form of any of our earlier linear programs without 
 $$\text{Phase 1:    }
 \begin{split}
  \begin{aligned}
-    \text{minimize  }   & \theta \\
-    \text{subject to } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \; \forall \; i\\
+    \text{min  }   & \theta &\text{[Regular DEA Model]}\\
+    \text{st } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \; \forall \; i\\
                        & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
                        & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
  \end{aligned}
@@ -1229,30 +1237,40 @@ $$\text{Phase 1:    }
 $$\text{Phase 2:    }
 \begin{split}
  \begin{aligned}
-    \text{max   } & \sum_{i}s^x_i + \sum_{r}s^y_r\\
-    \text{s.t.: } & \sum_{j=1}^{N^D} \lambda_j  = 1\\
-                  & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \; \forall \; i\\
+    \text{max   } & \sum_{i}s^x_i + \sum_{r}s^y_r &\text{[Maximize Sum of Slacks]}\\
+    \text{s.t.: } & \sum_{j=1}^{N^D} x_{i,j}\lambda_j - \theta x_{i,k} + s^x_i = 0 \; \forall \; i\\
                   & \sum_{j=1}^{N^D} y_{r,j}\lambda_j - s^y_r =  y_{r,k} \; \forall \; r\\
                   & \theta = \theta^* &\text{[Keep fixed from Phase 1]}\\
                   & \lambda_j , s^x_i, s^y_r \geq 0  \; \forall \; j,i,r
   \end{aligned}
 \end{split}$$
 
+A careful reader might notice that the slacks are being added together despite having very different units. A unit change of each might be of quite different value. We could weight these based on other information but impact would only affect the specific target constructed in the second phase. It wouldn't change the radial efficiency score, $\theta$.  
+
 ### Implementing the Slack Maximization Approach
 
-Implementing this algebraically is quite straightforward. The code is provided below but it is easy to get lost in the code.
+Instead of rebuilding the model for the phase 2, we can just take the previous model and and make a few changes to it.  Implementing this algebraically is quite straightforward.
 
 The key steps are that after setting up and solving the model, we read in the Phase 1 objective function value
 
-`phase1obj <-  get_solution(result, Vtheta)`
+```{r, eval=FALSE}
+phase1obj <- get_solution(result, Vtheta)
+```
 
-We then constrain variable `Vtheta` to that value in Phase 2.
+We then constrain variable `Vtheta` to that numerical value.
 
-`add_constraint(LPSlack, Vtheta==phase1obj)`
+```{r, eval=FALSE}
+add_constraint(LPSlack, Vtheta==phase1obj)   # add constraint to model 
+```
 
 Lastly, we change the objective function to maximize the sum of slacks.
 
-`set_objective(LPSlack, sum_expr(xslack[i], i=1:NX)+sum_expr(yslack[r], r=1:NY), "max")`
+```{r, eval=FALSE}
+set_objective(LPSlack, 
+              sum_expr(xslack[i], i=1:NX) +  # sum of input slacks
+              sum_expr(yslack[r], r=1:NY),   # sum of output slacks
+              "max")                         # max instead of min
+```
 
 We can then solve the model again.
 
@@ -1304,26 +1322,29 @@ for (k in 1:ND) {
                                          yslack[.])[,3] )))
     }
 
-Store7SlackMax.Res<-cbind(results.efficiency, results.lambda, 
-                          results.xslack, results.yslack)
-rownames(Store7SlackMax.Res) <- store7names$DMUnamesbyletter
+
 ```
 
 ```{r, echo=FALSE}
+Store7SlackMax.Res<-cbind(results.efficiency, results.lambda, 
+                          results.xslack, results.yslack)
+rownames(Store7SlackMax.Res) <- store7names$DMUnamesbyletter
+
 kbl (Store7SlackMax.Res, booktabs=T, escape=F, digits=3,
      col.names=c("$\\theta^{CRS}$", store7names$LambdanamesbyletterLX, 
                  store7names$SXnamesLX, store7names$SYnamesLX),
         caption="Slack Maximizing Results from Seven Store")          |>
    add_header_above(c(" " = 1, "Efficiency" = 1, 
                       "Envelopment Variables" = 7, "Slacks"=3))         |>
-kable_styling(latex_options="HOLD_position")
+kable_styling(latex_options="HOLD_position")                          |>
+  row_spec(c(2,6,7), bold = TRUE)
 ```
 
 The results indicate the presence of non-radial slacks in stores B, F, and G. Not only can B's efficiency be improved by using 16.7% less of every input, the first input can be further reduced by 4.667. A simple focus on just radial efficiency score, $\theta$ will understate the potential for improved operations.
 
-These results that store G (Gary's Grocery) is radially efficient, $\theta=1$, and therefore can't make a reduction in all inputs simultaneously while still producing the same level of output. On the other hand, the value $s_1^x=5$ indicates a reduction of the first input can still be done.
+These results show store G (Gary's Grocery) is radially efficient, $\theta=1$, and therefore can't make a reduction in all inputs simultaneously while still producing the same level of output. On the other hand, the value $s_1^x=5$ indicates a reduction of the first input can still be done. G is therefore weakly efficent while 
 
-The total slacks may be thought of as the difference between the best target and the actual inputs and outputs of the units studied.
+The slacks are more formally described as the non-radial slacks. They may be thought of as the difference between the best target and the actual inputs and outputs of the units studied.
 
 \index{Slack|)}
 
@@ -1331,16 +1352,15 @@ The total slacks may be thought of as the difference between the best target and
 
 If you have followed along this far - you deserve a medal! If you work your way through by cutting and pasting code fragments, you should be able to reproduce my exact results. At this point you are ready for a few challenges. Difficulty is measured in cups of coffee or a whole pot for something that might require extra effort and creativity.
 
-1.  Add a fifth unit, E, that produces 400 units output using 30 units of input. Graphically evaluate all five units for their efficiency scores and lambda values. ![](images/coffee-cup.png){width="2%"}
-2.  Using the graphical approach, interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom. ![](images/coffee-cup.png){width="2%"}
-3.  Examine the new unit, E, using `R` and `ompr`. ![](images/coffee-cup.png){width="2%"}
+1.  Add a fifth unit, E, to the original four store example that produces 400 units output using 30 units of input. Graphically evaluate all five units for their efficiency scores and lambda values. ![](images/coffee-cup.png){width="2.5%"}
+2.  Using the graphical approach, interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom. ![](images/coffee-cup.png){width="2.5%"}
+3.  Examine the new unit, E, using `R` and `ompr`. ![](images/coffee-cup.png){width="2.5%"}
 4.  Interpret the solution in terms of who is doing well, who is doing poorly, and who should be learning from whom. ![](images/coffee-cup.png){width="2%"}
-5.  Wrap a for loop around the model to examine every unit. Discuss results. ![](images/coffee-cup.png){width="2%"} ![](images/coffee-cup.png){width="2%"}
+5.  Wrap a for loop around the model to examine every unit. Discuss results. ![](images/coffee-cup.png){width="2.5%"} ![](images/coffee-cup.png){width="2%"}
 6.  Use a bigger data set and conduct an analysis & interpretation (more inputs, outputs, and units.) ![](images/coffee-cup.png){width="2%"}
-7.  Validate results against a DEA package (ex. `DEAMultiplier`, `TFDEA`, `Benchmarking`, `DJL`, `nonparaeff`) ![](images/coffee-pot.png){width="2%"}
-8.  Construct an example where Phase 2 increases positive slacks from Phase 1. ![](images/coffee-pot.png){width="2%"}
-9.  Create "cool" graphs or plots of results. ![](images/coffee-pot.png){width="2%"}
+7.  Validate results against a DEA package (ex. `DEAMultiplier`, `TFDEA`, `Benchmarking`, `DJL`, `nonparaeff`) ![](images/coffee-pot.png){width="2.5%"}
+8.  Construct an example where Phase 2 increases positive slacks from Phase 1. ![](images/coffee-pot.png){width="2.5%"}
+9.  Create "cool" graphs or plots of results. ![](images/coffee-pot.png){width="2.5%"}
 
 To do the challenges, work on extending my RMarkdown file or using a similar script. You can use my file as a starting point. You can access it from the github repository, [Chapter 2 Rmd from github](https://github.com/prof-anderson/DEA_Using_R/blob/master/02-IO_Env.Rmd). Note that running this file may require subdirectories such as `images` or `generated-images` to display graphics.
 
-You can use other packages for graphics or data manipulation but don't use a DEA package. (Don't worry, we'll get there later.)
