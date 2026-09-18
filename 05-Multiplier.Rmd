@@ -78,14 +78,14 @@ Let's take the restaurant data and formulate the model.
 $$
 \begin{split}
 \begin{aligned}
-    \text {max }   & 25 u_1 + 3500 u_2 \\
-    \text{s.t.:  } & 25 u_1 + 3500 u_2 \leq 1.0\\
-                   & 14 u_1 + 2100 u_2 \leq 1.0\\
-                   & 42 u_1 + 1050 u_2 \leq 1.0\\
-                   & 18 u_1 + 4200 u_2 \leq 1.0\\
-                   & 19 u_1 + 2500 u_2 \leq 1.0\\
-                   & 14 u_1 + 1500 u_2 \leq 1.0\\
-                   & u_1, u_2\geq 0  \
+    \text {max }   & 25 \cdot u_1 + 3500 \cdot u_2 &\text{[Max Alfred's Score]}\\
+    \text{s.t.:  } & 25 \cdot u_1 + 3500 \cdot u_2 \leq 1.0&\text{[Alfred' Score]}\\
+                   & 14 \cdot u_1 + 2100 \cdot u_2 \leq 1.0&\text{[Barb's Score]}\\
+                   & 42 \cdot u_1 + 1050 \cdot u_2 \leq 1.0&\text{[Chris's Score]}\\
+                   & 18 \cdot u_1 + 4200 \cdot u_2 \leq 1.0&\text{[Don's Score]}\\
+                   & 19 \cdot u_1 + 2500 \cdot u_2 \leq 1.0&\text{[Ed's Score]}\\
+                   & 14 \cdot u_1 + 1500 \cdot u_2 \leq 1.0&\text{[Fran's Score]}\\
+                   & u_1,\; u_2\geq 0  \
   \end{aligned}
 \end{split}
 $$
@@ -104,19 +104,19 @@ library(ompr.roi, quietly=TRUE)
 ```{r}
 
 result <- MIPModel ()                         |>
-  add_variable (u1, type="continuous", lb=0)  |>
-  add_variable (u2, type="continuous", lb=0)  |>
-  set_objective (25*u1+3500*u2, "max")        |>
-  add_constraint (25*u1+3500*u2 <= 1.0)       |>
-  add_constraint (14*u1+2100*u2 <= 1.0)       |>
-  add_constraint (42*u1+1050*u2 <= 1.0)       |>
-  add_constraint (28*u1+4200*u2 <= 1.0)       |>
-  add_constraint (19*u1+2500*u2 <= 1.0)       |>
-  add_constraint (14*u1+1500*u2 <= 1.0)       |>
+  add_variable (Vu1, type="continuous", lb=0)  |>
+  add_variable (Vu2, type="continuous", lb=0)  |>
+  set_objective (25*Vu1+3500*Vu2, "max")        |>
+  add_constraint (25*Vu1+3500*Vu2 <= 1.0)       |>
+  add_constraint (14*Vu1+2100*Vu2 <= 1.0)       |>
+  add_constraint (42*Vu1+1050*Vu2 <= 1.0)       |>
+  add_constraint (28*Vu1+4200*Vu2 <= 1.0)       |>
+  add_constraint (19*Vu1+2500*Vu2 <= 1.0)       |>
+  add_constraint (14*Vu1+1500*Vu2 <= 1.0)       |>
   solve_model(with_ROI(solver = "glpk"))
 
-u1_result <- get_solution(result, u1) 
-u2_result <- get_solution(result, u2) 
+u1_result <- get_solution(result, Vu1) 
+u2_result <- get_solution(result, Vu2) 
 alfred_score <- 25 * u1_result + 3500 * u2_result
 names(alfred_score)<-""
 ```
@@ -134,19 +134,19 @@ objective function.
 
 ```{r}
 result <- MIPModel ()                         |>
-  add_variable (u1, type="continuous", lb=0)  |>
-  add_variable (u2, type="continuous", lb=0)  |>
-  set_objective (14*u1+2100*u2, "max")        |>
-  add_constraint (25*u1+3500*u2 <= 1.0)       |>
-  add_constraint (14*u1+2100*u2 <= 1.0)       |>
-  add_constraint (42*u1+1050*u2 <= 1.0)       |>
-  add_constraint (28*u1+4200*u2 <= 1.0)       |>
-  add_constraint (19*u1+2500*u2 <= 1.0)       |>
-  add_constraint (14*u1+1500*u2 <= 1.0)       |>
+  add_variable (Vu1, type="continuous", lb=0)  |>
+  add_variable (Vu2, type="continuous", lb=0)  |>
+  set_objective (14*Vu1+2100*Vu2, "max")        |>
+  add_constraint (25*Vu1+3500*Vu2 <= 1.0)       |>
+  add_constraint (14*Vu1+2100*Vu2 <= 1.0)       |>
+  add_constraint (42*Vu1+1050*Vu2 <= 1.0)       |>
+  add_constraint (28*Vu1+4200*Vu2 <= 1.0)       |>
+  add_constraint (19*Vu1+2500*Vu2 <= 1.0)       |>
+  add_constraint (14*Vu1+1500*Vu2 <= 1.0)       |>
   solve_model(with_ROI(solver = "glpk"))
 
-u1_result <- get_solution(result, u1) 
-u2_result <- get_solution(result, u2) 
+u1_result <- get_solution(result, Vu1) 
+u2_result <- get_solution(result, Vu2) 
 barb_score <- 14 * u1_result + 2100 * u2_result
 names(barb_score)<-""
 ```
@@ -163,19 +163,19 @@ Let's do it for Chris.
 
 ```{r}
 result <- MIPModel ()                         |>
-  add_variable (u1, type="continuous", lb=0)  |>
-  add_variable (u2, type="continuous", lb=0)  |>
-  set_objective (42*u1+1050*u2, "max")        |>
-  add_constraint (25*u1+3500*u2 <= 1.0)       |>
-  add_constraint (14*u1+2100*u2 <= 1.0)       |>
-  add_constraint (42*u1+1050*u2 <= 1.0)       |>
-  add_constraint (28*u1+4200*u2 <= 1.0)       |>
-  add_constraint (19*u1+2500*u2 <= 1.0)       |>
-  add_constraint (14*u1+1500*u2 <= 1.0)       |>
+  add_variable (Vu1, type="continuous", lb=0)  |>
+  add_variable (Vu2, type="continuous", lb=0)  |>
+  set_objective (42*Vu1+1050*Vu2, "max")        |>
+  add_constraint (25*Vu1+3500*Vu2 <= 1.0)       |>
+  add_constraint (14*Vu1+2100*Vu2 <= 1.0)       |>
+  add_constraint (42*Vu1+1050*Vu2 <= 1.0)       |>
+  add_constraint (28*Vu1+4200*Vu2 <= 1.0)       |>
+  add_constraint (19*Vu1+2500*Vu2 <= 1.0)       |>
+  add_constraint (14*Vu1+1500*Vu2 <= 1.0)       |>
   solve_model(with_ROI(solver = "glpk"))
 
-u1_result <- get_solution(result, u1) 
-u2_result <- get_solution(result, u2) 
+u1_result <- get_solution(result, Vu1) 
+u2_result <- get_solution(result, Vu2) 
 chris_score <- 42 * u1_result + 1050 * u2_result
 names(chris_score)<-""
 ```
@@ -218,9 +218,7 @@ $$
 $$
 
 Now we will extend this further to reflect that the constraint of being
-less than or equal to 1.0 is the same for every manager. A key notation
-to learn is the $\forall$ symbol which means to repeat for all possible
-values of the index.
+less than or equal to 1.0 is the same for every manager. 
 
 $$
 \begin{split}
@@ -234,7 +232,7 @@ $$
 $$
 
 The $\forall\;j$ in the constraints indicates that the constraint should
-be repeated for all possible values of j. In our case it would have a
+be repeated for all possible values of *j*. In our case it would have a
 constraint for $j=1$, (Alfred), then another constraint with $j=2$
 (Barb), etc. The $\forall\;r$ in variable lower bounds is used to repeat
 the non-negativity of each weighting variable (in this case, $u_1$ and
@@ -265,7 +263,9 @@ the number of other managers being considered. This approach could be
 used in a variety of peer evaluation or self-evaluation applications
 where each unit is given the opportunity to evaluate themselves relative
 to their peers. This model will always give a person their highest
-possible score. Note that this model does not incorporate the resources
+possible score. 
+
+Note that this model does not incorporate the resources
 used to achieve these outcomes. For that, we can use a traditional ratio
 idea of output over input.
 
