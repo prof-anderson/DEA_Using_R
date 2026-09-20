@@ -162,9 +162,9 @@ kbl (cbind(barb_score, u1_result, u2_result),
 Let's do it for Chris.
 
 ```{r}
-result <- MIPModel ()                         |>
-  add_variable (Vu1, type="continuous", lb=0)  |>
-  add_variable (Vu2, type="continuous", lb=0)  |>
+result <- MIPModel ()                           |>
+  add_variable (Vu1, type="continuous", lb=0)   |>
+  add_variable (Vu2, type="continuous", lb=0)   |>
   set_objective (42*Vu1+1050*Vu2, "max")        |>
   add_constraint (25*Vu1+3500*Vu2 <= 1.0)       |>
   add_constraint (14*Vu1+2100*Vu2 <= 1.0)       |>
@@ -344,11 +344,11 @@ numerators and denominators that can give the same ratio. For example,
 if a unit were to receive a 90% efficiency score, this could be with a
 numerator of nine and a denominator of 10 or a numerator of 90 and a
 denominator of 100. Each of these pairs satisfies the constraints and is
-therefore equally valid. One clever trick solves the non-linearity by
-setting the denominator to be a constant. The next step is to select a
+therefore equally valid. One clever trick solves the remaining non-linear objective function by
+setting the denominator to be a constant. Essentially we are selecting a
 normalizing value for the objective function. Let's set the denominator
 equal to one. In this case, we simply add a constraint,
-$\sum_{i=1}^{N^X} v_i x_{i,k}$, to the linear program and replace the
+$\sum_{i=1}^{N^X} v_i x_{i,k}=1$, to the linear program and replace the
 denominator in the objective function to one means that we can rewrite
 the objective function using only the numerator.
 
@@ -385,7 +385,7 @@ storenames<- c("Al\'s Pantry", "Bob\'s Mill",
                "Trader Carrie\'s", "Dilbertson\'s",
                "Ed\'s Eggshop", "Flo\'s Farmacopia")
 temp<-cbind(storenames,x,y)
-colnames(temp)<-c("Store Name", '"Employees \n (x1)"', 
+colnames(temp)<-c("Store Name", "Employees \n (x1)", 
                   "Floor Space (x2)", "Sales (y)")
 kbl (temp, booktabs=TRUE, escape=FALSE)
 
@@ -421,13 +421,13 @@ model.
 ```{r eval=TRUE}
 for (k in 1:ND) {
 
-  result <- MIPModel() |>
-  add_variable(vweight[i], i = 1:NX, type = "continuous", lb = 0)   |>
-  add_variable(uweight[r], r = 1:NY, type = "continuous", lb = 0)   |>
-  set_objective(sum_expr(uweight[r] * ydata[k,r], r = 1:NY), "max") |>
-  add_constraint(sum_expr(vweight[i] * xdata[k,i], i = 1:NX) == 1)  |>
-  add_constraint((sum_expr(uweight[r] * ydata[j,r], r = 1:NY)-
-                    sum_expr(vweight[i] * xdata[j,i], i = 1:NX)) 
+  result <- MIPModel()                                              |>
+  add_variable(Vvweight[i], i = 1:NX, type = "continuous", lb = 0)   |>
+  add_variable(Vuweight[r], r = 1:NY, type = "continuous", lb = 0)   |>
+  set_objective(sum_expr(Vuweight[r] * ydata[k,r], r = 1:NY), "max") |>
+  add_constraint(sum_expr(Vvweight[i] * xdata[k,i], i = 1:NX) == 1)  |>
+  add_constraint((sum_expr(Vuweight[r] * ydata[j,r], r = 1:NY)-
+                    sum_expr(Vvweight[i] * xdata[j,i], i = 1:NX)) 
                  <= 0, j = 1:ND)
   result
 
@@ -435,12 +435,12 @@ for (k in 1:ND) {
                                          verbose = FALSE))
   mm1.efficiency[k] <- objective_value (result) 
 
-  # Get the output weights
-  tempvweight <- get_solution(result, vweight[i])
+  # Get the input weights
+  tempvweight <- get_solution(result, Vvweight[i])
   mm1.vweight[k,] <- tempvweight[,3]
 
-  # Get the input weights
-  tempuweight <- get_solution(result, uweight[i])
+  # Get the output weights
+  tempuweight <- get_solution(result, Vuweight[i])
   mm1.uweight[k,] <- tempuweight[,3]
   templambda <- as.matrix(get_row_duals(result))
   mm1.lambda[k,] <- templambda [-1]
@@ -454,6 +454,7 @@ mm1.combined <- cbind (mm1.efficiency,
 ```
 
 ```{r}
+rownames(mm1.combined) <- c("A", "B", "C", "D", "E", "F")
 kbl (mm1.combined , booktabs=T, escape=F, digits=4,
      col.names=c("$\\theta^{CRS}$", mm1names$VnamesLX,
                  mm1names$UnamesLX,
@@ -471,6 +472,8 @@ weights may be different depending upon the particular settings used for
 solving the linear program. The result is that you should be careful in
 over interpreting the weights as well as in how you interpret results
 when trying to reproduce analyses.
+
+Note that the efficiency scores and the $\lambda$ values match those of the six store example from chapter 2.  
 
 \index{Multiplier model|)}
 
@@ -540,7 +543,7 @@ $$
 
 Weight restrictions can take a number of forms and are easy to visualize in the multiplier model.  
 
-For example, we could simply indicate that the second output is more valuable or challenging to produce than the first.  We could then add a constraint that $u_1\leq u_2$.  If we had more specific information, we might even put a range on that relationship such as the weight of output must be at least 10% of the first output and no more than double that of the first output.  This would be represented as $0.1\leq \frac{u_2}{u_1} \leq 2.0$ which is readily linearized by muliplying out the $u_1$ term.
+For example, we could simply indicate that each unit of the second output is more valuable or challenging to produce than the first. We could then add a constraint that $u_1\leq u_2$.  If we had more specific information, we might put a range on that relationship such as the weight of the second output must be at least 10% of the first output and no more than double that of the first output.  This would be represented as $0.1\leq \frac{u_2}{u_1} \leq 2.0$ which is readily linearized by muliplying out the $u_1$ term.
 
 Another approach is to say that the component scores for each unit must follow a certain relationship. We might say that amount of the weighted output from the second output must be at least 10% of that of the first output but no more than double that of the first weighted output or $0.1\leq \frac{u_2y_{2,k}}{u_1y_{1,k}} \leq 2.0$.
 
@@ -569,14 +572,14 @@ model.
 for (k in 1:ND) {
 
   mm2result <- MIPModel ()                                           |>
-  add_variable (vweight[i], i = 1:NX, type = "continuous", lb = 0)   |>
-  add_variable (uweight[r], r = 1:NY, type = "continuous", lb = 0)   |>
-  set_objective (sum_expr(uweight[r] * ydata[k,r], r = 1:NY), "max") |>
-  add_constraint (sum_expr(vweight[i] * xdata[k,i], i = 1:NX) == 1)  |>
-  add_constraint ((sum_expr(uweight[r] * ydata[j,r], r = 1:NY)-
-                    sum_expr(vweight[i] * xdata[j,i], i = 1:NX)) 
+  add_variable (Vvweight[i], i = 1:NX, type = "continuous", lb = 0)   |>
+  add_variable (Vuweight[r], r = 1:NY, type = "continuous", lb = 0)   |>
+  set_objective (sum_expr(Vuweight[r] * ydata[k,r], r = 1:NY), "max") |>
+  add_constraint (sum_expr(Vvweight[i] * xdata[k,i], i = 1:NX) == 1)  |>
+  add_constraint ((sum_expr(Vuweight[r] * ydata[j,r], r = 1:NY)-
+                    sum_expr(Vvweight[i] * xdata[j,i], i = 1:NX)) 
                  <= 0, j = 1:ND)                                     |>         
-  add_constraint (vweight[1]>=2*vweight[2])  # Weight Restriction
+  add_constraint (Vvweight[1]>=2*Vvweight[2])  # Weight Restriction
   
   mm2result
 
@@ -585,11 +588,11 @@ for (k in 1:ND) {
   mm2.efficiency[k] <- objective_value (mm2result) 
 
   # Get the output weights
-  tempvweight <- get_solution(mm2result, vweight[i])
+  tempvweight <- get_solution(mm2result, Vvweight[i])
   mm2.vweight[k,] <- tempvweight[,3]
 
   # Get the input weights
-  tempuweight <- get_solution(mm2result, uweight[i])
+  tempuweight <- get_solution(mm2result, Vuweight[i])
   mm2.uweight[k,] <- tempuweight[,3]
   templambda <- as.matrix(get_row_duals(mm2result))
   mm2.lambda[k,] <- templambda [2:7]
@@ -598,18 +601,20 @@ for (k in 1:ND) {
   #   weight restrictions.
  }
 
-mm2.combined <- cbind (mm1.efficiency, mm2.vweight, mm1.uweight,
+mm2.combined <- cbind (mm1.efficiency, mm1.vweight, mm1.uweight,
                        mm2.efficiency, mm2.vweight, mm2.uweight)
 ```
 
 ```{r, include=FALSE}
+rownames(mm2.combined) <- c("A", "B", "C", "D", "E", "F")
 kbl (mm2.combined , booktabs=T, escape=F, digits=5,
      col.names=c("$\\theta^{CRS}$", mm1names$VnamesLX,
                  mm1names$UnamesLX,
                  "$\\theta^{CRS}$", mm1names$VnamesLX,
                  mm1names$UnamesLX),
      caption =c("Multiplier Model Results from Grocery Store Example")) |>
-  add_header_above(c("Original Results" = 4, 
+  add_header_above(c("DMU"=1,
+    "Original Results" = 4, 
                      "With Weight Restrictions" = 4))                   |>  
   kable_styling (latex_options = c("HOLD_position","scale_down"))
 ```
@@ -651,12 +656,12 @@ $$
 \end{split}
 $$
 
-The linearization follows in a similar process to the input-oriented model.
+The linearization follows in a similar process to the input-oriented model. This is the dual of the output-oriented CRS envelopment model in chapter 4. We can also reinforce this by denoting the objective function with a $\phi$ since it will match the radial efficiency score from the envelopment model.  
 
 $$
 \begin{split}
 \begin{aligned}
-    \text {min }  &  \sum_{i=1}^{N^X} v_i x_{i,k}\\
+    \text {min }  &  \phi=\sum_{i=1}^{N^X} v_i x_{i,k}\\
     \text{s.t.: } &  \sum_{r=1}^{N^Y} u_r y_{r,k} =1 \\ 
                   &  \sum_{i=1}^{N^X} v_i x_{i,j} - \sum_{r=1}^{N^Y} u_r y_{r,j}
                           \geq 0 \; \forall \; j\\
@@ -675,9 +680,9 @@ Formulate and implement a model Implement model. By duality, adding a
 constraint to the primal model, is equivalent to adding a variable for
 in dual. If we consider the envelopment model to be the primal and the
 multiplier to be its dual, then we are adding a variable. We'll term
-this variable $\mu_0$ to reflect the returns to scale associated with
+this variable $\mu$ to reflect the returns to scale associated with
 this DMU. If we are implementing a VRS model, then the equality
-constraint indicates that $\mu_0$ is an unrestricted (or free) variable.
+constraint indicates that $\mu$ is an unrestricted (or free) variable. To highlight that the scale variable is relative to the DMU being analyzed at that stage, we will subscript it with a *k* as $\mu_k$. 
 
 The input-oriented multiplier model is shown below.
 
@@ -694,7 +699,7 @@ $$
  \end{split}
 $$
 
-The output-oriented VRS multiplier model is the following.  The returns to scale term is now denoted as *nu* or $\nu_k$ for unit *k*.  Note that it is common in some DEA multiplier models to use the Greek symbols nu ($\nu$) and mu ($\mu$) as the input and output multipliers instead of *v* and *u* and then use the alternate as the returns to scale terms.  In this book I use *u* and *v* consistently  to make it more accessible for the reader and limit confusion between what appear to be visually similar terms *v* and $\nu$ to this this section.
+The output-oriented VRS multiplier model is the following.  The returns to scale term is now denoted as *nu* or $\nu_k$ for unit *k*.  Note that it is common in some DEA multiplier models to use the Greek symbols nu ($\nu$) and mu ($\mu$) as the input and output multipliers (weights) instead of *v* and *u* and then use the alternate as the returns to scale terms.  In this book I use *u* and *v* consistently for the  multipliers to make it more accessible for the reader and limit confusion between what appear to be visually similar terms *v* and $\nu$ to this this section. Again, the  $\nu$ is subscripted with a *k*.
 
 $$ 
 \begin{split} 
@@ -708,7 +713,7 @@ $$
  \end{split} 
 $$
 
-### Numerical Example Multiplier 
+### Multiplier Model Numerical Example 
 
 ```{r Structure-VRS-MM-Results}
 
@@ -725,15 +730,15 @@ mm3names <- TRA::DEAnames(NX, NY, ND)
 ```{r eval=TRUE}
 for (k in 1:ND) {
 
-  mm3result <- MIPModel ()                                           |>
-  add_variable (vweight[i], i = 1:NX, type = "continuous", lb = 0)   |>
-  add_variable (uweight[r], r = 1:NY, type = "continuous", lb = 0)   |>
-  add_variable (mu, type = "continuous")                             |>
-  set_objective (sum_expr(uweight[r] * ydata[k,r], r = 1:NY)+mu, 
-                 "max")                                              |>
-  add_constraint (sum_expr(vweight[i] * xdata[k,i], i = 1:NX) == 1)  |>
-  add_constraint ((sum_expr(uweight[r] * ydata[j,r], r = 1:NY)-
-                    sum_expr(vweight[i] * xdata[j,i], i = 1:NX))+mu 
+  mm3result <- MIPModel ()                                            |>
+  add_variable (Vvweight[i], i = 1:NX, type = "continuous", lb = 0)   |>
+  add_variable (Vuweight[r], r = 1:NY, type = "continuous", lb = 0)   |>
+  add_variable (Vmu, type = "continuous")                             |>
+  set_objective (sum_expr(Vuweight[r] * ydata[k,r], r = 1:NY)+Vmu, 
+                 "max")                                               |>
+  add_constraint (sum_expr(Vvweight[i] * xdata[k,i], i = 1:NX) == 1)  |>
+  add_constraint ((sum_expr(Vuweight[r] * ydata[j,r], r = 1:NY)-
+                    sum_expr(Vvweight[i] * xdata[j,i], i = 1:NX))+Vmu 
                  <= 0, j = 1:ND)                                             
 
   mm3result
@@ -743,11 +748,11 @@ for (k in 1:ND) {
   mm3.efficiency[k] <- objective_value (mm3result) 
 
   # Get the output weights
-  tempvweight <- get_solution(mm3result, vweight[i])
+  tempvweight <- get_solution(mm3result, Vvweight[i])
   mm3.vweight[k,] <- tempvweight[,3]
-  mm3.mu[k] <- get_solution(mm3result,mu)
+  mm3.mu[k] <- get_solution(mm3result,Vmu)
   # Get the input weights
-  tempuweight <- get_solution(mm3result, uweight[i])
+  tempuweight <- get_solution(mm3result, Vuweight[i])
   mm3.uweight[k,] <- tempuweight[,3]
   templambda <- as.matrix(get_row_duals(mm2result))
   mm3.lambda[k,] <- templambda [2:7]
@@ -756,23 +761,24 @@ for (k in 1:ND) {
   #   weight restrictions.
  }
 
-mm3.combined <- cbind (mm1.efficiency, mm2.vweight, mm1.uweight,
+mm3.combined <- cbind (mm1.efficiency, mm1.vweight, mm1.uweight,
                        mm3.efficiency, mm3.mu, mm3.vweight, mm3.uweight)
 ```
 
 ```{r echo=FALSE}
+rownames(mm3.combined) <- c("A", "B", "C", "D", "E", "F")
 kbl (mm3.combined , booktabs=T, escape=F, digits=5,
      col.names=c("$\\theta^{CRS}$", mm1names$VnamesLX,
                  mm1names$UnamesLX,
                  "$\\theta^{VRS}$", "$\\mu_k$", mm1names$VnamesLX,
                  mm1names$UnamesLX),
-     caption =c("Multiplier Model Results from Grocery Store Example")) |>
-  add_header_above(c("Original Results" = 4, 
+     caption =c("Multiplier Model Results from Grocery Store with CRS vs. VRS")) |>
+  add_header_above(c(" "=1, "Original Results" = 4, 
                      "With Weight Restrictions" = 5))                   |>  
   kable_styling (latex_options = c("HOLD_position","scale_down"))
 ```
 
-These results match those from the envelopment model's six grocery store case in chapter 2.  The scale factor, $mu_k$ indicates whether the unit is operating at most productive scale size ($\mu_k=0$), at too small a size where growing could result in greater returns ($\mu_k<0$) or at too large a size where it is suffering from diseconomies of scale and may be better off shrinking ($\mu_k>0$).Of course these results are all relative to the data available. 
+These results match those from the envelopment model's six grocery store case in chapter 2.  The scale factor, $\mu_k$ indicates whether the unit is operating at most productive scale size ($\mu_k=0$), at too small a size where growing could result in greater returns ($\mu_k<0$) or at too large a size where it is suffering from diseconomies of scale and may be better off shrinking ($\mu_k>0$).Of course these results are all relative to the data available. 
 
 ### Other Returns to Scale Models
 
@@ -785,7 +791,7 @@ RTS_Table  <- matrix(c("CRS", "$\\text{None or }\\sum_{j=1}^{n} \\lambda_j  \\ge
                        "IRS/NDRS", "$\\sum_{j=1}^{n} \\lambda_j \\geq 1$","$\\mu_k \\geq 0$", "$\\nu_k \\leq 0$"),
                      byrow=TRUE, ncol=4)
 kbl (RTS_Table , booktabs=T, escape=F, 
-     col.names=c("Returns to Scale", "Envelopment", "Input-Oriented", "Output-Oriented"),
+     col.names=c("Returns to Scale", "Envelopment", "Input-Oriented\nMultiplier", "Output-Oriented\nMutiplier"),
      caption =c("Returns to Scale Constraints for Envelopment and Multiplier Bounds"))  |>
   kable_styling (latex_options = c("HOLD_position","scale_down"))
 ```
@@ -856,9 +862,9 @@ If $\theta_k^*=1$ and $Q_k>0$ then unit *k* is weakly effficient.  \index{Slack|
 
 ## Super-Efficiency in the Multiplier Model
 
-The multiplier model can be modified to account for super-efficiency in a similar way to that of the envelopment model.
+Super-efficiency is a DEA variant that can be readily understood from the ratio model. The goal is still to maximize a store's score but now only the other scores are limited to getting 1.0 or less. This means that efficient stores may get scores over 1.0 or 100%!  
 
-In the ratio model, we don't require that unit *k* limits its own score to 1.0.  This means that we simply eliminate the ratio constraint where $j=k$. \index{Super-efficiency}
+In the ratio model, we don't require that unit *k* limits its own score to 1.0.  This is implemented by simply eliminating the ratio constraint for that DMU or store, i.e. where $j=k$. \index{Super-efficiency}
 
 $$
 \begin{split}
@@ -885,4 +891,80 @@ $$
  \end{split} 
 $$
 
+Super-efficiency has been justified for a variety of reasons including ranking the efficient units, breaking the *ties* between the efficient units, and to potentially provide better statistical properties for post efficiency analysis by eliminating the spike at 1.0.
+
+Care must be taken with super-efficiency though for multiple reasons. Super-efficiency LPs can be infeasible, particularly in returns to scale models beyond CRS. Also, super-efficiency values are a measure of how different the efficient unit is from others which is not the same as saying that they are the best of the best.  
+
+One of the underappreciated uses of super-efficiency is as a diagnostic for a DEA model and the data. A super-efficiency of 1.1 ($/theta^{SE}_{IO-CRS}=1.1) may be impressive as it indicates that it is outperforming its similar peers by 10%.  On other hand, a super-efficiency of 1.5 means that it is outperforming peers by 50% which is a tremendous difference. This impressive level of performance should be readily understood by knowledgeable industry experts. On the other hand, if the experts can point out why that DMU is not actually so impressive, perhaps the model needs to be revised. In fact, published journal papers have sometimes reported a super-efficiency of 6.0 or higher. This means that the unit is 500% or better than others based on the weights it uses. Perhaps this means that the dataset has an error, the input-output model needs to be reconsidered, or perhaps weight restrictions can eliminate extreme over valuing of an output.
+
+```{r Structure-MM4-Super-Efficiency}
+
+mm4.efficiency <- matrix(rep(-1.0, ND), nrow=ND)
+mm4.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND)
+mm4.vweight    <- matrix(rep(-1.0, ND*NX), nrow=ND) 
+mm4.uweight    <- matrix(rep(-1.0, ND*NY), nrow=ND) 
+mm4.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND) 
+mm4.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND) 
+
+mm4names <- TRA::DEAnames(NX, NY, ND)
+```
+
+We are now ready to do the analysis. In chapter 2 we used the
+envelopment model to examine this case. Now we will use the multiplier
+model.
+
+```{r echo=FALSE, eval=TRUE}
+for (k in 1:ND) {
+
+  mm4result <- MIPModel ()                                            |>
+  add_variable (Vvweight[i], i = 1:NX, type = "continuous", lb = 0)   |>
+  add_variable (Vuweight[r], r = 1:NY, type = "continuous", lb = 0)   |>
+  set_objective (sum_expr(Vuweight[r] * ydata[k,r], r = 1:NY), "max") |>
+  add_constraint (sum_expr(Vvweight[i] * xdata[k,i], i = 1:NX) == 1)  |>
+    
+  add_constraint ((sum_expr(Vuweight[r] * ydata[j,r], r = 1:NY)-
+                    sum_expr(Vvweight[i] * xdata[j,i], i = 1:NX)) 
+                 <= 0, j = (1:ND)[-k] )                                        
+  mm4result
+
+  mm4result <- solve_model(mm4result, with_ROI(solver = "glpk", 
+                                         verbose = FALSE))
+  mm4.efficiency[k] <- objective_value (mm4result) 
+
+  # Get the output weights
+  tempvweight <- get_solution(mm4result, Vvweight[i])
+  mm4.vweight[k,] <- tempvweight[,3]
+
+  # Get the input weights
+  tempuweight <- get_solution(mm4result, Vuweight[i])
+  mm4.uweight[k,] <- tempuweight[,3]
+  templambda <- as.matrix(get_row_duals(mm4result))
+  mm4.lambda[k,] <- templambda [2:7]
+  # Drops the first and last row duals as those constraints
+  #   since the first is for setting demon=1, last is for 
+  #   weight restrictions.
+ }
+
+mm4.combined <- cbind (mm1.efficiency, mm1.vweight, mm1.uweight,
+                       mm4.efficiency, mm4.vweight, mm4.uweight)
+```
+
+
+```{r echo=FALSE}
+rownames(mm4.combined) <- c("A", "B", "C", "D", "E", "F")
+kbl (mm4.combined , booktabs=T, escape=F, digits=5,
+     col.names=c("DMU", "$\\theta^{CRS}$", mm1names$VnamesLX,
+                 mm1names$UnamesLX,
+                 "$\\theta^{CRS-SE}$", mm1names$VnamesLX,
+                 mm1names$UnamesLX),
+     caption =c("Super-Efficiency Results from Grocery Store Example")) |>
+  add_header_above(c(" " = 1, "Original Results" = 4, 
+                     "Super-Efficiency" = 4))                   |>  
+  kable_styling (latex_options = c("HOLD_position","scale_down")) |>
+  row_spec(c(3,5), bold = TRUE)
+```
+
+In this case, the super-efficiency, *C*'s super-efficiency is 1.36 meaning that it is able to produce the same or more output while using 36% less of all of the inputs than the best target for performance for *C*. If we had a weakly efficient DMU, it would have still 1.0.
+
+Super-efficiency can be implemented in the envelopment model by eliminating the option of comparing against oneself, by either eliminating the $\lambda_k$ variable or more simply setting  it to zero, ($\lambda_k=0$).
 
