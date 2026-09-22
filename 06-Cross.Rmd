@@ -12,19 +12,21 @@ library(bookdown); library(rmarkdown); rmarkdown::render("06-Cross.Rmd", "pdf_bo
 
 ## The Ratio Model
 
-Put yourself as a manager trying to argue that you are the best in converting inputs into outputs compared to a set of peer managers operating competing units. You have data on what the competitors' inputs and outputs. You have the flexibility of...
+Recall the explanation of DEA from a ratio model perspective. It can be thought of as analogous to each DMU doing a self-evaluation relative to their peers. They can pick any non-negative weights on inputs or outputs that they want as long as they no one looks better than perfect. The ratio or multiplier model essentially stops there (with the caveat that there are extensions such as weight restrictions, super-efficiency, and returns to scale as discussed in the previous chapter.)
+
+The Cross-Efficiency model goes one step further and says let's retain the imputed score that each DMU gives to each of the other DMUs. Instead of discarding all this extra information, it starts with the premise that these scores also have value. In a DEA model, DMU *k*'s efficiency is at least as good or better than what any of its peers would have given it, otherwise DMU *k* would have used those same weights to get that score.
 
 ## The Linear Programs for DEA
 
 On the other hand, what if it allowed for \index{Blending} blending of units. There are a few assumptions that we could make. Let's start by saying that we can compare any particular products by rescaling (up or down) any other product as well as any combination of units.
 
-We'll start by creating a mathematical framework. Can you find a combination of units that produces at least as much output using less input? Let's define the proportion of input needed as $\theta$. A value of $\theta=1$ then means no input reduction can be found in order to produce that unit's level of output. The blend of other units is described by a vector $\lambda$. Another way to denote this is $\lambda_j$ is the specific amount of a unit *j* used in setting the target for for performance for unit *k*. Similarly, $x_j$ is the amount of input used by unit *j* and $y_j$ is the amount of output produced by unit *j*.
+Similarly, $x_{i,j)$ is the amount of input *i* used by unit *j* by DMU *j* and $y_{r,j}$ is the amount of output *r* used by DMU *j*.
 
-This can be easily expanded to the multiple input and multiple output case by defining $x_i,j$ to be the amount of the *i*'th input used by unit *j* and $y_{r,j}$ to be the amount of the *r*'th output produced by unit *j*. For simplicity, this example will focus on the one input and one output case rather than the *m* input and *s* output case but the R code explicitly allows for $m,s>1$. To make the code more readable and help avoid name space conflicts, I will use `NX` instead of *m* to refer to the number of inputs (x's) and `NY` to be the number of outputs (y's) instead of *s*. Also, *n* is used to denote the number of Decision Making Units (DMUs) and therefore I'll use `ND` to indicate that in the R code.
+This can be easily expanded to the multiple input and multiple output case by defining $x_i,j$ to be the amount of the *i*'th input used by unit *j* and $y_{r,j}$ to be the amount of the *r*'th output produced by unit *j*. While *m* and *s* are commonly used in DEA for the number inputs and outputs, to make the code more readable and help avoid name space conflicts, I will use `NX` instead of *m* to refer to the number of inputs (x's) and `NY` to be the number of outputs (y's) instead of *s*. Also, *n* is used to denote the number of Decision Making Units (DMUs) and therefore I'll use $N^D$ for this mathematically and `ND` to indicate that in the R code.
 
 We have two important sets of variables now. The first is $u_r$ which is the weight on the *r*'th output. The second is $v_i$ which is the weight on the *i*'th input.
 
-The multiplier model can be thought of as finding a weighting scheme for outputs over inputs that give you the best possible score while giving no one better than *1.0.*
+The input-oriented multiplier model can be thought of as finding a weighting scheme for outputs over inputs that give you the best possible score while giving no one better than *1.0*. For the sake of brevity, I'll show the models based on just the IO-multiplier model but the same principals hold and in general cross-efficiency can be conducted on the other DEA models.
 
 $$\begin{split}
  \begin{aligned}
@@ -36,21 +38,7 @@ $$\begin{split}
 \end{split}
 (\#eq:Ch6LPCCRIOM-Ratio-1a)$$
 
-This isn't a linear program because we are dividing functions of variables by functions of variables. We need to make a few transformations. First, we clear the denominator of each of the constraints resulting in the following formulation.
-
-$$\begin{split}
- \begin{aligned}
-    \text {max } & \frac{\sum_{r=1}^{N^Y} u_r y_{r,k}} {\sum_{i=1}^{N^X} v_i x_{i,k} } \\
-    \text{s.t.:  } & \sum_{r=1}^{N^Y} u_r y_{r,j} - \sum_{i=1}^{N^X} v_i x_{i,j} 
-                          \leq 0 \; \forall \; j\\
-                   & u_r, v_i\geq 0  \; \forall \; r,i
-  \end{aligned}
-\end{split}
-(\#eq:Ch6LPCCRIOM-Ratio-2a)$$
-
-Now we will convert the problem \index{Inputs} input and \index{Outputs} output constraints from inequalities into equalities by explicitly defining slack variables.
-
-There are an infinite number of possible combinations of numerators and denominators that can give the same ratio. The next step is to select a normalizing value for the objective function. Let's set the denominator equal to one. In this case, we simply add a \index{Constraints} constraint, $\sum_{i=1}^{N^X} v_i x_{i,k}$, to the linear program.
+Just as in Chapter 5, this isn't yet a linear program because we are dividing functions of variables by functions of variables. We need to make a few transformations. First, we clear the denominator of each of the constraints resulting in the following formulation and then normalize the results to a single solution by setting the denominator of the objective function equal to one in a new constraint. See the previous chapter for more details on this transformation.
 
 $$\begin{split}
  \begin{aligned}
@@ -63,11 +51,38 @@ $$\begin{split}
 \end{split}
 (\#eq:Ch6LPCCRIOM-NoSlack)  $$
 
-## Creating the LP - The Algebraic Approach
+Cross-efficiency is then typically calculated as the average of each of these peer scores.
+
+While implentation requires the linear program model, for understanding cross-efficiency, it is useful to go back to the ratio model. Now we will redefine $\theta_{k,j}$ as the cross-evaluation score of DMU *j* on the basis of the weights that are optimal for DMU *k*. The value, $\theta_{k,k}$ would be the regular DEA efficiency score.
+
+$$\begin{split}
+\begin{aligned}
+    \text {max } & \theta_{k,k}=\frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,k}} {\sum_{i=1}^{N^X} v_i,k x_{i,k} } \\
+    \text{s.t.:  } & \theta_{k,j}=\frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,j}} {\sum_{i=1}^{N^X} v_{i,k} x_{i,j} }
+                          \leq 1 \; \forall \; j\\
+            & u_{r,k}, v_{i,k}\geq 0  \; \forall \; r,i
+  \end{aligned}
+\end{split}
+(\#eq:Ch6LPCCRIO-Cross1)$$
+
+The cross-efficiency for DMU *j* is now simply the average what all DMUs gave *j* on their own scoring model. We could term this $CE_j$ or $\bar{\theta}_{\cdot j}$.
+
+$$\begin{split}
+ \begin{aligned}
+    CE_j= \bar{\theta}_{\cdot j}=\frac {\sum_{k=1}^{N^D}\theta_{k,j}} {N^D}
+        = \frac {\sum_{k=1}^{N^D} {
+                        \frac {\sum_{r=1}^{N^Y} u_{r,k} y_{r,j} } 
+                       {\sum_{i=1}^{N^X} v_{i,k} x_{i,j} } }    }
+                {N^D}
+  \end{aligned}
+\end{split}
+(\#eq:Ch6Calc-Cross)$$
+
+## Implementing Cross-Efficiency
 
 We will implement this using the `ompr` package again.
 
-We're going to use our data from earlier. For this example, we will use the dataset from Kenneth Baker's third edition of *Optimization Modeling with Spreadsheets*, pages 175-178, Example 5.3 titled "Hope Valley Health Care Association." In this case, a health care organization wants to benchmark six nursing homes against each other.
+For this example, we will use the dataset from Kenneth Baker's third edition of *Optimization Modeling with Spreadsheets*, pages 175-178, Example 5.3 titled "Hope Valley Health Care Association." In this case, a health care organization wants to benchmark six nursing homes against each other.
 
 ```{r, eval=FALSE}
 library(kableExtra)           
@@ -120,7 +135,7 @@ ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1);
 # Define data size
 ```
 
-Note that I'm naming the data sets based on their origin and then loading them into xdata and ydata for actual operation.
+Note that I'm naming the data sets based on their origin and then loading them into `xdata` and `` ydata` ``for actual operation.
 
 ```{r Structure-Results}
 # Need to remember to restructure the results matrices.
@@ -133,7 +148,9 @@ results.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX)
 results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
 ```
 
-We are now ready to do the analysis. In Baker, the analysis was done using the \index{Multiplier model} multiplier model. In chapter 2 we used the \index{Envelopment model} envelopment model to examine this case. Now we will use the multiplier model using the \index{DEAMultiplierModel} `DEAMultiplerModel` package by Aurobindh Kalathil Puthanpura.
+We are now ready to do the analysis. In Baker, the analysis was done using the \index{Multiplier model} multiplier model. In chapter 2 we used the \index{Envelopment model} envelopment model to examine this case.
+
+Now we will use the multiplier model using the \index{DEAMultiplierModel} `DEAMultiplerModel` package by Aurobindh Kalathil Puthanpura.
 
 ```{r, include=FALSE, message=FALSE, warning=FALSE}
 library (MultiplierDEA)
@@ -212,12 +229,12 @@ multiplierIO <- function (x,y)
     for (k in 1:ND) {
 
     result <- MIPModel()                                              |>
-    add_variable(vweight[i], i = 1:NX, type = "continuous", lb = 0)   |>
-      add_variable(uweight[r], r = 1:NY, type = "continuous", lb = 0) |>
-    set_objective(sum_expr(uweight[r] * y[k,r], r = 1:NY), "max")     |>
-    add_constraint(sum_expr(vweight[i] * x[k,i], i = 1:NX) == 1)      |>
-    add_constraint((sum_expr(uweight[r] * y[j,r], r = 1:NY) -
-                    sum_expr(vweight[i] * x[j,i], i = 1:NX)) 
+    add_variable(Vvweight[i], i = 1:NX, type = "continuous", lb = 0)   |>
+      add_variable(Vuweight[r], r = 1:NY, type = "continuous", lb = 0) |>
+    set_objective(sum_expr(Vuweight[r] * y[k,r], r = 1:NY), "max")     |>
+    add_constraint(sum_expr(Vvweight[i] * x[k,i], i = 1:NX) == 1)      |>
+    add_constraint((sum_expr(Vuweight[r] * y[j,r], r = 1:NY) -
+                    sum_expr(Vvweight[i] * x[j,i], i = 1:NX)) 
                   <= 0, j = 1:ND)
     result
 
@@ -226,11 +243,11 @@ multiplierIO <- function (x,y)
     results.efficiency[k] <- objective_value (result) 
 
     # Get the weights - Output weights
-    tempvweight <- get_solution(result, vweight[i])
+    tempvweight <- get_solution(result, Vvweight[i])
     results.vweight[k,] <- tempvweight[,3]
 
    # Get the weights- Input weights
-    tempuweight <- get_solution(result, uweight[i])
+    tempuweight <- get_solution(result, Vuweight[i])
     results.uweight[k,] <- tempuweight[,3]
 
   } # End of for k loop
