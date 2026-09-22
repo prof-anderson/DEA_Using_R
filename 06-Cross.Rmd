@@ -20,7 +20,7 @@ The Cross-Efficiency model goes one step further and says let's retain the imput
 
 On the other hand, what if it allowed for \index{Blending} blending of units. There are a few assumptions that we could make. Let's start by saying that we can compare any particular products by rescaling (up or down) any other product as well as any combination of units.
 
-Similarly, $x_{i,j)$ is the amount of input *i* used by unit *j* by DMU *j* and $y_{r,j}$ is the amount of output *r* used by DMU *j*.
+Similarly, $x_{i,j}$ is the amount of input *i* used by unit *j* by DMU *j* and $y_{r,j}$ is the amount of output *r* used by DMU *j*.
 
 This can be easily expanded to the multiple input and multiple output case by defining $x_i,j$ to be the amount of the *i*'th input used by unit *j* and $y_{r,j}$ to be the amount of the *r*'th output produced by unit *j*. While *m* and *s* are commonly used in DEA for the number inputs and outputs, to make the code more readable and help avoid name space conflicts, I will use `NX` instead of *m* to refer to the number of inputs (x's) and `NY` to be the number of outputs (y's) instead of *s*. Also, *n* is used to denote the number of Decision Making Units (DMUs) and therefore I'll use $N^D$ for this mathematically and `ND` to indicate that in the R code.
 
