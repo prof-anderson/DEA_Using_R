@@ -1267,8 +1267,8 @@ Lastly, we change the objective function to maximize the sum of slacks.
 
 ```{r, eval=FALSE}
 set_objective(LPSlack, 
-              sum_expr(xslack[i], i=1:NX) +  # sum of input slacks
-              sum_expr(yslack[r], r=1:NY),   # sum of output slacks
+              sum_expr(Vxslack[i], i=1:NX) +  # sum of input slacks
+              sum_expr(Vyslack[r], r=1:NY),   # sum of output slacks
               "max")                         # max instead of min
 ```
 
@@ -1284,17 +1284,17 @@ for (k in 1:ND) {
   LPSlack <- MIPModel()                                             |>
     add_variable(Vlambda[j], j = 1:ND, type = "continuous", lb = 0) |>
     add_variable(Vtheta, type = "continuous")                       |>
-    add_variable(xslack[i], i = 1:NX, type = "continuous", lb = 0)  |>
-    add_variable(yslack[r], r = 1:NY, type = "continuous", lb = 0)  |>
+    add_variable(Vxslack[i], i = 1:NX, type = "continuous", lb = 0) |>
+    add_variable(Vyslack[r], r = 1:NY, type = "continuous", lb = 0) |>
     
     set_objective(Vtheta, "min")                                    |>
     
     add_constraint(sum_expr(Vlambda[j] * xdata[j,i], 
-                            j = 1:ND)+xslack[i] 
+                            j = 1:ND)+Vxslack[i] 
                    - Vtheta * xdata[k,i]==0, i = 1:NX)              |>
     
     add_constraint(sum_expr(Vlambda[j] * ydata[j,r], 
-                            j = 1:ND) -yslack[r]
+                            j = 1:ND) -Vyslack[r]
                     ==ydata[k,r], r = 1:NY) 
   
     result1 <-   solve_model(LPSlack, with_ROI(solver = "glpk")) 
@@ -1306,8 +1306,8 @@ for (k in 1:ND) {
     LPSlack<-add_constraint(LPSlack, Vtheta==phase1obj)   
                      # Passing result from phase 1 to phase 2
     
-    LPSlack<-set_objective(LPSlack, sum_expr(xslack[i], i=1:NX)
-                  + sum_expr(yslack[r], r=1:NY), "max")
+    LPSlack<-set_objective(LPSlack, sum_expr(Vxslack[i], i=1:NX)
+                  + sum_expr(Vyslack[r], r=1:NY), "max")
               # Modify the objective function for phase 2
     result2 <-   solve_model(LPSlack, with_ROI(solver = "glpk")) 
     results.efficiency[k] <-  get_solution(result2, Vtheta)       
@@ -1316,10 +1316,10 @@ for (k in 1:ND) {
                                          Vlambda[.])[,3] )))
     results.xslack[k,]  <- t(as.matrix(
                  as.numeric(get_solution(result2, 
-                                         xslack[.])[,3] )))
+                                         Vxslack[.])[,3] )))
     results.yslack[k,]  <- t(as.matrix(
                  as.numeric(get_solution(result2, 
-                                         yslack[.])[,3] )))
+                                         Vyslack[.])[,3] )))
     }
 
 
