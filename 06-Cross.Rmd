@@ -12,15 +12,13 @@ library(bookdown); library(rmarkdown); rmarkdown::render("06-Cross.Rmd", "pdf_bo
 
 ## The Ratio Model
 
-Recall the explanation of DEA from a ratio model perspective. It can be thought of as analogous to each DMU doing a self-evaluation relative to their peers. They can pick any non-negative weights on inputs or outputs that they want as long as they no one looks better than perfect. The ratio or multiplier model essentially stops there (with the caveat that there are extensions such as weight restrictions, super-efficiency, and returns to scale as discussed in the previous chapter.)
+Recall the explanation of DEA from a ratio model perspective in the previous chapter. This approach is very helpful in developing an understanding of cross-efficiency. It can be thought of as analogous to each DMU doing a self-evaluation relative to their peers. They can pick any non-negative weights on inputs or outputs that they want as long as they no one looks better than perfect. The ratio or multiplier model essentially stops there (with the caveat that there are extensions such as weight restrictions, super-efficiency, and returns to scale as discussed in the previous chapter.)
 
-The Cross-Efficiency model goes one step further and says let's retain the imputed score that each DMU gives to each of the other DMUs. Instead of discarding all this extra information, it starts with the premise that these scores also have value. In a DEA model, DMU *k*'s efficiency is at least as good or better than what any of its peers would have given it, otherwise DMU *k* would have used those same weights to get that score.
+The Cross-Efficiency model goes one step further and says let's retain the imputed score that each DMU gives to each of the other DMUs. Instead of discarding all this extra information, it starts with the premise that these scores also have value. The values that other DMUs give you will never be better than you give yourself. More formally, in a DEA model, DMU *k*'s efficiency is at least as good or better than what any of its peers would have given it, otherwise DMU *k* would have used those same weights to get that score. If you give yourself a high efficiency score but everyone else gives you a low score, perhaps you aren't as good as you think you are! This might be the result of using a weighting scheme (*u*'s and *v*'s) that are very different from others and perhaps unrealistic or inappropriate.
 
 ## The Linear Programs for DEA
 
-On the other hand, what if it allowed for \index{Blending} blending of units. There are a few assumptions that we could make. Let's start by saying that we can compare any particular products by rescaling (up or down) any other product as well as any combination of units.
-
-Similarly, $x_{i,j}$ is the amount of input *i* used by unit *j* by DMU *j* and $y_{r,j}$ is the amount of output *r* used by DMU *j*.
+Let's set this up mathematically. We'll start with ratio multipler model again.  Similarly, $x_{i,j}$ is the amount of input *i* used by unit *j* by DMU *j* and $y_{r,j}$ is the amount of output *r* used by DMU *j*.
 
 This can be easily expanded to the multiple input and multiple output case by defining $x_i,j$ to be the amount of the *i*'th input used by unit *j* and $y_{r,j}$ to be the amount of the *r*'th output produced by unit *j*. While *m* and *s* are commonly used in DEA for the number inputs and outputs, to make the code more readable and help avoid name space conflicts, I will use `NX` instead of *m* to refer to the number of inputs (x's) and `NY` to be the number of outputs (y's) instead of *s*. Also, *n* is used to denote the number of Decision Making Units (DMUs) and therefore I'll use $N^D$ for this mathematically and `ND` to indicate that in the R code.
 
@@ -120,7 +118,7 @@ Let's take another step from the previous DEA implementations by creating a func
 
 ```{r CE-Function, eval=TRUE}
 
-multiplierIO <- function (x,y) 
+multiplierIO <- function (x,y)   # Declare the function and parameters
   { 
   ND <- nrow(x); NX <- ncol(x); NY <- ncol(y); # Define data size
   
@@ -159,7 +157,7 @@ multiplierIO <- function (x,y)
                      vweight=results.vweight, 
                      uweight=results.uweight)
  
-  return(resultlist)  
+  return(resultlist)  # This is what gets passed back at the end
 
 } # End of function  
 ```
@@ -182,7 +180,7 @@ dimnames(resfunc$uweight)    <- c(DMUnames,Unames)
 
 ```{r, echo=FALSE}
 kbl (cbind(resfunc$efficiency,resfunc$vweight,resfunc$uweight), 
-        caption="Efficiency Scores and Weights", booktabs = T) |>
+        caption="Efficiency Scores and Weights", booktabs = T, escape=F) |>
     kable_styling(latex_options = c("HOLD_position"))
 ```
 
@@ -241,7 +239,7 @@ kbl (rbind(results.crosseval,t(results.crosseff)),
 
 Notice that the values on the diagonal, $\theta_{k,k}$ are the same as the original efficiency scores.
 
-We are going to be doing the cross-efficiency calculations often so let's convert this to a function.
+We are going to be doing the cross-efficiency calculations often so let's convert this to a function too to calculate all the cross-evaluation values. While we're at it, we'll extract the efficiency which is simply the maximum value in each column or the diagonal value. Also, the cross-efficency is simply the column mean (average).
 
 ```{r}
 calccrosseff <- function (x,y,vmatrix,umatrix) {
@@ -264,16 +262,22 @@ calccrosseff <- function (x,y,vmatrix,umatrix) {
    }
   
   crosseff <- colMeans (crosseval)
-
-    resultlist <- list(crosseval=crosseval, crosseff=crosseff)
+  efficiency <- apply(crosseval, 2, max)
+  
+  resultlist <- list(crosseval=crosseval, crosseff=crosseff)
  
   return(resultlist)
 }
 ```
 
-```{r, eval=TRUE, echo=FALSE}
-rescross <- calccrosseff (x, y, resfunc$vweight, resfunc$uweight)
+We can then calculate the cross-evaluation matrix and cross-efficiency values with this function.
 
+```{r}
+rescross <- calccrosseff (x, y, resfunc$vweight, resfunc$uweight)
+```
+
+
+```{r, eval=FALSE, echo=FALSE}
 kbl (rbind(rescross$crosseval,t(rescross$crosseff)), 
      booktabs = T, digits=5,
      caption="Cross-Evaluation Matrix and Cross-Efficiency Scores from Our Function") |>
@@ -281,6 +285,8 @@ kbl (rbind(rescross$crosseval,t(rescross$crosseff)),
   add_header_above(c("Weights\nFrom"=1,"Peer Evaluation of:"=6)) |>
     kable_styling(latex_options = c("HOLD_position", "scale_down"))
 ```
+
+In this example, the cross-efficiency scores are pretty similar to the original efficiency scores.  *D* has a modest decline while *A* and *F* have very similar values. On the other hand *E* which drops from being efficient to only about 90% efficient.  This is all because two of their peers *B* and *F* both give *E* a low grade of 70%. In contrast C, is considered efficient by all of its peers and retains its 1.0 score.
 
 ## Dealing with Cross-Efficiency's Multiple Optima
 
@@ -363,7 +369,7 @@ multiplierIO2PBen <- function (x, y)
 } # End of function  
 ```
 
-Let's call the benevolent cross-efficiency model and calculate the cross-efficiencies.
+Let's call this the benevolent cross-efficiency model and calculate the cross-efficiencies.
 
 ```{r}
 resfunc2P <- multiplierIO2PBen(x,y)
@@ -386,7 +392,7 @@ kbl (rbind(rescross2P$crosseval,t(rescross2P$crosseff)),
     kable_styling(latex_options = c("HOLD_position", "scale_down"))
 ```
 
-In this example, the cross-efficiency scores are pretty similar to the original efficiency scores.  *D* has a modest decline while *A* and *F* have very similar values. On the other hand *E* which drops from being efficient to only about 90% efficient.  This is all because two of their peers *B* and *F* both give *E* a low grade of 70%. In contrast C, is considered efficient by all of its peers and retains its 1.0 score.
+
 
 We can create a separate function for the *malevolent* case where each DMU is holding their efficiency constant but otherwise wants to make the population efficiency scores as low as possible. The only change is converting the secondary objective function from `max` to `min`. The code chunk for this function is in the RMarkdown for the book but for the sake of readability, I set the code chunk option to `echo=FALSE` to have it not displayed.  
 
