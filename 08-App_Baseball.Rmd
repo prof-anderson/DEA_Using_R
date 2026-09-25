@@ -459,7 +459,7 @@ While all of the correlations are strong, they are being done over the entire po
 
 Babe's \index{Cross-efficiency} cross-efficiency score was `r round(res1920ALcross$ce_ave[1,"ruthba01"],6)`. Coincidentally, his cross-efficiency score was nearly identical to the average cross-efficiency of other regular baseball batters of `r round(mean(res1920ALcross$ce_ave),6)`. In other words, what may have been one of the best batting performances in a century of baseball was wrongly misclassified as being just average by cross-efficiency. The reason for this can be seen by the cross-efficiency matrix of weights presented earlier that showed many batters put zero weight on home runs because they paled in comparison to the best performer on home runs, Babe Ruth.
 
-```{r, fig.show='hold', fig.align='center', fig.cap="Impact of Weight Restrictions on Efficiency"}
+```{r, fig.show='hold', fig.align='center', out.width="70%",fig.cap="Impact of Weight Restrictions on Efficiency"}
 collectedeff1 <- data.frame(cbind(res1920AL$Efficiency, 
                                   res1920ALmultWR$Efficiency,
                                   t(res1920ALcross$ce_ave),
@@ -485,7 +485,7 @@ This chart of efficiency vs. efficiency with weight restrictions clearly shows t
 
 Let's examine similar plots to examine cross-efficiency. The code for plot generation is not displayed for the sake of readability (i.e. a code chunk option of `echo=FALSE` is used.)
 
-```{r, echo=FALSE, fig.show='hold', fig.align='center', fig.cap="Cross-Efficiency vs. Efficiency"}
+```{r, echo=FALSE, fig.show='hold', fig.align='center', out.width="70%", fig.cap="Cross-Efficiency vs. Efficiency"}
 
 CRSvsCE <- ggplot (collectedeff1, aes(x=as.numeric(CCRIO), y=as.numeric(CE))) +
   xlab("Input-Oriented CRS Efficiency") +
@@ -507,7 +507,7 @@ This brings us to the last three of the formerly efficient players: Harry Hooper
 
 Now let's see if weight restrictions can solve the problem of cross-efficiencies' incorrect evaluation of Babe Ruth.
 
-```{r, echo=FALSE, fig.show='hold', fig.align='center', fig.cap="Impact of Weight Restrictions on Cross-Efficiency"}
+```{r, echo=FALSE, fig.show='hold', out.width="70%", fig.align='center', fig.cap="Impact of Weight Restrictions on Cross-Efficiency"}
 CEvsCEWR <- ggplot (collectedeff1, aes(x=as.numeric(CE), y=as.numeric(CEWR))) +
   xlab("Cross-Efficiency") +
   ylab("Cross-Efficiency with Weight Restrictions") +

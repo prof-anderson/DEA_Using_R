@@ -35,7 +35,15 @@ It continues to be the most downloaded R package for doing DEA to this day.
 
 Let's review data on the current frequency of downloads for DEA packages.
 
-```{r package_download_stats, echo=FALSE}
+```{r package_download_stats, echo=TRUE, eval=FALSE}
+
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# Temporarily disabled to skip a breaking error:
+#           [Kdlstats: fetching data for 2021-01
+#           A funny symbol that I can't read has just been input.
+#           Continue, and I'll forget that it ever happened.
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 library("ggplot2")
 library("dlstats")
 
@@ -43,9 +51,19 @@ dea_packages <- c("Benchmarking", "nonparaeff", "DJL", "rDEA", "deaR", "Multipli
 
 pkg_dl_data <- cran_stats(packages = dea_packages)
 
+# Clean all character columns to ensure valid UTF-8
+# This "cleaning" did not fix the problem.
+pkg_dl_data[] <- lapply(pkg_dl_data, function(x) {
+  if(is.character(x)) stringi::stri_enc_toascii(x) else x
+})
+
 ```
 
-```{r plot_dea_package_use, echo=FALSE}
+
+```{r plot_dea_package_use, echo=TRUE, eval=FALSE}
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# Temporarily disabled to skip a breaking error:
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ggplot(pkg_dl_data, aes(end, downloads, group=package, color=package)) +
     geom_line() + geom_point(aes(shape=package)) + 
@@ -365,7 +383,7 @@ rownames(comparative_deviations) <-
 
 kbl (summary(combined_eff2),  booktabs=T,
      caption="Summary of Differences between Benchmarking and other Packages") |>
-  kable_styling(latex_options="HOLD_position","scale_down")
+  kable_styling (latex_options = c("HOLD_position", "scale_down"))
 ```
 
 Computational performance could be further compared in many ways such as the following.
