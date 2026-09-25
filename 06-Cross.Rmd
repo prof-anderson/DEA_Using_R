@@ -53,7 +53,7 @@ $$\begin{split}
 
 Cross-efficiency is then typically calculated as the average of each of these peer scores.
 
-While implentation requires the linear program model, for understanding cross-efficiency, it is useful to go back to the ratio model. Now we will redefine $\theta_{k,j}$ as the cross-evaluation score of DMU *j* on the basis of the weights that are optimal for DMU *k*. The value, $\theta_{k,k}$ would be the regular DEA efficiency score.
+While implementation requires the linear program model, for understanding cross-efficiency, it is useful to go back to the ratio model. Now we will redefine $\theta_{k,j}$ as the cross-evaluation score of DMU *j* on the basis of the weights that are optimal for DMU *k*. The value, $\theta_{k,k}$ would be the regular DEA efficiency score.
 
 $$\begin{split}
 \begin{aligned}
@@ -80,11 +80,10 @@ $$\begin{split}
 
 ## Implementing Cross-Efficiency
 
+Let's return to our two-input, single-output, six grocery store example.
 We will implement this using the `ompr` package again.
 
-For this example, we will use the dataset from Kenneth Baker's third edition of *Optimization Modeling with Spreadsheets*, pages 175-178, Example 5.3 titled "Hope Valley Health Care Association." In this case, a health care organization wants to benchmark six nursing homes against each other.
-
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 library(kableExtra)           
 library(dplyr)            
 library(ROI)         
@@ -93,129 +92,33 @@ library(ompr)
 library(ompr.roi) 
 ```
 
-```{r, include=FALSE, warning=FALSE, message=FALSE}
-# This code chunk loads the above listed packages without
-#     disruptive warnings and messages.
-suppressPackageStartupMessages(library(kableExtra))           
-suppressPackageStartupMessages(library(dplyr)) 
-suppressPackageStartupMessages(library(ROI))
-suppressPackageStartupMessages(library(ROI.plugin.glpk))
-suppressPackageStartupMessages(library(ompr))
-suppressPackageStartupMessages(library(ompr.roi))
-```
-
-```{r multiplier-model }
-XBaker1 <- matrix(c(150, 400, 320, 520, 350, 320, 
-                    0.2, 0.7, 1.2, 2.0, 1.2, 0.7),
-                  ncol=2,dimnames=list(LETTERS[1:6],
-                                       c("x1", "x2")))
-
-YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 
-                    3500, 21000, 10500, 42000, 25000, 15000),
-                  ncol=2,dimnames=list(LETTERS[1:6],
-                                       c("y1", "y2")))
-
-ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1); 
-    # Define data size
-xdata      <-XBaker1 [1:ND,]  # Call it xdata
-dim(xdata) <-c(ND,NX)         # structure data correctly
-ydata      <-YBaker1[1:ND,]
-dim(ydata) <-c(ND,NY)
-```
-
-Remember the inputs are hard coded as "x1" and"x2" to represent the *staff hours per day* and the *supplies per day* respectively. The two outputs of *reimbursed patient-days* and *privately paid patient-days* are named "y1" and "y2".
-
-```{r}
-YBaker1 <- matrix(c(14000, 14000, 42000, 28000, 19000, 14000, 
-                    3500, 21000, 10500, 42000, 25000, 15000),
-                  ncol=2,dimnames=list(LETTERS[1:6],
-                                       c("y1", "y2")))
-
-ND <- nrow(XBaker1); NX <- ncol(XBaker1); NY <- ncol(YBaker1); 
-# Define data size
-```
-
-Note that I'm naming the data sets based on their origin and then loading them into `xdata` and `` ydata` ``for actual operation.
-
-```{r Structure-Results}
-# Need to remember to restructure the results matrices.
-
-results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
-results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
-results.vweight    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
-results.uweight    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
-results.xslack     <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
-results.yslack     <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
-```
-
-We are now ready to do the analysis. In Baker, the analysis was done using the \index{Multiplier model} multiplier model. In chapter 2 we used the \index{Envelopment model} envelopment model to examine this case.
-
-Now we will use the multiplier model using the \index{DEAMultiplierModel} `DEAMultiplerModel` package by Aurobindh Kalathil Puthanpura.
-
-```{r, include=FALSE, message=FALSE, warning=FALSE}
-library (MultiplierDEA)
-```
-
-```{r, warning=FALSE, message=FALSE}
-library (MultiplierDEA)
-# Example from Kenneth R. Baker, Optimization Modeling with  
-#    Spreadsheets, Third Edition, p. 176, John Wiley & Sons, Inc.
-dmu <- c("A", "B", "C", "D", "E", "F")
-x <- data.frame(c(150,400,320,520,350,320),
-                c(0.2,0.7,1.2,2.0,1.2,0.7))
-rownames(x) <- dmu
-colnames(x)[1] <- c("StartHours")
-colnames(x)[2] <- c("Supplies")
-y <- data.frame(c(14,14,42,28,19,14),
-                c(3.5,21,10.5,42,25,15))
-rownames(y) <- dmu
-colnames(y)[1] <- c("Reimbursed")
-colnames(y)[2] <- c("Private")
-# Calculate the efficiency score
-result <- DeaMultiplierModel(x,y,"crs", "input")
-# Examine the efficiency score for DMUs
-```
 
 ```{r, echo=FALSE}
-kbl (result$Efficiency, caption="CRS Efficiency Scores", 
-     booktabs = T, digits = 3, align = 'c') |>
-    kable_styling(latex_options = c("HOLD_position"))
+x <- matrix(c(10, 20, 30, 50, 22, 29,
+              75, 100, 220, 480, 290, 210), byrow=FALSE, ncol=2, 
+            dimnames=list(LETTERS[1:6],c("x1","x2")))
+y <- matrix(c(75,100,300,400, 280, 120),ncol=1,
+            dimnames=list(LETTERS[1:6],"y"))
+
+storenames<- c("Al\'s Pantry", "Bob\'s Mill", 
+               "Trader Carrie\'s", "Dilbertson\'s",
+               "Ed\'s Eggshop", "Flo\'s Farmacopia")
+temp<-cbind(storenames,x,y)
+colnames(temp)<-c("Store Name", "Employees \n (x1)", 
+                  "Floor Space (x2)", "Sales (y)")
+
+kbl (temp, booktabs=TRUE, escape=FALSE)
+
+ND <- nrow(x); NX <- ncol(x); NY <- ncol(y) # Define data size
+xdata       <- x [1:ND,]   # Call it xdata
+dim (xdata) <- c (ND,NX)   # structure data correctly
+ydata       <- y [1:ND,]
+dim (ydata) <- c (ND,NY)
 ```
 
-The efficiency scores match the earlier results and that of Baker.
+Let's take another step from the previous DEA implementations by creating a function to do the input-oriented multiplier model. We'll simply pass the input and output data to model.
 
-The package also includes a cross-efficiency calculation function so as to find the cross-efficiencies given the multiplier model. Cross-efficiency calculated in this way tends to suffer from frequent cases of \index{Multiple optima} multiple optima. Later in this chapter, we will explore how to handle these issues. For now, let's apply cross-efficiency to the same data set.
-
-```{r}
-# Example from Kenneth R. Baker: Optimization Modeling with Spreadsheets, 
-#    Third Edition, p. 176, John Wiley & Sons, Inc.
-dmu <- c("A", "B", "C", "D", "E", "F")
-x <- data.frame(c(150,400,320,520,350,320),
-                c(0.2,0.7,1.2,2.0,1.2,0.7))
-rownames(x) <- dmu
-colnames(x)[1] <- c("StartHours")
-colnames(x)[2] <- c("Supplies")
-y <- data.frame(c(14,14,42,28,19,14),
-                c(3.5,21,10.5,42,25,15))
-rownames(y) <- dmu
-colnames(y)[1] <- c("Reimbursed")
-colnames(y)[2] <- c("Private")
-# Calculate the efficiency score
-result <- CrossEfficiency(x,y,"crs", "input")
-# Examine the cross-efficiency score for DMUs
-kbl (result$ce_ave, 
-     align = "c", booktabs = T, digits = 4,
-     caption="Cross-Efficiency Scores")    |>
-    kable_styling(latex_options = c("HOLD_position"))
-```
-
-As might be expected, the \index{Cross-efficiency} cross-efficiency values are all significantly lower than the original efficiency scores. In cross-efficiency, no nursing home is able to pick an extreme and unique weighting scheme to their advantage. It also tends to break the ties at 1.0 that frequently occur in DEA so it usually gives a unique ranking. These features come at a significant cost though, which will be discussed in more detail in the future.
-
-## Implementing Cross-Efficiency
-
-Let's revisit the Baker model again.
-
-```{r Baker-cross, eval=TRUE}
+```{r CE-Function, eval=TRUE}
 
 multiplierIO <- function (x,y) 
   { 
@@ -228,9 +131,9 @@ multiplierIO <- function (x,y)
 
     for (k in 1:ND) {
 
-    result <- MIPModel()                                              |>
+    result <- MIPModel()                                               |>
     add_variable(Vvweight[i], i = 1:NX, type = "continuous", lb = 0)   |>
-      add_variable(Vuweight[r], r = 1:NY, type = "continuous", lb = 0) |>
+    add_variable(Vuweight[r], r = 1:NY, type = "continuous", lb = 0)   |>
     set_objective(sum_expr(Vuweight[r] * y[k,r], r = 1:NY), "max")     |>
     add_constraint(sum_expr(Vvweight[i] * x[k,i], i = 1:NX) == 1)      |>
     add_constraint((sum_expr(Vuweight[r] * y[j,r], r = 1:NY) -
@@ -259,13 +162,18 @@ multiplierIO <- function (x,y)
   return(resultlist)  
 
 } # End of function  
+```
 
+This function will work for any DEA model with one or more inputs and one or more outputs and non-negative data. In a production-ready function, we would want to add tests for data problems, allow parameters to select different models, and perhaps return more information but the basic idea holds.
+
+Now we can simply call the function, `multiplierIO` and store the results.
+
+```{r}
 resfunc <- multiplierIO(x,y)
+
 DMUnames <- list(c(LETTERS[1:ND]))
-Vnames<- lapply(list(rep("v",NX)),paste0,1:NX)   
-# Input weight names: v1, ...
-Unames<- lapply(list(rep("u",NY)),paste0,1:NY)   
-# Output weight names: u1, ...
+Vnames<- lapply(list(rep("v",NX)),paste0,1:NX) # Input weight names: v1, ...
+Unames<- lapply(list(rep("u",NY)),paste0,1:NY) # Output weight names: u1, ...
 
 dimnames(resfunc$efficiency) <- c(DMUnames,"CCR-IO")
 dimnames(resfunc$vweight)    <- c(DMUnames,Vnames)
@@ -338,7 +246,7 @@ We are going to be doing the cross-efficiency calculations often so let's conver
 ```{r}
 calccrosseff <- function (x,y,vmatrix,umatrix) {
 
-  ND <- nrow(x); NX <- ncol(y); NY <- ncol(y); # Define data size
+  ND <- nrow(x); NX <- ncol(x); NY <- ncol(y); # Define data size
   
   DMUnames <- rownames(x)
   
@@ -355,15 +263,15 @@ calccrosseff <- function (x,y,vmatrix,umatrix) {
                    }
    }
   
-   for (j in 1:ND) {crosseff[j]<-sum(crosseval[,j])/ND}
+  crosseff <- colMeans (crosseval)
 
-  resultlist <- list(crosseval=crosseval, crosseff=crosseff)
+    resultlist <- list(crosseval=crosseval, crosseff=crosseff)
  
   return(resultlist)
 }
 ```
 
-```{r, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 rescross <- calccrosseff (x, y, resfunc$vweight, resfunc$uweight)
 
 kbl (rbind(rescross$crosseval,t(rescross$crosseff)), 
@@ -376,18 +284,28 @@ kbl (rbind(rescross$crosseval,t(rescross$crosseff)),
 
 ## Dealing with Cross-Efficiency's Multiple Optima
 
-\index{Multiple optima|(} As discussed in the chapter on the Multiplier model, DEA often has multiple optima, particularly for efficient DMUs. While this doesn't affect the efficiency scores in either the envelopment or the multiplier model, it can have a major impact on the cross-evaluation scores and therefore the \index{Cross-efficiency} cross-efficiency scores.
+\index{Multiple optima|(} As discussed in the chapter on the Multiplier model, DEA often has multiple optima, particularly for efficient DMUs. While this doesn't affect the radial efficiency scores in either the envelopment or the multiplier model, it can have a major impact on the cross-evaluation scores and therefore the \index{Cross-efficiency} cross-efficiency scores.
 
 To examine this issue, we need to invoke a secondary objective function again in the same manner as we did for the envelopment model.
 
-A variety of mechanisms exist for dealing with the issue of multiple optima.
+A variety of mechanisms exist for dealing with the issue of multiple optima. We'll use an approach similar to the two-phase, slack maximization phase. In the first phase, we find the best radial efficiency score for DMU k, ($\theta_{k,k}$) and then pass that optimal value ($\theta_{k,k}^*$) to the second phase with a constraint,  $\theta_{k,k}=\theta_{k,k}^*$.
 
-```{r Baker-Cross-Eval-Sec, eval=TRUE}
+In the second phase, rather than maximizing slacks, we can try to either either minimize or maximize the collective population's score. Note that in this case, we can define the population input (or output) either including the unit being studied by summing over all of *j* or all of *j* excluding the unit studied, *k*.
+
+$$\begin{split} \begin{aligned}     \text {min/max } & \frac{\sum_{r=1}^{N^Y} u_{r,k} \sum_{j=1}^{N^D} y_{r,j}} {\sum_{i=1}^{N^X} v_{i,k} \sum_{j=1}^{N^D}x_{i,j} } \\     \text{s.t.:  } & \theta_{j,k}=\frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,j}} {\sum_{i=1}^{N^X} v_{i,k} x_{i,j} }                           \leq 1 \; \forall \; j\\ & \theta_{k,k}=\frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,k}} {\sum_{i=1}^{N^X} v_{i,k} x_{i,k} } = \theta^*_{k,k}\\             & u_{r,k}, v_{i,k}\geq 0  \; \forall \; r,i   \end{aligned} \end{split} (\#eq:Ch6LPCCRIO-2Phase)$$
+
+This ratio model can be linearized in the same way as the original ratio DEA model.
+
+$$\begin{split} \begin{aligned}     \text {min/max } & \sum_{r=1}^{N^Y} u_{r,k} \sum_{j=1}^{N^D} y_{r,j}\\         \text{s.t.:  } & \sum_{i=1}^{N^X} v_{i,k} \sum_{j=1}^{N^D}x_{i,j} = 1 \\ & \sum_{r=1}^{N^Y} u_{r,k} y_{r,j} - \sum_{i=1}^{N^X} v_{i,k} x_{i,j}                            \leq 0 \; \forall \; j\\ & \sum_{r=1}^{N^Y} u_{r,k} y_{r,k}-  \theta^*_{k,k} \cdot\sum_{i=1}^{N^X} v_{i,k} x_{i,k} = 0 \\             & u_{r,k}, v_{i,k}\geq 0  \; \forall \; r,i   \end{aligned} \end{split} (\#eq:Ch6LPCCRIO-2Phase)$$
+
+Let's implement both phases as a function again. I'll name the function `multiplerIO2PBen`. The first part is obvious as it is a multiplier model and input-oriented. The `2P` indicates it is a two-phase model. The last part, `Ben` indicates it is a *benevelent* model which means that it in the second phase, each DMU is trying to make the entire population look as it good as it can my maximizing the population efficiency.
+
+```{r Cross-Eval-Sec, eval=TRUE}
 # Implements secondary objective function to resolve multiple optima
 
-multiplierIOSec <- function (x, y) 
+multiplierIO2PBen <- function (x, y) 
   { 
-  ND <- nrow(x); NX <- ncol(y); NY <- ncol(y); # Define data size
+  ND <- nrow(x); NX <- ncol(x); NY <- ncol(y); # Define data size
   
   results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
   results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
@@ -395,48 +313,130 @@ multiplierIOSec <- function (x, y)
   results.uweight    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
 
     for (k in 1:ND) {
-      result <- MIPModel()                                     |>
-      add_variable(vweight[i], i = 1:NX, 
-                   type = "continuous", lb = 0)        
-      add_variable(uweight[r], r = 1:NY, 
-                   type = "continuous", lb = 0)                |>
-      set_objective(sum_expr(uweight[r] * y[k,r], 
-                             r = 1:NY), "max")                 |>
-      add_constraint(sum_expr(vweight[i] * x[k,i], 
-                              i = 1:NX) == 1)                  |>
-      add_constraint((sum_expr(uweight[r] * y[j,r], r = 1:NY)-
-                    sum_expr(vweight[i] * x[j,i], i = 1:NX)) 
-                  <= 0, j = 1:ND)
-      result
+      res1P <- MIPModel()                                              |>
+      add_variable(Vvweight[i], i = 1:NX, type = "continuous", lb = 0)  |>
+      add_variable(Vuweight[r], r = 1:NY, type = "continuous", lb = 0)  |>
+      set_objective(sum_expr(Vuweight[r] * y[k,r], r = 1:NY), "max")    |>
+      add_constraint(sum_expr(Vvweight[i] * x[k,i], i = 1:NX) == 1)     |>
+      add_constraint((sum_expr(Vuweight[r] * y[j,r], r = 1:NY)-
+                    sum_expr(Vvweight[i] * x[j,i], i = 1:NX)) 
+                  <= 0, j = 1:ND)                                       |>
+      solve_model(with_ROI(solver = "glpk", verbose = FALSE))
 
-      result2 <- MIPModel()                                    |>
-      add_variable(vweight[i], i = 1:NX, 
-                   type = "continuous", lb = 0)                |>
-      add_variable(uweight[r], r = 1:NY, 
-                   type = "continuous", lb = 0)                |>
-      set_objective(sum_expr(uweight[r] * sum(y[,r]), 
-                             r = 1:NY), "max")                 |>
-          # Modified objective function for 
-      add_constraint(sum_expr(vweight[i] * sum(x[,i]), 
-                              i = 1:NX) == 1)                  |>
-      add_constraint(result, sum_expr(uweight[r] * sum(y[,r]), 
-                                      r = 1:NY)-
-                    sum_expr(vweight[i] * sum(x[,i]), i = 1:NX)  
-                  <= 0)
-      add_constraint((sum_expr(uweight[r] * y[j,r], r = 1:NY)-
-                    sum_expr(vweight[i] * x[j,i], i = 1:NX)) 
-                  <= 0, j = 1:ND)
+      theta_k_k <- objective_value(res1P) # For constraining Phase 2
+      
+      res2P <- MIPModel()                                                    |>
+      add_variable(Vvweight[i], i = 1:NX, type = "continuous", lb = 0)       |>
+      add_variable(Vuweight[r], r = 1:NY, type = "continuous", lb = 0)       |>
+      set_objective(sum_expr(Vuweight[r] * sum(y[j,r]), r = 1:NY, j = 1:ND), 
+                    "max")                                                   |>
+          # Modified objective function for Phase 2
+      add_constraint(sum_expr(Vvweight[i] * sum(x[j,i]), i = 1:NX, 
+                              j = 1:ND) == 1)                                |>
+      add_constraint((sum_expr(Vuweight[r] * y[j,r], r = 1:NY)-
+                    sum_expr(Vvweight[i] * x[j,i], i = 1:NX)) <= 0, j = 1:ND)|>
+          # Following constraint limits k's efficiency to that of Phase 2
+      add_constraint(sum_expr(Vuweight[r] * sum(y[k,r]), r = 1:NY)-
+                    sum_expr( Vvweight[i] * theta_k_k *sum(x[k,i]), i = 1:NX) 
+                    == 0)                                                    |>
 
-    result <- solve_model(result, with_ROI(solver = "glpk", 
-                                           verbose = FALSE))
-    results.efficiency[k] <- objective_value (result2) 
+      solve_model(with_ROI(solver = "glpk", verbose = FALSE))
+      
+    results.efficiency[k] <- objective_value (res1P) # From Phase 1
 
     # Get the weights - Output weights
-    tempvweight <- get_solution(result2, vweight[i])
+    tempvweight <- get_solution(res2P, Vvweight[i])
     results.vweight[k,] <- tempvweight[,3]
 
    # Get the weights- Input weights
-    tempuweight <- get_solution(result2, uweight[i])
+    tempuweight <- get_solution(res2P, Vuweight[i])
+    results.uweight[k,] <- tempuweight[,3]
+
+  } # End of for k loop
+  
+  resultlist <- list(efficiency=results.efficiency, 
+                     vweight=results.vweight, 
+                     uweight=results.uweight)
+ 
+  return(resultlist)  
+
+} # End of function  
+```
+
+Let's call the benevolent cross-efficiency model and calculate the cross-efficiencies.
+
+```{r}
+resfunc2P <- multiplierIO2PBen(x,y)
+
+dimnames(resfunc2P$efficiency) <- c(DMUnames,"CCR-IO")
+dimnames(resfunc2P$vweight)    <- c(DMUnames,Vnames)
+dimnames(resfunc2P$uweight)    <- c(DMUnames,Unames)
+
+rescross2P <- calccrosseff (x, y, resfunc2P$vweight, resfunc2P$uweight)
+
+```
+
+
+```{r, eval=TRUE, echo=FALSE}
+kbl (rbind(rescross2P$crosseval,t(rescross2P$crosseff)), 
+     booktabs = T, digits=5,
+     caption="Cross-Evaluation Matrix and Cross-Efficiency Scores from Our Benevolent Model") |>
+    row_spec (7, bold=TRUE) |>
+  add_header_above(c("Weights\nFrom"=1,"Peer Evaluation of:"=6)) |>
+    kable_styling(latex_options = c("HOLD_position", "scale_down"))
+```
+
+In this example, the cross-efficiency scores are pretty similar to the original efficiency scores.  *D* has a modest decline while *A* and *F* have very similar values. On the other hand *E* which drops from being efficient to only about 90% efficient.  This is all because two of their peers *B* and *F* both give *E* a low grade of 70%. In contrast C, is considered efficient by all of its peers and retains its 1.0 score.
+
+We can create a separate function for the *malevolent* case where each DMU is holding their efficiency constant but otherwise wants to make the population efficiency scores as low as possible. The only change is converting the secondary objective function from `max` to `min`. The code chunk for this function is in the RMarkdown for the book but for the sake of readability, I set the code chunk option to `echo=FALSE` to have it not displayed.  
+
+```{r, echo=FALSE}
+multiplierIO2PMal <- function (x, y) 
+  { 
+  ND <- nrow(x); NX <- ncol(x); NY <- ncol(y); # Define data size
+  
+  results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
+  results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
+  results.vweight    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
+  results.uweight    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
+
+    for (k in 1:ND) {
+      res1P <- MIPModel()                                               |>
+      add_variable(Vvweight[i], i = 1:NX, type = "continuous", lb = 0)  |>
+      add_variable(Vuweight[r], r = 1:NY, type = "continuous", lb = 0)  |>
+      set_objective(sum_expr(Vuweight[r] * y[k,r], r = 1:NY), "max")    |>
+      add_constraint(sum_expr(Vvweight[i] * x[k,i], i = 1:NX) == 1)     |>
+      add_constraint((sum_expr(Vuweight[r] * y[j,r], r = 1:NY)-
+                    sum_expr(Vvweight[i] * x[j,i], i = 1:NX)) 
+                  <= 0, j = 1:ND)                                       |>
+      solve_model(with_ROI(solver = "glpk", verbose = FALSE))
+
+      theta_k_k <- objective_value(res1P) # For constraining Phase 2
+      
+      res2P <- MIPModel()                                                    |>
+      add_variable(Vvweight[i], i = 1:NX, type = "continuous", lb = 0)       |>
+      add_variable(Vuweight[r], r = 1:NY, type = "continuous", lb = 0)       |>     
+      set_objective(sum_expr(Vuweight[r] * sum(y[j,r]), 
+                                 r = 1:NY, j = 1:ND), "min")                 |>                               
+      # Modified objective function for Phase 2 of the Malevolent model
+      add_constraint(sum_expr(Vvweight[i] * sum(x[j,i]), i = 1:NX, 
+                              j = 1:ND) == 1)                                |>
+      add_constraint((sum_expr(Vuweight[r] * y[j,r], r = 1:NY)-
+                    sum_expr(Vvweight[i] * x[j,i], i = 1:NX)) <= 0, j = 1:ND)|>
+      add_constraint(sum_expr(Vuweight[r] * sum(y[k,r]), r = 1:NY)-
+                    sum_expr( Vvweight[i] * theta_k_k *sum(x[k,i]), i = 1:NX) 
+                    == 0)                                                    |>
+
+      solve_model(with_ROI(solver = "glpk", verbose = FALSE))
+      
+    results.efficiency[k] <- objective_value (res1P) # From Phase 1
+
+    # Get the weights - Output weights
+    tempvweight <- get_solution(res2P, Vvweight[i])
+    results.vweight[k,] <- tempvweight[,3]
+
+   # Get the weights- Input weights
+    tempuweight <- get_solution(res2P, Vuweight[i])
     results.uweight[k,] <- tempuweight[,3]
 
   } # End of for k loop
@@ -451,47 +451,121 @@ multiplierIOSec <- function (x, y)
 
 ```
 
+
+
+```{r, echo=TRUE}
+multiplierIO2Flex <- function (x, y, phase) 
+  { 
+  ND <- nrow(x); NX <- ncol(x); NY <- ncol(y); # Define data size
+  
+  results.efficiency <- matrix(rep(-1.0, ND), nrow=ND, ncol=1)
+  results.lambda     <- matrix(rep(-1.0, ND^2), nrow=ND,ncol=ND)
+  results.vweight    <- matrix(rep(-1.0, ND*NX), nrow=ND,ncol=NX) 
+  results.uweight    <- matrix(rep(-1.0, ND*NY), nrow=ND,ncol=NY) 
+
+    for (k in 1:ND) {
+      res1P <- MIPModel()                                               |>
+      add_variable(Vvweight[i], i = 1:NX, type = "continuous", lb = 0)  |>
+      add_variable(Vuweight[r], r = 1:NY, type = "continuous", lb = 0)  |>
+      set_objective(sum_expr(Vuweight[r] * y[k,r], r = 1:NY), "max")    |>
+      add_constraint(sum_expr(Vvweight[i] * x[k,i], i = 1:NX) == 1)     |>
+      add_constraint((sum_expr(Vuweight[r] * y[j,r], r = 1:NY)-
+                    sum_expr(Vvweight[i] * x[j,i], i = 1:NX)) 
+                  <= 0, j = 1:ND)                                       |>
+      solve_model(with_ROI(solver = "glpk", verbose = FALSE))
+
+      theta_k_k <- objective_value(res1P) # For constraining Phase 2
+      
+      mod2P <- MIPModel()                                                    |>
+      add_variable(Vvweight[i], i = 1:NX, type = "continuous", lb = 0)       |>
+      add_variable(Vuweight[r], r = 1:NY, type = "continuous", lb = 0)       |>
+
+      add_constraint(sum_expr(Vvweight[i] * sum(x[j,i]), i = 1:NX, 
+                              j = 1:ND) == 1)                                |>
+      add_constraint((sum_expr(Vuweight[r] * y[j,r], r = 1:NY)-
+                    sum_expr(Vvweight[i] * x[j,i], i = 1:NX)) <= 0, j = 1:ND)|>
+      add_constraint(sum_expr(Vuweight[r] * sum(y[k,r]), r = 1:NY)-
+                    sum_expr( Vvweight[i] * theta_k_k *sum(x[k,i]), i = 1:NX) 
+                    == 0)                                                    
+      
+      if (phase=="mal") {  
+          mod2P <- set_objective(mod2P, sum_expr(Vuweight[r] * sum(y[j,r]), 
+                                 r = 1:NY, j = 1:ND), "min") }                                                
+      if (phase=="ben") {  
+          mod2P <- set_objective(mod2P, sum_expr(Vuweight[r] * sum(y[j,r]), 
+                                 r = 1:NY, j = 1:ND), "max") }              
+      # Modified objective function for Phase 2 of the Malevolent model
+
+      res2P <- solve_model(mod2P, with_ROI(solver = "glpk", verbose = FALSE))
+      
+    results.efficiency[k] <- objective_value (res1P) # From Phase 1
+
+    # Get the weights - Input weights
+    tempvweight <- get_solution(res2P, Vvweight[i])
+    results.vweight[k,] <- tempvweight[,3]
+
+   # Get the weights- Output weights
+    tempuweight <- get_solution(res2P, Vuweight[i])
+    results.uweight[k,] <- tempuweight[,3]
+
+  } # End of for k loop
+
+  rescross   <- calccrosseff (x, y, results.vweight, results.uweight)  
+  
+  resultlist <- list(efficiency=results.efficiency, 
+                     vweight=results.vweight, 
+                     uweight=results.uweight,
+                     crosseval=rescross$crosseval,
+                     crosseff=rescross$crosseff)
+ 
+  return(resultlist)  
+
+} # End of function  
+
+```
+
+```{r}
+resfunc2PMal <- multiplierIO2PMal(x,y)
+
+dimnames(resfunc2PMal$efficiency) <- c(DMUnames,"CCR-IO")
+dimnames(resfunc2PMal$vweight)    <- c(DMUnames,Vnames)
+dimnames(resfunc2PMal$uweight)    <- c(DMUnames,Unames)
+
+rescross2PMal <- calccrosseff (x, y, resfunc2PMal$vweight, resfunc2PMal$uweight)
+
+```
+
+
+```{r, eval=FALSE, echo=FALSE}
+kbl (rbind(rescross2PMal$crosseval,t(rescross2PMal$crosseff)), 
+     booktabs = T, digits=5,
+     caption="Cross-Evaluation Matrix and Cross-Efficiency Scores from Our Malevolent Model") |>
+    row_spec (7, bold=TRUE) |>
+  add_header_above(c("Weights\nFrom"=1,"Peer Evaluation of:"=6)) |>
+    kable_styling(latex_options = c("HOLD_position", "scale_down"))
+```
+
+Nearly ever DMU has their cross-efficiency go down in the malevelent case, except for *B* which had a very small increase.  On the other hand, even *C* has a cross-eficiency below 1.0 because *E* uses a weighting scheme favors itself and berates *C*.  
+
+We could create a more general function to handle a variety of other cases such as parameters to switch between malevolent and benevolent in the second phase,  output-orientation, alternative returns to scale, or weight restrictions. Essentially this would just be variations of how we use `if` logic on the `RTS` parameter back in Chapter 2. 
+
+### Using another DEA Package
+
 Let's explore the impact of the secondary objective function. The \index{MultiplierDEA} `MultiplierDEA` package has a cross-efficiency function but the `Mal_Ben` is a specialized version of the cross-efficiency function that implements the secondary goal of either malevolently trying to minimize other people's scores or benevolently trying to maximize other people's scores, based on the work of Doyle and Green.
 
 This can be framed as a two-phase model in the same way as the envelopment model slack maximization model.
 
-The first phase is still the standard DEA multiplier model as discussed earlier. In the second phase, we try to either minimize or maximize the collective population's score. Note that in this case, we can define the population input (or output) either including the unit being studied by summing over all of j or all of j excluding the unit studied, k.
-
-$$\begin{split}
-\begin{aligned}
-    \text {min/max } & \frac{\sum_{r=1}^{N^Y} u_{r,k} \sum_{j=1}^{N^D} y_{r,j}} {\sum_{i=1}^{N^X} v_{i,k} \sum_{j=1}^{N^D}x_{i,j} } \\
-    \text{s.t.:  } & \theta_{j,k}=\frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,j}} {\sum_{i=1}^{N^X} v_{i,k} x_{i,j} }
-                          \leq 1 \; \forall \; j\\
-& \theta_{k,k}=\frac{\sum_{r=1}^{N^Y} u_{r,k} y_{r,k}} {\sum_{i=1}^{N^X} v_{i,k} x_{i,k} }
-= \theta^*_{k,k}\\            
-& u_{r,k}, v_{i,k}\geq 0  \; \forall \; r,i
-  \end{aligned}
-\end{split}
-(\#eq:Ch6LPCCRIO-2Phase)$$
-
-This ratio model can be linearized in the same way as the original ratio DEA model.
-
-$$\begin{split}
-\begin{aligned}
-    \text {min/max } & \sum_{r=1}^{N^Y} u_{r,k} \sum_{j=1}^{N^D} y_{r,j}\\ 
-       \text{s.t.:  } & \sum_{i=1}^{N^X} v_{i,k} \sum_{j=1}^{N^D}x_{i,j} = 1 \\
-& \sum_{r=1}^{N^Y} u_{r,k} y_{r,j} - \sum_{i=1}^{N^X} v_{i,k} x_{i,j} 
-                          \leq 0 \; \forall \; j\\
-& \sum_{r=1}^{N^Y} u_{r,k} y_{r,k}-  \theta^*_{k,k} \cdot\sum_{i=1}^{N^X} v_{i,k} x_{i,k} \leq 0
-\\            
-& u_{r,k}, v_{i,k}\geq 0  \; \forall \; r,i
-  \end{aligned}
-\end{split}
-(\#eq:Ch6LPCCRIO-2Phase)$$
-
 Let's compare these to the arbitrary cross-efficiency function which does neither. Note that this does not guarantee the existence of a unique optimal solution in terms of input and output weights, it does greatly decrease the potential.
 
+#### Examining the Six Grocery Store Example
+
 ```{r}
-resfunc    <- CrossEfficiency (x, y, rts="crs", 
+library (MultiplierDEA)
+resfunc    <- MultiplierDEA::CrossEfficiency (x, y, rts="crs", 
                                orientation="input")
-resfuncmal <- Mal_Ben (x, y, rts="crs", 
+resfuncmal <- MultiplierDEA::Mal_Ben (x, y, rts="crs", 
                        orientation="input", phase="mal")
-resfuncben <- Mal_Ben (x, y, rts="crs", 
+resfuncben <- MultiplierDEA::Mal_Ben (x, y, rts="crs", 
                        orientation="input", phase="ben")
 ```
 
@@ -503,15 +577,17 @@ rownames(resfuncben$ce_ave)<-"Benevolent"
 kbl (rbind(t(cbind(x,y)), 
            resfunc$ce_ave, resfuncmal$ce_ave, resfuncben$ce_ave),
      booktabs = T, digits=4, 
-     caption = "Cross-Efficiency Data and Results for Baker" )  |>
-     row_spec (5:7, bold=TRUE) |>
+     caption = "Cross-Efficiency Data and Results for  Different Secondary Objectives" )  |>
+     row_spec (4:6, bold=TRUE) |>
      pack_rows ("Inputs", 1, 2) |>
-     pack_rows ("Outputs", 3, 4) |>
-     pack_rows ("Cross-Efficiency Results", 5, 7) |>
+#     pack_rows ("Output", 3) |>
+#     pack_rows ("Cross-Efficiency Results", 6, 7) |>
     kable_styling(latex_options = c("HOLD_position", "scale_down"))
 ```
 
 The cross-efficiency results are very different numerically but the relative ranking is similar. In this case, nursing home A stays the top scoring unit in all three cross-efficiency models but is joined by D in the Benevolent model. Also, G is the lowest ranked in all three models.
+
+#### Revisiting Takamura and Tone's 2003 about Relocating Japan's Capital
 
 Next, let's review the implementation of multiple optima in Auro's multiplier model. To test it, we'll load data from Takamura and Tone's 2003 paper on sites for relocating the capital of Japan.
 
@@ -532,22 +608,29 @@ ceTT03mal <- Mal_Ben (XTT03, YTT03, rts="crs",
                        orientation="input", phase="mal")
 ceTT03ben <- Mal_Ben (XTT03, YTT03, rts="crs", 
                        orientation="input", phase="ben")
+
+ceTT03mal2 <- multiplierIO2Flex (XTT03, YTT03,"mal")
+ceTT03ben2 <- multiplierIO2Flex (XTT03, YTT03,"ben")
+
 ```
 
 ```{r, echo=FALSE}
 rownames(ceTT03$ce_ave)<-"Single-Phase"
 rownames(ceTT03mal$ce_ave)<-"Malevolent"
 rownames(ceTT03ben$ce_ave)<-"Benevolent"
+#rownames(ceTT03mal2$crosseff)<-"Malevolent-My Function"
+#rownames(ceTT03ben2$crosseff)<-"Benevolent-My Function"
 
 kbl (rbind(as.data.frame(t(cbind(XTT03, YTT03)),digits=1),
            as.data.frame(rbind(ceTT03$ce_ave, ceTT03mal$ce_ave, 
-                               ceTT03ben$ce_ave), digits=5)), 
-           booktabs = T, digits=4,
+                               ceTT03ben$ce_ave, 
+                               ceTT03mal2$crosseff, ceTT03ben2$crosseff), digits=5)), 
+           booktabs = T, digits=5,
         caption = "Data and Cross-Efficiency Results for Takamura and Tone, 2003") |>
      row_spec (5:7, bold=TRUE) |>
      pack_rows ("Inputs", 1, 1) |>
      pack_rows ("Outputs", 2, 4) |>
-     pack_rows ("Cross-Efficiency Results", 5, 7) |>
+#     pack_rows ("Cross-Efficiency Results", 5, 9) |>
     kable_styling(latex_options = c("HOLD_position", "scale_down"))
 ```
 
@@ -560,6 +643,8 @@ Comments about cross-efficiency functions from `DEAmultiplier` package.
 - Results from `CrossEfficiency` do not match Takamura and Tone.
 - Naming convention from results of analysis. Would be good if column names follow convention like my "helper file"-For example lambdas could use L\_ as a prefix.
 - data validation. Ex. allow "Ben", "ben" "benevolent", "Benevolent". Also, RTS could do "CRS" or "crs"
+
+#### Simple Classroom Example
 
 Let's try the Spring case
 
@@ -589,6 +674,41 @@ kbl (cbind(resrows, as.data.frame(res,digits=4)),
      pack_rows ("Results", 9, 10) |>
          kable_styling(latex_options = c("HOLD_position", "scale_down"))
 ```
+
+
+#### Revisiting Liang, Wu, Cook, and Zhu's DEA game cross-efficiency paper
+
+```{r, eval=FALSE}
+Xgame <- matrix(c(7,7,7,5,9,7,4,6,5,5,9,8,6,8,5), ncol=3, byrow=TRUE)
+
+Ygame <- matrix(c(4,4,7,7,5,7,6,2,3,6), ncol=2, byrow=TRUE)
+
+# gameresM<-MultiplierDEA::Mal_Ben (Xgame, Ygame, rts="crs", 
+#                                 orientation="input", phase="mal")
+#gameresB<-MultiplierDEA::Mal_Ben (Xgame, Ygame, rts="crs", 
+#                                 orientation="input", phase="mal")
+  
+gameresM <- multiplierIO2Flex (Xgame,Ygame,"mal")
+gameresB <- multiplierIO2Flex (Xgame,Ygame,"ben")
+
+rbind(gameresM$crosseff,gameresMB$crosseff)
+```
+
+
+```{r, echo=FALSE}
+res <- rbind (SpringLres$ceva_matrix, SpringLres$ceva_max, 
+              SpringLres$ce_ave)
+resrows <-cbind (c("A", "B", "C", "D", "E", "F", "G", "H", 
+         "Efficiency", "Cross-Efficiency"))
+kbl (cbind(resrows, as.data.frame(res,digits=4)), 
+     row.names=F, booktabs = T, digits=4, escape=F,
+        caption = "Results from Class Grading Example")    |>
+     row_spec (9:10, bold=TRUE) |>
+     pack_rows ("Cross-Evaluation Matrix", 1, 8)           |>
+     pack_rows ("Results", 9, 10) |>
+         kable_styling(latex_options = c("HOLD_position", "scale_down"))
+```
+
 
 \index{Multiple optima|)}
 
