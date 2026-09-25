@@ -353,15 +353,18 @@ We will be using options that did not exist at the time the original fighter jet
 -   `second="min"` refers to whether a secondary objective function is used. This is similar to slack maximization in the two-phase DEA model and helps resolve issues of multiple optima.
 -   `mode="dynamic"` indicates that a dynamic frontier year is used rather than a static frontier year.
 
-```{r run-tfdea, eval=FALSE}
-
+```{r, echo=TRUE}
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # TFDEA 0.9.8.3 (December 2022) generates an error
 #     Error in `dmu.status2 != 0 || dmu.status2 != NA`:
 #     !'length = 19' in coercion to 'logical(1)'
 # Set to eval=FALSE
+# Update to 0.9.8.4 using Auro's fork
+# library(devtools);devtools::install_github("aurokp2/TFDEA_V2")
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+```
 
+```{r run-tfdea, eval=TRUE}
 res2 <- TFDEA(x=fj_x, y=fj_y,        # Use the same data
               dmu_date_rel=data.frame(fighter_jet$FirstFlight),  
                                      # Get first flight in right format
@@ -376,15 +379,7 @@ The TFDEA package has an abundance of caution and gives a warning about the figh
 
 Let's examine the pieces of information that we receive for results.
 
-```{r examine-pre1960-results, eval=FALSE}
-
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# TFDEA 0.9.8.3 (December 2022) generates an error
-#     Error in `dmu.status2 != 0 || dmu.status2 != NA`:
-#     !'length = 19' in coercion to 'logical(1)'
-# Set to eval=FALSE
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+```{r examine-pre1960-results, eval=TRUE}
 res2eff <- cbind(fj_data$FirstFlight, res2$dmu_eff_rel,res2$dmu_eff_cur)
 colnames (res2eff) <- c("FirstFlight", "Eff at Release", "Eff at 1960")
 kbl (res2eff,
@@ -403,14 +398,7 @@ These results give us an annual rate of change of `res2$roc`. We can use this th
 
 \index{TFDEA|)}
 
-```{r examine-post1960-results, eval=FALSE}
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# TFDEA 0.9.8.3 (December 2022) generates an error
-#     Error in `dmu.status2 != 0 || dmu.status2 != NA`:
-#     !'length = 19' in coercion to 'logical(1)'
-# Set to eval=FALSE
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+```{r examine-post1960-results, eval=TRUE}
 res2eff <- cbind(fj_data$FirstFlight, 
                  res2$dmu_eff_for, res2$dmu_date_for)
 colnames (res2eff) <- c("FirstFlight", 
